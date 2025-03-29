@@ -1,22 +1,41 @@
-import "./App.css";
-import workImage from "./assets/work.jpg"; // Import de l'image
+import React from 'react';
+import { Route, BrowserRouter as Router, Routes } from 'react-router-dom';
+import Layout from './components/Layout';
+import Dashboard from './pages/Dashboard';
+import Home from './pages/Home';
+import Notifications from './pages/Notifications';
+import Profile from './pages/Profile';
+import SignIn from './pages/SignIn';
+import SignUp from './pages/SignUp';
+import Subjects from './pages/Subjects';
+
+// Higher-order component to wrap pages with Layout
+const withLayout = (Component) => {
+  return (props) => (
+    <Layout>
+      <Component {...props} />
+    </Layout>
+  );
+};
 
 function App() {
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-200">
-      <div className="bg-white shadow-lg rounded-2xl p-6 text-center max-w-sm">
-        <h1 className="text-2xl font-extrabold text-gray-800">Tayy</h1>
-        <h2 className="text-gray-600 mt-2">Haya t7arrek e5dem ayy!!</h2>
-        <img
-          src={workImage}
-          alt="Work"
-          className="w-40 h-40 mx-auto mt-4 rounded-lg object-cover"
-        />
-        <h1 className="text-4xl text-blue-600 underline hover:cursor-pointer mt-4">
-          Hello world with Tailwind CSS!
-        </h1>
-      </div>
-    </div>
+    <Router>
+      <Routes>
+        {/* Pages with Layout (header w navbar) */}
+        {/* NB : essta3eml withLayout() ken hajtek bech tzid menu w header lel page te3k kima l'exemple louta */}
+        {/* <Route path="/route" element={React.createElement(withLayout(Element_li_t7eb_tzidou_header_w_menu))} /> */}
+        <Route path="/" element={React.createElement(withLayout(Home))} />
+        <Route path="/dashboard" element={React.createElement(withLayout(Dashboard))} />
+        <Route path="/profile" element={React.createElement(withLayout(Profile))} />
+        <Route path="/subjects" element={React.createElement(withLayout(Subjects))} />
+        <Route path="/notifications" element={React.createElement(withLayout(Notifications))} />
+
+        {/* Pages without Layout */}
+        <Route path="/signin" element={<SignIn />} />
+        <Route path="/signup" element={<SignUp />} />
+      </Routes>
+    </Router>
   );
 }
 
