@@ -31,6 +31,7 @@ const Header = ({ isSidebarOpen, setIsSidebarOpen }) => {
             case '/notifications': return ' Notifications';
             case '/signin': return 'Sign In';
             case '/signup': return 'Sign Up';
+            case '/pfa': return 'PFA';
             default: return ' Unknown';
         }
     };
