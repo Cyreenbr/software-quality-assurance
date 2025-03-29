@@ -75,22 +75,23 @@ const Pfa = () => {
 
   return (
     <div className="p-6 bg-gray-100 min-h-screen relative">
-      <h1 className="text-2xl font-bold mb-4">Gestion des PFA</h1>
+      <h1 className="text-2xl font-bold mb-4">PFA Management </h1>
 
       {/* Modal de création avec animation */}
       {isDialogOpen && (
         <div className="pointer-events-auto fixed inset-0 z-[999] grid h-screen w-screen place-items-center bg-transparent backdrop-blur-sm transition-opacity duration-500 opacity-100 ">
           <div className="relative mx-auto w-full max-w-[24rem] rounded-lg overflow-hidden shadow-sm">
             <div className="relative flex flex-col bg-white">
-              <div className="relative m-2.5 items-center flex justify-center text-white h-24 rounded-md bg-indigo-600">
-                <h3 className="text-2xl">
-                  {isEditing ? "Modifier un PFA" : "Créer un PFA"}
+              <div className="relative m-2 items-center flex justify-center text-white h-12 rounded-md bg-indigo-600 px-4">
+                <h3 className="text-lg font-semibold">
+                  {isEditing ? "Update PFA" : "Create PFA"}
                 </h3>
               </div>
+
               <div className="flex flex-col gap-4 p-6">
                 <div className="w-full max-w-sm min-w-[200px]">
                   <label className="block mb-2 text-sm text-slate-600">
-                    Titre du projet
+                    Title of The Project
                   </label>
                   <input
                     type="text"
@@ -98,7 +99,7 @@ const Pfa = () => {
                     value={isEditing ? editedData.title : newPfa.title}
                     onChange={isEditing ? handleChange : handleCreateChange}
                     className="w-full bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded-md px-3 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-300 shadow-sm focus:shadow"
-                    placeholder="Titre du projet"
+                    placeholder="Title of the project"
                     required
                   />
                 </div>
@@ -114,7 +115,7 @@ const Pfa = () => {
                     }
                     onChange={isEditing ? handleChange : handleCreateChange}
                     className="w-full bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded-md px-3 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-300 shadow-sm focus:shadow"
-                    placeholder="Description du projet"
+                    placeholder="Description of the project"
                     required
                   />
                 </div>
@@ -142,14 +143,14 @@ const Pfa = () => {
                   type="button"
                   onClick={isEditing ? handleSubmitEdit : handleSubmitCreate}
                 >
-                  {isEditing ? "Sauvegarder" : "Créer"}
+                  {isEditing ? "Save" : "Create"}
                 </button>
                 <button
                   className="rounded-md bg-gray-400 py-2 px-4 text-sm text-white"
                   type="button"
                   onClick={() => setIsDialogOpen(false)}
                 >
-                  Annuler
+                  Cancel
                 </button>
               </div>
             </div>
@@ -159,12 +160,12 @@ const Pfa = () => {
 
       {/* Tableau des PFA */}
       <div className="bg-white p-6 rounded-lg shadow-lg mb-6">
-        <h2 className="text-xl font-semibold mb-4">Liste des PFA</h2>
+        <h2 className="text-xl font-semibold mb-4">List of PFAs</h2>
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
               <tr className="bg-gray-200 text-gray-600 uppercase text-sm leading-normal">
-                <th className="py-3 px-6 text-left">Titre</th>
+                <th className="py-3 px-6 text-left">Title</th>
                 <th className="py-3 px-6 text-left">Description</th>
                 <th className="py-3 px-6 text-left">Technologies</th>
                 <th className="py-3 px-6 text-center">Actions</th>
@@ -211,7 +212,7 @@ const Pfa = () => {
         </button>
         {/* Tooltip affiché lorsque vous survolez sous le bouton */}
         {/* <div className="absolute bottom-10 right-6 text-sm text-white bg-indigo-600 py-1 px-2 rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-          Créer un PFA
+          Create PFA
         </div> */}
       </div>
     </div>
