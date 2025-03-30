@@ -1,5 +1,13 @@
 # React + Vite
 
+## ⚠️ **NB:**  
+### 📌 **Fi Fichier `App.jsx`**  
+Utilise `withLayout()` si tu veux ajouter le **menu et le header** à ta page, comme dans l'exemple ci-dessous :
+
+```jsx
+<Route path="/route" element={React.createElement(withLayout(Element_li_t7eb_tzidou_header_w_menu))} />
+```
+
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
 Currently, two official plugins are available:
