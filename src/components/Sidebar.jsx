@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { FaBook } from 'react-icons/fa';
-import { MdAccountCircle, MdDashboard, MdHome, MdNotifications } from 'react-icons/md';
+import { MdAccountCircle, MdDashboard, MdHome, MdNotifications, MdViewAgenda } from 'react-icons/md';
 import { Link, useLocation } from 'react-router-dom';
 
 const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
@@ -39,6 +39,8 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
         { label: 'Profile', icon: <MdAccountCircle />, path: '/profile', tooltip: 'Profile' },
         { label: 'Subjects', icon: <FaBook />, path: '/subjects', tooltip: 'Subjects' },
         { label: 'Notifications', icon: <MdNotifications />, path: '/notifications', tooltip: 'Notifications' },
+        { label: 'Periods', icon: <MdViewAgenda />, path: '/admin/periods', tooltip: 'Periods' },
+        { label: 'Depot', icon: <MdViewAgenda />, path: '/depot', tooltip: 'Depot' },
     ];
 
     return (

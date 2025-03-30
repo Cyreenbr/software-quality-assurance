@@ -1,3 +1,5 @@
+import axios from "axios";
+
 const API_BASE_URL = "http://localhost:3000"; 
 
 const periodService = {
@@ -35,6 +37,20 @@ const periodService = {
       return null;
     }
   },
+
+  updatePeriod: async (id, updatedData) => {
+    try {
+      const response = await axios.patch(`${API_BASE_URL}/period/open/${id}`, updatedData, {
+        headers: { "Content-Type": "application/json" }
+      });
+      
+      console.log("Période mise à jour :", response.data);
+      return response.data;
+    } catch (error) {
+      console.error("Erreur lors de la modification de la période :", error);
+      return null;
+    }
+  }
 };
 
 export default periodService;
