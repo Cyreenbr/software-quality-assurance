@@ -33,21 +33,6 @@ const Header = ({ isSidebarOpen, setIsSidebarOpen }) => {
         const menuItem = menuConfig.find(item => item.path === location.pathname);
         return menuItem ? menuItem.label : 'Unknown';
     };
-
-    // const getBreadcrumb = () => {
-    //     switch (location.pathname) {
-    //         case '/': return 'Home';
-    //         case '/dashboard': return ' Dashboard';
-    //         case '/profile': return ' Profile';
-    //         case '/subjects': return ' Subjects';
-    //         case '/competences': return ' Competences';
-    //         case '/notifications': return ' Notifications';
-    //         case '/signin': return 'Sign In';
-    //         case '/signup': return 'Sign Up';
-    //         default: return ' Unknown';
-    //     }
-    // };
-
     // Method to handle search query
     const handleSearch = (query) => {
         setSearchQuery(query);

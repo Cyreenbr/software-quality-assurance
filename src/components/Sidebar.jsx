@@ -6,8 +6,8 @@ import Tooltip from './skillsComponents/tooltip';
 
 const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
     const role = useSelector((state) => state.auth.role);
+    const menuItems = getMenuItems(role);
     const location = useLocation();
-
     // State for collapsed sidebar
     const [isCollapsed, setIsCollapsed] = useState(() => {
         return JSON.parse(localStorage.getItem("isSidebarCollapsed")) || false;
@@ -44,20 +44,6 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
     const handleLinkClick = () => {
         if (isMobileOrTablet) setIsSidebarOpen(false);
     };
-
-    const menuItems = getMenuItems(role);
-    // const menuItems = (role) => [
-    //     { label: 'Home', icon: <MdHome />, path: '/', tooltip: 'Home' },
-    //     ...(role ? [
-    //         { label: 'Dashboard', icon: <MdDashboard />, path: '/dashboard', tooltip: 'Dashboard' },
-    //         { label: 'Profile', icon: <MdAccountCircle />, path: '/profile', tooltip: 'Profile' },
-    //         ...(role === RoleEnum.ADMIN || role === RoleEnum.TEACHER ? [
-    //             { label: 'Subjects', icon: <FaBook />, path: '/subjects', tooltip: 'Subjects' },
-    //             { label: 'Competences', icon: <FaLightbulb />, path: '/competences', tooltip: 'Competences' }
-    //         ] : []),
-    //         { label: 'Notifications', icon: <MdNotifications />, path: '/notifications', tooltip: 'Notifications' },
-    //     ] : [])
-    // ];
 
 
     return (

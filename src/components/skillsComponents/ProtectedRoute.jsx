@@ -2,7 +2,7 @@ import React from 'react';
 import { useSelector } from 'react-redux';
 import { Navigate } from 'react-router-dom';
 
-function ProtectedRoute({ element, roles, ...rest }) {
+function ProtectedRoute({ element, roles }) {
     const role = useSelector((state) => state.auth.role);
 
     // If the user is not authorized, redirect to the error page
