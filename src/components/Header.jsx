@@ -12,10 +12,10 @@ import {
 import { useDispatch, useSelector } from 'react-redux'; // Import useDispatch and useSelector
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import isammLogo from '../assets/logo_isamm.png';
-// import { logout } from '../redux/actions/authActions'; // Import the logout action
 import { logoutUser } from '../redux/authSlice';
-import Popup from './Popup';
-import SearchBar from './SearchBar';
+import { menuConfig } from '../services/menuHandler';
+import Popup from './skillsComponents/Popup';
+import SearchBar from './skillsComponents/SearchBar';
 
 const Header = ({ isSidebarOpen, setIsSidebarOpen }) => {
     const location = useLocation();
@@ -29,32 +29,24 @@ const Header = ({ isSidebarOpen, setIsSidebarOpen }) => {
 
     const toggleSettingsPopup = () => setIsSettingsPopupOpen(!isSettingsPopupOpen);
     const toggleNotificationsPopup = () => setIsNotificationsPopupOpen(!isNotificationsPopupOpen);
-
     const getBreadcrumb = () => {
-        switch (location.pathname) {
-            case '/': return 'Home';
-            case '/dashboard': return ' Dashboard';
-            case '/profile': return ' Profile';
-            case '/subjects': return ' Subjects';
-            case '/notifications': return ' Notifications';
-            case '/signin': return 'Sign In';
-            case '/signup': return 'Sign Up';
-            default: return ' Unknown';
-        }
+        const menuItem = menuConfig.find(item => item.path === location.pathname);
+        return menuItem ? menuItem.label : 'Unknown';
     };
-
     // Method to handle search query
     const handleSearch = (query) => {
         setSearchQuery(query);
-        console.log('Search query:', query); // Integrate search logic or API calls here
+        console.log('Search query:', query);
     };
 
-    // Handle logout
     const handleLogout = () => {
-        dispatch(logoutUser()); // Dispatch the logout action
-        navigate('/signin'); // Redirect to the Sign In page
-    };
+        dispatch(logoutUser());
 
+        // Force the redirect after a small delay to make sure logout state is updated
+        setTimeout(() => {
+            navigate('/');
+        }, 100);
+    };
     return (
         <div className="fixed top-0 left-0 w-full bg-white shadow-lg p-4 flex justify-between items-center z-50 rounded-b-xl transition-all">
             {/* Left - ISAMM Logo & Sidebar Toggle & Breadcrumb */}
