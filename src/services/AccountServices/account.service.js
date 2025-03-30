@@ -9,3 +9,10 @@ export const registerUser = async (userData) => {
     return response.data;
 
 };
+export const login = async (credentials) => {
+    const result = await Axios.post(
+      "http://localhost:3000/api/users/login",
+      credentials
+    )
+    return result.data.token
+  }

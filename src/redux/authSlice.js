@@ -4,7 +4,7 @@ import api from "../services/axiosInstance";
 // Async action for login
 export const loginUser = createAsyncThunk("auth/loginUser", async ({ email, password }, { rejectWithValue }) => {
     try {
-        const response = await api.post("/users/login", { email, password });
+        const response = await api.post("http://localhost:3000/api/users/login", { email, password });
 
         // Store token in localStorage
         localStorage.setItem("token", response.data.token);
