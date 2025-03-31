@@ -1,11 +1,18 @@
 import axios from "axios";
 
+
+
+const baseURL = `http://localhost:${import.meta.env.VITE_PORT_BACKEND || 3000}/api`; // Base URL for all BACKEND API calls
+// console.log(baseURL);
+// console.log(import.meta.env.VITE_PORT_BACKEND);
+
 const axiosAPI = axios.create({
-    baseURL: "http://localhost:8080/api", // Base URL for all API calls
+    baseURL: baseURL,
     headers: {
         "Content-Type": "application/json",
     },
 });
+
 
 // Add Authorization header if token exists
 axiosAPI.interceptors.request.use((config) => {
