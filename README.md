@@ -1,12 +1,27 @@
 # React + Vite
 
 ## ⚠️ **NB:**  
-### 📌 **Fi Fichier `App.jsx`**  
-Utilise `withLayout()` si tu veux ajouter le **menu et le header** à ta page, comme dans l'exemple ci-dessous :
+### 📌 **Fi Fichier `menuHandler.js`** fi **dossier Services**  
+Utilise `menuConfig` si tu veux ajouter le **menu et le header** à ta page, comme dans l'exemple ci-dessous :
 
-```jsx
-<Route path="/route" element={React.createElement(withLayout(Element_li_t7eb_tzidou_header_w_menu))} />
+```js
+export const menuConfig = [
+    ....,
+    //zid route kima hakka 
+    {
+        label: 'Home',
+        icon: MdHome,
+        path: '/',
+        tooltip: 'Home',
+        component: Home,
+        eligibleRoles: [RoleEnum.ADMIN, RoleEnum.TEACHER, RoleEnum.STUDENT],
+        active: true
+    },
+    //5alli l begui
+]
 ```
+
+## C.C
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 

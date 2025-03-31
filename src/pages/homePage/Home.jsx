@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import workImage from "../assets/work.jpg"; // Import the image
+import workImage from "../../assets/work.jpg"; // Import the image
 
 function Home() {
     // State to handle the message
