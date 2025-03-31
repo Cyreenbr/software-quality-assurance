@@ -3,7 +3,7 @@ import { FaExclamationTriangle } from 'react-icons/fa';
 
 function ErrorPage({ title = '', message = '' }) {
     return (
-        <div className="flex flex-col items-center justify-center min-h-screen bg-red-50 text-red-700 p-6">
+        <div className="flex flex-col items-center justify-center mt-auto bg-red-50 text-red-700 p-6">
 
             <FaExclamationTriangle
                 size={100}

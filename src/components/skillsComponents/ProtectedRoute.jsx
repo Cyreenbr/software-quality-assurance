@@ -1,17 +1,19 @@
-import React from 'react';
-import { useSelector } from 'react-redux';
-import { Navigate } from 'react-router-dom';
+import React from "react";
+import { useSelector } from "react-redux";
+import { Navigate } from "react-router-dom";
 
-function ProtectedRoute({ element, roles }) {
+function ProtectedRoute({ element, roles = [] }) {
     const role = useSelector((state) => state.auth.role);
 
-    // If the user is not authorized, redirect to the error page
-    if (!roles.includes(role)) {
+    if (!role) {
+        return <Navigate to="/signin" replace />;
+    }
+
+    if (roles.length > 0 && !roles.includes(role)) {
         return <Navigate to="/error" replace />;
     }
 
-    // If authorized, render the component passed as a prop
-    return element; // Directly render the element as a JSX element
+    return element;
 }
 
 export default ProtectedRoute;
