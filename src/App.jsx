@@ -1,9 +1,7 @@
 import React from 'react';
 import { Route, BrowserRouter as Router, Routes } from 'react-router-dom';
 import Layout from './components/Layout';
-import AdminPeriods from './pages/AdminPeriods';
 import Dashboard from './pages/Dashboard';
-import DepotSujet from './pages/DepotSujetStage';
 import Home from './pages/Home';
 import Notifications from './pages/Notifications';
 import Profile from './pages/Profile';
@@ -32,8 +30,7 @@ function App() {
         <Route path="/profile" element={React.createElement(withLayout(Profile))} />
         <Route path="/subjects" element={React.createElement(withLayout(Subjects))} />
         <Route path="/notifications" element={React.createElement(withLayout(Notifications))} />
-        <Route path="/admin/periods" element={React.createElement(withLayout(AdminPeriods))} />
-        <Route path="/depot" element={React.createElement(withLayout(DepotSujet))} />
+
         {/* Pages without Layout */}
         <Route path="/signin" element={<SignIn />} />
         <Route path="/signup" element={<SignUp />} />
