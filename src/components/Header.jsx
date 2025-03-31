@@ -13,9 +13,9 @@ import { useDispatch, useSelector } from 'react-redux'; // Import useDispatch an
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import isammLogo from '../assets/logo_isamm.png';
 import { logoutUser } from '../redux/authSlice';
-import { menuConfig } from '../services/menuHandler';
+import { menuConfig } from '../services/configs/menuHandler';
 import Popup from './skillsComponents/Popup';
-import SearchBar from './skillsComponents/SearchBar';
+// import SearchBar from './skillsComponents/SearchBar';
 
 const Header = ({ isSidebarOpen, setIsSidebarOpen }) => {
     const location = useLocation();
@@ -23,7 +23,7 @@ const Header = ({ isSidebarOpen, setIsSidebarOpen }) => {
     const dispatch = useDispatch(); // Hook to dispatch actions
     const [isSettingsPopupOpen, setIsSettingsPopupOpen] = useState(false);
     const [isNotificationsPopupOpen, setIsNotificationsPopupOpen] = useState(false);
-    const [searchQuery, setSearchQuery] = useState('');
+    // const [searchQuery, setSearchQuery] = useState('');
 
     const token = useSelector((state) => state.auth.token); // Access the token from Redux store
 
@@ -34,10 +34,10 @@ const Header = ({ isSidebarOpen, setIsSidebarOpen }) => {
         return menuItem ? menuItem.label : 'Unknown';
     };
     // Method to handle search query
-    const handleSearch = (query) => {
-        setSearchQuery(query);
-        console.log('Search query:', query);
-    };
+    // const handleSearch = (query) => {
+    //     setSearchQuery(query);
+    //     console.log('Search query:', query);
+    // };
 
     const handleLogout = () => {
         dispatch(logoutUser());
@@ -86,7 +86,7 @@ const Header = ({ isSidebarOpen, setIsSidebarOpen }) => {
             {/* Right - Search & Actions */}
             <div className="flex items-center space-x-4">
                 {/* Search Bar */}
-                <SearchBar handleSearch={handleSearch} />
+                {/* <SearchBar handleSearch={handleSearch} /> */}
 
                 {/* Actions for Larger Screens */}
                 <div className="hidden sm:flex items-center space-x-4">

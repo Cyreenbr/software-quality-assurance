@@ -1,12 +1,12 @@
 
 import { FaBook } from "react-icons/fa";
 import { MdAccountCircle, MdDashboard, MdHome, MdNotifications } from "react-icons/md";
-import Dashboard from '../pages/Dashboard';
-import Home from '../pages/Home';
-import Notifications from '../pages/Notifications';
-import Profile from '../pages/Profile';
-import Subjects from '../pages/Subjects';
-import { RoleEnum } from "../utils/userRoles";
+import Dashboard from '../../pages/dashboardPage/Dashboard';
+import Home from '../../pages/homePage/Home';
+import Notifications from '../../pages/Notifications';
+import Profile from '../../pages/profilePage/Profile';
+import Subjects from '../../pages/subjectsPage/Subjects';
+import { RoleEnum } from "../../utils/userRoles";
 
 export const menuConfig = [
     {
@@ -16,7 +16,9 @@ export const menuConfig = [
         tooltip: 'Home',
         component: Home,
         eligibleRoles: [],
-        active: true
+        active: true,
+        hideSideBar: false,
+        hideHeader: false,
     },
     {
         label: 'Dashboard',
@@ -25,7 +27,9 @@ export const menuConfig = [
         tooltip: 'Dashboard',
         component: Dashboard,
         eligibleRoles: [RoleEnum.ADMIN, RoleEnum.TEACHER, RoleEnum.STUDENT],
-        active: true
+        active: true,
+        hideSideBar: false,
+        hideHeader: false,
     },
     {
         label: 'Profile',
@@ -34,7 +38,9 @@ export const menuConfig = [
         tooltip: 'Profile',
         component: Profile,
         eligibleRoles: [RoleEnum.ADMIN, RoleEnum.TEACHER, RoleEnum.STUDENT],
-        active: true
+        active: true,
+        hideSideBar: false,
+        hideHeader: false,
     },
     {
         label: 'Subjects',
@@ -43,17 +49,11 @@ export const menuConfig = [
         tooltip: 'Subjects',
         component: Subjects,
         eligibleRoles: [RoleEnum.ADMIN, RoleEnum.TEACHER],
-        active: true
+        active: true,
+        hideSideBar: false,
+        hideHeader: false,
     },
-    // {
-    //     label: 'Competences',
-    //     icon: FaLightbulb,
-    //     path: '/competences',
-    //     tooltip: 'Competences',
-    //     component: Competences,
-    //     eligibleRoles: [RoleEnum.ADMIN, RoleEnum.TEACHER],
-    //     active: true
-    // },
+
     {
         label: 'Notifications',
         icon: MdNotifications,
@@ -61,16 +61,32 @@ export const menuConfig = [
         tooltip: 'Notifications',
         component: Notifications,
         eligibleRoles: [RoleEnum.ADMIN, RoleEnum.TEACHER, RoleEnum.STUDENT],
-        active: true
-    }, {
-        label: 'Test',
-        icon: MdNotifications,
-        path: '/test',
-        tooltip: 'Tests',
-        component: Notifications,
-        eligibleRoles: [RoleEnum.ADMIN, RoleEnum.TEACHER, RoleEnum.STUDENT],
-        active: true
+        active: true,
+        hideSideBar: false,
+        hideHeader: false,
     },
+    // {
+    //     label: 'Signin',
+    //     icon: BiLogInCircle,
+    //     path: '/signin',
+    //     tooltip: 'Signin',
+    //     component: SignIn,
+    //     eligibleRoles: [!RoleEnum.ADMIN, !RoleEnum.TEACHER, !RoleEnum.STUDENT],
+    //     active: true,
+    //     hideSideBar: false,
+    //     hideHeader: false,
+    // },
+    // {
+    //     label: 'Register',
+    //     icon: FaRegUser,
+    //     path: '/signup',
+    //     tooltip: 'Register',
+    //     component: SignUp,
+    //     eligibleRoles: [!RoleEnum.ADMIN, !RoleEnum.TEACHER, !RoleEnum.STUDENT],
+    //     active: true,
+    //     hideSideBar: false,
+    //     hideHeader: false,
+    // },
 ];
 
 

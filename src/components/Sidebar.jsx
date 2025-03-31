@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { Link, useLocation } from 'react-router-dom';
-import { getMenuItems } from '../services/menuHandler';
+import { getMenuItems } from '../services/configs/menuHandler';
 import Tooltip from './skillsComponents/tooltip';
 
 const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
