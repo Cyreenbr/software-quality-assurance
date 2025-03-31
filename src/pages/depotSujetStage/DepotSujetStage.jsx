@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { createInternship } from "../services/DepotStageService";
+import { createInternship } from "../../services/DepotStageService";
 
 const DepotSujet = () => {
   const [formData, setFormData] = useState({
@@ -49,61 +49,54 @@ const DepotSujet = () => {
   };
 
   return (
-    <div className="max-w-2xl mx-auto p-8 bg-white shadow-lg rounded-lg mt-10">
-      <h2 className="text-2xl font-semibold text-gray-800 mb-6 text-center">
-        Déposer un Stage
-      </h2>
-      
+    <div className="max-w-4xl mx-auto py-10 px-6 bg-gradient-to-r from-blue-50 to-white shadow-xl rounded-xl">
+      <h2 className="text-3xl font-bold text-gray-900 mb-6 text-center">Déposer un Stage</h2>
       {message && <p className="text-green-600 text-center">{message}</p>}
       {error && <p className="text-red-600 text-center">{error}</p>}
-
-      <form onSubmit={handleSubmit} className="space-y-5">
+      <form onSubmit={handleSubmit} className="space-y-6">
         <div>
-          <label className="block text-gray-700 font-medium">Titre du stage</label>
+          <label className="block text-gray-800 font-semibold">Titre du stage</label>
           <input
             type="text"
             name="titre"
             placeholder="Titre du stage"
             value={formData.titre}
             onChange={handleChange}
-            className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400 transition"
+            className="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 transition hover:shadow-md"
             required
           />
         </div>
-
         <div>
-          <label className="block text-gray-700 font-medium">Durée (en mois)</label>
+          <label className="block text-gray-800 font-semibold">Durée (en mois)</label>
           <input
             type="text"
             name="duree"
             placeholder="Durée du stage"
             value={formData.duree}
             onChange={handleChange}
-            className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400 transition"
+            className="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 transition hover:shadow-md"
             required
           />
         </div>
-
         <div>
-          <label className="block text-gray-700 font-medium">Entreprise</label>
+          <label className="block text-gray-800 font-semibold">Entreprise</label>
           <input
             type="text"
             name="entreprise"
             placeholder="Nom de l'entreprise"
             value={formData.entreprise}
             onChange={handleChange}
-            className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400 transition"
+            className="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 transition hover:shadow-md"
             required
           />
         </div>
-
         <div>
-          <label className="block text-gray-700 font-medium">Type de Stage</label>
+          <label className="block text-gray-800 font-semibold">Type de Stage</label>
           <select
             name="type"
             value={formData.type}
             onChange={handleChange}
-            className="w-full p-3 border rounded-lg bg-white focus:ring-2 focus:ring-blue-400 transition"
+            className="w-full p-3 border border-gray-300 rounded-lg shadow-sm bg-white focus:ring-2 focus:ring-blue-500 transition hover:shadow-md"
             required
           >
             <option value="">Sélectionner le type</option>
@@ -111,10 +104,9 @@ const DepotSujet = () => {
             <option value="2year">Stage 2ème année</option>
           </select>
         </div>
-
         <div>
-          <label className="block text-gray-700 font-medium">Documents à joindre</label>
-          <div className="border-dashed border-2 border-gray-400 p-4 rounded-lg flex items-center justify-center">
+          <label className="block text-gray-800 font-semibold">Documents à joindre</label>
+          <div className="border-dashed border-2 border-gray-400 p-4 rounded-lg flex items-center justify-center bg-gray-50 hover:bg-gray-100 transition">
             <label className="cursor-pointer flex items-center space-x-2 text-blue-600 font-medium">
               <span>Choisir des fichiers</span>
               <input
@@ -131,10 +123,9 @@ const DepotSujet = () => {
             <p className="text-gray-600 mt-2">{formData.documents.length} fichier(s) sélectionné(s)</p>
           )}
         </div>
-
         <button
           type="submit"
-          className="w-full bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 transition flex items-center justify-center"
+          className="w-full bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 transition shadow-md hover:shadow-lg flex items-center justify-center"
           disabled={loading}
         >
           {loading ? (
