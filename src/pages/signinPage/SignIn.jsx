@@ -16,7 +16,7 @@ const SignIn = () => {
     // Handle form submission
     const handleSubmit = async (e) => {
         e.preventDefault();
-        const result = dispatch(loginUser(formData));
+        const result = await dispatch(loginUser(formData));
         if (result.meta.requestStatus === "fulfilled") {
             navigate("/"); // Redirect to home on success
         }
