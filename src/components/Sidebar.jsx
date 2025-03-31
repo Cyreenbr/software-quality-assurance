@@ -12,7 +12,6 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
     const [isCollapsed, setIsCollapsed] = useState(() => {
         return JSON.parse(localStorage.getItem("isSidebarCollapsed")) || false;
     });
-
     // State for mobile/tablet and desktop detection
     const [isMobileOrTablet, setIsMobileOrTablet] = useState(window.innerWidth < 1024);
 
@@ -20,10 +19,8 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
         const handleResize = () => {
             setIsMobileOrTablet(window.innerWidth < 1024);
         };
-
         // Listen to resize events to adjust the screen size on window change
         window.addEventListener('resize', handleResize);
-
         // Cleanup the event listener on component unmount
         return () => window.removeEventListener('resize', handleResize);
     }, []);
@@ -44,7 +41,6 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
     const handleLinkClick = () => {
         if (isMobileOrTablet) setIsSidebarOpen(false);
     };
-
 
     return (
         <>

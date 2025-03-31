@@ -21,8 +21,6 @@ function Home() {
                 <div className="bg-white shadow-xl rounded-2xl p-6 text-center max-w-sm w-full">
                     <h1 className="text-2xl font-extrabold text-gray-800">Tayy</h1>
                     <h2 className="text-3xl text-gray-600 mt-2">Haya t7arrek e5dem ayy!!</h2>
-
-
                     <img
                         src={workImage}
                         alt="Work"
