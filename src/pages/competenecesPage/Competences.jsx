@@ -29,16 +29,13 @@ const Competences = () => {
     const [isAddPopupOpen, setIsAddPopupOpen] = useState(false);
     const [isEditPopupOpen, setIsEditPopupOpen] = useState(false);
     const [families, setFamilies] = useState([]);
-
     const [titleSortOrder, setTitleSortOrder] = useState("asc");
     const [familySortOrder, setFamilySortOrder] = useState("asc");
-
     const [currentPage, setCurrentPage] = useState(1);
     const [itemsOnPage, setItemsOnPage] = useState(8);
     const [itemsPerPage] = useState(8);
     const [totalItems, setTotalItems] = useState(0);
     const [totalPages, setTotalPages] = useState(1);
-
     const [hasSearched, setHasSearched] = useState(false);
 
     const fetchCompetences = useCallback(async (page = 1, searchTerm = '', sortBy = '_id', order = 'desc') => {
@@ -163,7 +160,7 @@ const Competences = () => {
             toast.success("Competence deleted successfully!");
         } catch (err) {
             setError(err.response?.data?.message || "Failed to delete skill.");
-            toast.error("Failed to delete skill : " + + (err.response?.data?.error || err.response?.data?.message));
+            toast.error("Failed to delete skill : " + (err.response?.data?.error || err.response?.data?.message));
         }
     }, [itemsOnPage, fetchCompetences, currentPage, searchQuery]);
 
@@ -185,40 +182,42 @@ const Competences = () => {
     };
 
     return (
-        <div className="container mx-auto p-6 bg-white shadow-l rounded-xl">
+        <div className="container mx-auto p-6 bg-white shadow-l rounded-xl min-h-screen">
             <h1 className="text-4xl font-bold text-center mb-8 text-indigo-700">List of Competences</h1>
 
-            {/* Search bar, Add Competence button, and Sorting buttons inline */}
-            <div className="flex justify-around items-center mb-8 space-x-6 ">
+            {/* Search bar, Add Competence button, and Sorting buttons */}
+            <div className="flex flex-col md:flex-row md:justify-between items-center mb-8 space-y-4 md:space-y-0 md:space-x-6">
+
+                {/* Search Bar */}
+                <SearchBar handleSearch={handleSearch} className="w-full md:max-w-xs" />
+
                 {/* Add Competence Button */}
-                <Tooltip text="Add Competenence" position="top" bgColor="bg-black"  >
+                <Tooltip text="Add Competence" position="top" bgColor="bg-black">
                     <button
                         onClick={() => setIsAddPopupOpen(true)}
-                        className="bg-teal-600  text-white px-4 py-2 rounded-md hover:bg-teal-700 transition duration-300 focus:outline-none focus:ring-2 focus:ring-teal-500 flex items-center"
+                        className="bg-teal-600 text-white px-4 py-2 rounded-md hover:bg-teal-700 transition duration-300 focus:outline-none focus:ring-2 focus:ring-teal-500 flex items-center w-full md:w-auto justify-center"
                     >
                         <FaPlusCircle className="mr-2" />
-                        <span className="font-semibold">Add </span>
+                        <span className="font-semibold">Add</span>
                     </button>
                 </Tooltip>
-                {/* Search Bar */}
-                <SearchBar handleSearch={handleSearch} className="flex-grow max-w-xs" />
 
                 {/* Sorting Buttons */}
-                <div className="flex space-x-4">
-                    <Tooltip text={`${titleSortOrder.toUpperCase()} : Sort by`} position="top" bgColor="bg-black"  >
+                <div className="flex space-x-4 w-full md:w-auto justify-center">
+                    <Tooltip text={`${titleSortOrder.toUpperCase()} : Sort by Title`} position="top" bgColor="bg-black">
                         <button
                             onClick={handleSortByTitle}
-                            className="flex items-center bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 transition duration-300 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                            className="flex items-center bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 transition duration-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 w-full md:w-auto justify-center"
                             title="Sort by Title"
                         >
                             {titleSortOrder === "asc" ? <FaSortAlphaUp /> : <FaSortAlphaDown />}
                             <span className="ml-2">Title</span>
                         </button>
                     </Tooltip>
-                    <Tooltip text={`${familySortOrder.toUpperCase()} : Sort by`} position="top" bgColor="bg-black"  >
+                    <Tooltip text={`${familySortOrder.toUpperCase()} : Sort by Family`} position="top" bgColor="bg-black">
                         <button
                             onClick={handleSortByFamily}
-                            className="flex items-center bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 transition duration-300 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                            className="flex items-center bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 transition duration-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 w-full md:w-auto justify-center"
                             title="Sort by Family"
                         >
                             {familySortOrder === "asc" ? <FaSortAlphaUp /> : <FaSortAlphaDown />}

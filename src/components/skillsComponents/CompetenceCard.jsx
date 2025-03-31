@@ -232,8 +232,15 @@ const SkillCard = ({ skill, setEditSkill, setIsEditPopupOpen, handleDeleteSkill,
                             }} // Handle Edit action
                             className="bg-yellow-500 text-white px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-yellow-600 transition"
                         >
-                            {!isMobile ? 'Edit' : ''}<FaEdit className="text-white" />
+                            {/* {!isMobile ? 'Edit' : ''}<FaEdit className="text-white" /> */}
                             {/* {!isMobile ? <FaEdit className="text-white" /> : 'Edit'} */}
+                            {!isMobile ? <>
+                                Edit
+                                <FaEdit className="text-white" />
+                            </> : ''}
+                            {isMobile ? <Tooltip text={"Edit"} position='top'>
+                                <FaEdit className="text-white" />
+                            </Tooltip> : ''}
                         </button>
                         <button
                             onClick={() => {
@@ -243,7 +250,13 @@ const SkillCard = ({ skill, setEditSkill, setIsEditPopupOpen, handleDeleteSkill,
                             }} // Handle Delete action
                             className="bg-red-500 text-white px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-red-600 transition"
                         >
-                            {!isMobile ? 'Delete' : ''}<FaTrashAlt className="text-white" />
+                            {!isMobile ? <>
+                                Delete
+                                <FaTrashAlt className="text-white" />
+                            </> : ''}
+                            {isMobile ? <Tooltip text={"Delete"} position='top'>
+                                <FaTrashAlt className="text-white" />
+                            </Tooltip> : ''}
                         </button>
                     </div>
 
