@@ -1,7 +1,6 @@
 
-import { FaBook, FaLightbulb } from "react-icons/fa";
+import { FaBook } from "react-icons/fa";
 import { MdAccountCircle, MdDashboard, MdHome, MdNotifications } from "react-icons/md";
-import Competences from "../../pages/competenecesPage/Competences";
 import Dashboard from '../../pages/dashboardPage/Dashboard';
 import ErrorPage from "../../pages/ErrorPage";
 import Home from '../../pages/homePage/Home';
@@ -67,17 +66,7 @@ export const menuConfig = [
         hideSideBar: false,
         hideHeader: false,
     },
-    {
-        label: 'Competences',
-        icon: FaLightbulb,
-        path: '/competences',
-        tooltip: 'Competences',
-        component: Competences,
-        eligibleRoles: [RoleEnum.ADMIN, RoleEnum.TEACHER],
-        active: true,
-        hideSideBar: false,
-        hideHeader: false,
-    },
+
     {
         label: 'Notifications',
         icon: MdNotifications,
