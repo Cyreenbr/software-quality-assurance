@@ -49,8 +49,9 @@ const DepotSujet = () => {
   };
 
   return (
-    <div className="max-w-4xl mx-auto py-10 px-6 shadow-xl rounded-xl">
+    <div className="min-h-screen bg-gradient-to-r from-blue-50 to-purple-200 py-10 rounded-lg">
       <h2 className="text-3xl font-bold text-gray-900 mb-6 text-center">Submit an Internship</h2>
+    <div className="max-w-4xl mx-auto py-10 px-6 ">
       {message && <p className="text-green-600 text-center">{message}</p>}
       {error && <p className="text-red-600 text-center">{error}</p>}
       <form onSubmit={handleSubmit} className="space-y-6">
@@ -138,6 +139,7 @@ const DepotSujet = () => {
           )}
         </button>
       </form>
+    </div>
     </div>
   );
 };
