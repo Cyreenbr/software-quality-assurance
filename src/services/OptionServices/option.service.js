@@ -1,5 +1,4 @@
-import axios from "axios";
-
+import axiosAPI from "../axiosAPI/axiosInstance";
 export const chooseOption = async (optionData) => {
     try {
         console.log("Sending option data...");
@@ -9,7 +8,7 @@ export const chooseOption = async (optionData) => {
             throw new Error("User is not authenticated.");
         }
 
-        const response = await axios.post("http://localhost:1000/options", optionData, {
+        const response = await axiosAPI.post('/options', optionData, {
             headers: {
                 Authorization: `Bearer ${token}`,
                 "Content-Type": "application/json",
