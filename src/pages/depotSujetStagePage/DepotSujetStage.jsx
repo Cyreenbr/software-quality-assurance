@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { createInternship } from "../../services/DepotStageService";
+import { createInternship } from "../../services/internshipServices/DepositInternshipService";
 
 const DepotSujet = () => {
   const [formData, setFormData] = useState({
@@ -49,17 +49,17 @@ const DepotSujet = () => {
   };
 
   return (
-    <div className="max-w-4xl mx-auto py-10 px-6 bg-gradient-to-r from-blue-50 to-white shadow-xl rounded-xl">
-      <h2 className="text-3xl font-bold text-gray-900 mb-6 text-center">Déposer un Stage</h2>
+    <div className="max-w-4xl mx-auto py-10 px-6 shadow-xl rounded-xl">
+      <h2 className="text-3xl font-bold text-gray-900 mb-6 text-center">Submit an Internship</h2>
       {message && <p className="text-green-600 text-center">{message}</p>}
       {error && <p className="text-red-600 text-center">{error}</p>}
       <form onSubmit={handleSubmit} className="space-y-6">
         <div>
-          <label className="block text-gray-800 font-semibold">Titre du stage</label>
+          <label className="block text-gray-800 font-semibold">Internship Title</label>
           <input
             type="text"
             name="titre"
-            placeholder="Titre du stage"
+            placeholder="Internship title"
             value={formData.titre}
             onChange={handleChange}
             className="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 transition hover:shadow-md"
@@ -67,11 +67,11 @@ const DepotSujet = () => {
           />
         </div>
         <div>
-          <label className="block text-gray-800 font-semibold">Durée (en mois)</label>
+          <label className="block text-gray-800 font-semibold">Duration (in months)</label>
           <input
             type="text"
             name="duree"
-            placeholder="Durée du stage"
+            placeholder="Duration of internship"
             value={formData.duree}
             onChange={handleChange}
             className="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 transition hover:shadow-md"
@@ -79,11 +79,11 @@ const DepotSujet = () => {
           />
         </div>
         <div>
-          <label className="block text-gray-800 font-semibold">Entreprise</label>
+          <label className="block text-gray-800 font-semibold">Company</label>
           <input
             type="text"
             name="entreprise"
-            placeholder="Nom de l'entreprise"
+            placeholder="Company name"
             value={formData.entreprise}
             onChange={handleChange}
             className="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 transition hover:shadow-md"
@@ -91,7 +91,7 @@ const DepotSujet = () => {
           />
         </div>
         <div>
-          <label className="block text-gray-800 font-semibold">Type de Stage</label>
+          <label className="block text-gray-800 font-semibold">Internship Type</label>
           <select
             name="type"
             value={formData.type}
@@ -99,16 +99,16 @@ const DepotSujet = () => {
             className="w-full p-3 border border-gray-300 rounded-lg shadow-sm bg-white focus:ring-2 focus:ring-blue-500 transition hover:shadow-md"
             required
           >
-            <option value="">Sélectionner le type</option>
-            <option value="1year">Stage 1ère année</option>
-            <option value="2year">Stage 2ème année</option>
+            <option value="">Select type</option>
+            <option value="1year">1st Year Internship</option>
+            <option value="2year">2nd Year Internship</option>
           </select>
         </div>
         <div>
-          <label className="block text-gray-800 font-semibold">Documents à joindre</label>
+          <label className="block text-gray-800 font-semibold">Documents to attach</label>
           <div className="border-dashed border-2 border-gray-400 p-4 rounded-lg flex items-center justify-center bg-gray-50 hover:bg-gray-100 transition">
             <label className="cursor-pointer flex items-center space-x-2 text-blue-600 font-medium">
-              <span>Choisir des fichiers</span>
+              <span>Choose files</span>
               <input
                 type="file"
                 name="documents"
@@ -120,7 +120,7 @@ const DepotSujet = () => {
             </label>
           </div>
           {formData.documents.length > 0 && (
-            <p className="text-gray-600 mt-2">{formData.documents.length} fichier(s) sélectionné(s)</p>
+            <p className="text-gray-600 mt-2">{formData.documents.length} file(s) selected</p>
           )}
         </div>
         <button
@@ -134,7 +134,7 @@ const DepotSujet = () => {
               <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
             </svg>
           ) : (
-            "Soumettre"
+            "Submit"
           )}
         </button>
       </form>

@@ -9,7 +9,7 @@ import NotFound404 from "../../components/skillsComponents/NotFound404";
 import Pagination from "../../components/skillsComponents/Pagination";
 import SearchBar from "../../components/skillsComponents/SearchBar";
 import Tooltip from "../../components/skillsComponents/tooltip";
-import axiosAPI from "../../services/axiosAPI/axiosInstance";
+import competenceServices from "../../services/CompetencesServices/competences.service";
 
 const Competences = () => {
     const [skills, setSkills] = useState([]);
@@ -41,26 +41,18 @@ const Competences = () => {
     const fetchCompetences = useCallback(async (page = 1, searchTerm = '', sortBy = '_id', order = 'desc') => {
         setLoading(true);
         try {
-            const response = await axiosAPI.get("/competences", {
-                params: {
-                    page,
-                    limit: itemsPerPage,
-                    searchTerm,
-                    sortBy,
-                    order,
-                }
-            });
-            setSkills(response.data.skills);
-            setSortedSkills(response.data.skills);
-            setTotalItems(response.data.pagination.totalSkills);
-            setItemsOnPage(response.data.pagination.itemsOnPage);
-            setTotalPages(response.data.pagination.totalPages);
-        } catch (err) {
-            // setError(err.response?.data?.error || "Failed to load skills.");
-            setError("Failed to load skills: " + err.response?.data?.error);
-            // toast.error(err.response?.data?.message || "Failed to load skills.");
-            console.error(error);
-            toast.error("Failed to load skills: " + (err.response?.data?.message || err.response?.data?.error));
+            // Appel du service pour récupérer les compétences
+            const data = await competenceServices.fetchCompetences(page, searchTerm, sortBy, order, itemsPerPage);
+
+            setSkills(data.skills);
+            setSortedSkills(data.skills);
+            setTotalItems(data.pagination.totalSkills);
+            setItemsOnPage(data.pagination.itemsOnPage);
+            setTotalPages(data.pagination.totalPages);
+        } catch (er) {
+            setError(er);
+            console.error("Failed to load skills: ", error);
+            toast.error("Failed to load skills: " + error);
         } finally {
             setLoading(false);
         }
@@ -73,15 +65,15 @@ const Competences = () => {
     useEffect(() => {
         const fetchFamilies = async () => {
             try {
-                const response = await axiosAPI.get("/family/");
-                setFamilies(response.data.families);
-            } catch (err) {
-                setError(err.response?.data?.message || "Failed to load families.");
-                toast.error(err.response?.data?.message || "Failed to load families.");
+                const data = await competenceServices.fetchFamilies();
+                setFamilies(data.families);
+            } catch (error) {
+                setError(error);
+                toast.error("Failed to load families: " + error);
             }
         };
         fetchFamilies();
-    }, []);
+    }, []); // Le tableau de dépendances vide assure que cela ne s'exécute qu'une seule fois
 
     const handleSearch = debounce((query) => {
         setSearchQuery(query.trim());
@@ -93,14 +85,15 @@ const Competences = () => {
         event.preventDefault();
 
         try {
-            const response = await axiosAPI.post("/competences", newSkill);
+            // Appel du service pour ajouter la compétence
+            const data = await competenceServices.addCompetence(newSkill);
 
             setIsAddPopupOpen(false);
             setSearchQuery('');
 
-
-            setSkills(prevSkills => [...prevSkills, response.data.skill]);
-            setSortedSkills(prevSkills => [...prevSkills, response.data.skill]);
+            // Mise à jour du state avec la nouvelle compétence
+            setSkills(prevSkills => [...prevSkills, data.skill]);
+            setSortedSkills(prevSkills => [...prevSkills, data.skill]);
 
             setNewSkill({
                 title: '',
@@ -111,16 +104,13 @@ const Competences = () => {
                 forced: false,
             });
 
-            // Only call fetchCompetences if the POST request is successful
+            // Rafraîchir la liste des compétences
             await fetchCompetences(currentPage, searchQuery);
-            toast.success(response.data.message);
 
-            // toast.error("Failed to add skill: Invalid response.");
-
-        } catch (err) {
-            // Display error and do not fetch competences if the POST request fails
-            setError(err.response?.data?.message || "Failed to add skill.");
-            toast.error("Failed to add skill : " + (err.response?.data?.error || err.response?.data?.message));
+            toast.success(data.message || "Skill added successfully!");
+        } catch (error) {
+            setError(error);
+            toast.error("Failed to add skill: " + error);
         }
     }, [newSkill, fetchCompetences, currentPage, searchQuery]);
 
@@ -128,41 +118,44 @@ const Competences = () => {
         event.preventDefault();
 
         try {
-            const response = await axiosAPI.patch(`/competences/${editSkill._id}`, editSkill);
+            // Appel du service pour mettre à jour la compétence
+            const data = await competenceServices.updateCompetence(editSkill);
 
+            // Mise à jour du state avec la nouvelle liste
             const updatedSkillsList = skills.map(skill =>
-                skill._id === editSkill._id ? response.data.skill : skill
+                skill._id === editSkill._id ? data.skill : skill
             );
             setSkills(updatedSkillsList);
             setSortedSkills(updatedSkillsList);
-
             setIsEditPopupOpen(false);
 
-            // Only call fetchCompetences if the PATCH request is successful
+            // Rafraîchir la liste des compétences
             await fetchCompetences(currentPage);
-            toast.success(response.data.message);
-        } catch (err) {
-            // Display error and do not fetch competences if the PATCH request fails
-            setError(err.response?.data?.message || "Failed to update skill.");
-            toast.error("Failed to update skill : " + (err.response?.data?.error || err.response?.data?.message));
+
+            toast.success(data.message || "Skill updated successfully!");
+        } catch (error) {
+            setError(error);
+            toast.error("Failed to update skill: " + error);
         }
     }, [editSkill, skills, currentPage, fetchCompetences]);
 
     const handleDeleteSkill = useCallback(async (id, forced = false) => {
         try {
-            await axiosAPI.delete(`/competences/${id}`, { data: { forced: forced } });
-            // const updatedSkillsList = skills.filter(skill => skill._id !== id);
-            // setSkills(updatedSkillsList);
-            // setSortedSkills(updatedSkillsList);
-            if (itemsOnPage === 1)
-                setCurrentPage(1);
+            await competenceServices.deleteCompetence(id, forced);
+
+            // Met à jour la page actuelle si l'élément supprimé était le dernier de la page
+            setCurrentPage(prevPage => (itemsOnPage === 1 && prevPage > 1 ? prevPage - 1 : prevPage));
             await fetchCompetences(currentPage, searchQuery);
             toast.success("Competence deleted successfully!");
-        } catch (err) {
-            setError(err.response?.data?.message || "Failed to delete skill.");
-            toast.error("Failed to delete skill : " + (err.response?.data?.error || err.response?.data?.message));
+            return true;
+        } catch (error) {
+            setError(error);
+            console.error("Error deleting skill:", error);
+            toast.error("Failed to delete skill: " + (error?.message || error));
+            return false;
         }
     }, [itemsOnPage, fetchCompetences, currentPage, searchQuery]);
+
 
     const handleSortByTitle = useCallback(() => {
         const newSortOrder = titleSortOrder === 'asc' ? 'desc' : 'asc';
@@ -181,6 +174,16 @@ const Competences = () => {
         setCurrentPage(pageNumber);
     };
 
+    const handleOpenAddPopup = () => {
+        setEditSkill(null); // Réinitialiser l'état d'édition
+        setIsEditPopupOpen(false); // Fermer le popup d'édition au cas où
+        setIsAddPopupOpen(true); // Ouvrir l'ajout
+    };
+    const closePopup = () => {
+        setIsAddPopupOpen(false);
+        setIsEditPopupOpen(false);
+        setEditSkill(null); // Réinitialiser `editSkill` à la fermeture
+    };
     return (
         <div className="container mx-auto p-6 bg-white shadow-l rounded-xl min-h-screen">
             <h1 className="text-4xl font-bold text-center mb-8 text-indigo-700">List of Competences</h1>
@@ -194,7 +197,7 @@ const Competences = () => {
                 {/* Add Competence Button */}
                 <Tooltip text="Add Competence" position="top" bgColor="bg-black">
                     <button
-                        onClick={() => setIsAddPopupOpen(true)}
+                        onClick={handleOpenAddPopup}
                         className="bg-teal-600 text-white px-4 py-2 rounded-md hover:bg-teal-700 transition duration-300 focus:outline-none focus:ring-2 focus:ring-teal-500 flex items-center w-full md:w-auto justify-center"
                     >
                         <FaPlusCircle className="mr-2" />
@@ -259,16 +262,14 @@ const Competences = () => {
 
             {/* Use the SkillForm component for both Add and Edit popups */}
             <SkillForm
-                isAddPopupOpen={isAddPopupOpen}
-                setIsAddPopupOpen={setIsAddPopupOpen}
+                isPopupOpen={isAddPopupOpen || isEditPopupOpen}
+                setIsPopupOpen={closePopup}
                 families={families}
                 newSkill={newSkill}
                 setNewSkill={setNewSkill}
                 handleAddSkill={handleAddSkill}
                 editSkill={editSkill}
                 setEditSkill={setEditSkill}
-                isEditPopupOpen={isEditPopupOpen}
-                setIsEditPopupOpen={setIsEditPopupOpen}
                 handleUpdateSkill={handleUpdateSkill}
             />
         </div >

@@ -3,7 +3,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useEffect, useState } from "react";
 import PeriodCard from "../../components/periodComponents/PeriodCard";
 import PeriodForm from "../../components/periodComponents/PeriodForm";
-import periodService from "../../services/periodService";
+import periodService from "../../services/periodSrvices/periodService";
 
 const AdminPeriods = () => {
   const [periods, setPeriods] = useState([]);
