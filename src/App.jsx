@@ -1,14 +1,14 @@
 import React from 'react';
 import { Route, BrowserRouter as Router, Routes } from 'react-router-dom';
 import Layout from './components/Layout';
-import Dashboard from './pages/Dashboard';
-import Home from './pages/Home';
+import Dashboard from './pages/dashboardPage/Dashboard';
+import Home from './pages/homePage/Home';
 import Notifications from './pages/Notifications';
-import Profile from './pages/Profile';
-import SignIn from './pages/SignIn';
-import SignUp from './pages/SignUp';
-import Subjects from './pages/Subjects';
-import Pfa from './pages/Pfa';
+import Profile from './pages/profilePage/Profile';
+import SignIn from './pages/signinPage/SignIn';
+import SignUp from './pages/signupPage/SignUp';
+import Subjects from './pages/subjectsPage/Subjects';
+import Pfa from './pages/pfaPage/Pfa';
 
 // Higher-order component to wrap pages with Layout
 const withLayout = (Component) => {
@@ -36,6 +36,7 @@ function App() {
         {/* Pages without Layout */}
         <Route path="/signin" element={<SignIn />} />
         <Route path="/signup" element={<SignUp />} />
+        
       </Routes>
     </Router>
   );

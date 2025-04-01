@@ -10,8 +10,8 @@ import {
 } from 'react-icons/md';
 import { Link, useLocation } from 'react-router-dom';
 import isammLogo from '../assets/logo_isamm.png'; // Assuming the logo image is imported
-import Popup from './Popup';
-import SearchBar from './SearchBar'; // Import the new SearchBar component
+import Popup from '../components/skillsComponents/Popup';
+ import SearchBar from '../components/skillsComponents/SearchBar'; // Import the new SearchBar component
 
 const Header = ({ isSidebarOpen, setIsSidebarOpen }) => {
     const location = useLocation();
@@ -31,7 +31,7 @@ const Header = ({ isSidebarOpen, setIsSidebarOpen }) => {
             case '/notifications': return ' Notifications';
             case '/signin': return 'Sign In';
             case '/signup': return 'Sign Up';
-            case '/pfa': return 'PFA';
+            case '/pfa': return 'PFA ';
             default: return ' Unknown';
         }
     };
