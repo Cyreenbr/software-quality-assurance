@@ -1,14 +1,19 @@
 import axios from "axios";
 
-const API_BASE_URL = "http://localhost:3000"; 
+const API_BASE_URL = "http://localhost:3000";
+
+const getAuthHeader = () => {
+  const token = localStorage.getItem("token");
+  return token ? { Authorization: `Bearer ${token}` } : {};
+};
 
 const periodService = {
   getPeriods: async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/period/open`);
-      const result = await response.json();
-      console.log("Périodes chargées :", result);
-      return result;
+      const response = await axios.get(`${API_BASE_URL}/period/open`, {
+        headers: { ...getAuthHeader() },
+      });
+      return response.data;
     } catch (error) {
       console.error("Erreur API (GET periods) :", error);
       return null;
@@ -17,21 +22,13 @@ const periodService = {
 
   addPeriod: async (periodData) => {
     try {
-      console.log("Données envoyées à l'API :", periodData);
-      const response = await fetch(`${API_BASE_URL}/period/open`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(periodData),
+      const response = await axios.post(`${API_BASE_URL}/period/open`, periodData, {
+        headers: {
+          "Content-Type": "application/json",
+          ...getAuthHeader(),
+        },
       });
-
-      const result = await response.json();
-      console.log("Réponse brute de l'API :", result);
-
-      if (!response.ok) {
-        throw new Error(`Erreur HTTP ${response.status}: ${result.message || "Réponse invalide"}`);
-      }
-
-      return result;
+      return response.data;
     } catch (error) {
       console.error("Erreur API (POST addPeriod) :", error);
       return null;
@@ -41,16 +38,17 @@ const periodService = {
   updatePeriod: async (id, updatedData) => {
     try {
       const response = await axios.patch(`${API_BASE_URL}/period/open/${id}`, updatedData, {
-        headers: { "Content-Type": "application/json" }
+        headers: {
+          "Content-Type": "application/json",
+          ...getAuthHeader(),
+        },
       });
-      
-      console.log("Période mise à jour :", response.data);
       return response.data;
     } catch (error) {
-      console.error("Erreur lors de la modification de la période :", error);
+      console.error("Erreur API (PATCH updatePeriod) :", error);
       return null;
     }
-  }
+  },
 };
 
 export default periodService;

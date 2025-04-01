@@ -1,8 +1,9 @@
 
 import { FaBook } from "react-icons/fa";
-import { MdAccountCircle, MdDashboard, MdHome, MdNotifications } from "react-icons/md";
+import { MdAccountCircle, MdDashboard, MdDownload, MdHome, MdNotifications, MdViewAgenda } from "react-icons/md";
 import AdminPeriods from '../../pages/adminPeriods/AdminPeriods';
 import Dashboard from '../../pages/dashboardPage/Dashboard';
+import DepotSujet from "../../pages/depotSujetStage/DepotSujetStage";
 import ErrorPage from "../../pages/ErrorPage";
 import Home from '../../pages/homePage/Home';
 import Notifications from '../../pages/Notifications';
@@ -80,11 +81,23 @@ export const menuConfig = [
     },
     {
         label: 'Period',
-        icon: undefined,
+        icon: MdViewAgenda,
         path: '/periodadmin',
-        tooltip: undefined,
+        tooltip: "period",
         component: AdminPeriods,
         eligibleRoles: [RoleEnum.ADMIN],
+        active: true,
+        dontShow: false,
+        hideSideBar: false,
+        hideHeader: false,
+    },
+        {
+        label: 'Depot',
+        icon: MdDownload,
+        path: '/deposit',
+        tooltip: "depot",
+        component: DepotSujet,
+        eligibleRoles: [RoleEnum.STUDENT],
         active: true,
         dontShow: false,
         hideSideBar: false,
