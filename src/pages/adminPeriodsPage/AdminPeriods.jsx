@@ -78,7 +78,7 @@ const AdminPeriods = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-r from-blue-50 to-purple-200 py-10 rounded-lg ">
+    <div className="min-h-screen bg-gradient-to-r from-blue-50 to-purple-100 py-10 rounded-lg ">
     <div className="max-w-5xl mx-auto mt-8 p-6">
       <h2 className="text-3xl font-bold text-gray-700 mb-6 text-center">Manage Periods</h2>
       <div className="flex justify-between items-center mb-6">
@@ -89,13 +89,14 @@ const AdminPeriods = () => {
       setShowForm(true);
     }}
     
-    className="bg-gradient-to-r from-blue-500 to-indigo-500 text-white p-3 rounded-2xl shadow-lg  transition-all duration-300 transform hover:scale-105 hover:shadow-xl"
+    className="bg-transparant text-blue-700 p-3 rounded-2xl shadow-lg  transition-all duration-300 transform hover:scale-105 hover:bg-blue-50 "
   >
-    <FontAwesomeIcon icon={faPlus} className="text-xl" />
+    <FontAwesomeIcon icon={faPlus} className="mr-2" />
+    <span className="font-semibold">Add Period</span>
   </button>
 </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="flex flex-col gap-6">
         {periods.map((period) => (
           <PeriodCard
             key={period._id}

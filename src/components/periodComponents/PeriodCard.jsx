@@ -15,9 +15,10 @@ const PeriodCard = ({ period, onEdit }) => {
       </div>
       <button
           onClick={() => onEdit(period)}
-          className="text-blue-500 text-xl hover:text-blue-700 transition"
+          className="bg-transparant text-blue p-3 rounded-2xl shadow-lg  transition-all duration-300 transform hover:scale-105 hover:bg-blue-50 "
         >
-          <FontAwesomeIcon icon={faEdit} />
+          <FontAwesomeIcon icon={faEdit} className="mr-2"/>
+          <span className="font-semibold">Edit</span>
         </button>
     </div>
   );

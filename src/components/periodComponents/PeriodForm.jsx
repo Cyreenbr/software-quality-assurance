@@ -15,14 +15,15 @@ const PeriodForm = ({ newPeriod, setNewPeriod, onSave, onCancel, editing }) => {
   }, [successMessage, errorMessage]);
 
   return (
-    <div className="fixed inset-0 backdrop-blur-sm flex items-center justify-center z-50">
-      <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-md relative">
+    <div className="fixed inset-0 flex items-center justify-center z-40">
+      <div className="absolute inset-0 bg-black opacity-50"></div>
+
+      <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-md relative z-50">
         <button onClick={onCancel} className="absolute top-4 right-4 text-gray-600 hover:text-gray-800">
           ✕
         </button>
         <h3 className="text-xl font-semibold mb-4">{editing ? "Edit Period" : "Add Period"}</h3>
 
-        {/* msg */}
         {successMessage && (
           <div className="bg-green-200 text-green-700 px-4 py-2 rounded-md mb-4">
             {successMessage}
@@ -68,7 +69,7 @@ const PeriodForm = ({ newPeriod, setNewPeriod, onSave, onCancel, editing }) => {
               >
                 <option value="">Select a type</option>
                 <option value="periode_depot_stage">Internship</option>
-                <option value="periode_choix_option">Option </option>
+                <option value="periode_choix_option">Option</option>
                 <option value="periode_choix_pfa">PFA</option>
               </select>
             </div>

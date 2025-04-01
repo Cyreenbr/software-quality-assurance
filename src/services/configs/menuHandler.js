@@ -106,10 +106,10 @@ export const menuConfig = [
         hideHeader: false,
     },
     {
-        label: 'InternshipList',
+        label: 'Internship',
         icon: MdList,
         path: '/InternshipList',
-        tooltip: "InternshipList",
+        tooltip: "Internship",
         component: InternshipList,
         eligibleRoles: [RoleEnum.ADMIN],
         active: true,

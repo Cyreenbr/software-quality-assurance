@@ -31,7 +31,7 @@ const InternshipList = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-r from-blue-50 to-purple-200 py-10 rounded-lg">
+    <div className="min-h-screen bg-white py-10 rounded-lg">
       <div className="max-w-7xl mx-auto p-8 ">
         <h2 className="text-4xl font-bold text-gray-800 mb-6 text-center">Internship List</h2>
 
