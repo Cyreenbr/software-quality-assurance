@@ -45,7 +45,7 @@ export default function OptionFormMaster() {
               htmlFor="firstChoice"
               className="block text-sm font-medium text-gray-700"
             >
-              First Choice
+              Your First Choice
             </label>
             <select
               id="firstChoice"
@@ -71,7 +71,7 @@ export default function OptionFormMaster() {
               value={score}
               onChange={(e) => setScore(e.target.value)}
               className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-              placeholder="Enter your general average in your 1st year ING"
+              placeholder="Enter your score"
               required
             />
           </div>

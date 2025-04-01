@@ -1,6 +1,6 @@
 
 import { FaBook } from "react-icons/fa";
-import { MdAccountCircle, MdDashboard, MdHome, MdNotifications } from "react-icons/md";
+import { MdAccountCircle, MdDashboard, MdHome, MdNotifications, MdAutoStories } from "react-icons/md";
 import Dashboard from '../../pages/dashboardPage/Dashboard';
 import ErrorPage from "../../pages/ErrorPage";
 import Home from '../../pages/homePage/Home';
@@ -8,6 +8,7 @@ import Notifications from '../../pages/Notifications';
 import Profile from '../../pages/profilePage/Profile';
 import Subjects from '../../pages/subjectsPage/Subjects';
 import { RoleEnum } from "../../utils/userRoles";
+import OptionPage from "../../pages/optionPage/OptionPage";
 
 export const menuConfig = [
     {
@@ -75,6 +76,17 @@ export const menuConfig = [
         path: '/notifications',
         component: Notifications,
         eligibleRoles: [RoleEnum.ADMIN, RoleEnum.TEACHER, RoleEnum.STUDENT],
+        active: true,
+        hideSideBar: false,
+        hideHeader: false,
+    },
+    {
+        order: 7,
+        label: 'Choose Option',
+        icon: MdAutoStories,
+        path: '/chooseoption',
+        component: OptionPage,
+        eligibleRoles: [RoleEnum.STUDENT],
         active: true,
         hideSideBar: false,
         hideHeader: false,
