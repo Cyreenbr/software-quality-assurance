@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import Header from './Header';
 import Sidebar from './Sidebar';
 
-const Layout = ({ children }) => {
+const Layout = ({ hideHeader = false, hideSideBar = false, children }) => {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [windowWidth, setWindowWidth] = useState(window.innerWidth);
     const sidebarRef = useRef(null);
@@ -28,11 +28,13 @@ const Layout = ({ children }) => {
     return (
         <div className="flex flex-col h-screen">
             {/* Header fixé en haut */}
-            <Header isSidebarOpen={isSidebarOpen} setIsSidebarOpen={setIsSidebarOpen} />
+            {!hideHeader &&
+                <Header isSidebarOpen={isSidebarOpen} setIsSidebarOpen={setIsSidebarOpen} />}
 
             <div className="flex flex-1 overflow-hidden">
                 {/* Sidebar */}
-                <Sidebar isSidebarOpen={isSidebarOpen} setIsSidebarOpen={setIsSidebarOpen} sidebarRef={sidebarRef} />
+                {!hideSideBar &&
+                    <Sidebar isSidebarOpen={isSidebarOpen} setIsSidebarOpen={setIsSidebarOpen} sidebarRef={sidebarRef} />}
 
                 {/* Contenu principal */}
                 <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-100 transition-all duration-300 p-4 sm:p-6 md:p-8 mt-16">
