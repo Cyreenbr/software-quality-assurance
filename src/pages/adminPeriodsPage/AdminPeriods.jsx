@@ -37,7 +37,7 @@ const AdminPeriods = () => {
     try {
       const response = await periodService.addPeriod(newPeriod);
       setPeriods([...periods, response.period]);
-      setSuccessMessage("Period added successfully!");
+      setSuccessMessage("Period added successfully and email scheduled!");
   
       // make it close late so I can see the message
       setTimeout(() => {
@@ -61,7 +61,7 @@ const AdminPeriods = () => {
         end: newPeriod.end,
       });
       setPeriods(periods.map((p) => (p._id === editingPeriod._id ? response.period : p)));
-      setSuccessMessage("Period updated successfully!");
+      setSuccessMessage("Period updated successfully and email scheduled!");
       setTimeout(() => {
         resetForm();
       }, 3000);  
@@ -78,20 +78,22 @@ const AdminPeriods = () => {
   };
 
   return (
-    <div className="max-w-5xl mx-auto mt-8 p-6 bg-white shadow-xl rounded-lg">
+    <div className="min-h-screen bg-gradient-to-r from-blue-50 to-purple-200 py-10 rounded-lg ">
+    <div className="max-w-5xl mx-auto mt-8 p-6">
+      <h2 className="text-3xl font-bold text-gray-700 mb-6 text-center">Manage Periods</h2>
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-semibold text-gray-800">Manage Periods</h2>
-        <button
-          onClick={() => {
-            setNewPeriod({ start: "", end: "", type: "" });
-            setEditingPeriod(null);
-            setShowForm(true);
-          }}
-          className="bg-blue-400 text-white p-3 rounded-full hover:bg-blue-700 transition shadow-md"
-        >
-          <FontAwesomeIcon icon={faPlus} className="text-xl" />
-        </button>
-      </div>
+  <button
+    onClick={() => {
+      setNewPeriod({ start: "", end: "", type: "" });
+      setEditingPeriod(null);
+      setShowForm(true);
+    }}
+    
+    className="bg-gradient-to-r from-blue-500 to-indigo-500 text-white p-3 rounded-2xl shadow-lg  transition-all duration-300 transform hover:scale-105 hover:shadow-xl"
+  >
+    <FontAwesomeIcon icon={faPlus} className="text-xl" />
+  </button>
+</div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {periods.map((period) => (
@@ -119,6 +121,7 @@ const AdminPeriods = () => {
           editing={editingPeriod}
         />
       )}
+    </div>
     </div>
   );
 };

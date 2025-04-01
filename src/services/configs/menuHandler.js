@@ -1,6 +1,6 @@
 
 import { FaBook } from "react-icons/fa";
-import { MdAccountCircle, MdDashboard, MdDownload, MdHome, MdNotifications, MdViewAgenda } from "react-icons/md";
+import { MdAccountCircle, MdDashboard, MdDownload, MdHome, MdList, MdNotifications, MdViewAgenda } from "react-icons/md";
 import AdminPeriods from '../../pages/adminPeriodsPage/AdminPeriods';
 import Dashboard from '../../pages/dashboardPage/Dashboard';
 import DepotSujet from "../../pages/depotSujetStagePage/DepotSujetStage";
@@ -8,6 +8,7 @@ import ErrorPage from "../../pages/ErrorPage";
 import Home from '../../pages/homePage/Home';
 import Notifications from '../../pages/Notifications';
 import Profile from '../../pages/profilePage/Profile';
+import InternshipList from "../../pages/studentInternshipPage/studentInternship";
 import Subjects from '../../pages/subjectsPage/Subjects';
 import { RoleEnum } from "../../utils/userRoles";
 export const menuConfig = [
@@ -83,7 +84,7 @@ export const menuConfig = [
     {
         label: 'Period',
         icon: MdViewAgenda,
-        path: '/periodadmin',
+        path: '/period',
         tooltip: "period",
         component: AdminPeriods,
         eligibleRoles: [RoleEnum.ADMIN],
@@ -99,6 +100,18 @@ export const menuConfig = [
         tooltip: "depot",
         component: DepotSujet,
         eligibleRoles: [RoleEnum.STUDENT],
+        active: true,
+        dontShow: false,
+        hideSideBar: false,
+        hideHeader: false,
+    },
+    {
+        label: 'InternshipList',
+        icon: MdList,
+        path: '/InternshipList',
+        tooltip: "InternshipList",
+        component: InternshipList,
+        eligibleRoles: [RoleEnum.ADMIN],
         active: true,
         dontShow: false,
         hideSideBar: false,

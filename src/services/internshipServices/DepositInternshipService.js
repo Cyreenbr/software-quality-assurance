@@ -19,6 +19,6 @@ export const createInternship = async (formData) => {
 
     return response.data;
   } catch (error) {
-    throw error.response?.data || { message: "Une erreur inconnue est survenue" };
+    throw error.response?.data || { message: "ERROR" };
   }
 };

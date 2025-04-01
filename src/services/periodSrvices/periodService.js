@@ -15,7 +15,7 @@ const periodService = {
       });
       return response.data;
     } catch (error) {
-      console.error("Erreur API (GET periods) :", error);
+      console.error("Error API (GET periods) :", error);
       return null;
     }
   },
@@ -45,7 +45,7 @@ const periodService = {
       });
       return response.data;
     } catch (error) {
-      console.error("Erreur API (PATCH updatePeriod) :", error);
+      console.error("Error API (PATCH updatePeriod) :", error);
       return null;
     }
   },
