@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Route, BrowserRouter as Router, Routes } from 'react-router-dom';
 import Layout from './components/Layout';
@@ -6,6 +7,7 @@ import ProtectedRoute from './components/skillsComponents/ProtectedRoute';
 import ErrorPage from './pages/ErrorPage';
 import SignIn from './pages/signinPage/SignIn';
 import SignUp from './pages/signupPage/SignUp';
+import OptionPage from "./pages/optionPage/OptionPage";
 import { menuConfig } from './services/configs/menuHandler';
 
 const withLayout = (Component, hideSideBar = false, hideHeader = false) => (
@@ -27,6 +29,10 @@ function App() {
         {/* Pages d'authentification */}
         <Route path="/signin" element={withLayout(SignIn, true)} />
         <Route path="/signup" element={withLayout(SignUp, true)} />
+        <Route
+          path="/chooseoption"
+          element={React.createElement(withLayout(OptionPage))}
+        />
 
         {/* Gestion des erreurs */}
         <Route path="/error" element={withLayout(ErrorPage)} />
