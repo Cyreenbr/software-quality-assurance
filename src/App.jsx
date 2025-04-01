@@ -8,7 +8,7 @@ import Profile from "./pages/Profile";
 import SignIn from "./pages/signinPage/SignIn";
 import SignUp from "./pages/signupPage/SignUp";
 import Subjects from "./pages/Subjects";
-
+import OptionPage from "./pages/optionPage/OptionPage";
 // Higher-order component to wrap pages with Layout
 const withLayout = (Component) => {
   return (props) => (
@@ -41,6 +41,10 @@ function App() {
         <Route
           path="/notifications"
           element={React.createElement(withLayout(Notifications))}
+        />
+        <Route
+          path="/chooseoption"
+          element={React.createElement(withLayout(OptionPage))}
         />
 
         {/* Pages without Layout */}
