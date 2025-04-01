@@ -11,10 +11,32 @@ import { RoleEnum } from "../../utils/userRoles";
 
 export const menuConfig = [
     {
+        order: 1,
+        label: 'Home',
+        icon: MdHome,
+        path: '/',
+        component: Home,
+        eligibleRoles: [],
+        active: true,
+        hideSideBar: false,
+        hideHeader: false,
+    },
+    {
+        order: 2,
+        label: 'Dashboard',
+        icon: MdDashboard,
+        path: '/dashboard',
+        component: Dashboard,
+        eligibleRoles: [RoleEnum.ADMIN, RoleEnum.TEACHER, RoleEnum.STUDENT],
+        active: true,
+        hideSideBar: false,
+        hideHeader: false,
+    },
+    {
+
         label: 'Error',
         icon: undefined,
         path: '/error',
-        tooltip: undefined,
         component: ErrorPage,
         eligibleRoles: [],
         active: true,
@@ -23,39 +45,19 @@ export const menuConfig = [
         hideHeader: false,
     },
     {
-        label: 'Home',
-        icon: MdHome,
-        path: '/',
-        tooltip: 'Home',
-        component: Home,
-        eligibleRoles: [],
-        active: true,
-        hideSideBar: false,
-        hideHeader: false,
-    },
-    {
-        label: 'Dashboard',
-        icon: MdDashboard,
-        path: '/dashboard',
-        tooltip: 'Dashboard',
-        component: Dashboard,
-        eligibleRoles: [RoleEnum.ADMIN, RoleEnum.TEACHER, RoleEnum.STUDENT],
-        active: true,
-        hideSideBar: false,
-        hideHeader: false,
-    },
-    {
+        order: 3,
         label: 'Profile',
         icon: MdAccountCircle,
         path: '/profile',
-        tooltip: 'Profile',
         component: Profile,
         eligibleRoles: [RoleEnum.ADMIN, RoleEnum.TEACHER, RoleEnum.STUDENT],
         active: true,
         hideSideBar: false,
         hideHeader: false,
     },
+
     {
+        order: 5,
         label: 'Subjects',
         icon: FaBook,
         path: '/subjects',
@@ -66,36 +68,25 @@ export const menuConfig = [
         hideSideBar: false,
         hideHeader: false,
     },
-
     {
+        order: 6,
         label: 'Notifications',
         icon: MdNotifications,
         path: '/notifications',
-        tooltip: 'Notifications',
         component: Notifications,
         eligibleRoles: [RoleEnum.ADMIN, RoleEnum.TEACHER, RoleEnum.STUDENT],
         active: true,
         hideSideBar: false,
         hideHeader: false,
     },
+    // kifeh tzid route jdid ??
     // {
-    //     label: 'Signin',
-    //     icon: BiLogInCircle,
-    //     path: '/signin',
-    //     tooltip: 'Signin',
-    //     component: SignIn,
-    //     eligibleRoles: [!RoleEnum.ADMIN, !RoleEnum.TEACHER, !RoleEnum.STUDENT],
-    //     active: true,
-    //     hideSideBar: false,
-    //     hideHeader: false,
-    // },
-    // {
-    //     label: 'Register',
-    //     icon: FaRegUser,
-    //     path: '/signup',
-    //     tooltip: 'Register',
-    //     component: SignUp,
-    //     eligibleRoles: [!RoleEnum.ADMIN, !RoleEnum.TEACHER, !RoleEnum.STUDENT],
+    //     order: 7,
+    //     label: 'TEST',
+    //     icon: MdNotifications,
+    //     path: '/notifications',
+    //     component: Notifications, //componet mta3 l page .JSX li sna3to enta
+    //     eligibleRoles: [RoleEnum.ADMIN, RoleEnum.TEACHER, RoleEnum.STUDENT],
     //     active: true,
     //     hideSideBar: false,
     //     hideHeader: false,
@@ -104,8 +95,7 @@ export const menuConfig = [
 
 export const getMenuItems = (role) => {
     return menuConfig
-        // Exclure les éléments dont 'dontShow' est true
         .filter(item => item?.dontShow !== true)
-        // Filtrer les éléments selon les rôles éligibles
-        .filter(item => item.eligibleRoles.length === 0 || item.eligibleRoles.includes(role));
+        .filter(item => item.eligibleRoles.length === 0 || item.eligibleRoles.includes(role))
+        .sort((a, b) => (a.order ?? Infinity) - (b.order ?? Infinity));
 };
