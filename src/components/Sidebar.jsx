@@ -9,10 +9,12 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
     const role = useSelector((state) => state.auth.role);
     const menuItems = getMenuItems(role);
     const location = useLocation();
+
     // State for collapsed sidebar
     const [isCollapsed, setIsCollapsed] = useState(() => {
-        return JSON.parse(localStorage.getItem("isSidebarCollapsed")) || false;
+        return JSON.parse(localStorage.getItem('isSidebarCollapsed')) || false;
     });
+
     // State for mobile/tablet and desktop detection
     const [isMobileOrTablet, setIsMobileOrTablet] = useState(window.innerWidth < 1024);
 
@@ -20,23 +22,17 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
         const handleResize = () => {
             setIsMobileOrTablet(window.innerWidth < 1024);
         };
-        // Listen to resize events to adjust the screen size on window change
         window.addEventListener('resize', handleResize);
-        // Cleanup the event listener on component unmount
         return () => window.removeEventListener('resize', handleResize);
     }, []);
 
     useEffect(() => {
-        if (isMobileOrTablet) {
-            setIsCollapsed(false); // Automatically collapse on mobile/tablet
-        }
-        localStorage.setItem("isSidebarCollapsed", JSON.stringify(isCollapsed));
+        if (isMobileOrTablet) setIsCollapsed(false); // Automatically collapse on mobile/tablet
+        localStorage.setItem('isSidebarCollapsed', JSON.stringify(isCollapsed));
     }, [isCollapsed, isMobileOrTablet]);
 
     const handleCollapseToggle = () => {
-        if (!isMobileOrTablet) {
-            setIsCollapsed(prev => !prev);
-        }
+        if (!isMobileOrTablet) setIsCollapsed((prev) => !prev);
     };
 
     const handleLinkClick = () => {
@@ -55,15 +51,19 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
 
             <div
                 className={`bg-white fixed top-16 left-0 h-full shadow-lg transition-transform duration-300 ease-in-out z-40 
-                    ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0 lg:relative`}
+          ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0 lg:relative`}
                 style={{
-                    width: isCollapsed ? '85px' : '250px', // Collapsed width is 85px, otherwise 250px
+                    width: isCollapsed ? '85px' : '250px',
                 }}
             >
                 {/* Collapse Button (Only on Desktop) */}
                 <div
-                    className={`flex items-center justify-center p-4 ${!isMobileOrTablet ? 'cursor-pointer bg-gray-100 hover:bg-gray-200 transition' : ''}`}
+                    className="flex items-center justify-center p-4 cursor-pointer bg-gray-100 hover:bg-gray-200 transition"
                     onClick={handleCollapseToggle}
+                    role="button"
+                    tabIndex={0}
+                    aria-expanded={!isCollapsed}
+                    aria-label="Toggle sidebar collapse"
                 >
                     {!isMobileOrTablet && (
                         <svg
@@ -82,26 +82,31 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
                 {/* Navigation Menu */}
                 <nav className="p-4">
                     <ul className="space-y-2">
-                        {menuItems.map(({ label, icon: Icon, path, tooltip, order }) => (
-                            <li key={order} className="relative group">
-                                <Link
-                                    to={path}
-                                    className={`flex items-center p-3 rounded-lg transition 
-                                    ${location.pathname === path ? 'bg-indigo-600 text-white' : 'hover:bg-indigo-100 text-gray-700'}`}
-                                    onClick={handleLinkClick}
-                                >
-                                    <span className="text-2xl">{Icon ? <Icon /> : <FaQuestion />}</span>
-                                    {/* Only show label if not collapsed */}
-                                    {!isCollapsed && <span className="ml-4">{label ? label : 'zid label fel menuHandler.js'}</span>}
-                                </Link>
+                        {menuItems
+                            .filter((item) => item.active)
+                            .map(({ label, icon: Icon, path, tooltip, order }) => {
+                                // Resolve dynamic paths (e.g., `/subjects/:id`)
+                                const resolvedPath = typeof path === 'function' ? path(':id') : path;
 
-                                {/* Tooltip (Show only when collapsed) */}
-                                {/* {isCollapsed && tooltip && ( */}
-                                {isCollapsed && (
-                                    <Tooltip text={tooltip ? tooltip : label} position="right" styles='' />
-                                )}
-                            </li>
-                        ))}
+                                return (
+                                    <li key={order} className="relative group">
+                                        <Link
+                                            to={resolvedPath}
+                                            className={`flex items-center p-3 rounded-lg transition ${location.pathname === resolvedPath
+                                                ? 'bg-indigo-600 text-white'
+                                                : 'hover:bg-indigo-100 text-gray-700'
+                                                }`}
+                                            onClick={handleLinkClick}
+                                        >
+                                            <span className="text-2xl">{Icon ? <Icon /> : <FaQuestion />}</span>
+                                            {!isCollapsed && <span className="ml-4">{label || 'Unnamed Item'}</span>}
+                                        </Link>
+                                        {isCollapsed && tooltip && (
+                                            <Tooltip text={tooltip || label || 'Unnamed Item'} position="right" styles="" />
+                                        )}
+                                    </li>
+                                );
+                            })}
                     </ul>
                 </nav>
             </div>
