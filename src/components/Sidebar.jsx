@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { FaQuestion } from 'react-icons/fa';
 import { useSelector } from 'react-redux';
 import { Link, useLocation } from 'react-router-dom';
 import { getMenuItems } from '../services/configs/menuHandler';
@@ -81,22 +82,23 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
                 {/* Navigation Menu */}
                 <nav className="p-4">
                     <ul className="space-y-2">
-                        {menuItems.map(({ label, icon: Icon, path, tooltip }) => (
-                            <li key={path} className="relative group">
+                        {menuItems.map(({ label, icon: Icon, path, tooltip, order }) => (
+                            <li key={order} className="relative group">
                                 <Link
                                     to={path}
                                     className={`flex items-center p-3 rounded-lg transition 
                                     ${location.pathname === path ? 'bg-indigo-600 text-white' : 'hover:bg-indigo-100 text-gray-700'}`}
                                     onClick={handleLinkClick}
                                 >
-                                    <span className="text-2xl"> <Icon /></span>
+                                    <span className="text-2xl">{Icon ? <Icon /> : <FaQuestion />}</span>
                                     {/* Only show label if not collapsed */}
-                                    {!isCollapsed && <span className="ml-4">{label}</span>}
+                                    {!isCollapsed && <span className="ml-4">{label ? label : 'zid label fel menuHandler.js'}</span>}
                                 </Link>
 
                                 {/* Tooltip (Show only when collapsed) */}
-                                {isCollapsed && tooltip && (
-                                    <Tooltip text={tooltip} position="right" styles='' />
+                                {/* {isCollapsed && tooltip && ( */}
+                                {isCollapsed && (
+                                    <Tooltip text={tooltip ? tooltip : label} position="right" styles='' />
                                 )}
                             </li>
                         ))}
