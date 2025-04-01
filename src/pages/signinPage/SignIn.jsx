@@ -7,9 +7,7 @@ const SignIn = () => {
     const [formData, setFormData] = useState({ email: "", password: "" });
     const dispatch = useDispatch();
     const navigate = useNavigate();
-
     const { loading, error } = useSelector((state) => state.auth);
-
     // Handle input change
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });

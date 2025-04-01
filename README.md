@@ -1,12 +1,41 @@
 # React + Vite
 
-## ⚠️ **NB:**  
-### 📌 **Fi Fichier `App.jsx`**  
-Utilise `withLayout()` si tu veux ajouter le **menu et le header** à ta page, comme dans l'exemple ci-dessous :
+## Pour tout le monde l karim (par Chedly)':'
 
-```jsx
-<Route path="/route" element={React.createElement(withLayout(Element_li_t7eb_tzidou_header_w_menu))} />
+ken t7eb tsahhel 3la rou7ek partie routage fel front taba3 les consgines li louta:
+
+## ⚠️ **NB:**
+
+### 📌 **Fi Fichier `menuHandler.js`** fi **dossier Services**
+
+Ajouter un **Json** à `menuConfig` comme dans l'exemple ci-dessous :
+**NB :just 3ammer les valeurs kaahw w matbaddel chay fel code w surtt assemi les variables w attributs sinon tod5el baadh'ha**
+
+```js
+//lawej aala: menuConfig w fi west'ha
+export const menuConfig = [
+    //
+    //zid fi e5er liste route kima hakka :
+    {
+        label: 'Home',
+        icon: MdHome, //just chouf l essm Importih men biblio "react-icons" (chouf documentation en ligne)
+        path: '/', //hot l path exemple /login, /profile...
+        component: Home, //menghir aka < /> just importih w hottou
+        eligibleRoles: [ //tableau fih li aand'hom accesss kima mahtout louta
+            RoleEnum.ADMIN, //ken admin
+            RoleEnum.TEACHER, //ken teacher
+            RoleEnum.STUDENT //ken Student
+        ],
+        active: true,
+        hideSideBar: false, //menu
+        hideHeader: false, //header
+    },
+    //5alli l begui
+]
+// NB : matbaddel chay fel code w surtt assemi les variables w attributs just 3ammer les valeurs
 ```
+
+## C.C
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
