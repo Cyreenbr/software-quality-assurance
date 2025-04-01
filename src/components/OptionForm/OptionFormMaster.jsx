@@ -1,33 +1,29 @@
 import React, { useState } from "react";
-
+import { chooseOption } from "../../services/OptionServices/option.service";
+import { toast } from "react-toastify";
 export default function OptionFormMaster() {
-  const [score, setScore] = useState("");
-  const [firstChoice, setFirstChoice] = useState("INLOG");
-  const [error, setError] = useState("");
+  const [firstchoice, setFirstChoice] = useState("INLOG");
   const [loading, setLoading] = useState(false);
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!validateMoyennes()) return;
     setLoading(true);
-    console.log("submit");
-    if (!firstChoice || !score) {
-      alert("Please fill in all fields.");
+    if (!firstchoice) {
+      toast.error("Please choose your orientation.");
       setLoading(false);
       return;
     }
-    const optionData = {
-      firstChoice,
-      score,
-    };
-
-    console.log(optionData);
-    console.log(chooseOption);
     try {
-      const response = await chooseOption(optionData);
+      const response = await chooseOption({ firstchoice });
       console.log("Option choice sent:", response);
+      toast.success("Option chosen successfully!");
     } catch (error) {
       console.error("Error sending option choice:", error);
-      alert(error);
+      if (error.response?.status === 500) {
+        toast.error("You already did chose your option.");
+      } else {
+        toast.error("An error occurred. Please try again.");
+      }
+    } finally {
       setLoading(false);
     }
   };
@@ -45,35 +41,18 @@ export default function OptionFormMaster() {
               htmlFor="firstChoice"
               className="block text-sm font-medium text-gray-700"
             >
-              Your First Choice
+              First Choice
             </label>
             <select
               id="firstChoice"
               name="firstChoice"
               className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-              value={firstChoice}
+              value={firstchoice}
               onChange={(e) => setFirstChoice(e.target.value)}
             >
               <option value="INREV">Réalité Virtuelle</option>
               <option value="INLOG">Génie Logiciel</option>
             </select>
-            <label
-              htmlFor="moygen"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Your Score
-            </label>
-            <input
-              type="number"
-              step="0.01"
-              id="score"
-              name="score"
-              value={score}
-              onChange={(e) => setScore(e.target.value)}
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-              placeholder="Enter your score"
-              required
-            />
           </div>
           <button
             type="submit"
