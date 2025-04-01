@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { chooseOption } from "../../services/OptionServices/option.service";
 
 export default function OptionForm() {
-  const [firstChoice, setFirstChoice] = useState("INLOG");
+  const [firstchoice, setFirstChoice] = useState("INLOG");
   const [moy_general_1ING, setMoyGeneral1ING] = useState("");
   const [moy_algo_complexité, setMoyAlgoComplexite] = useState("");
   const [moy_POO, setMoyPOO] = useState("");
@@ -34,9 +34,8 @@ export default function OptionForm() {
     e.preventDefault();
     if (!validateMoyennes()) return;
     setLoading(true);
-    console.log("submit");
     if (
-      !firstChoice ||
+      !firstchoice ||
       !moy_general_1ING ||
       !moy_algo_complexité ||
       !moy_POO ||
@@ -48,16 +47,13 @@ export default function OptionForm() {
     }
     setStatut("validé");
     const optionData = {
-      firstChoice,
+      firstchoice,
       moy_general_1ING,
       moy_algo_complexité,
       moy_POO,
       moy_programmation_web,
       statut,
     };
-
-    console.log(optionData);
-    console.log(chooseOption);
     try {
       const response = await chooseOption(optionData);
       console.log("Option choice sent:", response);
@@ -87,7 +83,7 @@ export default function OptionForm() {
               id="firstChoice"
               name="firstChoice"
               className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-              value={firstChoice}
+              value={firstchoice}
               onChange={(e) => setFirstChoice(e.target.value)}
             >
               <option value="INREV">Réalité Virtuelle</option>
