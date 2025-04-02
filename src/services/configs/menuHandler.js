@@ -9,7 +9,10 @@ import Profile from '../../pages/profilePage/Profile';
 import Subjects from '../../pages/subjectsPage/Subjects';
 import { RoleEnum } from "../../utils/userRoles";
 import OptionPage from "../../pages/optionPage/OptionPage";
-
+import StudentsManagPage from "../../pages/UsersManagementPage/StudentsManagPage";
+import { PiStudentFill } from "react-icons/pi";
+import { GiTeacher } from "react-icons/gi";
+import TeachersManagPage from "../../pages/UsersManagementPage/TeachersManagPage";
 export const menuConfig = [
     {
         order: 1,
@@ -87,6 +90,28 @@ export const menuConfig = [
         path: '/chooseoption',
         component: OptionPage,
         eligibleRoles: [RoleEnum.STUDENT],
+        active: true,
+        hideSideBar: false,
+        hideHeader: false,
+    },
+    {
+        order: 8,
+        label: 'Manage Students',
+        icon: PiStudentFill,
+        path: '/managestudents',
+        component: StudentsManagPage,
+        eligibleRoles: [RoleEnum.ADMIN],
+        active: true,
+        hideSideBar: false,
+        hideHeader: false,
+    },
+    {
+        order: 9,
+        label: 'Manage Teachers',
+        icon: GiTeacher,
+        path: '/manageteachers',
+        component: TeachersManagPage,
+        eligibleRoles: [RoleEnum.ADMIN],
         active: true,
         hideSideBar: false,
         hideHeader: false,

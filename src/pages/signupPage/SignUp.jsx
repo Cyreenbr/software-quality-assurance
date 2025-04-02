@@ -1,6 +1,5 @@
-import React, { useState } from "react";
+import { React, useState } from "react";
 import { registerUser } from "../../services/AccountServices/account.service";
-import "./SignUp.css";
 const SignUp = () => {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");

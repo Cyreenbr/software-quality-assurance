@@ -1,9 +1,9 @@
 import axiosAPI from "../axiosAPI/axiosInstance";
 
-export const registerUser = async (userData) => {
+export const getStudents = async () => {
     try {
-        const response = await axiosAPI.post(`/users/register`, userData);
-        console.log("User added with success:", response.data);
+        const response = await axiosAPI.get(`/students/`);
+        console.log("List of students recupered:", response.data);
         return response.data;
     } catch (error) {
         console.error("Error adding user:", error.response?.data || error.message);
