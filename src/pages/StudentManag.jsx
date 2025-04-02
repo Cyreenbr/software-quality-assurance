@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import * as XLSX from "xlsx";
-import { MdSchool, MdUploadFile, MdRefresh, MdEdit, MdDelete } from "react-icons/md";
-import { insertStudentsFromExcel } from "../services/AccountServices/account.service";
+import { MdSchool, MdUploadFile, MdRefresh, MdEdit, MdDelete, MdWarning } from "react-icons/md";
+import { insertStudentsFromExcel, deleteStudent } from "../services/StudentServices/student.service";
 
 const StudentManag = () => {
   const [file, setFile] = useState(null);
@@ -12,6 +12,10 @@ const StudentManag = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(3);
   const studentsPerPage = 5;
+  // Add states for delete confirmation modal
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [studentToDelete, setStudentToDelete] = useState(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const handleFileChange = (event) => {
     const selectedFile = event.target.files[0];
@@ -86,147 +90,6 @@ const StudentManag = () => {
     const startIndex = (currentPage - 1) * studentsPerPage;
     const endIndex = startIndex + studentsPerPage;
     return importedStudents.slice(startIndex, endIndex);
-  };
-
-  const handleDelete = (id) => {
-    if (confirm("Êtes-vous sûr de vouloir supprimer cet étudiant?")) {
-      const updatedStudents = importedStudents.filter(student => student.id !== id);
-      setImportedStudents(updatedStudents);
-      
-      // Mettre à jour le nombre de pages
-      setTotalPages(Math.ceil(updatedStudents.length / studentsPerPage));
-      
-      // Si la page actuelle est désormais vide, revenir à la page précédente
-      if (currentPage > Math.ceil(updatedStudents.length / studentsPerPage) && currentPage > 1) {
-        setCurrentPage(currentPage - 1);
-      }
-    }
-  };
-
-  const renderStudentList = () => {
-    return (
-      <>
-        <div className="bg-green-100 text-green-800 p-4 rounded mb-4">
-          <div className="flex flex-col md:flex-row items-center justify-between space-y-3 md:space-y-0">
-            <div>
-              <span className="icon mr-2"><MdSchool className="inline" /></span>
-              <b>Import réussi!</b> {importedStudents.length} étudiants ont été importés
-            </div>
-            <button 
-              type="button" 
-              className="px-3 py-1 text-sm bg-transparent hover:bg-green-200 rounded"
-              onClick={() => setShowStudentList(false)}
-            >
-              Retour
-            </button>
-          </div>
-        </div>
-
-        <div className="bg-white shadow-md rounded-lg overflow-hidden">
-          <header className="bg-gray-100 px-5 py-4 border-b border-gray-200">
-            <div className="flex items-center justify-between">
-              <p className="font-bold text-lg flex items-center">
-                <span className="icon mr-2"><MdSchool className="text-blue-500" /></span>
-                Liste des Étudiants
-              </p>
-              <button 
-                onClick={() => setShowStudentList(false)}
-                className="rounded-full p-2 hover:bg-gray-200"
-              >
-                <MdRefresh />
-              </button>
-            </div>
-          </header>
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="bg-gray-50 text-left">
-                  <th className="px-4 py-3 w-10">
-                    <label className="inline-flex items-center">
-                      <input type="checkbox" className="form-checkbox rounded h-4 w-4 text-blue-500" />
-                    </label>
-                  </th>
-                  <th className="px-4 py-3 w-14">Photo</th>
-                  {columns.map((col, index) => (
-                    <th key={index} className="px-4 py-3 whitespace-nowrap">{col || "-"}</th>
-                  ))}
-                  <th className="px-4 py-3 w-20">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {getPaginatedStudents().map((student) => (
-                  <tr key={student.id} className="border-b border-gray-200 hover:bg-gray-50">
-                    <td className="px-4 py-3">
-                      <label className="inline-flex items-center">
-                        <input type="checkbox" className="form-checkbox rounded h-4 w-4 text-blue-500" />
-                      </label>
-                    </td>
-                    <td className="px-4 py-3">
-                      <div className="w-10 h-10 overflow-hidden rounded-full">
-                        <img src={student.avatar} className="w-full h-full object-cover" alt="avatar" />
-                      </div>
-                    </td>
-                    {columns.map((col, index) => (
-                      <td key={index} className="px-4 py-3" data-label={col}>
-                        {student[col] !== undefined && student[col] !== null && student[col] !== "" 
-                          ? student[col] 
-                          : "-"}
-                      </td>
-                    ))}
-                    <td className="px-4 py-3">
-                      <div className="flex justify-end space-x-2">
-                        <button 
-                          className="p-1 rounded-full bg-blue-100 text-blue-600 hover:bg-blue-200"
-                          title="Modifier"
-                        >
-                          <MdEdit />
-                        </button>
-                        <button 
-                          className="p-1 rounded-full bg-red-100 text-red-600 hover:bg-red-200"
-                          title="Supprimer"
-                          onClick={() => handleDelete(student.id)}
-                        >
-                          <MdDelete />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-            
-            {importedStudents.length > 0 ? (
-              <div className="px-4 py-3 border-t border-gray-200">
-                <div className="flex items-center justify-between">
-                  <div className="space-x-1">
-                    {[...Array(totalPages)].map((_, index) => (
-                      <button
-                        key={index}
-                        onClick={() => handlePageChange(index + 1)}
-                        className={`px-3 py-1 rounded text-sm ${
-                          currentPage === index + 1
-                            ? "bg-blue-500 text-white"
-                            : "bg-gray-100 hover:bg-gray-200"
-                        }`}
-                      >
-                        {index + 1}
-                      </button>
-                    ))}
-                  </div>
-                  <small className="text-gray-500">
-                    Page {currentPage} sur {totalPages}
-                  </small>
-                </div>
-              </div>
-            ) : (
-              <div className="px-4 py-3 text-center text-gray-500">
-                Aucun étudiant disponible
-              </div>
-            )}
-          </div>
-        </div>
-      </>
-    );
   };
 
   const renderImportForm = () => {
