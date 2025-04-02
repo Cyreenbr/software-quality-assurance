@@ -43,7 +43,7 @@ const TeacherPfaComponent = () => {
 
   const [isEditing, setIsEditing] = useState(null);
   const [editedData, setEditedData] = useState({
-    projectTitle: "ahla",
+    projectTitle: "",
     description: "",
     technologies: "",
   });
@@ -55,16 +55,23 @@ const TeacherPfaComponent = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   const handleDelete = (id) => {
-    setPfaList(pfaList.filter((pfa) => pfa.id !== id));
+    console.log(id);
+    setpfaList(pfaList.filter((pfa) => pfa._id !== id));
+    pfaService.deletePfa(id);
   };
 
   const handleEdit = (pfa) => {
-    setIsEditing(pfa.id);
+    console.log(pfa);
+    setIsEditing(pfa._id);
+
     setEditedData({
       projectTitle: pfa.projectTitle,
       description: pfa.description,
       technologies: pfa.technologies,
     });
+    setStudentOne(pfa.studentNames[0]);
+    setStudentTwo(pfa.studentNames[1]);
+    setProjectType(pfa.isTeamProject ? "binome" : "monome");
     setIsDialogOpen(true);
   };
 
@@ -74,10 +81,20 @@ const TeacherPfaComponent = () => {
 
   const handleSubmitEdit = (e) => {
     e.preventDefault();
-    setPfaList(
+    setpfaList(
       pfaList.map((pfa) =>
-        pfa.id === isEditing ? { ...pfa, ...editedData } : pfa
+        pfa._id === isEditing ? { ...pfa, ...editedData } : pfa
       )
+    );
+
+    const isTeamProject = projectType === "binome";
+    const studentNames = isTeamProject
+      ? [studentOne, studentTwo]
+      : [studentOne];
+    console.log({ ...editedData, studentOne, studentTwo, projectType });
+    pfaService.updatePfa(
+      { ...editedData, studentNames, isTeamProject },
+      isEditing
     );
     setIsEditing(null);
     setIsDialogOpen(false);
@@ -292,7 +309,7 @@ const TeacherPfaComponent = () => {
                       <FaEdit size={18} />
                     </button>
                     <button
-                      onClick={() => handleDelete(pfa.id)}
+                      onClick={() => handleDelete(pfa._id)}
                       className="bg-red-500 text-white p-2 rounded-full hover:bg-red-600"
                     >
                       <FaTrashAlt size={18} />

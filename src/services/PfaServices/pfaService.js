@@ -29,7 +29,7 @@ const pfaService = {
       const response = await axios.get(`${API_BASE_URL}/mine`, {
         headers: { ...getAuthHeader() },
       });
-      console.log(response)
+      console.log(response);
       return response.data;
     } catch (error) {
       console.error("Error API (GET PFA) :", error);
@@ -51,6 +51,37 @@ const pfaService = {
     }
   },
 
+  updatePfa: async (pfaData, pfaId) => {
+    try {
+      const response = await axios.patch(
+        `${API_BASE_URL}/${pfaId}/mine`,
+        pfaData,
+        {
+          headers: { ...getAuthHeader() },
+        }
+      );
+
+      console.log("i netred the update fnct", pfaData);
+      return response.data;
+    } catch (error) {
+      console.error("Error API (POST PFA) :", error);
+      return null;
+    }
+  },
+
+  deletePfa: async (pfaId) => {
+    try {
+      const response = await axios.delete(`${API_BASE_URL}/${pfaId}/`, {
+        headers: { ...getAuthHeader() },
+      });
+
+      console.log("i netred the delete fnct");
+      return response.data;
+    } catch (error) {
+      console.error("Error API (POST PFA) :", error);
+      return null;
+    }
+  },
   //   addPeriod: async (periodData) => {
   //     try {
   //       const response = await axios.post(`${API_BASE_URL}/period/open`, periodData, {
