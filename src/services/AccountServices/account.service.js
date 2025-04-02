@@ -1,10 +1,14 @@
-import axios from "axios";
+import axiosAPI from "../axiosAPI/axiosInstance";
 
-
-// Fonction pour l'inscription d'un utilisateur
 export const registerUser = async (userData) => {
-    const response = await axios.post(`http://localhost:1000/api/users/register`, userData);
-    return response.data;
+    try {
+        const response = await axiosAPI.post(`/users/register`, userData);
+        console.log("User added with success:", response.data);
+        return response.data;
+    } catch (error) {
+        console.error("Error adding user:", error.response?.data || error.message);
+        throw error;
+    }
 
 };/*
 export const login = async (credentials) => {
