@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { loginUser } from "../../redux/authSlice"; 
-import "./SignIn.css"; 
+
 const SignIn = () => {
     const [formData, setFormData] = useState({ email: "", password: "" });
     const dispatch = useDispatch();

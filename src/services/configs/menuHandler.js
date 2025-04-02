@@ -1,5 +1,5 @@
 import { FaBook, FaGraduationCap, FaLightbulb } from 'react-icons/fa';
-import { MdAccountCircle, MdDashboard, MdHome, MdNotifications } from 'react-icons/md';
+import { MdAccountCircle, MdDashboard, MdHome, MdNotifications, MdSchool } from 'react-icons/md';
 import Pfa from '../../../src/pages/pfaPage/Pfa';
 import SubjectDetailsPage from '../../components/subjectsComponents/SubjectDetailsPage';
 import Competences from '../../pages/competenecesPage/Competences';
@@ -10,6 +10,8 @@ import Notifications from '../../pages/Notifications';
 import Profile from '../../pages/profilePage/Profile';
 import Subjects from '../../pages/subjectsPage/Subjects';
 import { RoleEnum } from '../../utils/userRoles';
+import StudentManag from '../../pages/StudentManag';
+import SignIn from '../../pages/signinPage/SignIn';
 export const menuConfig = [
     {
         order: 1,
@@ -114,7 +116,23 @@ export const menuConfig = [
         active: true,
         hideSideBar: false,
         hideHeader: false,
+
     },
+    {
+        order: 9,
+        label: 'Student Management',
+        icon: MdSchool,
+        path: '/student-management',
+        component: StudentManag,
+        eligibleRoles: [RoleEnum.ADMIN],
+        active: true,
+        hideSideBar: false,
+        hideHeader: false,
+
+    },
+   
+    
+   
 ];
 
 export const getMenuItems = (role) => {
