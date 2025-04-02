@@ -79,9 +79,9 @@ const AdminPeriods = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-r from-blue-50 to-purple-100 py-10 rounded-lg ">
-    <div className="max-w-5xl mx-auto mt-8 p-6">
-      <h2 className="text-3xl font-bold text-gray-700 mb-6 text-center">Manage Periods</h2>
-      <div className="flex justify-between items-center mb-6">
+    <div className="max-w-5xl bg-white rounded-lg mx-auto mt-8 p-6">
+      <h2 className="text-2xl font-bold text-black-700 mb-6 text-start">Manage Periods</h2>
+      <div className="flex justify-end items-center mb-6">
   <button
     onClick={() => {
       setNewPeriod({ start: "", end: "", type: "" });

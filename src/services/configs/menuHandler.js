@@ -174,10 +174,10 @@ export const menuConfig = [
     },
      {
         order: 13,
-        label: 'Depot',
+        label: 'Internship Deposit',
         icon: MdDownload,
         path: '/deposit',
-        tooltip: "depot",
+        tooltip: "deposit",
         component: DepotSujet,
         eligibleRoles: [RoleEnum.STUDENT],
         active: true,
