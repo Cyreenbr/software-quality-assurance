@@ -1,16 +1,14 @@
 
 import { FaBook } from "react-icons/fa";
-import { MdAccountCircle, MdDashboard, MdDownload, MdHome, MdList, MdNotifications, MdViewAgenda } from "react-icons/md";
-import AdminPeriods from '../../pages/adminPeriodsPage/AdminPeriods';
+import { MdAccountCircle, MdDashboard, MdHome, MdNotifications } from "react-icons/md";
 import Dashboard from '../../pages/dashboardPage/Dashboard';
-import DepotSujet from "../../pages/depotSujetStagePage/DepotSujetStage";
 import ErrorPage from "../../pages/ErrorPage";
 import Home from '../../pages/homePage/Home';
 import Notifications from '../../pages/Notifications';
 import Profile from '../../pages/profilePage/Profile';
-import InternshipList from "../../pages/studentInternshipPage/studentInternship";
 import Subjects from '../../pages/subjectsPage/Subjects';
 import { RoleEnum } from "../../utils/userRoles";
+
 export const menuConfig = [
     {
         order: 1,
@@ -35,7 +33,6 @@ export const menuConfig = [
         hideHeader: false,
     },
     {
-
         label: 'Error',
         icon: undefined,
         path: '/error',
@@ -57,7 +54,19 @@ export const menuConfig = [
         hideSideBar: false,
         hideHeader: false,
     },
-
+    {
+        order: 4,
+        label: 'Competences',
+        icon: FaLightbulb,
+        path: '/competences',
+        tooltip: 'Competences',
+        component: Competences,
+        eligibleRoles: [RoleEnum.ADMIN, RoleEnum.TEACHER],
+        active: true,
+        hideSideBar: false,
+        hideHeader: false,
+        dontShow: true,
+    },
     {
         order: 5,
         label: 'Subjects',
@@ -65,55 +74,32 @@ export const menuConfig = [
         path: '/subjects',
         tooltip: 'Subjects',
         component: Subjects,
-        eligibleRoles: [RoleEnum.ADMIN, RoleEnum.TEACHER],
+        eligibleRoles: [RoleEnum.ADMIN, RoleEnum.TEACHER, RoleEnum.STUDENT],
         active: true,
         hideSideBar: false,
         hideHeader: false,
+        dontShow: true,
     },
     {
         order: 6,
+        // label: 'Subject Details',
+        icon: undefined,
+        path: (id) => `/subjects/${id}`, // Dynamic path
+        component: SubjectDetailsPage,
+        eligibleRoles: [RoleEnum.ADMIN, RoleEnum.TEACHER, RoleEnum.STUDENT],
+        active: true,
+        hideSideBar: false,
+        hideHeader: false,
+        dontShow: true,
+    },
+    {
+        order: 7,
         label: 'Notifications',
         icon: MdNotifications,
         path: '/notifications',
         component: Notifications,
         eligibleRoles: [RoleEnum.ADMIN, RoleEnum.TEACHER, RoleEnum.STUDENT],
         active: true,
-        hideSideBar: false,
-        hideHeader: false,
-    },
-    {
-        label: 'Period',
-        icon: MdViewAgenda,
-        path: '/period',
-        tooltip: "period",
-        component: AdminPeriods,
-        eligibleRoles: [RoleEnum.ADMIN],
-        active: true,
-        dontShow: false,
-        hideSideBar: false,
-        hideHeader: false,
-    },
-        {
-        label: 'Depot',
-        icon: MdDownload,
-        path: '/deposit',
-        tooltip: "depot",
-        component: DepotSujet,
-        eligibleRoles: [RoleEnum.STUDENT],
-        active: true,
-        dontShow: false,
-        hideSideBar: false,
-        hideHeader: false,
-    },
-    {
-        label: 'Internship',
-        icon: MdList,
-        path: '/InternshipList',
-        tooltip: "Internship",
-        component: InternshipList,
-        eligibleRoles: [RoleEnum.ADMIN],
-        active: true,
-        dontShow: false,
         hideSideBar: false,
         hideHeader: false,
     },
@@ -133,7 +119,7 @@ export const menuConfig = [
 
 export const getMenuItems = (role) => {
     return menuConfig
-        .filter(item => item?.dontShow !== true)
-        .filter(item => item.eligibleRoles.length === 0 || item.eligibleRoles.includes(role))
+        .filter((item) => item?.dontShow !== true)
+        .filter((item) => item.eligibleRoles.length === 0 || item.eligibleRoles.includes(role))
         .sort((a, b) => (a.order ?? Infinity) - (b.order ?? Infinity));
 };

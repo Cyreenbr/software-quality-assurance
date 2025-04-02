@@ -7,28 +7,46 @@ import ErrorPage from './pages/ErrorPage';
 import SignIn from './pages/signinPage/SignIn';
 import SignUp from './pages/signupPage/SignUp';
 import { menuConfig } from './services/configs/menuHandler';
-
+// Higher-order component to wrap pages with Layout
 const withLayout = (Component, hideSideBar = false, hideHeader = false) => (
-  <Layout hideHeader={hideHeader} hideSideBar={hideSideBar}><Component /></Layout>
+  <Layout hideHeader={hideHeader} hideSideBar={hideSideBar}>
+    <Component />
+  </Layout>
 );
 
 function App() {
   return (
     <Router>
       <Routes>
-        {menuConfig.map(({ path, component: Component, eligibleRoles, hideHeader, hideSideBar }) => (
-          eligibleRoles.length > 0 ? (
-            <Route key={path} path={path} element={<ProtectedRoute element={withLayout(Component, hideSideBar, hideHeader)} roles={eligibleRoles} />} />
-          ) : (
-            <Route key={path} path={path} element={withLayout(Component, hideSideBar, hideHeader)} />
-          )
-        ))}
+        {menuConfig.map(({ path, component: Component, eligibleRoles, hideHeader, hideSideBar }) => {
 
-        {/* Pages d'authentification */}
+          const resolvedPath = typeof path === 'function' ? path(':id') : path;
+
+          return eligibleRoles && eligibleRoles.length > 0 ? (
+            <Route
+              key={resolvedPath}
+              path={resolvedPath}
+              element={
+                <ProtectedRoute
+                  element={withLayout(Component, hideSideBar, hideHeader)}
+                  roles={eligibleRoles}
+                />
+              }
+            />
+          ) : (
+            <Route
+              key={resolvedPath}
+              path={resolvedPath}
+              element={withLayout(Component, hideSideBar, hideHeader)}
+            />
+          );
+        })}
+
+        {/* Authentication Pages */}
         <Route path="/signin" element={withLayout(SignIn, true)} />
         <Route path="/signup" element={withLayout(SignUp, true)} />
 
-        {/* Gestion des erreurs */}
+        {/* Error Handling */}
         <Route path="/error" element={withLayout(ErrorPage)} />
         <Route path="*" element={withLayout(NotFound404)} />
       </Routes>
