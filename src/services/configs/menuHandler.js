@@ -1,4 +1,4 @@
-import { FaBook, FaLightbulb } from 'react-icons/fa';
+import { FaBook, FaGraduationCap, FaLightbulb } from 'react-icons/fa';
 import { MdAccountCircle, MdDashboard, MdHome, MdNotifications } from 'react-icons/md';
 import Pfa from '../../../src/pages/pfaPage/Pfa';
 import SubjectDetailsPage from '../../components/subjectsComponents/SubjectDetailsPage';
@@ -105,7 +105,7 @@ export const menuConfig = [
     {
         order: 8,
         label: 'PFA',
-        icon: MdNotifications,
+        icon: FaGraduationCap,
         path: '/PFA',
         component: Pfa,
         eligibleRoles: [RoleEnum.ADMIN, RoleEnum.TEACHER, RoleEnum.STUDENT],
