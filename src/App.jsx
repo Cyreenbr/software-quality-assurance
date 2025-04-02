@@ -4,10 +4,10 @@ import Layout from './components/Layout';
 import NotFound404 from './components/skillsComponents/NotFound404';
 import ProtectedRoute from './components/skillsComponents/ProtectedRoute';
 import ErrorPage from './pages/ErrorPage';
+import Pfa from './pages/pfaPage/Pfa';
 import SignIn from './pages/signinPage/SignIn';
 import SignUp from './pages/signupPage/SignUp';
 import { menuConfig } from './services/configs/menuHandler';
-
 // Higher-order component to wrap pages with Layout
 const withLayout = (Component, hideSideBar = false, hideHeader = false) => (
   <Layout hideHeader={hideHeader} hideSideBar={hideSideBar}>
@@ -19,9 +19,8 @@ function App() {
   return (
     <Router>
       <Routes>
-        {/* Dynamically generate routes from menuConfig */}
         {menuConfig.map(({ path, component: Component, eligibleRoles, hideHeader, hideSideBar }) => {
-          // Handle dynamic paths (e.g., `/subjects/:id`)
+
           const resolvedPath = typeof path === 'function' ? path(':id') : path;
 
           return eligibleRoles && eligibleRoles.length > 0 ? (
@@ -43,7 +42,7 @@ function App() {
             />
           );
         })}
-
+        <Route path="/pfa" element={React.createElement(withLayout(Pfa))} />
         {/* Authentication Pages */}
         <Route path="/signin" element={withLayout(SignIn, true)} />
         <Route path="/signup" element={withLayout(SignUp, true)} />
