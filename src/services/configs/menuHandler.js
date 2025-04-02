@@ -16,6 +16,7 @@ import { PiStudentFill } from "react-icons/pi";
 import { GiTeacher } from "react-icons/gi";
 import TeachersManagPage from "../../pages/UsersManagementPage/TeachersManagPage";
 import { RoleEnum } from '../../utils/userRoles';
+d2d5ab050b88c9a74e5de760a9ed73b7f984f89c
 import StudentManag from '../../pages/StudentManag';
 import SignIn from '../../pages/signinPage/SignIn';
 export const menuConfig = [
@@ -137,7 +138,19 @@ export const menuConfig = [
 
     },
     {
-        order: 8,
+        order: 10,
+        label: 'Manage Students',
+        icon: PiStudentFill,
+        path: '/managestudents',
+        component: StudentsManagPage,
+        eligibleRoles: [RoleEnum.ADMIN],
+        active: true,
+        hideSideBar: false,
+        hideHeader: false,
+
+    },
+    {
+        order: 11,
         label: 'Manage Students',
         icon: PiStudentFill,
         path: '/managestudents',
@@ -148,7 +161,7 @@ export const menuConfig = [
         hideHeader: false,
     },
     {
-        order: 9,
+        order: 12,
         label: 'Manage Teachers',
         icon: GiTeacher,
         path: '/manageteachers',
