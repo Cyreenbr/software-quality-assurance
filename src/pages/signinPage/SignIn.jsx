@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { loginUser } from "../../redux/authSlice"; 
+import { ClipLoader } from "react-spinners";
+import { loginUser } from "../../redux/authSlice";
 
 const SignIn = () => {
     const [formData, setFormData] = useState({ email: "", password: "" });
@@ -18,7 +19,7 @@ const SignIn = () => {
         e.preventDefault();
         const result = await dispatch(loginUser(formData));
         if (result.meta.requestStatus === "fulfilled") {
-            navigate("/"); // Redirect to home on success
+            navigate("/");
         }
     };
 
@@ -59,7 +60,12 @@ const SignIn = () => {
                         disabled={loading}
                         className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                     >
-                        {loading ? "Signing In..." : "Sign In"}
+                        {!loading ?
+                            (
+                                "Log In")
+                            : (
+                                <ClipLoader color="#FFFFFF" size={24} />
+                            )}
                     </button>
                 </form>
             </div>
