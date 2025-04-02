@@ -29,14 +29,14 @@ const SkillForm = ({
         return () => window.removeEventListener('resize', handleResize); // Clean up listener
     }, []);
 
-    const renderInputField = ({ id, label, value, onChange, type = "text", placeholder }) => (
+    const renderInputField = ({ id, label, value, onChange, type = "text", placeholder, classNames }) => (
         <div className="mb-3">
             <label htmlFor={id} className="block text-sm font-medium text-gray-700">{label}</label>
             {type === "textarea" ? (
                 <textarea
                     id={id}
                     placeholder={placeholder}
-                    className="border p-3 rounded-xl w-full focus:ring-2 focus:ring-blue-300 mt-1 transition-transform focus:outline-none focus:shadow-lg"
+                    className={classNames}
                     value={value || ""} // Assure que value n'est jamais undefined
                     onChange={onChange}
                 />
@@ -45,7 +45,7 @@ const SkillForm = ({
                     id={id}
                     type={type}
                     placeholder={placeholder}
-                    className="border p-3 rounded-xl w-full focus:ring-2 focus:ring-blue-300 mt-1 transition-transform focus:outline-none focus:shadow-lg"
+                    className={classNames}
                     value={value || ""} // Assure que value n'est jamais undefined
                     onChange={onChange}
                 />
@@ -86,7 +86,8 @@ const SkillForm = ({
                         } else {
                             setNewSkill({ ...newSkill, title: e.target.value });
                         }
-                    }
+                    },
+                    classNames: "border p-3 rounded-xl w-full focus:ring-2 focus:ring-blue-300 mt-1 transition-transform transform hover:scale-105 focus:outline-none focus:shadow-lg"
                 })}
 
                 {/* French Description */}
@@ -102,7 +103,8 @@ const SkillForm = ({
                             setNewSkill({ ...newSkill, frDescription: e.target.value });
                         }
                     },
-                    type: "textarea"
+                    type: "textarea",
+                    classNames: "border p-3 rounded-xl w-full focus:ring-2 focus:ring-blue-300 mt-1 transition-transform transform hover:scale-105 focus:outline-none focus:shadow-lg"
                 })}
 
                 {/* English Description */}
@@ -118,7 +120,8 @@ const SkillForm = ({
                             setNewSkill({ ...newSkill, enDescription: e.target.value });
                         }
                     },
-                    type: "textarea"
+                    type: "textarea",
+                    classNames: "border p-3 rounded-xl w-full focus:ring-2 focus:ring-blue-300 mt-1 transition-transform transform hover:scale-105 focus:outline-none focus:shadow-lg"
                 })}
 
                 {/* Select Families */}
@@ -174,7 +177,7 @@ const SkillForm = ({
                 {/* Submit Button */}
                 <button
                     type="submit"
-                    className={`${editSkill ? "bg-yellow-600 hover:bg-yellow-700" : "bg-green-600 hover:bg-green-700"
+                    className={`${editSkill ? "bg-blue-600 hover:bg-blue-500" : "bg-green-600 hover:bg-green-700"
                         } text-white px-6 py-3 rounded-xl shadow-lg transition transform duration-300 w-full flex items-center justify-center space-x-2`}
                 >
                     {isMobile && (

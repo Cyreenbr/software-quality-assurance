@@ -1,6 +1,6 @@
 # React + Vite
 
-## Pour tout le monde l karim (par Chedly)':'
+## Pour tout le monde l karim (par Chedly):
 
 ken t7eb tsahhel 3la rou7ek partie routage fel front taba3 les consgines li louta:
 
@@ -9,6 +9,7 @@ ken t7eb tsahhel 3la rou7ek partie routage fel front taba3 les consgines li lout
 ### 📌 **Fi Fichier `menuHandler.js`** fi **dossier Services**
 
 Ajouter un **Json** à `menuConfig` comme dans l'exemple ci-dessous :
+
 **NB :just 3ammer les valeurs kaahw w matbaddel chay fel code w surtt assemi les variables w attributs sinon tod5el baadh'ha**
 
 ```js
