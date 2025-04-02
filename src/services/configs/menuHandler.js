@@ -66,6 +66,7 @@ export const menuConfig = [
         active: true,
         hideSideBar: false,
         hideHeader: false,
+        dontShow: true
     },
     {
         order: 5,
@@ -77,6 +78,7 @@ export const menuConfig = [
         eligibleRoles: [RoleEnum.ADMIN, RoleEnum.TEACHER, RoleEnum.STUDENT],
         active: true,
         hideSideBar: false,
+        dontShow: true,
         hideHeader: false,
     },
     {
@@ -113,6 +115,7 @@ export const menuConfig = [
         hideSideBar: false,
         hideHeader: false,
     },
+    // ADD routes heres
 ];
 
 export const getMenuItems = (role) => {
