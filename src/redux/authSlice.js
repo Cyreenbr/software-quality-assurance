@@ -18,6 +18,7 @@ export const loginUser = createAsyncThunk(
                     token: response.data.token,
                     role: response.data.user.role,
                     user: response.data.user,
+                    level: response.data.level,
                 };
             }
         } catch (error) {
@@ -38,6 +39,7 @@ const authSlice = createSlice({
     initialState: {
         token: localStorage.getItem("token") || null,
         user: localStorage.getItem("user") ? JSON.parse(localStorage.getItem("user")) : null,
+        level: localStorage.getItem("user") ? JSON.parse(localStorage.getItem("user")).level : null,
         role: localStorage.getItem("user")
             ? JSON.parse(localStorage.getItem("user")).role
             : null,
@@ -49,6 +51,7 @@ const authSlice = createSlice({
             state.token = null;
             state.role = null;
             state.user = null;
+            state.level = null;
         },
     },
     extraReducers: (builder) => {
@@ -62,6 +65,7 @@ const authSlice = createSlice({
                 state.token = action.payload.token;
                 state.role = action.payload.role;
                 state.user = action.payload.user;
+                state.level = action.payload.level;
             })
             .addCase(loginUser.rejected, (state, action) => {
                 state.loading = false;
