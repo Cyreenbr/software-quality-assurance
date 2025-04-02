@@ -37,7 +37,12 @@ const SkillCard = ({ skill, setEditSkill, setIsEditPopupOpen, handleDeleteSkill,
     const confirmDeleteMessage = `Are you sure you want to delete the skill "${skill?.title}"?`;
 
     return (
-        <div className="bg-white p-6 shadow-lg rounded-lg hover:shadow-xl hover:cursor-pointer transition-all duration-300 overflow-auto">
+        <div
+            // className="bg-white rounded-lg shadow-lg p-5 border border-gray-300 hover:shadow-xl transition transform hover:-translate-y-1"
+            // className=" border border-gray-300 p-6 rounded-lg shadow-sm hover:shadow-xl hover:cursor-pointer hover:bg-gradient-to-r from-blue-50 to-purple-100  hover:-translate-y-1 transition-all duration-300 overflow-auto"
+
+            className=" border border-gray-300 p-6 shadow-sm rounded-lg hover:shadow-xl hover:cursor-pointer  transition-all duration-300 overflow-auto hover:bg-gradient-to-r from-blue-50 to-purple-100 "
+        >
             <div className="relative" onClick={() => setIsDetailsPopupOpen(true)}>
                 <h2 className="text-xl text-center font-semibold text-blue-600">{skill?.title || 'No Title'}</h2>
                 <span className="text-sm font-bold">Description(FR): </span>
@@ -67,7 +72,7 @@ const SkillCard = ({ skill, setEditSkill, setIsEditPopupOpen, handleDeleteSkill,
                                 return (
                                     <span
                                         key={family._id || family}
-                                        className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm font-medium"
+                                        className="bg-blue-200 text-gray-700 px-3 py-1 rounded-full text-sm font-small"
                                     >
                                         {familyTitle}
                                     </span>
@@ -91,7 +96,7 @@ const SkillCard = ({ skill, setEditSkill, setIsEditPopupOpen, handleDeleteSkill,
                             setEditSkill(skill);
                             setIsEditPopupOpen(true);
                         }}
-                        className="bg-yellow-600 text-white px-4 py-2 rounded-lg shadow-md hover:bg-yellow-700 transition transform duration-300 mb-2 sm:mb-0"
+                        className="bg-blue-400 text-white px-4 py-2 rounded-lg shadow-md hover:bg-blue-600 transition transform duration-300 mb-2 sm:mb-0"
                     >
                         <FiEdit className="text-xl" />
                     </button>
@@ -104,7 +109,7 @@ const SkillCard = ({ skill, setEditSkill, setIsEditPopupOpen, handleDeleteSkill,
                             setSkillToDelete(skill);
                             setIsDeletePopupOpen(true);
                         }}
-                        className="bg-red-600 text-white px-4 py-2 rounded-lg shadow-md hover:bg-red-700 transition transform duration-300 mb-2 sm:mb-0"
+                        className=" bg-red-400 text-white px-4 py-2 rounded-lg shadow-md hover:bg-red-600 transition transform duration-300 mb-2 sm:mb-0"
                     >
                         <FiTrash className="text-xl" />
                     </button>
@@ -211,7 +216,7 @@ const SkillCard = ({ skill, setEditSkill, setIsEditPopupOpen, handleDeleteSkill,
                                 skill.familyId.map((family) => (
                                     <span
                                         key={family._id || family}
-                                        className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm font-medium"
+                                        className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium"
                                     >
                                         {typeof family === 'object' ? family.title : families.find((f) => f._id === family)?.title}
                                     </span>
@@ -230,7 +235,9 @@ const SkillCard = ({ skill, setEditSkill, setIsEditPopupOpen, handleDeleteSkill,
                                 setIsEditPopupOpen(true);
                                 setIsDetailsPopupOpen(false);
                             }} // Handle Edit action
-                            className="bg-yellow-500 text-white px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-yellow-600 transition"
+                            className="bg-blue-400 text-white px-4 py-2 rounded-lg shadow-md flex items-center gap-2 hover:bg-blue-600 transition transform duration-300 mb-2 sm:mb-0"
+
+                        // className="bg-yellow-500 text-white px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-yellow-600 transition"
                         >
                             {/* {!isMobile ? 'Edit' : ''}<FaEdit className="text-white" /> */}
                             {/* {!isMobile ? <FaEdit className="text-white" /> : 'Edit'} */}
@@ -248,7 +255,9 @@ const SkillCard = ({ skill, setEditSkill, setIsEditPopupOpen, handleDeleteSkill,
                                 setIsDeletePopupOpen(true);
                                 setIsDetailsPopupOpen(false);
                             }} // Handle Delete action
-                            className="bg-red-500 text-white px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-red-600 transition"
+                            className=" bg-red-400 text-white px-4 py-2 rounded-lg shadow-md  flex items-center gap-2 hover:bg-red-600 transition transform duration-300 mb-2 sm:mb-0"
+
+                        // className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition"
                         >
                             {!isMobile ? <>
                                 Delete
