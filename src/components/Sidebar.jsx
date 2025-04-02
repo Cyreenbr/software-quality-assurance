@@ -1,15 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { FaQuestion } from 'react-icons/fa';
-import { useSelector } from 'react-redux';
 import { Link, useLocation } from 'react-router-dom';
-import { getMenuItems } from '../services/configs/menuHandler';
-import Tooltip from './skillsComponents/tooltip';
 
 const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
-    const role = useSelector((state) => state.auth.role);
-    const menuItems = getMenuItems(role);
-    const location = useLocation();
-    // State for collapsed sidebar
+    const location = useLocation(); 
+    const isDesktop = !isMobileOrTablet;
+
+    // Retrieve collapsed state from localStorage (persist across reloads)
     const [isCollapsed, setIsCollapsed] = useState(() => {
         return JSON.parse(localStorage.getItem("isSidebarCollapsed")) || false;
     });
@@ -28,17 +25,20 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
 
     useEffect(() => {
         if (isMobileOrTablet) {
-            setIsCollapsed(false); // Automatically collapse on mobile/tablet
+            setIsCollapsed(false);
         }
         localStorage.setItem("isSidebarCollapsed", JSON.stringify(isCollapsed));
+
     }, [isCollapsed, isMobileOrTablet]);
 
+    // Toggle collapse only on desktop
     const handleCollapseToggle = () => {
-        if (!isMobileOrTablet) {
+        if (isDesktop) {
             setIsCollapsed(prev => !prev);
         }
     };
 
+    // Close sidebar on mobile/tablet when clicking a link
     const handleLinkClick = () => {
         if (isMobileOrTablet) setIsSidebarOpen(false);
     };
@@ -62,10 +62,10 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
             >
                 {/* Collapse Button (Only on Desktop) */}
                 <div
-                    className={`flex items-center justify-center p-4 ${!isMobileOrTablet ? 'cursor-pointer bg-gray-100 hover:bg-gray-200 transition' : ''}`}
+                    className={`flex items-center justify-center p-4 ${isDesktop ? 'cursor-pointer bg-gray-100 hover:bg-gray-200 transition' : ''}`}
                     onClick={handleCollapseToggle}
                 >
-                    {!isMobileOrTablet && (
+                    {isDesktop && (
                         <svg
                             className={`text-indigo-600 transition-transform duration-300 ${isCollapsed ? 'rotate-180' : ''}`}
                             height="24"
@@ -87,7 +87,7 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
                                 <Link
                                     to={path}
                                     className={`flex items-center p-3 rounded-lg transition 
-                                    ${location.pathname === path ? 'bg-indigo-600 text-white' : 'hover:bg-indigo-100 text-gray-700'}`}
+                                        ${location.pathname === path ? 'bg-indigo-600 text-white' : 'hover:bg-indigo-100 text-gray-700'}`}
                                     onClick={handleLinkClick}
                                 >
                                     <span className="text-2xl">{Icon ? <Icon /> : <FaQuestion />}</span>
