@@ -37,7 +37,10 @@ const Header = ({ isSidebarOpen, setIsSidebarOpen }) => {
             case '/profile': return ' Profile';
             case '/subjects': return ' Subjects';
             case '/notifications': return ' Notifications';
+            
+            case '/StudentManag': return 'Student Management';
             case '/signin': return 'Sign In';
+
             case '/signup': return 'Sign Up';
             default: return ' Unknown';
         }

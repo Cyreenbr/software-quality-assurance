@@ -10,9 +10,17 @@ export const registerUser = async (userData) => {
 
 };
 export const login = async (credentials) => {
-    const result = await Axios.post(
+    const result = await axios.post(
       "http://localhost:3000/api/users/login",
       credentials
     )
     return result.data.token
   }
+
+
+  export const insertStudentsFromExcel = async (userData) => {
+    console.log("hiiiiiiiiiiiiiiiiiiiiiii")
+    const response = await axios.post("http://localhost:3000/api/students/upload", userData);
+    console.log("yesssssss")
+    return response.data;
+  };
