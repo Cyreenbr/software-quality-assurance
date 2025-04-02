@@ -101,7 +101,7 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
                                             <span className="text-2xl">{Icon ? <Icon /> : <FaQuestion />}</span>
                                             {!isCollapsed && <span className="ml-4">{label || 'Unnamed Item'}</span>}
                                         </Link>
-                                        {isCollapsed && tooltip && (
+                                        {isCollapsed && (
                                             <Tooltip text={tooltip || label || 'Unnamed Item'} position="right" styles="" />
                                         )}
                                     </li>
