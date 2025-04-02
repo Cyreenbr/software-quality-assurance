@@ -4,7 +4,6 @@ import Layout from './components/Layout';
 import NotFound404 from './components/skillsComponents/NotFound404';
 import ProtectedRoute from './components/skillsComponents/ProtectedRoute';
 import ErrorPage from './pages/ErrorPage';
-import Pfa from './pages/pfaPage/Pfa';
 import SignIn from './pages/signinPage/SignIn';
 import SignUp from './pages/signupPage/SignUp';
 import { menuConfig } from './services/configs/menuHandler';
@@ -42,7 +41,7 @@ function App() {
             />
           );
         })}
-        <Route path="/pfa" element={React.createElement(withLayout(Pfa))} />
+
         {/* Authentication Pages */}
         <Route path="/signin" element={withLayout(SignIn, true)} />
         <Route path="/signup" element={withLayout(SignUp, true)} />
