@@ -1,15 +1,16 @@
-/*import { useState, useEffect } from "react";
+import { useState } from "react";
 import * as XLSX from "xlsx";
-import { MdSchool, MdUploadFile, MdRefresh, MdEdit, MdDelete, MdWarning } from "react-icons/md";
-import { insertStudentsFromExcel, deleteStudent } from "../services/StudentServices/student.service";
+import { MdSchool, MdUploadFile, MdRefresh } from "react-icons/md";
+import { insertStudentsFromExcel } from "../../services/StudentServices/student.service";
 
-const StudentManag = () => {
+const StudentExcel = ({ onBackClick }) => {
   const [file, setFile] = useState(null);
   const [tableData, setTableData] = useState([]);
   const [columns, setColumns] = useState([]);
   const [showStudentList, setShowStudentList] = useState(false);
   const [importedStudents, setImportedStudents] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(0);
   const studentsPerPage = 5;
 
   const handleFileChange = (event) => {
@@ -87,6 +88,15 @@ const StudentManag = () => {
     return importedStudents.slice(startIndex, endIndex);
   };
 
+  const handleBackToStudentList = () => {
+    if (showStudentList) {
+      setShowStudentList(false); // Retour au formulaire d'import
+    } else {
+      // Retour à la liste des étudiants principale
+      onBackClick && onBackClick();
+    }
+  };
+
   const renderImportForm = () => {
     return (
       <div className="bg-white shadow-md rounded-lg p-4 w-full">
@@ -97,12 +107,20 @@ const StudentManag = () => {
             onChange={handleFileChange} 
             className="border p-2 rounded" 
           />
-          <button 
-            onClick={handleImportClick}
-            className="flex items-center bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600"
-          >
-            <MdUploadFile className="mr-2" /> Import Excel
-          </button>
+          <div className="flex items-center gap-2">
+            <button 
+              onClick={handleImportClick}
+              className="flex items-center bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600"
+            >
+              <MdUploadFile className="mr-2" /> Import Excel
+            </button>
+            <button 
+              onClick={onBackClick}
+              className="flex items-center bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600"
+            >
+              Retour
+            </button>
+          </div>
         </div>
         {tableData.length > 0 && (
           <div className="overflow-x-auto max-w-full">
@@ -134,11 +152,81 @@ const StudentManag = () => {
     );
   };
 
+  const renderStudentList = () => {
+    return (
+      <div className="bg-white shadow-md rounded-lg p-4 w-full">
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-xl font-semibold">Étudiants importés</h2>
+          <div className="flex gap-2">
+            <button 
+              onClick={() => setShowStudentList(false)}
+              className="flex items-center bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+            >
+              <MdRefresh className="mr-2" /> Nouvel import
+            </button>
+            <button 
+              onClick={onBackClick}
+              className="flex items-center bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
+            >
+              Retour
+            </button>
+          </div>
+        </div>
+        
+        <div className="overflow-x-auto">
+          <table className="min-w-full divide-y divide-gray-200">
+            <thead className="bg-gray-100">
+              <tr>
+                {columns.map((col, index) => (
+                  <th key={index} className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+                    {col || "-"}
+                  </th>
+                ))}
+                
+              </tr>
+            </thead>
+            <tbody>
+              {getPaginatedStudents().map((student, index) => (
+                <tr key={index} className="hover:bg-gray-50">
+                  {columns.map((col, colIndex) => (
+                    <td key={colIndex} className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      {student[col] || "-"}
+                    </td>
+                  ))}
+                 
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <div className="flex justify-center mt-4">
+            {Array.from({ length: totalPages }).map((_, index) => (
+              <button
+                key={index}
+                onClick={() => handlePageChange(index + 1)}
+                className={`mx-1 px-3 py-1 rounded ${
+                  currentPage === index + 1
+                    ? "bg-blue-500 text-white"
+                    : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                }`}
+              >
+                {index + 1}
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+    );
+  };
+
   return (
     <div className="w-full p-6">
       <h1 className="text-2xl font-bold mb-4 flex items-center">
         <MdSchool className="text-blue-500 text-3xl mr-2" /> 
-        Student Management
+        Importation Excel des Étudiants
       </h1>
       
       {showStudentList ? renderStudentList() : renderImportForm()}
@@ -146,4 +234,4 @@ const StudentManag = () => {
   );
 };
 
-export default StudentManag;*/
+export default StudentExcel;

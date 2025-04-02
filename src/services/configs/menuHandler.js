@@ -12,6 +12,9 @@ import ErrorPage from '../../pages/ErrorPage';
 import Home from '../../pages/homePage/Home';
 import Notifications from '../../pages/Notifications';
 import Profile from '../../pages/profilePage/Profile';
+
+import { PiStudentFill } from "react-icons/pi";
+import { GiTeacher } from "react-icons/gi";
 import InternshipList from "../../pages/studentInternshipPage/studentInternship";
 import StudentManag from '../../pages/StudentManag';
 import Subjects from '../../pages/subjectsPage/Subjects';
@@ -125,20 +128,9 @@ export const menuConfig = [
         hideHeader: false,
 
     },
+   
     {
         order: 9,
-        label: 'Student Management',
-        icon: MdSchool,
-        path: '/student-management',
-        component: StudentManag,
-        eligibleRoles: [RoleEnum.ADMIN],
-        active: true,
-        hideSideBar: false,
-        hideHeader: false,
-
-    },
-    {
-        order: 10,
         label: 'Manage Students',
         icon: PiStudentFill,
         path: '/managestudents',
@@ -149,7 +141,7 @@ export const menuConfig = [
         hideHeader: false,
     },
     {
-        order: 11,
+        order: 10,
         label: 'Manage Teachers',
         icon: GiTeacher,
         path: '/manageteachers',
