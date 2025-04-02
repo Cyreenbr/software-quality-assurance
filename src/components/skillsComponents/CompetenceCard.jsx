@@ -23,12 +23,16 @@ const SkillCard = ({ skill, setEditSkill, setIsEditPopupOpen, handleDeleteSkill,
         return () => window.removeEventListener('resize', handleResize);
     }, []);
 
-    const handleConfirmDelete = () => {
+    const handleConfirmDelete = async () => {
         if (skillToDelete) {
-            handleDeleteSkill(skillToDelete._id, forced);
-            setIsDeletePopupOpen(false);
+            const deleteSuccess = await handleDeleteSkill(skillToDelete._id, forced);
+            console.log(deleteSuccess);
+
+            // Fermer la popup si la suppression a réussi
+            setIsDeletePopupOpen(deleteSuccess);
         }
     };
+
 
     const confirmDeleteMessage = `Are you sure you want to delete the skill "${skill?.title}"?`;
 
@@ -36,20 +40,16 @@ const SkillCard = ({ skill, setEditSkill, setIsEditPopupOpen, handleDeleteSkill,
         <div className="bg-white p-6 shadow-lg rounded-lg hover:shadow-xl hover:cursor-pointer transition-all duration-300 overflow-auto">
             <div className="relative" onClick={() => setIsDetailsPopupOpen(true)}>
                 <h2 className="text-xl text-center font-semibold text-blue-600">{skill?.title || 'No Title'}</h2>
-                <p className="text-gray-700 mt-2">
-                    <span className="text-sm font-bold">Description(FR): </span>
-                    {skill?.frDescription
-                        ? skill.frDescription.length > 20
-                            ? `${skill.frDescription.slice(0, 20)}...`
-                            : skill.frDescription
+                <span className="text-sm font-bold">Description(FR): </span>
+                <p className="text-gray-700 mt-2 truncate max-w-full">
+                    {skill?.frDescription ?
+                        skill.frDescription
                         : 'No Description'}
                 </p>
-                <p className="text-gray-700 mt-2">
-                    <span className="text-sm font-bold">Description(EN): </span>
-                    {skill?.enDescription
-                        ? skill.enDescription.length > 20
-                            ? `${skill.enDescription.slice(0, 20)}...`
-                            : skill.enDescription
+                <span className="text-sm font-bold">Description(EN): </span>
+                <p className="text-gray-700 mt-2 truncate max-w-full">
+                    {skill?.enDescription ?
+                        skill.enDescription
                         : 'No Description'}
                 </p>
             </div>
@@ -137,7 +137,7 @@ const SkillCard = ({ skill, setEditSkill, setIsEditPopupOpen, handleDeleteSkill,
                     </h2>
 
                     <div className="mb-6">
-                        <div className=" pb-0.5 text-lg text-center font-medium text-gray-700">Force Delete:</div>
+                        {/* <div className=" pb-0.5 text-lg text-center font-medium text-gray-700">Force Delete:</div> */}
                         <div className="flex justify-center gap-4 mt-2">
                             {/* Force Delete Button */}
                             <button
@@ -150,11 +150,11 @@ const SkillCard = ({ skill, setEditSkill, setIsEditPopupOpen, handleDeleteSkill,
                             >
                                 {forced ? (
                                     <>
-                                        <FiCheckCircle className="text-white text-lg" /> Enabled
+                                        <FiCheckCircle className="text-white text-lg" /> Force Delete Enabled
                                     </>
                                 ) : (
                                     <>
-                                        <FiAlertTriangle className="text-gray-700 text-lg" /> Delete
+                                        <FiAlertTriangle className="text-gray-700 text-lg" /> Enable Force Delete
                                     </>
                                 )}
                             </button>
@@ -232,8 +232,15 @@ const SkillCard = ({ skill, setEditSkill, setIsEditPopupOpen, handleDeleteSkill,
                             }} // Handle Edit action
                             className="bg-yellow-500 text-white px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-yellow-600 transition"
                         >
-                            {!isMobile ? 'Edit' : ''}<FaEdit className="text-white" />
+                            {/* {!isMobile ? 'Edit' : ''}<FaEdit className="text-white" /> */}
                             {/* {!isMobile ? <FaEdit className="text-white" /> : 'Edit'} */}
+                            {!isMobile ? <>
+                                Edit
+                                <FaEdit className="text-white" />
+                            </> : ''}
+                            {isMobile ? <Tooltip text={"Edit"} position='top'>
+                                <FaEdit className="text-white" />
+                            </Tooltip> : ''}
                         </button>
                         <button
                             onClick={() => {
@@ -243,7 +250,13 @@ const SkillCard = ({ skill, setEditSkill, setIsEditPopupOpen, handleDeleteSkill,
                             }} // Handle Delete action
                             className="bg-red-500 text-white px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-red-600 transition"
                         >
-                            {!isMobile ? 'Delete' : ''}<FaTrashAlt className="text-white" />
+                            {!isMobile ? <>
+                                Delete
+                                <FaTrashAlt className="text-white" />
+                            </> : ''}
+                            {isMobile ? <Tooltip text={"Delete"} position='top'>
+                                <FaTrashAlt className="text-white" />
+                            </Tooltip> : ''}
                         </button>
                     </div>
 

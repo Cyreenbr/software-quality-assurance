@@ -1,9 +1,20 @@
 import React, { useEffect, useState } from 'react';
-import { FaPlusCircle } from 'react-icons/fa';
+import { FaEdit, FaPlusCircle } from 'react-icons/fa';
 import { FiAlertTriangle, FiCheckCircle } from 'react-icons/fi';
 import Popup from './Popup'; // Assuming you have this Popup component
+import Tooltip from './tooltip';
 
-const SkillForm = ({ isAddPopupOpen, setIsAddPopupOpen, families, newSkill, setNewSkill, handleAddSkill, editSkill, setEditSkill, isEditPopupOpen, setIsEditPopupOpen, handleUpdateSkill }) => {
+const SkillForm = ({
+    isPopupOpen,
+    setIsPopupOpen,
+    families,
+    newSkill,
+    setNewSkill,
+    handleAddSkill,
+    editSkill,
+    setEditSkill,
+    handleUpdateSkill
+}) => {
     const [isMobile, setIsMobile] = useState(false);
 
     // Detect mobile/tablet screen sizes
@@ -17,50 +28,115 @@ const SkillForm = ({ isAddPopupOpen, setIsAddPopupOpen, families, newSkill, setN
 
         return () => window.removeEventListener('resize', handleResize); // Clean up listener
     }, []);
-    // Prevent form submit and handle add/update skill
-    const handleSubmit = (e, action) => {
-        e.preventDefault(); // Prevent default form submit
-        action(); // Execute the passed action (handleAddSkill or handleUpdateSkill)
-    };
-    return (
-        <form onSubmit={(e) => { handleSubmit(e, editSkill ? handleAddSkill : handleUpdateSkill) }}>
-            {/* Add Skill Popup */}
-            <Popup
-                showCloseButton={true}
-                isOpen={isAddPopupOpen}
-                onClose={() => setIsAddPopupOpen(false)}
-                title="Add New Competence"
-                position="center"
-            >
-                {/* Form Inputs */}
+
+    const renderInputField = ({ id, label, value, onChange, type = "text", placeholder }) => (
+        <div className="mb-3">
+            <label htmlFor={id} className="block text-sm font-medium text-gray-700">{label}</label>
+            {type === "textarea" ? (
+                <textarea
+                    id={id}
+                    placeholder={placeholder}
+                    className="border p-3 rounded-xl w-full focus:ring-2 focus:ring-blue-300 mt-1 transition-transform focus:outline-none focus:shadow-lg"
+                    value={value || ""} // Assure que value n'est jamais undefined
+                    onChange={onChange}
+                />
+            ) : (
                 <input
-                    type="text"
-                    placeholder="Title"
-                    className="border p-3 rounded-xl mb-3 w-full focus:ring-2 focus:ring-blue-300"
-                    value={newSkill.title}
-                    onChange={(e) => setNewSkill({ ...newSkill, title: e.target.value })}
+                    id={id}
+                    type={type}
+                    placeholder={placeholder}
+                    className="border p-3 rounded-xl w-full focus:ring-2 focus:ring-blue-300 mt-1 transition-transform focus:outline-none focus:shadow-lg"
+                    value={value || ""} // Assure que value n'est jamais undefined
+                    onChange={onChange}
                 />
-                <textarea
-                    placeholder="French Description"
-                    className="border p-3 rounded-xl mb-3 w-full focus:ring-2 focus:ring-blue-300"
-                    value={newSkill.frDescription}
-                    onChange={(e) => setNewSkill({ ...newSkill, frDescription: e.target.value })}
-                />
-                <textarea
-                    placeholder="English Description"
-                    className="border p-3 rounded-xl mb-3 w-full focus:ring-2 focus:ring-blue-300"
-                    value={newSkill.enDescription}
-                    onChange={(e) => setNewSkill({ ...newSkill, enDescription: e.target.value })}
-                />
+            )}
+        </div>
+    );
+
+
+    // Handle submit logic for both Add and Edit
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        // If editSkill exists, it's an update, else it's an add
+        if (editSkill) {
+            handleUpdateSkill(e);
+        } else {
+            handleAddSkill(e);
+        }
+    };
+
+    return (
+        <Popup
+            showCloseButton={true}
+            isOpen={isPopupOpen}
+            onClose={() => setIsPopupOpen(false)}
+            title={editSkill ? "Edit Competence" : "Add New Competence"}
+            position="center"
+        >
+            <form onSubmit={(e) => { handleSubmit(e) }} className="animate__animated animate__fadeIn">
+                {/* Title Input */}
+                {renderInputField({
+                    id: editSkill ? "editTitle" : "title",
+                    label: "Title",
+                    placeholder: "Title",
+                    value: editSkill ? editSkill.title : newSkill.title,
+                    onChange: (e) => {
+                        if (editSkill) {
+                            setEditSkill({ ...editSkill, title: e.target.value });
+                        } else {
+                            setNewSkill({ ...newSkill, title: e.target.value });
+                        }
+                    }
+                })}
+
+                {/* French Description */}
+                {renderInputField({
+                    id: editSkill ? "editFrDescription" : "frDescription",
+                    label: "French Description",
+                    placeholder: "French Description",
+                    value: editSkill ? editSkill.frDescription : newSkill.frDescription,
+                    onChange: (e) => {
+                        if (editSkill) {
+                            setEditSkill({ ...editSkill, frDescription: e.target.value });
+                        } else {
+                            setNewSkill({ ...newSkill, frDescription: e.target.value });
+                        }
+                    },
+                    type: "textarea"
+                })}
+
+                {/* English Description */}
+                {renderInputField({
+                    id: editSkill ? "editEnDescription" : "enDescription",
+                    label: "English Description",
+                    placeholder: "English Description",
+                    value: editSkill ? editSkill.enDescription : newSkill.enDescription,
+                    onChange: (e) => {
+                        if (editSkill) {
+                            setEditSkill({ ...editSkill, enDescription: e.target.value });
+                        } else {
+                            setNewSkill({ ...newSkill, enDescription: e.target.value });
+                        }
+                    },
+                    type: "textarea"
+                })}
+
+                {/* Select Families */}
                 <div className="mb-3">
+                    <label htmlFor={editSkill ? "editFamilyId" : "familyId"} className="block text-sm font-medium text-gray-700">Select Families</label>
                     <select
+                        id={editSkill ? "editFamilyId" : "familyId"}
                         multiple
-                        value={newSkill.familyId || []} // Ensure it's always an array
+                        defaultValue={editSkill ? editSkill.familyId.map(family => family._id) || [] : newSkill.familyId || []}
                         onChange={(e) => {
                             const selectedValues = Array.from(e.target.selectedOptions, (option) => option.value);
-                            setNewSkill({ ...newSkill, familyId: selectedValues });
+                            if (editSkill) {
+                                setEditSkill({ ...editSkill, familyId: selectedValues });
+                            } else {
+                                setNewSkill({ ...newSkill, familyId: selectedValues });
+                            }
                         }}
-                        className="border p-3 rounded-xl mb-3 w-full focus:ring-2 focus:ring-blue-300"
+                        className="border p-3 rounded-xl w-full focus:ring-2 focus:ring-blue-300 mt-1 transition-transform transform hover:scale-105 focus:outline-none focus:shadow-lg"
                     >
                         <option value="" disabled>Select families</option>
                         {families.map((family) => (
@@ -70,68 +146,15 @@ const SkillForm = ({ isAddPopupOpen, setIsAddPopupOpen, families, newSkill, setN
                         ))}
                     </select>
                 </div>
-                <button
-                    onClick={handleAddSkill}
-                    className="bg-green-600 text-white px-6 py-3 rounded-xl shadow-lg hover:bg-green-700 transition transform duration-300 w-full flex items-center justify-center space-x-2"
-                >
-                    <FaPlusCircle className="text-xl" />
-                    {!isMobile && <span>Add Competence</span>}
-                </button>
-            </Popup>
 
-            {/* Edit Skill Popup */}
-            {editSkill && (
-                <Popup
-                    showCloseButton={true}
-                    isOpen={isEditPopupOpen}
-                    onClose={() => setIsEditPopupOpen(false)}
-                    title="Edit Competence"
-                    position="center"
-                >
-                    {/* Form Inputs */}
-                    <input
-                        type="text"
-                        placeholder="Title"
-                        className="border p-3 rounded-xl mb-3 w-full focus:ring-2 focus:ring-blue-300"
-                        value={editSkill.title}
-                        onChange={(e) => setEditSkill({ ...editSkill, title: e.target.value })}
-                    />
-                    <textarea
-                        placeholder="French Description"
-                        className="border p-3 rounded-xl mb-3 w-full focus:ring-2 focus:ring-blue-300"
-                        value={editSkill.frDescription}
-                        onChange={(e) => setEditSkill({ ...editSkill, frDescription: e.target.value })}
-                    />
-                    <textarea
-                        placeholder="English Description"
-                        className="border p-3 rounded-xl mb-3 w-full focus:ring-2 focus:ring-blue-300"
-                        value={editSkill.enDescription}
-                        onChange={(e) => setEditSkill({ ...editSkill, enDescription: e.target.value })}
-                    />
-                    <div className="mb-3">
-                        <select
-                            multiple
-                            defaultValue={editSkill.familyId.map(family => family._id) || []}
-                            onChange={(e) => {
-                                const selectedValues = Array.from(e.target.selectedOptions, (option) => option.value);
-                                setEditSkill({ ...editSkill, familyId: selectedValues });
-                            }}
-                            className="border-2 border-gray-300 p-3 rounded-xl mb-3 w-full focus:ring-2 focus:ring-blue-500 focus:outline-none hover:border-blue-400 transition-all ease-in-out duration-200"
-                        >
-                            <option value="" disabled>Select families</option>
-                            {families.map((family) => (
-                                <option key={family._id} value={family._id}>
-                                    {family.title}
-                                </option>
-                            ))}
-                        </select>
-
-                    </div>
-
-                    {/* Force Update Checkbox */}
+                {/* Force Update Checkbox (only for Edit) */}
+                {editSkill && (
                     <div className="flex mb-4 justify-center">
                         <button
-                            onClick={() => setEditSkill({ ...editSkill, forced: !editSkill?.forced })}
+                            onClick={(e) => {
+                                e.preventDefault();
+                                setEditSkill({ ...editSkill, forced: !editSkill?.forced });
+                            }}
                             className={`flex items-center space-x-2 px-4 py-2 rounded-full font-medium transition duration-300 shadow-md
                             ${editSkill?.forced ? "bg-indigo-600 text-white hover:bg-indigo-700" : "bg-gray-300 text-gray-700 hover:bg-gray-400"}`}
                         >
@@ -146,18 +169,28 @@ const SkillForm = ({ isAddPopupOpen, setIsAddPopupOpen, families, newSkill, setN
                             )}
                         </button>
                     </div>
+                )}
 
-
-
-                    <button
-                        onClick={handleUpdateSkill}
-                        className="bg-yellow-600 text-white px-6 py-3 rounded-xl shadow-lg hover:bg-yellow-700 transition transform duration-300 w-full"
-                    >
-                        Update Competence
-                    </button>
-                </Popup>
-            )}
-        </form>
+                {/* Submit Button */}
+                <button
+                    type="submit"
+                    className={`${editSkill ? "bg-yellow-600 hover:bg-yellow-700" : "bg-green-600 hover:bg-green-700"
+                        } text-white px-6 py-3 rounded-xl shadow-lg transition transform duration-300 w-full flex items-center justify-center space-x-2`}
+                >
+                    {isMobile && (
+                        <Tooltip position="top" text={editSkill ? 'Update Competence' : 'Add Competence'}>
+                            {editSkill ? <FaEdit className="text-xl" /> : <FaPlusCircle className="text-xl" />}
+                        </Tooltip>
+                    )}
+                    {!isMobile && (
+                        <span className="flex items-center">
+                            {editSkill ? <FaEdit className="text-xl" /> : <FaPlusCircle className="text-xl" />}
+                            <span>{editSkill ? 'Update Competence' : 'Add Competence'}</span>
+                        </span>
+                    )}
+                </button>
+            </form>
+        </Popup>
     );
 };
 

@@ -1,5 +1,7 @@
 # services, config et consommation des APIs du Backend
 
+## Pour tout le monde l karim (par Chedly)':'
+
 ## ki bech tconsommi APi mel backend juste esta3mel **`axiosAPI` (importiha men AxiosAPI folder)** fi **3oudh axios.create()** kima fel exemple li louta
 
 ### exemple URL : **`http://localhost:8080/api/users/register`** just axiosAPi a3tih `/users/register`

@@ -1,18 +1,27 @@
 import React, { useEffect, useState } from 'react';
-import { FaBook } from 'react-icons/fa';
-import { FaLaptopCode } from "react-icons/fa";
-import { MdAccountCircle, MdDashboard, MdHome, MdNotifications } from 'react-icons/md';
+import { FaQuestion } from 'react-icons/fa';
 import { Link, useLocation } from 'react-router-dom';
 
 const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
-    const location = useLocation();
-    const isMobileOrTablet = window.innerWidth < 1024;
+    const location = useLocation(); 
     const isDesktop = !isMobileOrTablet;
 
     // Retrieve collapsed state from localStorage (persist across reloads)
     const [isCollapsed, setIsCollapsed] = useState(() => {
         return JSON.parse(localStorage.getItem("isSidebarCollapsed")) || false;
     });
+    // State for mobile/tablet and desktop detection
+    const [isMobileOrTablet, setIsMobileOrTablet] = useState(window.innerWidth < 1024);
+
+    useEffect(() => {
+        const handleResize = () => {
+            setIsMobileOrTablet(window.innerWidth < 1024);
+        };
+        // Listen to resize events to adjust the screen size on window change
+        window.addEventListener('resize', handleResize);
+        // Cleanup the event listener on component unmount
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
 
     useEffect(() => {
         if (isMobileOrTablet) {
@@ -33,15 +42,6 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
     const handleLinkClick = () => {
         if (isMobileOrTablet) setIsSidebarOpen(false);
     };
-
-    const menuItems = [
-        { label: 'Home', icon: <MdHome />, path: '/', tooltip: 'Home' },
-        { label: 'Dashboard', icon: <MdDashboard />, path: '/dashboard', tooltip: 'Dashboard' },
-        { label: 'Profile', icon: <MdAccountCircle />, path: '/profile', tooltip: 'Profile' },
-        { label: 'Subjects', icon: <FaBook />, path: '/subjects', tooltip: 'Subjects' },
-        { label: 'PFA', icon: <FaLaptopCode />, path: '/pfa', tooltip: 'Pfa' },
-        { label: 'Notifications', icon: <MdNotifications />, path: '/notifications', tooltip: 'Notifications' },
-    ];
 
     return (
         <>
@@ -82,26 +82,23 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
                 {/* Navigation Menu */}
                 <nav className="p-4">
                     <ul className="space-y-2">
-                        {menuItems.map(({ label, icon, path, tooltip }) => (
-                            <li key={path} className="relative group">
+                        {menuItems.map(({ label, icon: Icon, path, tooltip, order }) => (
+                            <li key={order} className="relative group">
                                 <Link
                                     to={path}
                                     className={`flex items-center p-3 rounded-lg transition 
                                         ${location.pathname === path ? 'bg-indigo-600 text-white' : 'hover:bg-indigo-100 text-gray-700'}`}
                                     onClick={handleLinkClick}
                                 >
-                                    <span className="text-2xl">{icon}</span>
+                                    <span className="text-2xl">{Icon ? <Icon /> : <FaQuestion />}</span>
                                     {/* Only show label if not collapsed */}
-                                    {!isCollapsed && <span className="ml-4">{label}</span>}
+                                    {!isCollapsed && <span className="ml-4">{label ? label : 'zid label fel menuHandler.js'}</span>}
                                 </Link>
 
                                 {/* Tooltip (Show only when collapsed) */}
+                                {/* {isCollapsed && tooltip && ( */}
                                 {isCollapsed && (
-                                    <span className="absolute left-16 top-1/2 transform -translate-y-1/2
-                                        bg-gray-900 text-white text-xs font-semibold py-1 px-3 rounded shadow-lg
-                                        opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap">
-                                        {tooltip}
-                                    </span>
+                                    <Tooltip text={tooltip ? tooltip : label} position="right" styles='' />
                                 )}
                             </li>
                         ))}
