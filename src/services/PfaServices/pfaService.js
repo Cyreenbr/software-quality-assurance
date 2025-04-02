@@ -24,6 +24,38 @@ const pfaService = {
     }
   },
 
+  rejectPfa: async (pfaId) => {
+    try {
+      const response = await axios.patch(
+        `${API_BASE_URL}/${pfaId}/reject`,
+        {}, // Pass an empty body if the API requires it
+        { headers: { ...getAuthHeader() } } // Headers should be the third argument
+      );
+
+      console.log("Successfully rejected PFA");
+      return response.data;
+    } catch (error) {
+      console.error("Error API (Patch PFA):", error.response?.data || error);
+      return null;
+    }
+  },
+
+  publishPfa: async (pfaId) => {
+    try {
+      const response = await axios.patch(
+        `${API_BASE_URL}/${pfaId}/publish`,
+        {}, // Pass an empty body if the API requires it
+        { headers: { ...getAuthHeader() } } // Headers should be the third argument
+      );
+
+      console.log("Successfully rejected PFA");
+      return response.data;
+    } catch (error) {
+      console.error("Error API (Patch PFA):", error.response?.data || error);
+      return null;
+    }
+  },
+
   getTeacherPfas: async () => {
     try {
       const response = await axios.get(`${API_BASE_URL}/mine`, {
@@ -71,7 +103,7 @@ const pfaService = {
 
   deletePfa: async (pfaId) => {
     try {
-      const response = await axios.delete(`${API_BASE_URL}/${pfaId}/`, {
+      const response = await axios.delete(`${API_BASE_URL}/${pfaId}`, {
         headers: { ...getAuthHeader() },
       });
 
@@ -82,6 +114,36 @@ const pfaService = {
       return null;
     }
   },
+
+  sendEmail: async () => {
+    var status;
+    const param = localStorage.getItem("emailSent");
+
+    if (param) {
+      status = "modified";
+    } else {
+      localStorage.setItem("emailSent", true);
+      status = "first";
+    }
+    try {
+      const response = await axios.post(
+        `${API_BASE_URL}/send/${status}`,
+        {},
+        {
+          headers: { ...getAuthHeader() },
+        }
+      );
+
+      console.log("i netred the send mail fnct");
+      alert("email has been sent");
+
+      return response.data;
+    } catch (error) {
+      console.error("Error API (POST PFA) :", error);
+      return null;
+    }
+  },
+
   //   addPeriod: async (periodData) => {
   //     try {
   //       const response = await axios.post(`${API_BASE_URL}/period/open`, periodData, {
