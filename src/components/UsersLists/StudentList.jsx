@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { getStudents } from "../../services/ManageUsersServices/students.service";
-import { FaTrashAlt, FaEdit } from "react-icons/fa";
-export default function StudentList() {
+import { FaTrashAlt, FaEdit, FaPlus } from "react-icons/fa";
+
+export default function StudentList({ onAddClick }) {
   const [studentsList, setStudentsList] = useState([]);
   const [filteredStudents, setFilteredStudents] = useState([]);
   const [selectedLevel, setSelectedLevel] = useState("");
+  
   useEffect(() => {
     const fetchStudents = async () => {
       try {
@@ -20,6 +22,7 @@ export default function StudentList() {
 
     fetchStudents();
   }, []);
+  
   const formatDate = (dateString) => {
     const date = new Date(dateString);
     return date.toLocaleDateString("en-US", {
@@ -29,6 +32,7 @@ export default function StudentList() {
       day: "numeric",
     });
   };
+  
   const handleLevelFilter = (e) => {
     const level = e.target.value;
     setSelectedLevel(level);
@@ -46,7 +50,15 @@ export default function StudentList() {
     <div className="p-6 bg-white rounded-lg shadow-lg">
       <h1 className="text-2xl font-bold mb-4">Manage Students </h1>
       <div className="bg-white p-6 rounded-lg shadow-lg mb-6">
-        <h2 className="text-xl font-semibold mb-4">List of Students</h2>
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-xl font-semibold">List of Students</h2>
+          <button 
+  className="bg-gray-400 text-white p-2 rounded-full hover:bg-grey-500"
+  onClick={onAddClick}
+>
+  <FaPlus size={18} />
+</button>
+        </div>
         <div className="overflow-x-auto">
           <div className="mb-4">
             <label
