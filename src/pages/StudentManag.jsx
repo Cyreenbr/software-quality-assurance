@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+/*import { useState, useEffect } from "react";
 import * as XLSX from "xlsx";
 import { MdSchool, MdUploadFile, MdRefresh, MdEdit, MdDelete, MdWarning } from "react-icons/md";
 import { insertStudentsFromExcel, deleteStudent } from "../services/StudentServices/student.service";
@@ -10,12 +10,7 @@ const StudentManag = () => {
   const [showStudentList, setShowStudentList] = useState(false);
   const [importedStudents, setImportedStudents] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(3);
   const studentsPerPage = 5;
-  // Add states for delete confirmation modal
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [studentToDelete, setStudentToDelete] = useState(null);
-  const [isDeleting, setIsDeleting] = useState(false);
 
   const handleFileChange = (event) => {
     const selectedFile = event.target.files[0];
@@ -151,4 +146,4 @@ const StudentManag = () => {
   );
 };
 
-export default StudentManag;
+export default StudentManag;*/

@@ -15,8 +15,7 @@ import StudentsManagPage from "../../pages/UsersManagementPage/StudentsManagPage
 import { PiStudentFill } from "react-icons/pi";
 import { GiTeacher } from "react-icons/gi";
 import TeachersManagPage from "../../pages/UsersManagementPage/TeachersManagPage";
-import StudentManag from '../../pages/StudentManag';
-import SignIn from '../../pages/signinPage/SignIn';
+
 export const menuConfig = [
     {
         order: 1,
@@ -123,20 +122,9 @@ export const menuConfig = [
         hideHeader: false,
 
     },
+   
     {
         order: 9,
-        label: 'Student Management',
-        icon: MdSchool,
-        path: '/student-management',
-        component: StudentManag,
-        eligibleRoles: [RoleEnum.ADMIN],
-        active: true,
-        hideSideBar: false,
-        hideHeader: false,
-
-    },
-    {
-        order: 10,
         label: 'Manage Students',
         icon: PiStudentFill,
         path: '/managestudents',
@@ -148,7 +136,7 @@ export const menuConfig = [
 
     },
     {
-        order: 11,
+        order: 10,
         label: 'Manage Teachers',
         icon: GiTeacher,
         path: '/manageteachers',
