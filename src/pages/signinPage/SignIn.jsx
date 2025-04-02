@@ -1,16 +1,13 @@
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { loginUser } from "../../redux/authSlice"; // Adjust the import path as necessary
-import "./SignIn.css"; // Adjust the import path as necessary
-
+import { loginUser } from "../../redux/authSlice"; 
+import "./SignIn.css"; 
 const SignIn = () => {
     const [formData, setFormData] = useState({ email: "", password: "" });
     const dispatch = useDispatch();
     const navigate = useNavigate();
-
     const { loading, error } = useSelector((state) => state.auth);
-
     // Handle input change
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });

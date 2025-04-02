@@ -1,38 +1,47 @@
 import React, { useEffect, useState } from 'react';
+
 import { FaBook } from 'react-icons/fa';
 import { MdAccountCircle, MdDashboard, MdHome, MdNotifications, MdSchool } from 'react-icons/md';
+import { FaQuestion } from 'react-icons/fa';
+import { useSelector } from 'react-redux';
 import { Link, useLocation } from 'react-router-dom';
+import { getMenuItems } from '../services/configs/menuHandler';
+import Tooltip from './skillsComponents/tooltip';
 
 const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
+    const role = useSelector((state) => state.auth.role);
+    const menuItems = getMenuItems(role);
     const location = useLocation();
-    const isMobileOrTablet = window.innerWidth < 1024;
-    const isDesktop = !isMobileOrTablet;
 
-    // Retrieve collapsed state from localStorage (persist across reloads)
+    // State for collapsed sidebar
     const [isCollapsed, setIsCollapsed] = useState(() => {
-        return JSON.parse(localStorage.getItem("isSidebarCollapsed")) || false;
+        return JSON.parse(localStorage.getItem('isSidebarCollapsed')) || false;
     });
 
-    useEffect(() => {
-        if (isMobileOrTablet) {
-            setIsCollapsed(false);
-        }
-        localStorage.setItem("isSidebarCollapsed", JSON.stringify(isCollapsed));
+    // State for mobile/tablet and desktop detection
+    const [isMobileOrTablet, setIsMobileOrTablet] = useState(window.innerWidth < 1024);
 
+    useEffect(() => {
+        const handleResize = () => {
+            setIsMobileOrTablet(window.innerWidth < 1024);
+        };
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
+
+    useEffect(() => {
+        if (isMobileOrTablet) setIsCollapsed(false); // Automatically collapse on mobile/tablet
+        localStorage.setItem('isSidebarCollapsed', JSON.stringify(isCollapsed));
     }, [isCollapsed, isMobileOrTablet]);
 
-    // Toggle collapse only on desktop
     const handleCollapseToggle = () => {
-        if (isDesktop) {
-            setIsCollapsed(prev => !prev);
-        }
+        if (!isMobileOrTablet) setIsCollapsed((prev) => !prev);
     };
 
-    // Close sidebar on mobile/tablet when clicking a link
     const handleLinkClick = () => {
         if (isMobileOrTablet) setIsSidebarOpen(false);
     };
-
+/*
     const menuItems = [
         { label: 'Home', icon: <MdHome />, path: '/', tooltip: 'Home' },
         { label: 'Dashboard', icon: <MdDashboard />, path: '/dashboard', tooltip: 'Dashboard' },
@@ -42,7 +51,7 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
         
         { label: 'Student Management', icon: <MdSchool/>, path: '/StudentManag', tooltip: 'StudentManag' },
     ];
-
+*/
     return (
         <>
             {/* Overlay (close sidebar when clicking outside on mobile/tablet) */}
@@ -55,17 +64,21 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
 
             <div
                 className={`bg-white fixed top-16 left-0 h-full shadow-lg transition-transform duration-300 ease-in-out z-40 
-                    ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0 lg:relative`}
+          ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0 lg:relative`}
                 style={{
-                    width: isCollapsed ? '85px' : '250px', // Collapsed width is 85px, otherwise 250px
+                    width: isCollapsed ? '85px' : '250px',
                 }}
             >
                 {/* Collapse Button (Only on Desktop) */}
                 <div
-                    className={`flex items-center justify-center p-4 ${isDesktop ? 'cursor-pointer bg-gray-100 hover:bg-gray-200 transition' : ''}`}
+                    className="flex items-center justify-center p-4 cursor-pointer bg-gray-100 hover:bg-gray-200 transition"
                     onClick={handleCollapseToggle}
+                    role="button"
+                    tabIndex={0}
+                    aria-expanded={!isCollapsed}
+                    aria-label="Toggle sidebar collapse"
                 >
-                    {isDesktop && (
+                    {!isMobileOrTablet && (
                         <svg
                             className={`text-indigo-600 transition-transform duration-300 ${isCollapsed ? 'rotate-180' : ''}`}
                             height="24"
@@ -82,29 +95,31 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
                 {/* Navigation Menu */}
                 <nav className="p-4">
                     <ul className="space-y-2">
-                        {menuItems.map(({ label, icon, path, tooltip }) => (
-                            <li key={path} className="relative group">
-                                <Link
-                                    to={path}
-                                    className={`flex items-center p-3 rounded-lg transition 
-                                        ${location.pathname === path ? 'bg-indigo-600 text-white' : 'hover:bg-indigo-100 text-gray-700'}`}
-                                    onClick={handleLinkClick}
-                                >
-                                    <span className="text-2xl">{icon}</span>
-                                    {/* Only show label if not collapsed */}
-                                    {!isCollapsed && <span className="ml-4">{label}</span>}
-                                </Link>
+                        {menuItems
+                            .filter((item) => item.active)
+                            .map(({ label, icon: Icon, path, tooltip, order }) => {
+                                // Resolve dynamic paths (e.g., `/subjects/:id`)
+                                const resolvedPath = typeof path === 'function' ? path(':id') : path;
 
-                                {/* Tooltip (Show only when collapsed) */}
-                                {isCollapsed && (
-                                    <span className="absolute left-16 top-1/2 transform -translate-y-1/2
-                                        bg-gray-900 text-white text-xs font-semibold py-1 px-3 rounded shadow-lg
-                                        opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap">
-                                        {tooltip}
-                                    </span>
-                                )}
-                            </li>
-                        ))}
+                                return (
+                                    <li key={order} className="relative group">
+                                        <Link
+                                            to={resolvedPath}
+                                            className={`flex items-center p-3 rounded-lg transition ${location.pathname === resolvedPath
+                                                ? 'bg-indigo-600 text-white'
+                                                : 'hover:bg-indigo-100 text-gray-700'
+                                                }`}
+                                            onClick={handleLinkClick}
+                                        >
+                                            <span className="text-2xl">{Icon ? <Icon /> : <FaQuestion />}</span>
+                                            {!isCollapsed && <span className="ml-4">{label || 'Unnamed Item'}</span>}
+                                        </Link>
+                                        {isCollapsed && (
+                                            <Tooltip text={tooltip || label || 'Unnamed Item'} position="right" styles="" />
+                                        )}
+                                    </li>
+                                );
+                            })}
                     </ul>
                 </nav>
             </div>
