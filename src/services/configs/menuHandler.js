@@ -1,20 +1,26 @@
 import { FaBook, FaGraduationCap, FaLightbulb } from 'react-icons/fa';
-import { MdAccountCircle, MdDashboard, MdHome, MdNotifications, MdSchool } from 'react-icons/md';
+import { GiTeacher } from "react-icons/gi";
+import { MdAccountCircle, MdDashboard, MdDownload, MdHome, MdList, MdNotifications, MdSchool, MdViewAgenda } from 'react-icons/md';
+import { PiStudentFill } from "react-icons/pi";
 import Pfa from '../../../src/pages/pfaPage/Pfa';
 import SubjectDetailsPage from '../../components/subjectsComponents/SubjectDetailsPage';
+import AdminPeriods from '../../pages/adminPeriodsPage/AdminPeriods';
 import Competences from '../../pages/competenecesPage/Competences';
 import Dashboard from '../../pages/dashboardPage/Dashboard';
+import DepotSujet from "../../pages/depotSujetStagePage/DepotSujetStage";
 import ErrorPage from '../../pages/ErrorPage';
 import Home from '../../pages/homePage/Home';
 import Notifications from '../../pages/Notifications';
 import Profile from '../../pages/profilePage/Profile';
-import Subjects from '../../pages/subjectsPage/Subjects';
-import { RoleEnum } from "../../utils/userRoles";
-import OptionPage from "../../pages/optionPage/OptionPage";
-import StudentsManagPage from "../../pages/UsersManagementPage/StudentsManagPage";
+
 import { PiStudentFill } from "react-icons/pi";
 import { GiTeacher } from "react-icons/gi";
+import InternshipList from "../../pages/studentInternshipPage/studentInternship";
+import StudentManag from '../../pages/StudentManag';
+import Subjects from '../../pages/subjectsPage/Subjects';
+import StudentsManagPage from "../../pages/UsersManagementPage/StudentsManagPage";
 import TeachersManagPage from "../../pages/UsersManagementPage/TeachersManagPage";
+import { RoleEnum } from "../../utils/userRoles";
 
 export const menuConfig = [
     {
@@ -133,7 +139,6 @@ export const menuConfig = [
         active: true,
         hideSideBar: false,
         hideHeader: false,
-
     },
     {
         order: 10,
@@ -146,6 +151,45 @@ export const menuConfig = [
         hideSideBar: false,
         hideHeader: false,
     },
+    {
+        order: 12,
+        label: 'Period',
+        icon: MdViewAgenda,
+        path: '/period',
+        tooltip: "period",
+        component: AdminPeriods,
+        eligibleRoles: [RoleEnum.ADMIN],
+        active: true,
+        dontShow: false,
+        hideSideBar: false,
+        hideHeader: false,
+    },
+     {
+        order: 13,
+        label: 'Depot',
+        icon: MdDownload,
+        path: '/deposit',
+        tooltip: "depot",
+        component: DepotSujet,
+        eligibleRoles: [RoleEnum.STUDENT],
+        active: true,
+        dontShow: false,
+        hideSideBar: false,
+        hideHeader: false,
+    },
+    {   order: 14,
+        label: 'Internship',
+        icon: MdList,
+        path: '/InternshipList',
+        tooltip: "Internship",
+        component: InternshipList,
+        eligibleRoles: [RoleEnum.ADMIN],
+        active: true,
+        dontShow: false,
+        hideSideBar: false,
+        hideHeader: false,
+    },
+
     // kifeh tzid route jdid ??
     // {
     //     order: 7,
@@ -158,9 +202,10 @@ export const menuConfig = [
     //     hideSideBar: false,
     //     hideHeader: false,
     // },
+
 ];
 
-export const getMenuItems = (role) => {
+ export const getMenuItems = (role) => {
     return menuConfig
         .filter((item) => item?.dontShow !== true)
         .filter((item) => item.eligibleRoles.length === 0 || item.eligibleRoles.includes(role))
