@@ -38,7 +38,7 @@ const StudentExcel = ({ onBackClick }) => {
 
   const handleImportClick = async () => {
     if (!file) {
-      alert("Veuillez sélectionner un fichier Excel");
+      alert("Please select an Excel file");
       return;
     }
     
@@ -46,9 +46,9 @@ const StudentExcel = ({ onBackClick }) => {
       const formData = new FormData();
       formData.append('file', file);
       
-      console.log("Envoi des données au serveur...");
+      console.log("Sending data to server...");
       const response = await insertStudentsFromExcel(formData);
-      console.log("Réponse du serveur:", response);
+      console.log("Server response:", response);
       
       // Transformer les données du tableau en format étudiant
       const students = tableData.map((row, index) => {
@@ -71,10 +71,10 @@ const StudentExcel = ({ onBackClick }) => {
       // Calculer le nombre de pages total
       setTotalPages(Math.ceil(students.length / studentsPerPage));
       
-      alert("Import réussi!");
+      alert("Import successful!");
     } catch (error) {
-      console.error("Erreur lors de l'import:", error);
-      alert(`Erreur lors de l'import: ${error.response?.data?.message || error.message}`);
+      console.error("Error during import:", error);
+      alert(`Import error: ${error.response?.data?.message || error.message}`);
     }
   };
 
@@ -118,7 +118,7 @@ const StudentExcel = ({ onBackClick }) => {
               onClick={onBackClick}
               className="flex items-center bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600"
             >
-              Retour
+              Back
             </button>
           </div>
         </div>
@@ -162,13 +162,13 @@ const StudentExcel = ({ onBackClick }) => {
               onClick={() => setShowStudentList(false)}
               className="flex items-center bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
             >
-              <MdRefresh className="mr-2" /> Nouvel import
+              <MdRefresh className="mr-2" /> New import
             </button>
             <button 
               onClick={onBackClick}
               className="flex items-center bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
             >
-              Retour
+              Back
             </button>
           </div>
         </div>
@@ -226,7 +226,7 @@ const StudentExcel = ({ onBackClick }) => {
     <div className="w-full p-6">
       <h1 className="text-2xl font-bold mb-4 flex items-center">
         <MdSchool className="text-blue-500 text-3xl mr-2" /> 
-        Importation Excel des Étudiants
+        Excel Import of Students
       </h1>
       
       {showStudentList ? renderStudentList() : renderImportForm()}

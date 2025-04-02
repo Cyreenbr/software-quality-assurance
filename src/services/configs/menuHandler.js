@@ -13,10 +13,8 @@ import Home from '../../pages/homePage/Home';
 import Notifications from '../../pages/Notifications';
 import Profile from '../../pages/profilePage/Profile';
 
-import { PiStudentFill } from "react-icons/pi";
-import { GiTeacher } from "react-icons/gi";
 import InternshipList from "../../pages/studentInternshipPage/studentInternship";
-import StudentManag from '../../pages/StudentManag';
+
 import Subjects from '../../pages/subjectsPage/Subjects';
 import StudentsManagPage from "../../pages/UsersManagementPage/StudentsManagPage";
 import TeachersManagPage from "../../pages/UsersManagementPage/TeachersManagPage";
