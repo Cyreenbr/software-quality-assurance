@@ -20,9 +20,8 @@ export const login = async (credentials) => {
   }
 */
 
-  export const insertStudentsFromExcel = async (userData) => {
-    console.log("hiiiiiiiiiiiiiiiiiiiiiii")
-    const response = await axios.post("http://localhost:3000/api/students/upload", userData);
+export const insertStudentsFromExcel = async (userData) => {
+    const response = await axiosAPI.post(`/students/upload`, userData);
     console.log("yesssssss")
     return response.data;
-  };
+};
