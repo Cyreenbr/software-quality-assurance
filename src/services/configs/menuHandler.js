@@ -1,21 +1,29 @@
-import { FaBook, FaGraduationCap, FaLightbulb } from 'react-icons/fa';
+import { FaBook, FaGraduationCap, FaLightbulb } from "react-icons/fa";
 import { GiTeacher } from "react-icons/gi";
-import { MdAccountCircle, MdDashboard, MdDownload, MdHome, MdList, MdNotifications, MdSchool, MdViewAgenda } from 'react-icons/md';
+import {
+    MdAccountCircle,
+    MdDashboard,
+    MdDownload,
+    MdHome,
+    MdList,
+    MdNotifications,
+    MdViewAgenda
+} from "react-icons/md";
 import { PiStudentFill } from "react-icons/pi";
-import Pfa from '../../../src/pages/pfaPage/Pfa';
-import SubjectDetailsPage from '../../components/subjectsComponents/SubjectDetailsPage';
-import AdminPeriods from '../../pages/adminPeriodsPage/AdminPeriods';
-import Competences from '../../pages/competenecesPage/Competences';
-import Dashboard from '../../pages/dashboardPage/Dashboard';
+import Pfa from "../../../src/pages/pfaPage/Pfa";
+import SubjectDetailsPage from "../../components/subjectsComponents/SubjectDetailsPage";
+import AdminPeriods from "../../pages/adminPeriodsPage/AdminPeriods";
+import Competences from "../../pages/competenecesPage/Competences";
+import Dashboard from "../../pages/dashboardPage/Dashboard";
 import DepotSujet from "../../pages/depotSujetStagePage/DepotSujetStage";
-import ErrorPage from '../../pages/ErrorPage';
-import Home from '../../pages/homePage/Home';
-import Notifications from '../../pages/Notifications';
-import Profile from '../../pages/profilePage/Profile';
 
+import ErrorPage from "../../pages/ErrorPage";
+import Home from "../../pages/homePage/Home";
+import Notifications from "../../pages/Notifications";
+import Profile from "../../pages/profilePage/Profile";
 import InternshipList from "../../pages/studentInternshipPage/studentInternship";
+import Subjects from "../../pages/subjectsPage/Subjects";
 
-import Subjects from '../../pages/subjectsPage/Subjects';
 import StudentsManagPage from "../../pages/UsersManagementPage/StudentsManagPage";
 import TeachersManagPage from "../../pages/UsersManagementPage/TeachersManagPage";
 import { RoleEnum } from "../../utils/userRoles";
@@ -23,9 +31,9 @@ import { RoleEnum } from "../../utils/userRoles";
 export const menuConfig = [
     {
         order: 1,
-        label: 'Home',
+        label: "Home",
         icon: MdHome,
-        path: '/',
+        path: "/",
         component: Home,
         eligibleRoles: [],
         active: true,
@@ -34,9 +42,9 @@ export const menuConfig = [
     },
     {
         order: 2,
-        label: 'Dashboard',
+        label: "Dashboard",
         icon: MdDashboard,
-        path: '/dashboard',
+        path: "/dashboard",
         component: Dashboard,
         eligibleRoles: [RoleEnum.ADMIN, RoleEnum.TEACHER, RoleEnum.STUDENT],
         active: true,
@@ -44,9 +52,9 @@ export const menuConfig = [
         hideHeader: false,
     },
     {
-        label: 'Error',
+        label: "Error",
         icon: undefined,
-        path: '/error',
+        path: "/error",
         component: ErrorPage,
         eligibleRoles: [],
         active: true,
@@ -56,9 +64,9 @@ export const menuConfig = [
     },
     {
         order: 3,
-        label: 'Profile',
+        label: "Profile",
         icon: MdAccountCircle,
-        path: '/profile',
+        path: "/profile",
         component: Profile,
         eligibleRoles: [RoleEnum.ADMIN, RoleEnum.TEACHER, RoleEnum.STUDENT],
         active: true,
@@ -67,10 +75,10 @@ export const menuConfig = [
     },
     {
         order: 4,
-        label: 'Competences',
+        label: "Competences",
         icon: FaLightbulb,
-        path: '/competences',
-        tooltip: 'Competences',
+        path: "/competences",
+        tooltip: "Competences",
         component: Competences,
         eligibleRoles: [RoleEnum.ADMIN, RoleEnum.TEACHER],
         active: true,
@@ -80,10 +88,10 @@ export const menuConfig = [
     },
     {
         order: 5,
-        label: 'Subjects',
+        label: "Subjects",
         icon: FaBook,
-        path: '/subjects',
-        tooltip: 'Subjects',
+        path: "/subjects",
+        tooltip: "Subjects",
         component: Subjects,
         eligibleRoles: [RoleEnum.ADMIN, RoleEnum.TEACHER, RoleEnum.STUDENT],
         active: true,
@@ -105,9 +113,9 @@ export const menuConfig = [
     },
     {
         order: 7,
-        label: 'Notifications',
+        label: "Notifications",
         icon: MdNotifications,
-        path: '/notifications',
+        path: "/notifications",
         component: Notifications,
         eligibleRoles: [RoleEnum.ADMIN, RoleEnum.TEACHER, RoleEnum.STUDENT],
         active: true,
@@ -116,22 +124,20 @@ export const menuConfig = [
     },
     {
         order: 8,
-        label: 'PFA',
+        label: "PFA",
         icon: FaGraduationCap,
-        path: '/PFA',
+        path: "/PFA",
         component: Pfa,
         eligibleRoles: [RoleEnum.ADMIN, RoleEnum.TEACHER, RoleEnum.STUDENT],
         active: true,
         hideSideBar: false,
         hideHeader: false,
-
     },
-   
     {
         order: 9,
-        label: 'Manage Students',
+        label: "Manage Students",
         icon: PiStudentFill,
-        path: '/managestudents',
+        path: "/managestudents",
         component: StudentsManagPage,
         eligibleRoles: [RoleEnum.ADMIN],
         active: true,
@@ -140,9 +146,9 @@ export const menuConfig = [
     },
     {
         order: 10,
-        label: 'Manage Teachers',
+        label: "Manage Teachers",
         icon: GiTeacher,
-        path: '/manageteachers',
+        path: "/manageteachers",
         component: TeachersManagPage,
         eligibleRoles: [RoleEnum.ADMIN],
         active: true,
@@ -151,9 +157,9 @@ export const menuConfig = [
     },
     {
         order: 12,
-        label: 'Period',
+        label: "Period",
         icon: MdViewAgenda,
-        path: '/period',
+        path: "/period",
         tooltip: "period",
         component: AdminPeriods,
         eligibleRoles: [RoleEnum.ADMIN],
@@ -162,12 +168,12 @@ export const menuConfig = [
         hideSideBar: false,
         hideHeader: false,
     },
-     {
+    {
         order: 13,
-        label: 'Depot',
+        label: "Internship Deposit",
         icon: MdDownload,
-        path: '/deposit',
-        tooltip: "depot",
+        path: "/deposit",
+        tooltip: "deposit",
         component: DepotSujet,
         eligibleRoles: [RoleEnum.STUDENT],
         active: true,
@@ -175,10 +181,11 @@ export const menuConfig = [
         hideSideBar: false,
         hideHeader: false,
     },
-    {   order: 14,
-        label: 'Internship',
+    {
+        order: 14,
+        label: "Internship",
         icon: MdList,
-        path: '/InternshipList',
+        path: "/InternshipList",
         tooltip: "Internship",
         component: InternshipList,
         eligibleRoles: [RoleEnum.ADMIN],
@@ -187,25 +194,30 @@ export const menuConfig = [
         hideSideBar: false,
         hideHeader: false,
     },
-
     // kifeh tzid route jdid ??
     // {
     //     order: 7,
     //     label: 'TEST',
     //     icon: MdNotifications,
+    //     ken route statique
     //     path: '/notifications',
+    //     ken route dynamic
+    //     path: (id) => `/routeMta3ek/${id}`, // Dynamic path
+    //     dontShow: true, //zid'ha ken route dynamic
     //     component: Notifications, //componet mta3 l page .JSX li sna3to enta
     //     eligibleRoles: [RoleEnum.ADMIN, RoleEnum.TEACHER, RoleEnum.STUDENT],
     //     active: true,
     //     hideSideBar: false,
     //     hideHeader: false,
     // },
-
 ];
 
- export const getMenuItems = (role) => {
+export const getMenuItems = (role) => {
     return menuConfig
         .filter((item) => item?.dontShow !== true)
-        .filter((item) => item.eligibleRoles.length === 0 || item.eligibleRoles.includes(role))
+        .filter(
+            (item) =>
+                item.eligibleRoles.length === 0 || item.eligibleRoles.includes(role)
+        )
         .sort((a, b) => (a.order ?? Infinity) - (b.order ?? Infinity));
 };
