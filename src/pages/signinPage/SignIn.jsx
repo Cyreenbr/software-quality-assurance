@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { loginUser } from "../../redux/authSlice";
+import { loginUser } from "../../redux/authSlice"; 
 
 const SignIn = () => {
     const [formData, setFormData] = useState({ email: "", password: "" });
@@ -23,7 +23,7 @@ const SignIn = () => {
     };
 
     return (
-        <div className="flex items-center justify-center h-screen bg-gray-100">
+        <div className="flex items-center justify-center h-screen bg-gray-100 bg-blur">
             <div className="w-full max-w-md p-8 bg-white shadow rounded">
                 <h1 className="text-2xl font-bold text-center mb-6">Sign In</h1>
                 {error && <p className="text-red-500 text-center mb-4">{error}</p>}
