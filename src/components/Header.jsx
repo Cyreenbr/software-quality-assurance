@@ -15,6 +15,7 @@ import isammLogo from '../assets/logo_isamm.png';
 import { logoutUser } from '../redux/authSlice';
 import { menuConfig } from '../services/configs/menuHandler';
 import Popup from './skillsComponents/Popup';
+import Tooltip from './skillsComponents/tooltip';
 // import SearchBar from './skillsComponents/SearchBar';
 
 const Header = ({ isSidebarOpen, setIsSidebarOpen }) => {
@@ -95,44 +96,52 @@ const Header = ({ isSidebarOpen, setIsSidebarOpen }) => {
                             {/* Profile, Notifications, and Settings Buttons */}
                             <div className="group relative" data-tooltip="Profile">
                                 <Link to="/profile">
-                                    <button
-                                        className="text-gray-600 hover:text-indigo-600 p-2 rounded-full hover:bg-gray-100 transition-all focus:ring-2 focus:ring-indigo-500 cursor-pointer"
-                                        aria-label="Profile"
-                                    >
-                                        <MdAccountCircle size={24} />
-                                    </button>
+                                    <Tooltip text={"Profile"} position='bottom' >
+                                        <button
+                                            className="text-gray-600 hover:text-indigo-600 p-2 rounded-full hover:bg-gray-100 transition-all focus:ring-2 focus:ring-indigo-500 cursor-pointer"
+                                            aria-label="Profile"
+                                        >
+                                            <MdAccountCircle size={24} />
+                                        </button>
+                                    </Tooltip>
                                 </Link>
                             </div>
 
                             <div className="group relative" data-tooltip="Notifications">
-                                <button
-                                    className="text-gray-600 hover:text-indigo-600 p-2 rounded-full hover:bg-gray-100 transition-all focus:ring-2 focus:ring-indigo-500 cursor-pointer"
-                                    onClick={toggleNotificationsPopup}
-                                    aria-label="Notifications"
-                                >
-                                    <MdNotifications size={24} />
-                                </button>
+                                <Tooltip text={"Notifications"} position='bottom' >
+                                    <button
+                                        className="text-gray-600 hover:text-indigo-600 p-2 rounded-full hover:bg-gray-100 transition-all focus:ring-2 focus:ring-indigo-500 cursor-pointer"
+                                        onClick={toggleNotificationsPopup}
+                                        aria-label="Notifications"
+                                    >
+                                        <MdNotifications size={24} />
+                                    </button>
+                                </Tooltip>
                             </div>
 
                             {/* Settings with Popup */}
                             <div className="group relative" data-tooltip="Settings">
-                                <button
-                                    className="text-gray-600 hover:text-indigo-600 p-2 rounded-full hover:bg-gray-100 transition-all focus:ring-2 focus:ring-indigo-500 cursor-pointer"
-                                    onClick={toggleSettingsPopup}
-                                    aria-label="Settings"
-                                >
-                                    <MdSettings size={24} />
-                                </button>
+                                <Tooltip text={"Settings"} position='bottom' >
+                                    <button
+                                        className="text-gray-600 hover:text-indigo-600 p-2 rounded-full hover:bg-gray-100 transition-all focus:ring-2 focus:ring-indigo-500 cursor-pointer"
+                                        onClick={toggleSettingsPopup}
+                                        aria-label="Settings"
+                                    >
+                                        <MdSettings size={24} />
+                                    </button>
+                                </Tooltip>
                             </div>
 
                             {/* Logout Button */}
                             <div className="group relative" title="Logout">
-                                <button
-                                    className="text-gray-600 hover:text-red-600 p-2 rounded-full hover:bg-gray-100 transition-all focus:ring-2 focus:ring-red-500 cursor-pointer"
-                                    onClick={handleLogout}
-                                >
-                                    <MdExitToApp size={24} />
-                                </button>
+                                <Tooltip text={"Logout"} position='bottom' >
+                                    <button
+                                        className="text-gray-600 hover:text-red-600 p-2 rounded-full hover:bg-gray-100 transition-all focus:ring-2 focus:ring-red-500 cursor-pointer"
+                                        onClick={handleLogout}
+                                    >
+                                        <MdExitToApp size={24} />
+                                    </button>
+                                </Tooltip>
                             </div>
                         </>
                     ) : (
@@ -140,20 +149,24 @@ const Header = ({ isSidebarOpen, setIsSidebarOpen }) => {
                         <>
                             <Link to="/signin">
                                 <div className="group relative" title="Sign In">
-                                    <button
-                                        className="text-gray-600 hover:text-indigo-600 p-2 rounded-full hover:bg-gray-100 transition-all focus:ring-2 focus:ring-indigo-500 cursor-pointer"
-                                    >
-                                        <MdLogin size={24} />
-                                    </button>
+                                    <Tooltip text={"Login"} position='bottom' >
+                                        <button
+                                            className="text-gray-600 hover:text-indigo-600 p-2 rounded-full hover:bg-gray-100 transition-all focus:ring-2 focus:ring-indigo-500 cursor-pointer"
+                                        >
+                                            <MdLogin size={24} />
+                                        </button>
+                                    </Tooltip>
                                 </div>
                             </Link>
                             <Link to="/signup">
                                 <div className="group relative" title="Sign Up">
-                                    <button
-                                        className="text-gray-600 hover:text-indigo-600 p-2 rounded-full hover:bg-gray-100 transition-all focus:ring-2 focus:ring-indigo-500 cursor-pointer"
-                                    >
-                                        <MdPersonAdd size={24} />
-                                    </button>
+                                    <Tooltip text={"Register"} position='bottom' >
+                                        <button
+                                            className="text-gray-600 hover:text-indigo-600 p-2 rounded-full hover:bg-gray-100 transition-all focus:ring-2 focus:ring-indigo-500 cursor-pointer"
+                                        >
+                                            <MdPersonAdd size={24} />
+                                        </button>
+                                    </Tooltip>
                                 </div>
                             </Link>
                         </>
@@ -209,7 +222,7 @@ const Header = ({ isSidebarOpen, setIsSidebarOpen }) => {
                     </li>
                 </ul>
             </Popup>
-        </div>
+        </div >
     );
 };
 

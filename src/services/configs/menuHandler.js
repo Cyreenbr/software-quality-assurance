@@ -1,8 +1,10 @@
-
-import { FaBook } from "react-icons/fa";
-import { MdAccountCircle, MdDashboard, MdHome, MdNotifications, MdAutoStories } from "react-icons/md";
+import { FaBook, FaGraduationCap, FaLightbulb } from 'react-icons/fa';
+import { MdAccountCircle, MdDashboard, MdHome, MdNotifications, MdSchool } from 'react-icons/md';
+import Pfa from '../../../src/pages/pfaPage/Pfa';
+import SubjectDetailsPage from '../../components/subjectsComponents/SubjectDetailsPage';
+import Competences from '../../pages/competenecesPage/Competences';
 import Dashboard from '../../pages/dashboardPage/Dashboard';
-import ErrorPage from "../../pages/ErrorPage";
+import ErrorPage from '../../pages/ErrorPage';
 import Home from '../../pages/homePage/Home';
 import Notifications from '../../pages/Notifications';
 import Profile from '../../pages/profilePage/Profile';
@@ -13,6 +15,9 @@ import StudentsManagPage from "../../pages/UsersManagementPage/StudentsManagPage
 import { PiStudentFill } from "react-icons/pi";
 import { GiTeacher } from "react-icons/gi";
 import TeachersManagPage from "../../pages/UsersManagementPage/TeachersManagPage";
+import { RoleEnum } from '../../utils/userRoles';
+import StudentManag from '../../pages/StudentManag';
+import SignIn from '../../pages/signinPage/SignIn';
 export const menuConfig = [
     {
         order: 1,
@@ -37,7 +42,6 @@ export const menuConfig = [
         hideHeader: false,
     },
     {
-
         label: 'Error',
         icon: undefined,
         path: '/error',
@@ -59,7 +63,19 @@ export const menuConfig = [
         hideSideBar: false,
         hideHeader: false,
     },
-
+    {
+        order: 4,
+        label: 'Competences',
+        icon: FaLightbulb,
+        path: '/competences',
+        tooltip: 'Competences',
+        component: Competences,
+        eligibleRoles: [RoleEnum.ADMIN, RoleEnum.TEACHER],
+        active: true,
+        hideSideBar: false,
+        hideHeader: false,
+        dontShow: true,
+    },
     {
         order: 5,
         label: 'Subjects',
@@ -67,13 +83,26 @@ export const menuConfig = [
         path: '/subjects',
         tooltip: 'Subjects',
         component: Subjects,
-        eligibleRoles: [RoleEnum.ADMIN, RoleEnum.TEACHER],
+        eligibleRoles: [RoleEnum.ADMIN, RoleEnum.TEACHER, RoleEnum.STUDENT],
         active: true,
         hideSideBar: false,
         hideHeader: false,
+        dontShow: true,
     },
     {
         order: 6,
+        // label: 'Subject Details',
+        icon: undefined,
+        path: (id) => `/subjects/${id}`, // Dynamic path
+        component: SubjectDetailsPage,
+        eligibleRoles: [RoleEnum.ADMIN, RoleEnum.TEACHER, RoleEnum.STUDENT],
+        active: true,
+        hideSideBar: false,
+        hideHeader: false,
+        dontShow: true,
+    },
+    {
+        order: 7,
         label: 'Notifications',
         icon: MdNotifications,
         path: '/notifications',
@@ -84,15 +113,28 @@ export const menuConfig = [
         hideHeader: false,
     },
     {
-        order: 7,
-        label: 'Choose Option',
-        icon: MdAutoStories,
-        path: '/chooseoption',
-        component: OptionPage,
-        eligibleRoles: [RoleEnum.STUDENT],
+        order: 8,
+        label: 'PFA',
+        icon: FaGraduationCap,
+        path: '/PFA',
+        component: Pfa,
+        eligibleRoles: [RoleEnum.ADMIN, RoleEnum.TEACHER, RoleEnum.STUDENT],
         active: true,
         hideSideBar: false,
         hideHeader: false,
+
+    },
+    {
+        order: 9,
+        label: 'Student Management',
+        icon: MdSchool,
+        path: '/student-management',
+        component: StudentManag,
+        eligibleRoles: [RoleEnum.ADMIN],
+        active: true,
+        hideSideBar: false,
+        hideHeader: false,
+
     },
     {
         order: 8,
@@ -132,7 +174,7 @@ export const menuConfig = [
 
 export const getMenuItems = (role) => {
     return menuConfig
-        .filter(item => item?.dontShow !== true)
-        .filter(item => item.eligibleRoles.length === 0 || item.eligibleRoles.includes(role))
+        .filter((item) => item?.dontShow !== true)
+        .filter((item) => item.eligibleRoles.length === 0 || item.eligibleRoles.includes(role))
         .sort((a, b) => (a.order ?? Infinity) - (b.order ?? Infinity));
 };

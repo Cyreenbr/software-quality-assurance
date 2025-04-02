@@ -3,7 +3,7 @@ import { TbError404 } from 'react-icons/tb';
 
 const NotFound404 = ({ title = 'No data found', iconSize = 60, textStyle = 'text-2xl text-gray-800' }) => {
     return (
-        <div className="flex flex-col items-center justify-center min-h-screen   text-gray-700 p-6">
+        <div className="flex flex-col items-center justify-center text-gray-700 p-6">
             {/* Error Icon */}
             <TbError404 size={iconSize} className="text-red-500 mb-4" />
 
