@@ -1,7 +1,4 @@
 import React, { useEffect, useState } from 'react';
-
-import { FaBook } from 'react-icons/fa';
-import { MdAccountCircle, MdDashboard, MdHome, MdNotifications, MdSchool } from 'react-icons/md';
 import { FaQuestion } from 'react-icons/fa';
 import { useSelector } from 'react-redux';
 import { Link, useLocation } from 'react-router-dom';
@@ -41,17 +38,7 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
     const handleLinkClick = () => {
         if (isMobileOrTablet) setIsSidebarOpen(false);
     };
-/*
-    const menuItems = [
-        { label: 'Home', icon: <MdHome />, path: '/', tooltip: 'Home' },
-        { label: 'Dashboard', icon: <MdDashboard />, path: '/dashboard', tooltip: 'Dashboard' },
-        { label: 'Profile', icon: <MdAccountCircle />, path: '/profile', tooltip: 'Profile' },
-        { label: 'Subjects', icon: <FaBook />, path: '/subjects', tooltip: 'Subjects' },
-        { label: 'Notifications', icon: <MdNotifications />, path: '/notifications', tooltip: 'Notifications' },
-        
-        { label: 'Student Management', icon: <MdSchool/>, path: '/StudentManag', tooltip: 'StudentManag' },
-    ];
-*/
+
     return (
         <>
             {/* Overlay (close sidebar when clicking outside on mobile/tablet) */}

@@ -31,8 +31,6 @@ const Header = ({ isSidebarOpen, setIsSidebarOpen }) => {
     const toggleSettingsPopup = () => setIsSettingsPopupOpen(!isSettingsPopupOpen);
     const toggleNotificationsPopup = () => setIsNotificationsPopupOpen(!isNotificationsPopupOpen);
     const getBreadcrumb = () => {
-
-     
         const menuItem = menuConfig.find(item => item.path === location.pathname);
         return menuItem ? menuItem.label : 'Unknown';
     };
