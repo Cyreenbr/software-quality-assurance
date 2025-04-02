@@ -34,7 +34,6 @@ export default function OptionFormMaster() {
         <h1 className="text-2xl font-bold text-center mb-6">
           Choose Your Option
         </h1>
-        {error && <p className="text-red-500 text-center mb-4">{error}</p>}
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
             <label
