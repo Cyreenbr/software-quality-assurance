@@ -1,5 +1,6 @@
 import { FaBook, FaLightbulb } from 'react-icons/fa';
 import { MdAccountCircle, MdDashboard, MdHome, MdNotifications } from 'react-icons/md';
+import Pfa from '../../../src/pages/pfaPage/Pfa';
 import SubjectDetailsPage from '../../components/subjectsComponents/SubjectDetailsPage';
 import Competences from '../../pages/competenecesPage/Competences';
 import Dashboard from '../../pages/dashboardPage/Dashboard';
@@ -9,7 +10,6 @@ import Notifications from '../../pages/Notifications';
 import Profile from '../../pages/profilePage/Profile';
 import Subjects from '../../pages/subjectsPage/Subjects';
 import { RoleEnum } from '../../utils/userRoles';
-
 export const menuConfig = [
     {
         order: 1,
@@ -97,6 +97,17 @@ export const menuConfig = [
         icon: MdNotifications,
         path: '/notifications',
         component: Notifications,
+        eligibleRoles: [RoleEnum.ADMIN, RoleEnum.TEACHER, RoleEnum.STUDENT],
+        active: true,
+        hideSideBar: false,
+        hideHeader: false,
+    },
+    {
+        order: 8,
+        label: 'PFA',
+        icon: MdNotifications,
+        path: '/PFA',
+        component: Pfa,
         eligibleRoles: [RoleEnum.ADMIN, RoleEnum.TEACHER, RoleEnum.STUDENT],
         active: true,
         hideSideBar: false,
