@@ -57,3 +57,13 @@ export const editPassword = async (_id, userpass) => {
     throw error;
   }
 };
+export const getStudentsforTearchers = async () => {
+  try {
+    const response = await axiosAPI.get(`/students/studentslist`);
+    console.log("Students retrieved:", response.data);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching students:", error);
+    throw error;
+  }
+};

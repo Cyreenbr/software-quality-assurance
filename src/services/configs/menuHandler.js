@@ -10,6 +10,7 @@ import {
   MdList,
   MdNotifications,
 } from "react-icons/md";
+import { PiStudentBold } from "react-icons/pi";
 import { FaWindowRestore } from "react-icons/fa";
 import { PiStudentFill } from "react-icons/pi";
 import Pfa from "../../../src/pages/pfaPage/Pfa";
@@ -32,7 +33,9 @@ import StudentsManagPage from "../../pages/UsersManagementPage/StudentsManagPage
 import TeachersManagPage from "../../pages/UsersManagementPage/TeachersManagPage";
 import { RoleEnum } from "../../utils/userRoles";
 import OptionListPage from "../../pages/optionPage/OptionListPage";
-
+import OptionPage from "../../pages/optionPage/OptionPage";
+import { MdAutoStories } from "react-icons/md";
+import StudentsListTeachers from "../../pages/usersListPage/StudentsListTeachers";
 export const menuConfig = [
   {
     order: 1,
@@ -162,7 +165,7 @@ export const menuConfig = [
     hideHeader: false,
   },
   {
-    order: 12,
+    order: 11,
     label: "Period",
     icon: MdCalendarMonth,
     path: "/period",
@@ -171,6 +174,17 @@ export const menuConfig = [
     eligibleRoles: [RoleEnum.ADMIN],
     active: true,
     dontShow: false,
+    hideSideBar: false,
+    hideHeader: false,
+  },
+  {
+    order: 12,
+    label: 'Choose Option',
+    icon: MdAutoStories,
+    path: '/chooseoption',
+    component: OptionPage,
+    eligibleRoles: [RoleEnum.STUDENT],
+    active: true,
     hideSideBar: false,
     hideHeader: false,
   },
@@ -254,8 +268,19 @@ export const menuConfig = [
     label: 'Options List',
     icon: FaWindowRestore,
     path: '/OptionsList',
-    component: OptionListPage, //componet mta3 l page .JSX li sna3to enta
+    component: OptionListPage,
     eligibleRoles: [RoleEnum.ADMIN],
+    active: true,
+    hideSideBar: false,
+    hideHeader: false,
+  },
+  {
+    order: 19,
+    label: 'Students List',
+    icon: PiStudentBold,
+    path: '/StudentsList',
+    component: StudentsListTeachers,
+    eligibleRoles: [RoleEnum.TEACHER],
     active: true,
     hideSideBar: false,
     hideHeader: false,
