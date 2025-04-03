@@ -1,6 +1,7 @@
 import TeacherPfaComponent from "../../components/pfaComponents/teacherPfaComponent";
 import { useSelector } from "react-redux";
 import { RoleEnum } from "../../utils/userRoles";
+import AdminPfaComponent from "../../components/pfaComponents/adminPfaComponent";
 
 const Pfa = () => {
   const role = useSelector((state) => state.auth.role);
@@ -10,7 +11,7 @@ const Pfa = () => {
       return <TeacherPfaComponent />;
       break;
     case RoleEnum.ADMIN:
-      return <TeacherPfaComponent />;
+      return <AdminPfaComponent />;
       break;
     case RoleEnum.STUDENT:
       return <TeacherPfaComponent />;
