@@ -1,8 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { FaEdit, FaPlusCircle } from 'react-icons/fa';
 import { FiAlertTriangle, FiCheckCircle } from 'react-icons/fi';
+import useDeviceType from '../../utils/useDeviceType';
 import Popup from './Popup'; // Assuming you have this Popup component
-import Tooltip from './tooltip';
+import Tooltip from './Tooltip';
 
 const SkillForm = ({
     isPopupOpen,
@@ -15,19 +16,8 @@ const SkillForm = ({
     setEditSkill,
     handleUpdateSkill
 }) => {
-    const [isMobile, setIsMobile] = useState(false);
-
-    // Detect mobile/tablet screen sizes
-    useEffect(() => {
-        const handleResize = () => {
-            setIsMobile(window.innerWidth <= 768); // If the width is <= 768px, treat it as mobile
-        };
-
-        handleResize(); // Set initial state
-        window.addEventListener('resize', handleResize); // Add resize listener
-
-        return () => window.removeEventListener('resize', handleResize); // Clean up listener
-    }, []);
+    const deviceType = useDeviceType(); // Utilisation du hook
+    const isMobile = deviceType === "mobile"; // Vérification si c'est un mobile
 
     const renderInputField = ({ id, label, value, onChange, type = "text", placeholder, classNames }) => (
         <div className="mb-3">

@@ -1,15 +1,77 @@
 import { DragDropContext, Draggable, Droppable } from "@hello-pangea/dnd";
 import React, { useEffect, useState } from "react";
+import { toast } from "react-toastify";
+import competenceServices from "../../services/CompetencesServices/competences.service";
 
 // Helper function to capitalize the first letter of a string
 const capitalizeFirstLetter = (str) => str.charAt(0).toUpperCase() + str.slice(1);
 
 const SubjectForm = ({ initialData = null, onSubmit }) => {
+    const [competences, setCompetences] = useState([]);
+    const [limit, setLimit] = useState(2); // Initial limit
+    const [totalItems, setTotalItems] = useState(Infinity); // Initially unknown total
+    const increment = 1; // Number of items to increase per load
+
+    const fetchCompetencesOptions = async (newLimit) => {
+        try {
+            const data = await competenceServices.fetchCompetencesForForm({ limit: newLimit });
+
+            // Prevent duplicates when loading more
+            setCompetences((prev) => [
+                ...prev,
+                ...data.skills.filter((skill) => !prev.some((s) => s._id === skill._id))
+            ]);
+            setTotalItems(data.pagination?.totalSkills || data.skills.length);
+        } catch (error) {
+            toast.error("Failed to load competences: " + error);
+        }
+    };
+
+    useEffect(() => {
+        fetchCompetencesOptions(limit); // Fetch initial competences
+    }, [limit]);
+
+    const handleLoadMore = () => {
+        const newLimit = limit + increment; // Increase the limit
+        setLimit(newLimit);
+        fetchCompetencesOptions(newLimit);
+    };
+
+    // Handle change in selected skills
+    const handleSkillsChange = (e) => {
+        const selectedSkills = Array.from(e.target.selectedOptions, (option) => option.value);
+        setFormData({
+            ...formData,
+            skillsId: selectedSkills // Update the selected skills in form data
+        });
+    };
+
+    // const handleSkillsChange = (e) => {
+    //     const selectedSkills = Array.from(e.target.selectedOptions, (option) => option.value);
+    //     console.log(selectedSkills);
+
+    //     setFormData((prev) => ({ ...prev, skillsId: selectedSkills }));
+    // };
 
     useEffect(() => {
         if (initialData) setFormData(initialData);
     }, [initialData]);
 
+
+    // useEffect(() => {
+    //     const fetchCompetencesOptions = async (limit = 10) => {
+    //         try {
+    //             const data = await competenceServices.fetchCompetencesForForm({ limit: limit });
+    //             console.log(data);
+
+    //             // Extract the skills array from the response and store it in state
+    //             setCompetences(data.skills || []);
+    //         } catch (error) {
+    //             toast.error("Failed to load competences: " + error);
+    //         }
+    //     };
+    //     fetchCompetencesOptions();
+    // }, []); // The empty dependency array ensures it runs only once
 
     // Add a prerequisite
     const addPrerequisite = () =>
@@ -70,10 +132,7 @@ const SubjectForm = ({ initialData = null, onSubmit }) => {
     // Delete a section
 
     // Handle skills change
-    const handleSkillsChange = (e) => {
-        const selectedSkills = Array.from(e.target.selectedOptions, (option) => option.value);
-        setFormData((prev) => ({ ...prev, skillsId: selectedSkills }));
-    };
+
     // Handle blur for validation
     const handleBlur = (e, key, pattern, errorMessage) => {
         const value = formData.curriculum[key]; // Get the current value of the field
@@ -152,7 +211,8 @@ const SubjectForm = ({ initialData = null, onSubmit }) => {
             volume_horaire_total: "",
             credit: "",
             prerequis_recommandes: [],
-            chapitres: [{ title: "", status: false, sections: [{ title: "", status: false }] }],
+            // chapitres: [{ title: "", status: false, sections: [{ title: "", status: false }] }],
+            chapitres: [],
         },
     });
 
@@ -187,15 +247,36 @@ const SubjectForm = ({ initialData = null, onSubmit }) => {
         const newValue = type === "checkbox" ? checked : multiple ? Array.from(e.target.selectedOptions, (option) => option.value) : value;
 
         setFormData((prev) => {
+            // Helper function to update nested fields
             const updateNestedField = (obj, keys, val) => {
                 const [key, ...rest] = keys;
-                return rest.length
-                    ? { ...obj, [key]: updateNestedField(obj[key], rest, val) }
-                    : { ...obj, [key]: val };
+
+                // If the object at the key is an array, create a shallow copy to prevent mutation
+                if (Array.isArray(obj[key])) {
+                    obj[key] = [...obj[key]];
+                } else if (typeof obj[key] === "object" && obj[key] !== null) {
+                    // If it's an object, create a shallow copy as well
+                    obj[key] = { ...obj[key] };
+                }
+
+                // If the path is longer, recurse
+                if (rest.length) {
+                    obj[key] = updateNestedField(obj[key], rest, val);
+                    return obj;
+                }
+
+                // Set the value at the final path
+                obj[key] = val;
+                return obj;
             };
-            return updateNestedField(prev, path.split("."), newValue);
+
+            // Start updating from the root object and ensure state is correctly mutated
+            return updateNestedField({ ...prev }, path.split("."), newValue);
         });
     };
+
+
+
 
     // Add a chapter
     const addChapter = () =>
@@ -203,9 +284,13 @@ const SubjectForm = ({ initialData = null, onSubmit }) => {
             ...prev,
             curriculum: {
                 ...prev.curriculum,
-                chapitres: [...prev.curriculum.chapitres, { title: "", status: false, sections: [] }],
+                chapitres: [
+                    ...(Array.isArray(prev.curriculum.chapitres) ? prev.curriculum.chapitres : []),
+                    { title: "", status: false, sections: [] },
+                ],
             },
         }));
+
 
     // Delete a chapter
     const deleteChapter = (index) =>
@@ -480,19 +565,34 @@ const SubjectForm = ({ initialData = null, onSubmit }) => {
                     <select
                         required
                         name="skills"
-                        value={formData.skillsId}
+                        value={formData.skillsId} // Track selected items
                         onChange={handleSkillsChange}
                         multiple
                         className="mt-2 p-3 w-full border border-gray-300 rounded-md"
                     >
-                        {["Communication", "Development", "Action", "Teamwork", "Problem Solving"].map((skill) => (
-                            <option key={skill} value={skill}>
-                                {skill}
+                        {competences.map((skill) => (
+                            <option key={skill._id} value={skill._id}>
+                                {skill.title}
                             </option>
                         ))}
                     </select>
+
+                    {competences.length < totalItems && (
+                        <button
+                            type="button" // Prevents form submission
+                            onClick={(e) => {
+                                e.preventDefault();
+                                handleLoadMore();
+                            }}
+                            className="mt-2 bg-blue-500 text-white p-2 rounded"
+                        >
+                            Load More
+                        </button>
+                    )}
+
                     {errorMessages.skillsId && <p className="text-red-500 text-sm mt-1">{errorMessages.skillsId}</p>}
                 </div>
+
 
                 {/* Prerequisites */}
                 <div>
@@ -523,93 +623,105 @@ const SubjectForm = ({ initialData = null, onSubmit }) => {
                         <Droppable droppableId="chapters" type="CHAPTER">
                             {(provided) => (
                                 <div ref={provided.innerRef} {...provided.droppableProps} className="space-y-4">
-                                    {formData.curriculum.chapitres.map((chapter, chapterIndex) => (
-                                        <Draggable key={chapterIndex} draggableId={`chapter-${chapterIndex}`} index={chapterIndex}>
-                                            {(provided) => (
-                                                <div
-                                                    ref={provided.innerRef}
-                                                    {...provided.draggableProps}
-                                                    {...provided.dragHandleProps}
-                                                    className="border p-6 rounded-lg bg-gray-50 shadow-sm"
-                                                >
-                                                    <div className="flex justify-between items-center">
-                                                        <label className="block text-gray-700">Chapter {chapterIndex + 1} Title</label>
-                                                        <button
-                                                            type="button"
-                                                            onClick={() => deleteChapter(chapterIndex)}
-                                                            className="text-red-500 font-bold"
-                                                        >
-                                                            ✖
-                                                        </button>
-                                                    </div>
-                                                    <input
-                                                        type="text"
-                                                        required
-                                                        placeholder="Enter chapter title"
-                                                        value={chapter.title}
-                                                        onChange={(e) => handleChange(e, `curriculum.chapitres.${chapterIndex}.title`)}
-                                                        className="mt-2 p-3 w-full border border-gray-300 rounded-md"
-                                                    />
-                                                    <Droppable droppableId={`chapter-${chapterIndex}`} type="SECTION">
-                                                        {(provided) => (
-                                                            <div ref={provided.innerRef} {...provided.droppableProps} className="mt-4">
-                                                                {chapter.sections.map((section, sectionIndex) => (
-                                                                    <Draggable
-                                                                        key={`section-${chapterIndex}-${sectionIndex}`}
-                                                                        draggableId={`section-${chapterIndex}-${sectionIndex}`}
-                                                                        index={sectionIndex}
-                                                                    >
-                                                                        {(provided) => (
-                                                                            <div
-                                                                                ref={provided.innerRef}
-                                                                                {...provided.draggableProps}
-                                                                                {...provided.dragHandleProps}
-                                                                                className="border p-4 mt-3 rounded-lg bg-gray-100 shadow-sm flex justify-between items-center hover:bg-gray-200 transition-colors duration-300 ease-in-out"
-                                                                            >
-                                                                                <span className="text-sm text-gray-700 font-semibold">
-                                                                                    Section {sectionIndex + 1}
-                                                                                </span>
-                                                                                <input
-                                                                                    type="text"
-                                                                                    value={section.title}
-                                                                                    required
-                                                                                    onChange={(e) =>
-                                                                                        handleChange(
-                                                                                            e,
-                                                                                            `curriculum.chapitres.${chapterIndex}.sections.${sectionIndex}.title`
-                                                                                        )
-                                                                                    }
-                                                                                    className="p-3 w-3/4 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                                                                    placeholder="Enter section title"
-                                                                                />
-                                                                                <button
-                                                                                    type="button"
-                                                                                    onClick={() => deleteSection(chapterIndex, sectionIndex)}
-                                                                                    className="ml-2 text-red-500 font-bold hover:text-red-700 transition duration-300"
+                                    {(Array.isArray(formData.curriculum.chapitres) ? formData.curriculum.chapitres : []).map(
+                                        (chapter, chapterIndex) => (
+                                            <Draggable key={chapterIndex} draggableId={`chapter-${chapterIndex}`} index={chapterIndex}>
+                                                {(provided) => (
+                                                    <div
+                                                        ref={provided.innerRef}
+                                                        {...provided.draggableProps}
+                                                        {...provided.dragHandleProps}
+                                                        className="border p-6 rounded-lg bg-gray-50 shadow-sm"
+                                                    >
+                                                        <div className="flex justify-between items-center">
+                                                            <label className="block text-gray-700">Chapter {chapterIndex + 1} Title</label>
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => deleteChapter(chapterIndex)}
+                                                                className="text-red-500 font-bold"
+                                                            >
+                                                                ✖
+                                                            </button>
+                                                        </div>
+                                                        <input
+                                                            type="text"
+                                                            required
+                                                            placeholder="Enter chapter title"
+                                                            value={chapter.title}
+                                                            onChange={(e) =>
+                                                                handleChange(e, `curriculum.chapitres.${chapterIndex}.title`)
+                                                            }
+                                                            className="mt-2 p-3 w-full border border-gray-300 rounded-md"
+                                                        />
+
+                                                        <Droppable droppableId={`chapter-${chapterIndex}`} type="SECTION">
+                                                            {(provided) => (
+                                                                <div ref={provided.innerRef} {...provided.droppableProps} className="mt-4">
+                                                                    {chapter.sections.map((section, sectionIndex) => (
+                                                                        <Draggable
+                                                                            key={`section-${chapterIndex}-${sectionIndex}`}
+                                                                            draggableId={`section-${chapterIndex}-${sectionIndex}`}
+                                                                            index={sectionIndex}
+                                                                        >
+                                                                            {(provided) => (
+                                                                                <div
+                                                                                    ref={provided.innerRef}
+                                                                                    {...provided.draggableProps}
+                                                                                    {...provided.dragHandleProps}
+                                                                                    className="border p-4 mt-3 rounded-lg bg-gray-100 shadow-sm flex justify-between items-center hover:bg-gray-200 transition-colors duration-300 ease-in-out"
                                                                                 >
-                                                                                    ✖
-                                                                                </button>
-                                                                            </div>
-                                                                        )}
-                                                                    </Draggable>
-                                                                ))}
-                                                                {provided.placeholder}
-                                                                <button
-                                                                    type="button"
-                                                                    onClick={() => addSection(chapterIndex)}
-                                                                    className="mt-3 px-4 py-2 bg-blue-500 text-white rounded-md shadow"
-                                                                >
-                                                                    Add Section
-                                                                </button>
-                                                            </div>
-                                                        )}
-                                                    </Droppable>
-                                                </div>
-                                            )}
-                                        </Draggable>
-                                    ))}
+                                                                                    <span className="text-sm text-gray-700 font-semibold">
+                                                                                        Section {sectionIndex + 1}
+                                                                                    </span>
+                                                                                    <input
+                                                                                        type="text"
+                                                                                        value={section.title}
+                                                                                        required
+                                                                                        onChange={(e) =>
+                                                                                            handleChange(
+                                                                                                e,
+                                                                                                `curriculum.chapitres.${chapterIndex}.sections.${sectionIndex}.title`
+                                                                                            )
+                                                                                        }
+                                                                                        className="p-3 w-3/4 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                                                                        placeholder="Enter section title"
+                                                                                    />
+
+                                                                                    <button
+                                                                                        type="button"
+                                                                                        onClick={() =>
+                                                                                            deleteSection(chapterIndex, sectionIndex)
+                                                                                        }
+                                                                                        className="ml-2 text-red-500 font-bold hover:text-red-700 transition duration-300"
+                                                                                    >
+                                                                                        ✖
+                                                                                    </button>
+                                                                                </div>
+                                                                            )}
+                                                                        </Draggable>
+                                                                    ))}
+                                                                    {provided.placeholder}
+                                                                    <button
+                                                                        type="button"
+                                                                        onClick={() => addSection(chapterIndex)}
+                                                                        className="mt-3 px-4 py-2 bg-blue-500 text-white rounded-md shadow"
+                                                                    >
+                                                                        Add Section
+                                                                    </button>
+                                                                </div>
+                                                            )}
+                                                        </Droppable>
+                                                    </div>
+                                                )}
+                                            </Draggable>
+                                        )
+                                    )}
                                     {provided.placeholder}
-                                    <button type="button" onClick={addChapter} className="mt-3 px-4 py-2 bg-green-500 text-white rounded-md shadow">
+                                    <button
+                                        type="button"
+                                        onClick={addChapter}
+                                        className="mt-3 px-4 py-2 bg-green-500 text-white rounded-md shadow"
+                                    >
                                         Add Chapter
                                     </button>
                                 </div>
@@ -617,6 +729,7 @@ const SubjectForm = ({ initialData = null, onSubmit }) => {
                         </Droppable>
                     </DragDropContext>
                 </div>
+
 
                 <div className="text-center mt-6">
                     <button type="submit" className="px-6 py-3 bg-blue-600 text-white font-semibold rounded-md shadow">

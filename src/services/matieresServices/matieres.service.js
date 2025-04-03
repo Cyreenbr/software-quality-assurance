@@ -25,12 +25,17 @@ const matieresServices = {
     addMatieres: async (newSubject) => {
         try {
             const response = await axiosAPI.post("/matieres", newSubject);
+            // if (response.status >= 200 && response.status < 300) {
             if (response.status === 201) {
-                return response.data;
+                return {
+                    data: response.data,
+                    status: response.status
+                };
             } else {
                 throw new Error("Unexpected response from server.");
             }
         } catch (err) {
+            // console.log(err);
             throw err.response?.data?.message || "Failed to add subject.";
         }
     },

@@ -8,7 +8,7 @@ import matieresServices from "../../services/matieresServices/matieres.service";
 import NotFound404 from "../skillsComponents/NotFound404";
 import Pagination from "../skillsComponents/Pagination";
 import SearchBar from "../skillsComponents/SearchBar";
-import Tooltip from "../skillsComponents/tooltip";
+import Tooltip from "../skillsComponents/Tooltip";
 
 const SubjectList = ({ onEdit, refresh = false }) => {
     const [subjects, setSubjects] = useState([]);

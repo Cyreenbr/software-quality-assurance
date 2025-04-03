@@ -1,31 +1,25 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { FaEdit, FaTrashAlt } from 'react-icons/fa';
-import { FiAlertTriangle, FiCheck, FiCheckCircle, FiEdit, FiTrash, FiX } from 'react-icons/fi'; // Import icons
+import { FiAlertTriangle, FiArchive, FiCheck, FiCheckCircle, FiEdit, FiTrash, FiX } from 'react-icons/fi'; // Import icons
+import useDeviceType from '../../utils/useDeviceType';
 import Popup from './Popup';
-import Tooltip from './tooltip';
+import Tooltip from './Tooltip';
 
 const SkillCard = ({ skill, setEditSkill, setIsEditPopupOpen, handleDeleteSkill, families }) => {
     const [isDeletePopupOpen, setIsDeletePopupOpen] = useState(false);
     const [skillToDelete, setSkillToDelete] = useState(null);
     const [isDetailsPopupOpen, setIsDetailsPopupOpen] = useState(false);
-    const [isMobile, setIsMobile] = useState(false);
     const [forced, setForced] = useState(false);
+    const [archive, setArchive] = useState(false);
 
-    // Detect screen size and set isMobile accordingly
-    useEffect(() => {
-        const handleResize = () => {
-            setIsMobile(window.innerWidth <= 768); // Consider screen width <= 768px as mobile/tablet
-        };
+    // Use the custom hook to get the device type
+    const deviceType = useDeviceType();
+    const isMobile = deviceType === 'mobile'; // || deviceType === 'tablet'; // Set isMobile based on the device type
 
-        handleResize(); // Set initial state
-        window.addEventListener('resize', handleResize);
-
-        return () => window.removeEventListener('resize', handleResize);
-    }, []);
 
     const handleConfirmDelete = async () => {
         if (skillToDelete) {
-            const deleteSuccess = await handleDeleteSkill(skillToDelete._id, forced);
+            const deleteSuccess = await handleDeleteSkill(skillToDelete._id, { forced, archive });
             console.log(deleteSuccess);
 
             // Fermer la popup si la suppression a réussi
@@ -144,25 +138,47 @@ const SkillCard = ({ skill, setEditSkill, setIsEditPopupOpen, handleDeleteSkill,
                     <div className="mb-6">
                         {/* <div className=" pb-0.5 text-lg text-center font-medium text-gray-700">Force Delete:</div> */}
                         <div className="flex justify-center gap-4 mt-2">
+                            <Tooltip text={archive ? 'Archive Enabled' : 'Archive'} position='bottom'>
+                                <button
+                                    onClick={() => setArchive(!archive)}
+                                    className={`flex items-center gap-2 px-6 py-3 rounded-full font-medium transition-all duration-300 shadow-md 
+                                    ${archive
+                                            ? "bg-black text-white hover:bg-gray-700 shadow-lg"
+                                            : "bg-gray-300 text-gray-700 hover:bg-gray-400 shadow-sm"
+                                        }`}
+                                >
+                                    {archive ? (
+                                        <>
+                                            <FiAlertTriangle className="text-white text-lg" /> Enabled
+                                        </>
+                                    ) : (
+                                        <>
+                                            <FiArchive className="text-gray-700 text-lg" /> Archive
+                                        </>
+                                    )}
+                                </button>
+                            </Tooltip>
                             {/* Force Delete Button */}
-                            <button
-                                onClick={() => setForced(!forced)}
-                                className={`flex items-center gap-2 px-6 py-3 rounded-full font-medium transition-all duration-300 shadow-md 
+                            <Tooltip text={forced ? 'Force Delete Enabled' : 'Enable Force Delete'} position='bottom'>
+                                <button
+                                    onClick={() => setForced(!forced)}
+                                    className={`flex items-center gap-2 px-6 py-3 rounded-full font-medium transition-all duration-300 shadow-md 
                                     ${forced
-                                        ? "bg-red-600 text-white hover:bg-red-700 shadow-lg"
-                                        : "bg-gray-300 text-gray-700 hover:bg-gray-400 shadow-sm"
-                                    }`}
-                            >
-                                {forced ? (
-                                    <>
-                                        <FiCheckCircle className="text-white text-lg" /> Force Delete Enabled
-                                    </>
-                                ) : (
-                                    <>
-                                        <FiAlertTriangle className="text-gray-700 text-lg" /> Enable Force Delete
-                                    </>
-                                )}
-                            </button>
+                                            ? "bg-red-600 text-white hover:bg-red-700 shadow-lg"
+                                            : "bg-gray-300 text-gray-700 hover:bg-gray-400 shadow-sm"
+                                        }`}
+                                >
+                                    {forced ? (
+                                        <>
+                                            <FiCheckCircle className="text-white text-lg" /> Enabled
+                                        </>
+                                    ) : (
+                                        <>
+                                            <FiAlertTriangle className="text-gray-700 text-lg" />Force Delete
+                                        </>
+                                    )}
+                                </button>
+                            </Tooltip>
                         </div>
                     </div>
 

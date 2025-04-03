@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import React, { useState } from "react";
 import { FaPlus } from "react-icons/fa";
 import { toast } from "react-toastify";
 import PageLayout from "../../components/skillsComponents/PageLayout";
@@ -22,49 +22,34 @@ const Subject = () => {
     };
 
     // Handle form submission (after adding/editing a subject)
-    // const handleFormSubmit = async (updatedData) => {
-    //     if (initialData) {
-    //         // If initialData exists, it means we are editing an existing subject
-    //         try {
-    //             // Call the service to update the subject with the updated data
-    //             const data = await matieresServices.updateMatieres(updatedData);
-
-    //             // Trigger a refresh of the subject list
-    //             setRefresh(!refresh);
-
-    //             // Reset form state
-    //             setInitialData(null);
-    //             setShowForm(false); // Hide the form after submission
-    //             toast.success(data.message || "Subject updated successfully!");
-    //         } catch (error) {
-    //             toast.error("Failed to update subject: " + error);
-    //         }
-    //     } else {
-    //         // Handle adding a new subject here (if needed)
-    //         console.log("Add new subject logic goes here");
-    //     }
-    // };
-    const handleUpdateSkill = useCallback(async (updatedData) => {
-        try {
-            // Validate that _id exists
-            if (!updatedData._id) {
-                throw new Error("Invalid subject data: Missing ID.");
+    const handleFormSubmit = async (updatedData) => {
+        if (initialData) {
+            try {
+                const data = await matieresServices.updateMatieres(updatedData);
+                // Trigger a refresh of the subject list
+                setRefresh(!refresh);
+                // Reset form state
+                setInitialData(null);
+                setShowForm(false); // Hide the form after submission
+                toast.success(data.message || "Subject updated successfully!");
+            } catch (error) {
+                toast.error("Failed to update subject: " + error);
             }
-
-            // Call the service to update the subject with the updated data
-            const data = await matieresServices.updateMatieres(updatedData);
-
-            // Trigger a refresh of the subject list
-            setRefresh(!refresh);
-
-            // Reset form state
-            setInitialData(null);
-            setShowForm(false); // Hide the form after submission
-            toast.success(data.message || "Subject updated successfully!");
-        } catch (error) {
-            toast.error("Failed to update subject: " + error.message);
+        } else {
+            try {
+                const data = await matieresServices.addMatieres(updatedData);
+                console.log(data);
+                setRefresh(!refresh);
+                // Reset form state
+                setInitialData(null);
+                setShowForm(false); // Hide the form after submission
+                toast.success(data.message || "Subject Added successfully!");
+            } catch (error) {
+                toast.error("Failed to add subject: " + error);
+            }
         }
-    }, [refresh]);
+    };
+
     // Header Actions (Add Subject Button)
     const headerActions = !showForm && (
         <button
