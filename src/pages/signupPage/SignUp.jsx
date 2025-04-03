@@ -1,11 +1,17 @@
 import { React, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { registerUser } from "../../services/AccountServices/account.service";
+import backgroundImage from "/src/assets/ISAMMBackground.jpg";
+
 const SignUp = () => {
+  const navigate = useNavigate();
+
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [level, setLevel] = useState("1year");
   const [password, setPassword] = useState("");
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -27,14 +33,30 @@ const SignUp = () => {
     try {
       const response = await registerUser(userData);
       console.log("User registered:", response);
+        navigate("/");
+     
     } catch (error) {
       console.error("Error registering user:", error);
     }
   };
 
   return (
-    <div className="flex items-center justify-center h-screen bg-gray-100 bg-blur">
-      <div className="w-full max-w-md p-8 bg-white shadow rounded">
+    <div className="fixed inset-0 flex items-center justify-center overflow-hidden">
+      {/* Image de fond fixe */}
+      <div 
+        className="fixed inset-0 z-0 bg-cover bg-center bg-no-repeat"
+        style={{ 
+          backgroundImage: `url(${backgroundImage})`,
+          backgroundAttachment: "fixed"
+        }}
+      ></div>
+      
+      {/* Overlay avec léger flou */}
+      <div className="fixed inset-0 z-0 bg-black/30 backdrop-blur-sm"></div>
+      
+      {/* Conteneur du formulaire - centré sans overflow */}
+      <div className="relative z-10 w-full max-w-md p-8 bg-white/95 shadow-lg rounded-lg m-4 mt-20">
+
         <h1 className="text-2xl font-bold text-center mb-6">Sign Up</h1>
         <form onSubmit={handleSubmit}>
           <div className="mb-4">

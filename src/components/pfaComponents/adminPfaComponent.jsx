@@ -2,7 +2,7 @@ import { FaEdit, FaTrashAlt, FaPlus } from "react-icons/fa";
 import { useEffect, useState } from "react";
 import pfaService from "../../services/PfaServices/pfaService";
 
-const TeacherPfaComponent = () => {
+const AdminPfaComponent = () => {
   const [pfaList, setpfaList] = useState([]);
   const [projectType, setProjectType] = useState("monome");
   const [studentOne, setStudentOne] = useState("");
@@ -14,12 +14,12 @@ const TeacherPfaComponent = () => {
 
   const fetchPfas = async () => {
     try {
-      const response = await pfaService.getTeacherPfas();
+      const response = await pfaService.getPfas();
       console.log(response);
-      if (!response || !Array.isArray(response)) {
+      if (!response || !Array.isArray(response.pfas)) {
         throw new Error("The API did not return an array of periods.");
       }
-      setpfaList(response);
+      setpfaList(response.pfas);
     } catch (error) {
       console.error("Error loading periods:", error);
       setpfaList([]);
@@ -56,8 +56,25 @@ const TeacherPfaComponent = () => {
 
   const handleDelete = (id) => {
     console.log(id);
-    setpfaList(pfaList.filter((pfa) => pfa._id !== id));
-    pfaService.deletePfa(id);
+    setpfaList(
+      pfaList.map((pfa) =>
+        pfa._id === id ? { ...pfa, status: "rejected" } : pfa
+      )
+    );
+    pfaService.rejectPfa(id);
+  };
+  const handlePublish = (id) => {
+    console.log(id);
+    setpfaList(
+      pfaList.map((pfa) =>
+        pfa._id === id ? { ...pfa, status: "published" } : pfa
+      )
+    );
+    pfaService.publishPfa(id);
+  };
+
+  const handleMailSending = () => {
+    pfaService.sendEmail();
   };
 
   const handleEdit = (pfa) => {
@@ -289,7 +306,7 @@ const TeacherPfaComponent = () => {
                 <th className="py-3 px-6 text-left">Title</th>
                 <th className="py-3 px-6 text-left">Description</th>
                 <th className="py-3 px-6 text-left">Technologies</th>
-                <th className="py-3 px-6 text-center">Actions</th>
+                <th className="py-3 px-6 text-center">Status</th>
               </tr>
             </thead>
             <tbody>
@@ -302,17 +319,18 @@ const TeacherPfaComponent = () => {
                   <td className="py-3 px-6 text-left">{pfa.description}</td>
                   <td className="py-3 px-6 text-left">{pfa.technologies}</td>
                   <td className="py-3 px-6 text-center flex justify-center space-x-2">
+                    {pfa.status}
                     <button
-                      onClick={() => handleEdit(pfa)}
+                      onClick={() => handleDelete(pfa._id)}
+                      className="bg-red-500 text-white ml-2 p-2 rounded-full hover:bg-red-600"
+                    >
+                      <FaTrashAlt size={18} />
+                    </button>
+                    <button
+                      onClick={() => handlePublish(pfa._id)}
                       className="bg-blue-500 text-white p-2 rounded-full hover:bg-blue-600"
                     >
                       <FaEdit size={18} />
-                    </button>
-                    <button
-                      onClick={() => handleDelete(pfa._id)}
-                      className="bg-red-500 text-white p-2 rounded-full hover:bg-red-600"
-                    >
-                      <FaTrashAlt size={18} />
                     </button>
                   </td>
                 </tr>
@@ -321,23 +339,15 @@ const TeacherPfaComponent = () => {
           </table>
         </div>
       </div>
-
+      <button
+        onClick={() => handleMailSending()}
+        className="bg-blue-500 text-white px-4 py-2 rounded-full hover:bg-blue-600"
+      >
+        Send Published PFA Mail
+      </button>
       {/* Bouton flottant pour ouvrir le modal */}
-      <div className="relative group">
-        <button
-          className="fixed bottom-6 right-6 rounded-full bg-indigo-600 p-4 text-white shadow-lg hover:shadow-xl focus:ring-2 focus:ring-indigo-500"
-          type="button"
-          onClick={() => setIsDialogOpen(true)} // Ouvrir le modal
-        >
-          <FaPlus size={24} />
-        </button>
-        {/* Tooltip affiché lorsque vous survolez sous le bouton */}
-        {/* <div className="absolute bottom-10 right-6 text-sm text-white bg-indigo-600 py-1 px-2 rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-          Create PFA
-        </div> */}
-      </div>
     </div>
   );
 };
 
-export default TeacherPfaComponent;
+export default AdminPfaComponent;

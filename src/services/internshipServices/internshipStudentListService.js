@@ -19,4 +19,5 @@ const internshipService = {
   }
 },
 };
+
 export default internshipService;
