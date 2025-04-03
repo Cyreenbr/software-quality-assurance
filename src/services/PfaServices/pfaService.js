@@ -144,6 +144,41 @@ const pfaService = {
     }
   },
 
+  
+
+  // get teacher par son nom  a verifirer avec farah 
+  getTeacherByName : async (teacherName) => {
+    try {
+      const response = await axios.get(`/api/teacher/${teacherName}`, 
+        {},
+        {
+          headers: { ...getAuthHeader() },
+        }); 
+
+  
+      return response.data; 
+    } catch (error) {
+      console.error("Error API (POST PFA) :", error);
+      return null;
+    }
+  },
+  
+  // get les PFAs par ID de teacher
+   getPfasByTeacherId : async (teacherId) => {
+    try {
+      const response = await axios.get(`/${API_BASE_URL}/teacher/${teacherId}/subjects` ,
+        {},
+        {
+          headers: { ...getAuthHeader() },
+        }); 
+      return response.data; 
+    } catch (error) {
+      console.error("Error API (POST PFA) :", error);
+      return null;
+    }
+  },
+  
+
   //   addPeriod: async (periodData) => {
   //     try {
   //       const response = await axios.post(`${API_BASE_URL}/period/open`, periodData, {
