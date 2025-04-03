@@ -57,8 +57,8 @@ const AssignInternships = () => {
       fetchTeachers();
     } catch (error) {
       console.error("Error assigning internships:", error);
-      const backendMessage = error.response?.data?.message || "An error occurred during the assignment.";
-      setMessage(backendMessage);
+      setMessage(error.response?.data?.message || "An error occurred while assigning internships.");
+      setIsError(true);
       setIsError(true);
     } finally {
       setLoading(false);
@@ -66,7 +66,7 @@ const AssignInternships = () => {
   };
 
   const handleUpdateAssignment = () => {
-    navigate('/Planning Update'); 
+    navigate('/PlanningUpdate'); 
   };
 
   return (

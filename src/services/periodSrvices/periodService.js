@@ -1,18 +1,10 @@
-import axios from "axios";
+import axiosAPI from "../axiosAPI/axiosInstance";
 
-const API_BASE_URL = "http://localhost:3000";
-
-const getAuthHeader = () => {
-  const token = localStorage.getItem("token");
-  return token ? { Authorization: `Bearer ${token}` } : {};
-};
 
 const periodService = {
   getPeriods: async () => {
     try {
-      const response = await axios.get(`${API_BASE_URL}/period/open`, {
-        headers: { ...getAuthHeader() },
-      });
+      const response = await axiosAPI .get(`/period/open`);
       return response.data;
     } catch (error) {
       console.error("Error API (GET periods) :", error);
@@ -22,12 +14,7 @@ const periodService = {
 
   addPeriod: async (periodData) => {
     try {
-      const response = await axios.post(`${API_BASE_URL}/period/open`, periodData, {
-        headers: {
-          "Content-Type": "application/json",
-          ...getAuthHeader(),
-        },
-      });
+      const response = await axiosAPI.post(`/period/open`, periodData);
       return response.data;
     } catch (error) {
       console.error("Erreur API (POST addPeriod) :", error);
@@ -37,12 +24,7 @@ const periodService = {
 
   updatePeriod: async (id, updatedData) => {
     try {
-      const response = await axios.patch(`${API_BASE_URL}/period/open/${id}`, updatedData, {
-        headers: {
-          "Content-Type": "application/json",
-          ...getAuthHeader(),
-        },
-      });
+      const response = await axiosAPI.patch(`/period/open/${id}`, updatedData);
       return response.data;
     } catch (error) {
       console.error("Error API (PATCH updatePeriod) :", error);

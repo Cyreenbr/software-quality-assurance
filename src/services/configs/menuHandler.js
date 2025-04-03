@@ -1,4 +1,4 @@
-import { FaBook, FaGraduationCap, FaLightbulb } from "react-icons/fa";
+import { FaBook, FaGraduationCap, FaLightbulb, FaWindowRestore } from "react-icons/fa";
 import { GiTeacher } from "react-icons/gi";
 import {
   MdAccountCircle,
@@ -23,6 +23,7 @@ import DepotSujet from "../../pages/depotSujetStagePage/DepotSujetStage";
 import ErrorPage from "../../pages/ErrorPage";
 import Home from "../../pages/homePage/Home";
 import Notifications from "../../pages/Notifications";
+import OptionListPage from "../../pages/optionPage/OptionListPage";
 import AdminPfeManagement from "../../pages/pfePage/pfe";
 import PFEStudent from "../../pages/pfePage/pfeStudent";
 import InternshipPlanning from "../../pages/PlanningUpdate/InternshipPlanningUpdate";
@@ -255,7 +256,7 @@ export const menuConfig = [
   },
   {
     order: 18,
-    path: '/Planning Update',
+    path: '/PlanningUpdate',
     component: InternshipPlanning,
     eligibleRoles: [RoleEnum.ADMIN],
     active: true,
@@ -264,7 +265,7 @@ export const menuConfig = [
     hideHeader: false,
   },
   {
-    order: 11,
+    order: 19,
     label: 'Options List',
     icon: FaWindowRestore,
     path: '/OptionsList',
@@ -275,7 +276,7 @@ export const menuConfig = [
     hideHeader: false,
   },
   {
-    order: 19,
+    order: 20,
     label: 'Students List',
     icon: PiStudentBold,
     path: '/StudentsList',

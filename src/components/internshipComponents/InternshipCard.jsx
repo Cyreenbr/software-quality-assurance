@@ -2,7 +2,7 @@ import { FaCalendarAlt, FaCheckCircle, FaClock, FaEnvelope, FaFileAlt, FaUserTie
 
 const InternshipCard = ({ internship }) => {
   return (
-    <div className=" border border-gray-300 p-6 shadow-sm rounded-lg hover:shadow-xl hover:cursor-pointer duration-300 overflow-auto hover:bg-gradient-to-r from-blue-50 to-purple-100">
+    <div className=" border border-gray-300 p-6 shadow-sm rounded-lg hover:shadow-xl duration-300 hover:bg-gradient-to-r from-blue-50 to-purple-100">
       <table className="min-w-full table-auto">
         <tbody>
           <tr className="mb-4">
