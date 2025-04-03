@@ -159,9 +159,6 @@ export default function StudentList({ onAddClick }) {
       level ? studentsList.filter((s) => s.level === level) : studentsList
     );
   };
-  const deleteStudent = async (studentId) => {
-    //to do farah
-  };
   const closeDialog = () => {
     setIsDialogOpen(false);
     setSelectedStudent(null);
@@ -459,31 +456,31 @@ export default function StudentList({ onAddClick }) {
                     </td>
                     <td className="py-3 px-6 text-center flex justify-center space-x-2">
                       <button
-                        onClick={() => edit(student._id)}
-                        className="bg-blue-500 text-white p-2 rounded-full hover:bg-blue-600"
-                      >
-                        <FaEdit size={18} />
-                      </button>
-                      <button
                         onClick={() => watch(student._id)}
                         className="bg-green-500 text-white p-2 rounded-full hover:bg-green-600"
                       >
                         <CgEyeAlt size={18} />
                       </button>
                       <button
-                        className="bg-red-500 text-white p-2 rounded-full hover:bg-red-600"
-                        onClick={() => handleDeleteClick(student)}
+                        onClick={() => edit(student._id)}
+                        className="bg-blue-500 text-white p-2 rounded-full hover:bg-blue-600"
                       >
-                        <FaTrashAlt size={18} />
+                        <FaEdit size={18} />
                       </button>
                       <button
                         onClick={() => {
                           setSelectedStudent(student);
                           setIsPasswordDialogOpen(true);
                         }}
-                        className="ml-2 text-gray-600 hover:text-gray-800"
+                        className="bg-purple-500 text-white p-2 rounded-full hover:bg-purple-600"
                       >
                         <RiLockPasswordFill />
+                      </button>
+                      <button
+                        className="bg-red-500 text-white p-2 rounded-full hover:bg-red-600"
+                        onClick={() => handleDeleteClick(student)}
+                      >
+                        <FaTrashAlt size={18} />
                       </button>
                     </td>
                   </tr>
