@@ -10,6 +10,7 @@ import {
   MdList,
   MdNotifications,
 } from "react-icons/md";
+import { FaWindowRestore } from "react-icons/fa";
 import { PiStudentFill } from "react-icons/pi";
 import Pfa from "../../../src/pages/pfaPage/Pfa";
 import SubjectDetailsPage from "../../components/subjectsComponents/SubjectDetailsPage";
@@ -30,6 +31,7 @@ import Subjects from "../../pages/subjectsPage/Subjects";
 import StudentsManagPage from "../../pages/UsersManagementPage/StudentsManagPage";
 import TeachersManagPage from "../../pages/UsersManagementPage/TeachersManagPage";
 import { RoleEnum } from "../../utils/userRoles";
+import OptionListPage from "../../pages/optionPage/OptionListPage";
 
 export const menuConfig = [
   {
@@ -224,28 +226,40 @@ export const menuConfig = [
     hideSideBar: false,
     hideHeader: false,
   },
-    {   order: 17,
-        label: 'Assign Internships',
-        icon: MdAssignmentAdd,
-        path: '/InternshipAssignment',
-        tooltip: "Internship",
-        component: AssignInternships,
-        eligibleRoles: [RoleEnum.ADMIN],
-        active: true,
-        dontShow: false,
-        hideSideBar: false,
-        hideHeader: false,
-    },
-    {   order: 18,
-        path: '/Planning Update',
-        component: InternshipPlanning ,
-        eligibleRoles: [RoleEnum.ADMIN],
-        active: true,
-        dontShow: true,
-        hideSideBar: false,
-        hideHeader: false,
-    },
-
+  {
+    order: 17,
+    label: 'Assign Internships',
+    icon: MdAssignmentAdd,
+    path: '/InternshipAssignment',
+    tooltip: "Internship",
+    component: AssignInternships,
+    eligibleRoles: [RoleEnum.ADMIN],
+    active: true,
+    dontShow: false,
+    hideSideBar: false,
+    hideHeader: false,
+  },
+  {
+    order: 18,
+    path: '/Planning Update',
+    component: InternshipPlanning,
+    eligibleRoles: [RoleEnum.ADMIN],
+    active: true,
+    dontShow: true,
+    hideSideBar: false,
+    hideHeader: false,
+  },
+  {
+    order: 11,
+    label: 'Options List',
+    icon: FaWindowRestore,
+    path: '/OptionsList',
+    component: OptionListPage, //componet mta3 l page .JSX li sna3to enta
+    eligibleRoles: [RoleEnum.ADMIN],
+    active: true,
+    hideSideBar: false,
+    hideHeader: false,
+  },
   // kifeh tzid route jdid ??
   // {
   //     order: 7,

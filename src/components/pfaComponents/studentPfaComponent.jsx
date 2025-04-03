@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-import { getTeacherByName, getPfasByTeacherId } from '../../services/PfaServices/pfaService'; // Services pour la gestion des données
+//import { getTeacherByName, getPfasByTeacherId } from '../../services/PfaServices/pfaService'; // Services pour la gestion des données
 
 const StudentComponent = () => {
   const [teacherName, setTeacherName] = useState('');
