@@ -21,7 +21,6 @@ import ErrorPage from "../../pages/ErrorPage";
 import Home from "../../pages/homePage/Home";
 import Notifications from "../../pages/Notifications";
 import Profile from "../../pages/profilePage/Profile";
-
 import InternshipList from "../../pages/studentInternshipPage/studentInternship";
 import Subjects from "../../pages/subjectsPage/Subjects";
 import StudentsManagPage from "../../pages/UsersManagementPage/StudentsManagPage";
@@ -29,6 +28,7 @@ import TeachersManagPage from "../../pages/UsersManagementPage/TeachersManagPage
 import { RoleEnum } from "../../utils/userRoles";
 import PFEStudent from "../../pages/pfePage/pfeStudent";
 import AdminPfeManagement from "../../pages/pfePage/pfe";
+import AssignInternships from '../../pages/assignInternshipsPage/AssignInternshipsPage';
 
 export const menuConfig = [
   {
@@ -223,6 +223,18 @@ export const menuConfig = [
     hideSideBar: false,
     hideHeader: false,
   },
+    {   order: 17,
+        label: 'Assign Internships',
+        icon: MdAssignmentAdd,
+        path: '/InternshipAssignment',
+        tooltip: "Internship",
+        component: AssignInternships,
+        eligibleRoles: [RoleEnum.ADMIN],
+        active: true,
+        dontShow: false,
+        hideSideBar: false,
+        hideHeader: false,
+    },
 
   // kifeh tzid route jdid ??
   // {
