@@ -26,20 +26,7 @@ const TeacherPfaComponent = () => {
     }
   };
 
-  // const [pfaList, pfaList] = useState([
-  //   {
-  //     id: 1,
-  //     title: "Projet React",
-  //     description: "Description courte",
-  //     technologies: "React, Node.js",
-  //   },
-  //   {
-  //     id: 2,
-  //     title: "Projet Node",
-  //     description: "Autre description",
-  //     technologies: "Node.js, Express",
-  //   },
-  // ]);
+ 
 
   const [isEditing, setIsEditing] = useState(null);
   const [editedData, setEditedData] = useState({
@@ -286,10 +273,10 @@ const TeacherPfaComponent = () => {
           <table className="w-full">
             <thead>
               <tr className="bg-gray-200 text-gray-600 uppercase text-sm leading-normal">
-                <th className="py-3 px-6 text-left">Title</th>
-                <th className="py-3 px-6 text-left">Description</th>
-                <th className="py-3 px-6 text-left">Technologies</th>
-                <th className="py-3 px-6 text-center">Actions</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Title</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Description</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Technologies</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Actions</th>
               </tr>
             </thead>
             <tbody>
