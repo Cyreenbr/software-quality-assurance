@@ -9,6 +9,7 @@ import {
   FaRegLightbulb,
   FaGraduationCap,
   FaTag,
+  FaHourglassHalf,
 } from "react-icons/fa";
 
 const AdminPfaComponent = () => {
@@ -72,19 +73,20 @@ const AdminPfaComponent = () => {
 
   return (
     <div className="p-6 bg-gray-100 min-h-screen relative">
-      <h1 className="text-2xl font-bold mb-4 "> Manage PFAs  </h1>
+      <h1 className="text-2xl font-bold mb-4 "> Manage PFAs </h1>
 
       {/* Tableau des PFA */}
       <div className="bg-white p-6 rounded-lg shadow-lg mb-6">
-        <h2 className="text-xl font-semibold mb-4 flex items-center hover:scale-101"><FaTag className="text-blue-500 mr-2" size={18} />List of PFAs</h2>
+        <h2 className="text-xl font-semibold mb-4 flex items-center hover:scale-101">
+          <FaTag className="text-blue-500 mr-2" size={18} />
+          List of PFAs
+        </h2>
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-100">
               <tr>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider ">
-                
-                 <span> Title</span>
-                 
+                  <span> Title</span>
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
                   <span>Description</span>
@@ -198,6 +200,18 @@ const AdminPfaComponent = () => {
                 <FaGraduationCap className="text-teal-500 mr-2" size={20} />
                 <strong>Student Names:</strong>{" "}
                 {selectedPFA.studentNames.join(", ")}
+              </p>
+              <p className="flex items-center hover:scale-105">
+                {selectedPFA.status === "published" && (
+                  <FaCheckCircle className="text-green-500 mr-2" size={20} />
+                )}
+                {selectedPFA.status === "rejected" && (
+                  <FaTimesCircle className="text-red-500 mr-2" size={20} />
+                )}
+                {selectedPFA.status === "pending" && (
+                  <FaHourglassHalf className="text-gray-500 mr-2" size={20} />
+                )}
+                <strong>Status:</strong> {selectedPFA.status}
               </p>
             </div>
             <div className="flex justify-end mt-6">
