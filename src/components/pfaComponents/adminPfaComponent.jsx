@@ -1,12 +1,23 @@
 import { FaEdit, FaTrashAlt, FaPlus } from "react-icons/fa";
 import { useEffect, useState } from "react";
 import pfaService from "../../services/PfaServices/pfaService";
+import { FaCheckCircle, FaTimesCircle, FaPaperPlane } from "react-icons/fa";
+import {
+  FaClipboard,
+  FaCode,
+  FaUsers,
+  FaRegLightbulb,
+  FaGraduationCap,
+  FaTag,
+} from "react-icons/fa";
 
 const AdminPfaComponent = () => {
   const [pfaList, setpfaList] = useState([]);
-  const [projectType, setProjectType] = useState("monome");
-  const [studentOne, setStudentOne] = useState("");
-  const [studentTwo, setStudentTwo] = useState("");
+
+  const [selectedPFA, setSelectedPFA] = useState(null);
+
+  const openModal = (pfa) => setSelectedPFA(pfa);
+  const closeModal = () => setSelectedPFA(null);
 
   useEffect(() => {
     fetchPfas();
@@ -26,35 +37,7 @@ const AdminPfaComponent = () => {
     }
   };
 
-  // const [pfaList, pfaList] = useState([
-  //   {
-  //     id: 1,
-  //     title: "Projet React",
-  //     description: "Description courte",
-  //     technologies: "React, Node.js",
-  //   },
-  //   {
-  //     id: 2,
-  //     title: "Projet Node",
-  //     description: "Autre description",
-  //     technologies: "Node.js, Express",
-  //   },
-  // ]);
-
-  const [isEditing, setIsEditing] = useState(null);
-  const [editedData, setEditedData] = useState({
-    projectTitle: "",
-    description: "",
-    technologies: "",
-  });
-  const [newPfa, setNewPfa] = useState({
-    projectTitle: "",
-    description: "",
-    technologies: "",
-  });
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-
-  const handleDelete = (id) => {
+  const handleReject = (id) => {
     console.log(id);
     setpfaList(
       pfaList.map((pfa) =>
@@ -63,6 +46,7 @@ const AdminPfaComponent = () => {
     );
     pfaService.rejectPfa(id);
   };
+
   const handlePublish = (id) => {
     console.log(id);
     setpfaList(
@@ -77,261 +61,99 @@ const AdminPfaComponent = () => {
     pfaService.sendEmail();
   };
 
-  const handleEdit = (pfa) => {
-    console.log(pfa);
-    setIsEditing(pfa._id);
-
-    setEditedData({
-      projectTitle: pfa.projectTitle,
-      description: pfa.description,
-      technologies: pfa.technologies,
-    });
-    setStudentOne(pfa.studentNames[0]);
-    setStudentTwo(pfa.studentNames[1]);
-    setProjectType(pfa.isTeamProject ? "binome" : "monome");
-    setIsDialogOpen(true);
-  };
-
-  const handleChange = (e) => {
-    setEditedData({ ...editedData, [e.target.name]: e.target.value });
-  };
-
-  const handleSubmitEdit = (e) => {
-    e.preventDefault();
-    setpfaList(
-      pfaList.map((pfa) =>
-        pfa._id === isEditing ? { ...pfa, ...editedData } : pfa
-      )
+  const handleMailClick = () => {
+    const isConfirmed = window.confirm(
+      "Are you sure you want to send this email?"
     );
-
-    const isTeamProject = projectType === "binome";
-    const studentNames = isTeamProject
-      ? [studentOne, studentTwo]
-      : [studentOne];
-    console.log({ ...editedData, studentOne, studentTwo, projectType });
-    pfaService.updatePfa(
-      { ...editedData, studentNames, isTeamProject },
-      isEditing
-    );
-    setIsEditing(null);
-    setIsDialogOpen(false);
-  };
-
-  const handleCreateChange = (e) => {
-    setNewPfa({ ...newPfa, [e.target.name]: e.target.value });
-  };
-
-  const handleSubmitCreate = (e) => {
-    e.preventDefault();
-
-    const newId = pfaList.length
-      ? Math.max(...pfaList.map((pfa) => pfa.id)) + 1
-      : 1;
-
-    const isTeamProject = projectType === "binome";
-    const studentNames = isTeamProject
-      ? [studentOne, studentTwo]
-      : [studentOne];
-    const technologies = newPfa.technologies.split(",");
-    setpfaList([
-      ...pfaList,
-      { id: newId, ...newPfa, technologies, isTeamProject, studentNames },
-    ]);
-    pfaService.createPfa({
-      ...newPfa,
-      technologies,
-      isTeamProject,
-      studentNames,
-    });
-    console.log({
-      id: newId,
-      ...newPfa,
-      technologies,
-      isTeamProject,
-      studentNames,
-    });
-    console.log(projectType);
-
-    setNewPfa({
-      projectTitle: "",
-      description: "",
-      technologies: "",
-      studentOne: "",
-      studentTwo: "",
-    });
-    setIsDialogOpen(false);
+    if (isConfirmed) {
+      handleMailSending(); // Call the function only if confirmed
+    }
   };
 
   return (
     <div className="p-6 bg-gray-100 min-h-screen relative">
-      <h1 className="text-2xl font-bold mb-4">PFA Management </h1>
-
-      {/* Modal de création avec animation */}
-      {isDialogOpen && (
-        <div className="pointer-events-auto fixed inset-0 z-[999] grid h-screen w-screen place-items-center bg-transparent backdrop-blur-sm transition-opacity duration-500 opacity-100">
-          <div className="relative mx-auto w-full max-w-[24rem] rounded-lg overflow-hidden shadow-sm">
-            <div className="relative flex flex-col bg-white">
-              <div className="relative m-2 items-center flex justify-center text-white h-12 rounded-md bg-indigo-600 px-4">
-                <h3 className="text-lg font-semibold">
-                  {isEditing ? "Update PFA" : "Create PFA"}
-                </h3>
-              </div>
-
-              <div className="flex flex-col gap-4 p-6">
-                <div className="w-full max-w-sm min-w-[200px]">
-                  <label className="block mb-2 text-sm text-slate-600">
-                    Title of The Project
-                  </label>
-                  <input
-                    type="text"
-                    name="projectTitle"
-                    value={
-                      isEditing ? editedData.projectTitle : newPfa.projectTitle
-                    }
-                    onChange={isEditing ? handleChange : handleCreateChange}
-                    className="w-full bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded-md px-3 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-300 shadow-sm focus:shadow"
-                    placeholder="Title of the project"
-                    required
-                  />
-                </div>
-
-                <div className="w-full max-w-sm min-w-[200px]">
-                  <label className="block mb-2 text-sm text-slate-600">
-                    Description
-                  </label>
-                  <textarea
-                    name="description"
-                    value={
-                      isEditing ? editedData.description : newPfa.description
-                    }
-                    onChange={isEditing ? handleChange : handleCreateChange}
-                    className="w-full bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded-md px-3 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-300 shadow-sm focus:shadow"
-                    placeholder="Description of the project"
-                    required
-                  />
-                </div>
-
-                <div className="w-full max-w-sm min-w-[200px]">
-                  <label className="block mb-2 text-sm text-slate-600">
-                    Technologies
-                  </label>
-                  <input
-                    type="text"
-                    name="technologies"
-                    value={
-                      isEditing ? editedData.technologies : newPfa.technologies
-                    }
-                    onChange={isEditing ? handleChange : handleCreateChange}
-                    className="w-full bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded-md px-3 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-300 shadow-sm focus:shadow"
-                    placeholder="Technologies"
-                    required
-                  />
-                </div>
-
-                <div className="w-full max-w-sm min-w-[200px]">
-                  <label className="block mb-2 text-sm text-slate-600">
-                    Project Type
-                  </label>
-                  <div className="flex gap-4">
-                    <label className="flex items-center gap-2">
-                      <input
-                        type="radio"
-                        name="projectType"
-                        value="monome"
-                        checked={projectType === "monome"}
-                        onChange={() => setProjectType("monome")}
-                      />
-                      Monome
-                    </label>
-                    <label className="flex items-center gap-2">
-                      <input
-                        type="radio"
-                        name="projectType"
-                        value="binome"
-                        checked={projectType === "binome"}
-                        onChange={() => setProjectType("binome")}
-                      />
-                      Binome
-                    </label>
-                  </div>
-                  <input
-                    type="text"
-                    placeholder="Enter Student One Name"
-                    value={studentOne}
-                    onChange={(e) => setStudentOne(e.target.value)}
-                    className="w-full mt-2 bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded-md px-3 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-300 shadow-sm focus:shadow"
-                    required
-                  />
-                  {projectType === "binome" && (
-                    <input
-                      type="text"
-                      placeholder="Enter Student Two Name"
-                      value={studentTwo}
-                      onChange={(e) => setStudentTwo(e.target.value)}
-                      className="w-full mt-2 bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded-md px-3 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-300 shadow-sm focus:shadow"
-                      required
-                    />
-                  )}
-                </div>
-              </div>
-
-              <div className="p-6 pt-0 flex justify-between">
-                <button
-                  className="rounded-md bg-indigo-600 py-2 px-4 border border-transparent text-center text-sm text-white transition-all shadow-md hover:shadow-lg focus:bg-indigo-500 focus:shadow-none active:bg-indigo-500 hover:bg-indigo-500 active:shadow-none"
-                  type="button"
-                  onClick={isEditing ? handleSubmitEdit : handleSubmitCreate}
-                >
-                  {isEditing ? "Save" : "Create"}
-                </button>
-                <button
-                  className="rounded-md bg-gray-400 py-2 px-4 text-sm text-white"
-                  type="button"
-                  onClick={() => setIsDialogOpen(false)}
-                >
-                  Cancel
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+      <h1 className="text-2xl font-bold mb-4 "> Manage PFAs  </h1>
 
       {/* Tableau des PFA */}
       <div className="bg-white p-6 rounded-lg shadow-lg mb-6">
-        <h2 className="text-xl font-semibold mb-4">List of PFAs</h2>
+        <h2 className="text-xl font-semibold mb-4 flex items-center hover:scale-101"><FaTag className="text-blue-500 mr-2" size={18} />List of PFAs</h2>
         <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead>
-              <tr className="bg-gray-200 text-gray-600 uppercase text-sm leading-normal">
-                <th className="py-3 px-6 text-left">Title</th>
-                <th className="py-3 px-6 text-left">Description</th>
-                <th className="py-3 px-6 text-left">Technologies</th>
-                <th className="py-3 px-6 text-center">Status</th>
+          <table className="min-w-full divide-y divide-gray-200">
+            <thead className="bg-gray-100">
+              <tr>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider ">
+                
+                 <span> Title</span>
+                 
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+                  <span>Description</span>
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider ">
+                  <span>Technologies</span>
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+                  Status
+                </th>
               </tr>
             </thead>
-            <tbody>
+            <tbody className="bg-white divide-y divide-gray-200">
               {pfaList.map((pfa) => (
-                <tr
-                  key={pfa.id}
-                  className="border-b border-gray-200 hover:bg-gray-50"
-                >
-                  <td className="py-3 px-6 text-left">{pfa.projectTitle}</td>
-                  <td className="py-3 px-6 text-left">{pfa.description}</td>
-                  <td className="py-3 px-6 text-left">{pfa.technologies}</td>
-                  <td className="py-3 px-6 text-center flex justify-center space-x-2">
-                    {pfa.status}
-                    <button
-                      onClick={() => handleDelete(pfa._id)}
-                      className="bg-red-500 text-white ml-2 p-2 rounded-full hover:bg-red-600"
-                    >
-                      <FaTrashAlt size={18} />
-                    </button>
-                    <button
-                      onClick={() => handlePublish(pfa._id)}
-                      className="bg-blue-500 text-white p-2 rounded-full hover:bg-blue-600"
-                    >
-                      <FaEdit size={18} />
-                    </button>
+                <tr key={pfa.id} className="hover:bg-gray-50 transition-colors">
+                  <td
+                    className="px-6 py-4 text-left hover:scale-105 font-medium text-gray-900"
+                    onClick={() => openModal(pfa)}
+                  >
+                    {pfa.projectTitle}
+                  </td>
+                  <td className="px-6 py-4 text-left  text-gray-900">
+                    {pfa.description}
+                  </td>
+                  <td className="px-6 py-4 text-left text-gray-500">
+                    {pfa.technologies.slice(0, 3).join(", ")}
+                    {pfa.technologies.length > 3 && " ..."}
+                  </td>
+
+                  <td className="py-3 px-6 text-center  flex justify-center space-x-2">
+                    {pfa.status === "pending" && (
+                      <>
+                        {/* Reject Button (Red) */}
+                        <button
+                          onClick={() => handleReject(pfa._id)}
+                          className="bg-red-500 text-white p-2 rounded-full hover:bg-red-600"
+                          title="Reject this PFA"
+                        >
+                          <FaTimesCircle size={18} />
+                        </button>
+
+                        {/* Publish Button (Green) */}
+                        <button
+                          onClick={() => handlePublish(pfa._id)}
+                          className="bg-green-500 text-white p-2 rounded-full hover:bg-green-600"
+                          title="Publish this PFA"
+                        >
+                          <FaCheckCircle size={18} />
+                        </button>
+                      </>
+                    )}
+
+                    {pfa.status === "rejected" && (
+                      <span
+                        className="text-red-500 flex items-center hover:scale-120"
+                        title="This PFA is rejected"
+                      >
+                        <FaTimesCircle size={18} className="mr-1" />
+                      </span>
+                    )}
+
+                    {pfa.status === "published" && (
+                      <span
+                        className="text-green-500 hover:scale-120 flex items-center"
+                        title="This PFA is published"
+                      >
+                        <FaCheckCircle size={18} className="mr-1" />
+                      </span>
+                    )}
                   </td>
                 </tr>
               ))}
@@ -340,12 +162,55 @@ const AdminPfaComponent = () => {
         </div>
       </div>
       <button
-        onClick={() => handleMailSending()}
-        className="bg-blue-500 text-white px-4 py-2 rounded-full hover:bg-blue-600"
+        onClick={handleMailClick}
+        className=" hover:scale-108 bg-blue-500 text-white py-2 px-4 rounded flex items-center space-x-2 hover:bg-blue-700 shadow-md transition-all duration-300"
       >
-        Send Published PFA Mail
+        <FaPaperPlane className="text-white" />
+        <span>Send Mail of the Published PFAs</span>
       </button>
-      {/* Bouton flottant pour ouvrir le modal */}
+
+      {selectedPFA && (
+        <div className="fixed inset-0 bg-transparent bg-opacity-30 backdrop-blur-md flex justify-center items-center">
+          <div className="bg-white p-8 rounded-xl shadow-xl max-w-lg w-full space-y-4">
+            <h3 className="text-3xl hover:scale-105 font-semibold text-gray-900 bg-gradient-to-r from-indigo-400 to-purple-200 p-5 rounded-t-xl shadow-md text-center">
+              PFA Details
+            </h3>
+            <div className="space-y-3 ml-5 text-gray-700">
+              <p className="flex items-center hover:scale-105">
+                <FaClipboard className="text-blue-500 mr-2" size={20} />
+                <strong>Title:</strong> {selectedPFA.projectTitle}
+              </p>
+              <p className="flex items-center hover:scale-105">
+                <FaRegLightbulb className="text-yellow-500 mr-2" size={20} />
+                <strong>Description:</strong> {selectedPFA.description}
+              </p>
+              <p className="flex items-center hover:scale-105">
+                <FaCode className="text-green-500 mr-2" size={20} />
+                <strong>Technologies:</strong>{" "}
+                {selectedPFA.technologies.join(", ")}
+              </p>
+              <p className="flex items-center hover:scale-105">
+                <FaUsers className="text-purple-500 mr-2" size={20} />
+                <strong>Team Project:</strong>{" "}
+                {selectedPFA.isTeamProject ? "Binome" : "Monome"}
+              </p>
+              <p className="flex items-center hover:scale-105">
+                <FaGraduationCap className="text-teal-500 mr-2" size={20} />
+                <strong>Student Names:</strong>{" "}
+                {selectedPFA.studentNames.join(", ")}
+              </p>
+            </div>
+            <div className="flex justify-end mt-6">
+              <button
+                onClick={closeModal}
+                className="bg-red-500 text-white px-6 py-3 rounded-full hover:bg-red-600 transition-all duration-300 transform hover:scale-120 shadow-lg"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
