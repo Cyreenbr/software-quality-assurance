@@ -1,13 +1,42 @@
 import React, { useState, useEffect } from "react";
-import { getTeachers, deleteTeacher } from "../../services/ManageUsersServices/teachers.service";
+import {
+  getTeachers,
+  deleteTeacher,
+  editTeacher,
+  editPasswordTeacher,
+} from "../../services/ManageUsersServices/teachers.service";
 import { FaEdit, FaTrashAlt, FaPlus } from "react-icons/fa";
+import { CgEyeAlt } from "react-icons/cg";
+import { RiLockPasswordFill } from "react-icons/ri";
 
 export function TeachersList({ onAddClick }) {
   const [teachersList, setTeachersList] = useState([]);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [teacherToDelete, setTeacherToDelete] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
-    
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isViewing, setIsViewing] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [isPasswordDialogOpen, setIsPasswordDialogOpen] = useState(false);
+  const [editedData, setEditedData] = useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+    grade: "",
+    phoneNumber: "",
+    password: "",
+    firstNameArabic: "",
+    birthDay: "",
+    sexe: "", //select "Masculin", "Féminin"
+    lastNameArabic: "",
+  });
+  const [editedPassword, setEditedPassword] = useState({
+    oldPassword: "",
+    newPassword: "",
+    confirmationPassword: "",
+  });
+  const [selectedTeacher, setSelectedTeacher] = useState(null);
+
   useEffect(() => {
     const fetchTeachers = async () => {
       try {
@@ -38,21 +67,20 @@ export function TeachersList({ onAddClick }) {
     setTeacherToDelete(teacher);
     setShowDeleteModal(true);
   };
-  
+
   const handleCancelDelete = () => {
     setShowDeleteModal(false);
     setTeacherToDelete(null);
   };
-  
+
   const handleConfirmDelete = async () => {
     if (!teacherToDelete) return;
-    
     setIsDeleting(true);
     try {
       await deleteTeacher(teacherToDelete._id);
       // Remove the deleted teacher from the list
       const updatedTeachersList = teachersList.filter(
-        teacher => teacher._id !== teacherToDelete._id
+        (teacher) => teacher._id !== teacherToDelete._id
       );
       setTeachersList(updatedTeachersList);
       setShowDeleteModal(false);
@@ -65,13 +93,147 @@ export function TeachersList({ onAddClick }) {
     }
   };
 
+  const watch = async (teacherId) => {
+    try {
+      const teacher = teachersList.find((teacher) => teacher._id === teacherId);
+      if (!teacher) {
+        console.error("Teacher not found");
+        return;
+      }
+
+      setSelectedTeacher(teacher);
+      setEditedData({
+        firstName: teacher.firstName,
+        lastName: teacher.lastName,
+        email: teacher.email,
+        grade: teacher.grade,
+        phoneNumber: teacher.phoneNumber,
+        password: teacher.password,
+        firstNameArabic: teacher.firstNameArabic,
+        birthDay: teacher.birthDay,
+        sexe: teacher.sexe,
+        lastNameArabic: teacher.lastNameArabic,
+      });
+      setIsViewing(true);
+      setIsEditing(false);
+      setIsDialogOpen(true);
+    } catch (error) {
+      console.error("Error fetching teacher details:", error);
+    }
+  };
+
+  const edit = async (teacherId) => {
+    try {
+      const teacher = teachersList.find((teacher) => teacher._id === teacherId);
+      if (!teacher) {
+        console.error("Teacher not found");
+        return;
+      }
+      setSelectedTeacher(teacher);
+      setEditedData({
+        firstName: teacher.firstName,
+        lastName: teacher.lastName,
+        email: teacher.email,
+        grade: teacher.grade,
+        phoneNumber: teacher.phoneNumber,
+        password: teacher.password,
+        firstNameArabic: teacher.firstNameArabic,
+        birthDay: teacher.birthDay,
+        sexe: teacher.sexe,
+        lastNameArabic: teacher.lastNameArabic,
+      });
+      setIsViewing(false);
+      setIsEditing(true);
+      setIsDialogOpen(true);
+    } catch (error) {
+      console.error("Error fetching teacher details:", error);
+    }
+  };
+
+  const handleChange = (e) => {
+    setEditedData({ ...editedData, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmitEdit = async (e) => {
+    e.preventDefault();
+    if (!selectedTeacher || !selectedTeacher._id) {
+      console.error("No teacher selected or missing ID");
+      return;
+    }
+    try {
+      await editTeacher(selectedTeacher._id, editedData);
+      setTeachersList((prevList) =>
+        prevList.map((teacher) =>
+          teacher._id === selectedTeacher._id
+            ? { ...teacher, ...editedData }
+            : teacher
+        )
+      );
+      closeDialog();
+    } catch (error) {
+      console.error("Error updating teacher:", error);
+    }
+  };
+
+  const handlePasswordChange = (e) => {
+    setEditedPassword({ ...editedPassword, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmitPassword = async (e) => {
+    e.preventDefault();
+    if (!selectedTeacher || !selectedTeacher._id) {
+      console.error("No teacher selected or missing ID");
+      return;
+    }
+    if (editedPassword.newPassword !== editedPassword.confirmationPassword) {
+      alert("New password and confirmation do not match");
+      return;
+    }
+    try {
+      await editPasswordTeacher(selectedTeacher._id, editedPassword);
+      closePasswordDialog();
+      alert("Password updated successfully");
+    } catch (error) {
+      console.error("Error updating password:", error);
+      alert("Failed to update password. Please try again.");
+    }
+  };
+
+  const closeDialog = () => {
+    setIsDialogOpen(false);
+    setSelectedTeacher(null);
+    setIsEditing(false);
+    setIsViewing(false);
+    setEditedData({
+      firstName: "",
+      lastName: "",
+      email: "",
+      grade: "",
+      phoneNumber: "",
+      password: "",
+      firstNameArabic: "",
+      birthDay: "",
+      sexe: "",
+      lastNameArabic: "",
+    });
+  };
+
+  const closePasswordDialog = () => {
+    setIsPasswordDialogOpen(false);
+    setEditedPassword({
+      oldPassword: "",
+      newPassword: "",
+      confirmationPassword: "",
+    });
+  };
+
   return (
     <div className="p-6 bg-white rounded-lg shadow-lg">
       <h1 className="text-2xl font-bold mb-4">Manage Teachers</h1>
       <div className="bg-white p-6 rounded-lg shadow-lg mb-6">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-xl font-semibold">List of Teachers</h2>
-          <button 
+          <button
             className="bg-gray-400 text-white p-2 rounded-full hover:bg-gray-500"
             onClick={onAddClick}
           >
@@ -121,10 +283,28 @@ export function TeachersList({ onAddClick }) {
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-500">
                       <div className="flex items-center gap-4">
-                        <button className="bg-blue-500 text-white p-2 rounded-full hover:bg-blue-600">
+                        <button
+                          className="bg-green-500 text-white p-2 rounded-full hover:bg-green-600"
+                          onClick={() => watch(teacher._id)}
+                        >
+                          <CgEyeAlt size={18} />
+                        </button>
+                        <button
+                          className="bg-blue-500 text-white p-2 rounded-full hover:bg-blue-600"
+                          onClick={() => edit(teacher._id)}
+                        >
                           <FaEdit size={18} />
                         </button>
-                        <button 
+                        <button
+                          onClick={() => {
+                            setSelectedTeacher(teacher);
+                            setIsPasswordDialogOpen(true);
+                          }}
+                          className="bg-purple-500 text-white p-2 rounded-full hover:bg-purple-600"
+                        >
+                          <RiLockPasswordFill size={18} />
+                        </button>
+                        <button
                           className="bg-red-500 text-white p-2 rounded-full hover:bg-red-600"
                           onClick={() => handleDeleteClick(teacher)}
                         >
@@ -145,14 +325,17 @@ export function TeachersList({ onAddClick }) {
           </table>
         </div>
       </div>
-      
+
       {/* Delete Confirmation Modal */}
       {showDeleteModal && (
         <div className="fixed inset-0 flex justify-center items-center z-50">
           <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
-            <h3 className="text-lg font-medium text-gray-900 mb-4">Confirm Deletion</h3>
+            <h3 className="text-lg font-medium text-gray-900 mb-4">
+              Confirm Deletion
+            </h3>
             <p className="text-gray-600 mb-6">
-              Are you sure you want to delete {teacherToDelete?.firstName} {teacherToDelete?.lastName}? This action cannot be undone.
+              Are you sure you want to delete {teacherToDelete?.firstName}{" "}
+              {teacherToDelete?.lastName}? This action cannot be undone.
             </p>
             <div className="flex justify-end gap-4">
               <button
@@ -169,6 +352,239 @@ export function TeachersList({ onAddClick }) {
               >
                 {isDeleting ? "Deleting..." : "Delete"}
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Dialog for Edit/View */}
+      {isDialogOpen && (
+        <div className="pointer-events-auto fixed inset-0 z-[999] grid h-screen w-screen place-items-center bg-transparent backdrop-blur-sm transition-opacity duration-500 opacity-100">
+          <div className="relative mx-auto w-full max-w-[24rem] rounded-lg overflow-hidden shadow-sm">
+            <div className="relative flex flex-col bg-white max-h-[80vh] overflow-y-auto">
+              <div className="sticky top-0 z-10 bg-indigo-600 p-4 flex justify-center items-center text-white h-12 rounded-md">
+                <h3 className="text-lg font-semibold">
+                  {isViewing ? "View Teacher" : "Update Teacher"}
+                </h3>
+              </div>
+
+              <div className="flex flex-col gap-4 p-6">
+                <div className="w-full max-w-sm min-w-[200px]">
+                  <label className="block mb-2 text-sm text-slate-600">
+                    First Name
+                  </label>
+                  <input
+                    type="text"
+                    name="firstName"
+                    value={editedData.firstName}
+                    onChange={handleChange}
+                    className="w-full bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded-md px-3 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-300 shadow-sm focus:shadow"
+                    placeholder="First name"
+                    disabled={isViewing}
+                    required
+                  />
+                </div>
+
+                <div className="w-full max-w-sm min-w-[200px]">
+                  <label className="block mb-2 text-sm text-slate-600">
+                    Last Name
+                  </label>
+                  <input
+                    type="text"
+                    name="lastName"
+                    value={editedData.lastName}
+                    onChange={handleChange}
+                    className="w-full bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded-md px-3 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-300 shadow-sm focus:shadow"
+                    placeholder="Last name"
+                    disabled={isViewing}
+                    required
+                  />
+                </div>
+
+                <div className="w-full max-w-sm min-w-[200px]">
+                  <label className="block mb-2 text-sm text-slate-600">
+                    Email
+                  </label>
+                  <input
+                    type="email"
+                    name="email"
+                    value={editedData.email}
+                    onChange={handleChange}
+                    className="w-full bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded-md px-3 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-300 shadow-sm focus:shadow"
+                    placeholder="Email address"
+                    disabled={isViewing}
+                    required
+                  />
+                </div>
+
+                <div className="w-full max-w-sm min-w-[200px]">
+                  <label className="block mb-2 text-sm text-slate-600">
+                    Phone Number
+                  </label>
+                  <input
+                    type="text"
+                    name="phoneNumber"
+                    value={editedData.phoneNumber}
+                    onChange={handleChange}
+                    className="w-full bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded-md px-3 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-300 shadow-sm focus:shadow"
+                    disabled={isViewing}
+                    required
+                  />
+                </div>
+
+                <div className="w-full max-w-sm min-w-[200px]">
+                  <label className="block mb-2 text-sm text-slate-600">
+                    First Name Arabic
+                  </label>
+                  <input
+                    type="text"
+                    name="firstNameArabic"
+                    onChange={handleChange}
+                    value={editedData.firstNameArabic}
+                    className="w-full bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded-md px-3 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-300 shadow-sm focus:shadow"
+                    disabled={isViewing}
+                    required
+                  />
+                </div>
+
+                <div className="w-full max-w-sm min-w-[200px]">
+                  <label className="block mb-2 text-sm text-slate-600">
+                    Last Name Arabic
+                  </label>
+                  <input
+                    type="text"
+                    name="lastNameArabic"
+                    onChange={handleChange}
+                    value={editedData.lastNameArabic}
+                    className="w-full bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded-md px-3 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-300 shadow-sm focus:shadow"
+                    disabled={isViewing}
+                    required
+                  />
+                </div>
+
+                <div className="w-full max-w-sm min-w-[200px]">
+                  <label className="block mb-2 text-sm text-slate-600">
+                    Grade
+                  </label>
+                  <input
+                    type="text"
+                    name="grade"
+                    onChange={handleChange}
+                    value={editedData.grade}
+                    className="w-full bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded-md px-3 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-300 shadow-sm focus:shadow"
+                    disabled={isViewing}
+                    required
+                  />
+                </div>
+
+                <div className="w-full max-w-sm min-w-[200px]">
+                  <label className="block mb-2 text-sm text-slate-600">
+                    Sexe
+                  </label>
+                  <input
+                    type="text"
+                    name="sexe"
+                    onChange={handleChange}
+                    value={editedData.sexe}
+                    className="w-full bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded-md px-3 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-300 shadow-sm focus:shadow"
+                    disabled={isViewing}
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="p-6 pt-0 flex justify-between sticky bottom-0 bg-white">
+                {!isViewing && (
+                  <button
+                    className="rounded-md bg-indigo-600 py-2 px-4 border border-transparent text-center text-sm text-white transition-all shadow-md hover:shadow-lg focus:bg-indigo-500 focus:shadow-none active:bg-indigo-500 hover:bg-indigo-500 active:shadow-none"
+                    type="button"
+                    onClick={handleSubmitEdit}
+                  >
+                    Save
+                  </button>
+                )}
+                <button
+                  className="rounded-md bg-gray-400 py-2 px-4 text-sm text-white"
+                  type="button"
+                  onClick={closeDialog}
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Password Change Dialog */}
+      {isPasswordDialogOpen && (
+        <div className="pointer-events-auto fixed inset-0 z-[999] grid h-screen w-screen place-items-center bg-transparent backdrop-blur-sm transition-opacity duration-500 opacity-100">
+          <div className="relative mx-auto w-full max-w-[24rem] rounded-lg overflow-hidden shadow-sm">
+            <div className="relative flex flex-col bg-white max-h-[80vh] overflow-y-auto">
+              <div className="sticky top-0 z-10 bg-purple-600 p-4 flex justify-center items-center text-white h-12 rounded-md">
+                <h3 className="text-lg font-semibold">Change Password</h3>
+              </div>
+
+              <div className="flex flex-col gap-4 p-6">
+                <div className="w-full max-w-sm min-w-[200px]">
+                  <label className="block mb-2 text-sm text-slate-600">
+                    Old Password
+                  </label>
+                  <input
+                    type="password"
+                    name="oldPassword"
+                    value={editedPassword.oldPassword}
+                    onChange={handlePasswordChange}
+                    className="w-full bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded-md px-3 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-300 shadow-sm focus:shadow"
+                    required
+                  />
+                </div>
+
+                <div className="w-full max-w-sm min-w-[200px]">
+                  <label className="block mb-2 text-sm text-slate-600">
+                    New Password
+                  </label>
+                  <input
+                    type="password"
+                    name="newPassword"
+                    value={editedPassword.newPassword}
+                    onChange={handlePasswordChange}
+                    className="w-full bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded-md px-3 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-300 shadow-sm focus:shadow"
+                    required
+                  />
+                </div>
+
+                <div className="w-full max-w-sm min-w-[200px]">
+                  <label className="block mb-2 text-sm text-slate-600">
+                    Confirm New Password
+                  </label>
+                  <input
+                    type="password"
+                    name="confirmationPassword"
+                    value={editedPassword.confirmationPassword}
+                    onChange={handlePasswordChange}
+                    className="w-full bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded-md px-3 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-300 shadow-sm focus:shadow"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="p-6 pt-0 flex justify-between sticky bottom-0 bg-white">
+                <button
+                  className="rounded-md bg-purple-600 py-2 px-4 border border-transparent text-center text-sm text-white transition-all shadow-md hover:shadow-lg focus:bg-purple-500 focus:shadow-none active:bg-purple-500 hover:bg-purple-500 active:shadow-none"
+                  type="button"
+                  onClick={handleSubmitPassword}
+                >
+                  Change Password
+                </button>
+                <button
+                  className="rounded-md bg-gray-400 py-2 px-4 text-sm text-white"
+                  type="button"
+                  onClick={closePasswordDialog}
+                >
+                  Cancel
+                </button>
+              </div>
             </div>
           </div>
         </div>
