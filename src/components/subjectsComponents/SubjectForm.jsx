@@ -1,16 +1,19 @@
 import { DragDropContext, Draggable, Droppable } from "@hello-pangea/dnd";
 import React, { useEffect, useState } from "react";
+import { FaCheckCircle } from "react-icons/fa";
 import { toast } from "react-toastify";
 import competenceServices from "../../services/CompetencesServices/competences.service";
+import MultiSelectDropdown from "../skillsComponents/MultiSelectDropdown";
 
 // Helper function to capitalize the first letter of a string
 const capitalizeFirstLetter = (str) => str.charAt(0).toUpperCase() + str.slice(1);
 
 const SubjectForm = ({ initialData = null, onSubmit }) => {
     const [competences, setCompetences] = useState([]);
-    const [limit, setLimit] = useState(2); // Initial limit
+    const [limit, setLimit] = useState(100); // Initial limit
     const [totalItems, setTotalItems] = useState(Infinity); // Initially unknown total
     const increment = 1; // Number of items to increase per load
+    // console.log(initialData);
 
     const fetchCompetencesOptions = async (newLimit) => {
         try {
@@ -38,13 +41,20 @@ const SubjectForm = ({ initialData = null, onSubmit }) => {
     };
 
     // Handle change in selected skills
-    const handleSkillsChange = (e) => {
-        const selectedSkills = Array.from(e.target.selectedOptions, (option) => option.value);
-        setFormData({
-            ...formData,
-            skillsId: selectedSkills // Update the selected skills in form data
-        });
+    const handleSkillsChange = (selectedSkills) => {
+        // Update formData with selected skills
+        setFormData((prevData) => ({
+            ...prevData,
+            skillsId: selectedSkills.map((skill) => skill._id) // Extract _id to match formData structure
+        }));
     };
+    // const handleSkillsChange = (e) => {
+    //     const selectedSkills = Array.from(e.target.selectedOptions, (option) => option.value);
+    //     setFormData({
+    //         ...formData,
+    //         skillsId: selectedSkills // Update the selected skills in form data
+    //     });
+    // };
 
     // const handleSkillsChange = (e) => {
     //     const selectedSkills = Array.from(e.target.selectedOptions, (option) => option.value);
@@ -422,6 +432,7 @@ const SubjectForm = ({ initialData = null, onSubmit }) => {
             onSubmit(finalData); // Pass the validated and structured data to the parent
         }
     };
+
     return (
         <div className="max-w-7xl mx-auto p-3 bg-white">
             <form onSubmit={handleSubmit} className="space-y-8">
@@ -562,7 +573,7 @@ const SubjectForm = ({ initialData = null, onSubmit }) => {
                     <label className="block text-gray-700 font-semibold">
                         Skills <span className="text-red-500">*</span>
                     </label>
-                    <select
+                    {/* <select
                         required
                         name="skills"
                         value={formData.skillsId} // Track selected items
@@ -575,7 +586,30 @@ const SubjectForm = ({ initialData = null, onSubmit }) => {
                                 {skill.title}
                             </option>
                         ))}
-                    </select>
+                    </select> */}
+                    {/* Replace <select> with MultiSelectDropdown */}
+                    <MultiSelectDropdown
+                        options={competences}  // Array of skill objects
+                        selectedOptions={formData.skillsId}  // Array of selected skill IDs (e.g., ["skillId1", "skillId2"])
+                        setSelectedOptions={(selectedSkills) => {
+                            if (Array.isArray(selectedSkills)) {
+                                // Update formData with the selected IDs
+                                setFormData({
+                                    ...formData,
+                                    skillsId: selectedSkills,  // Directly set the selected skill IDs in formData
+                                });
+                            }
+                        }}
+                        onSelectionChange={handleSkillsChange}  // Any additional logic for handling change (optional)
+                        label="Select Skills"
+                        icon={FaCheckCircle}  // Icon for selected items
+                        tooltipText="Clear All Skills"
+                        showClearAll={true}
+                    />
+
+
+
+
 
                     {competences.length < totalItems && (
                         <button
