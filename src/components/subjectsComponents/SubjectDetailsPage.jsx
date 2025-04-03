@@ -9,8 +9,10 @@ import {
 } from "react-icons/fa";
 import { useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
+import { ClipLoader } from "react-spinners";
 import { toast } from "react-toastify";
 import matieresServices from "../../services/matieresServices/matieres.service";
+import humanizeDate from "../../utils/humanizeDate";
 import { RoleEnum } from "../../utils/userRoles";
 import Popup from "../skillsComponents/Popup";
 
@@ -135,7 +137,17 @@ const SubjectDetailsPage = () => {
         });
     };
 
-    if (loading) return <LoadingState message="Loading subject details..." />;
+    // if (loading) return <LoadingState message="Loading subject details..." />;
+    if (loading) return (
+        <div className="flex justify-center items-center h-screen text-center">
+            <div>
+                <ClipLoader size={50} />
+                <p className="mt-4 font-bold text-gray-700">Loading subject details...</p>
+            </div>
+        </div>
+    );
+
+
     if (error) return <ErrorState message={error} />;
     if (!formData) return <ErrorState message="Invalid subject data." />;
 
@@ -147,6 +159,7 @@ const SubjectDetailsPage = () => {
                     <h1 className="text-3xl font-bold text-blue-800 flex items-center justify-center gap-2">
                         <FaBook className="text-blue-600" /> {formData.subject.title}
                     </h1>
+                    <h3 className="">{humanizeDate(formData.subject.createdAt)}</h3>
                 </header>
 
                 {/* Subject Information */}
@@ -157,6 +170,15 @@ const SubjectDetailsPage = () => {
                         <InfoCard label="Code" value={formData.subject.curriculum?.code || "N/A"} />
                         <InfoCard label="Semester" value={formData.subject.curriculum?.semestre || "N/A"} />
                         <InfoCard label="Responsible" value={formData.subject.curriculum?.responsable || "N/A"} />
+                        <InfoCard
+                            label="Teacher"
+                            value={formData.subject.teacherId
+                                ? formData.subject.teacherId.map((teacher) =>
+                                    `${teacher.firstName} ${teacher.lastName} (${teacher.email})`
+                                ).join(', ')
+                                : "N/A"
+                            }
+                        />
                         <InfoCard label="Language" value={formData.subject.curriculum?.langue || "N/A"} />
                         <InfoCard label="Relation" value={formData.subject.curriculum?.relation || "N/A"} />
                         <InfoCard label="Teaching Type" value={formData.subject.curriculum?.type_enseignement || "N/A"} />

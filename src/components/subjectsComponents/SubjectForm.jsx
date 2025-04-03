@@ -610,6 +610,7 @@ const SubjectForm = ({ initialData = null, onSubmit }) => {
                         icon={FaCheckCircle}  // Icon for selected items
                         tooltipText="Clear All Skills"
                         showClearAll={true}
+                        styling="flex justify-between items-center cursor-pointer hover:outline-1 transform transition-all duration-300 ease-in-out"
                     />
 
 

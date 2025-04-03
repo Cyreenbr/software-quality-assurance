@@ -16,7 +16,9 @@ const SkillCard = ({ skill, setEditSkill, setIsEditPopupOpen, handleDeleteSkill,
 
     const handleConfirmDelete = async () => {
         const deleteSuccess = await handleDeleteSkill(skill._id, { forced, archive });
-        if (deleteSuccess) setIsDeletePopupOpen(false);
+        console.log(deleteSuccess);
+
+        if (deleteSuccess === true) setIsDeletePopupOpen(false);
     };
 
     const familiesList = useMemo(() =>
@@ -183,6 +185,9 @@ const SkillCard = ({ skill, setEditSkill, setIsEditPopupOpen, handleDeleteSkill,
                             {familiesList.length > 0 ? familiesList : <p className="text-gray-500">No Family</p>}
                         </div>
                     </div>
+                    {role === RoleEnum.ADMIN &&
+                        <h3 className="text-sm text-center text-gray-400">ID: {skill?.isPublish || 'No Infos'}</h3>
+                    }
                 </div>
             </Popup>
         </div>

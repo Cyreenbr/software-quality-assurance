@@ -16,7 +16,8 @@ const MultiSelectDropdown = ({
     optionLabelKey = "title",  // Key to display option text
     optionValueKey = "_id",  // Key to identify option uniquely
     buttonClassName = "w-full px-4 py-2 text-left bg-white border rounded-lg border-gray-300",  // Default button styles
-    optionClassName = "px-4 py-2 cursor-pointer flex items-center space-x-2"  // Default option item styles
+    styling = 'flex justify-between items-center cursor-pointer hover:bg-blue-100 hover:scale-105 hover:outline-1 transform transition-all duration-300 ease-in-out',
+    optionClassName = "px-4 py-2 cursor-pointer flex items-center space-x-2", // Default option item styles
 }) => {
     // Function to get the selected options (objects) and display them in the input field
     const getSelectedOptions = () => {
@@ -51,7 +52,7 @@ const MultiSelectDropdown = ({
                         <div className="flex justify-between items-center">
                             {/* Button to toggle the Listbox */}
                             <ListboxButton
-                                className={`${buttonClassName} flex justify-between items-center cursor-pointer hover:bg-blue-100 hover:scale-105 hover:outline-1 transform transition-all duration-300 ease-in-out`}
+                                className={`${buttonClassName} ${styling}`}
                             >
                                 <span className={`text-sm ${selectedOptions.length === 0 ? 'text-gray-400' : 'text-gray-700'}`}>
                                     {selectedOptions.length === 0

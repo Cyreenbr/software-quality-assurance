@@ -125,6 +125,8 @@ const Competences = () => {
     const handleDeleteSkill = useCallback(async (id, { forced = false, archive = false }) => {
         try {
             const response = await competenceServices.deleteCompetence(id, { forced, archive });
+            // console.log(response);
+
             setCurrentPage(prevPage => (itemsOnPage === 1 && prevPage > 1 ? prevPage - 1 : prevPage));
             await fetchCompetences(currentPage, searchQuery);
             toast.success(response.message);
