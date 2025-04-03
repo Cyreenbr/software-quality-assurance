@@ -1,14 +1,14 @@
 import { FaBook, FaGraduationCap, FaLightbulb } from "react-icons/fa";
 import { GiTeacher } from "react-icons/gi";
 import {
-    MdAccountCircle,
-    MdAssignmentAdd,
-    MdCalendarMonth,
-    MdDashboard,
-    MdDownload,
-    MdHome,
-    MdList,
-    MdNotifications,
+  MdAccountCircle,
+  MdAssignmentAdd,
+  MdCalendarMonth,
+  MdDashboard,
+  MdDownload,
+  MdHome,
+  MdList,
+  MdNotifications,
 } from "react-icons/md";
 import { PiStudentFill } from "react-icons/pi";
 import Pfa from "../../../src/pages/pfaPage/Pfa";
