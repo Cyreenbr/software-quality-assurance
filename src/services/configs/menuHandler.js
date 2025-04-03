@@ -237,7 +237,7 @@ export const menuConfig = [
         hideHeader: false,
     },
     {   order: 18,
-        path: '/Planning Update',
+        path: '/PlanningUpdate',
         component: InternshipPlanning ,
         eligibleRoles: [RoleEnum.ADMIN],
         active: true,
