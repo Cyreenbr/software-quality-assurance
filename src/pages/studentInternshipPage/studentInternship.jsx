@@ -33,7 +33,7 @@ const InternshipList = () => {
   return (
     <div className="min-h-screen bg-white py-10 rounded-lg">
       <div className="max-w-7xl mx-auto p-8 ">
-        <h2 className="text-4xl font-bold text-gray-800 mb-6 text-center">Internship List</h2>
+        <h2 className="text-2xl font-bold text-black-700 mb-6 text-start">Internship List</h2>
 
         <div className="mb-6 flex justify-end">
   <div className="relative w-full max-w-md">

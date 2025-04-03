@@ -11,6 +11,7 @@ import {
 } from 'react-icons/md';
 import { useDispatch, useSelector } from 'react-redux'; // Import useDispatch and useSelector
 import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { ClipLoader } from 'react-spinners';
 import isammLogo from '../assets/logo_isamm.png';
 import { logoutUser } from '../redux/authSlice';
 import { menuConfig } from '../services/configs/menuHandler';
@@ -25,7 +26,7 @@ const Header = ({ isSidebarOpen, setIsSidebarOpen }) => {
     const [isSettingsPopupOpen, setIsSettingsPopupOpen] = useState(false);
     const [isNotificationsPopupOpen, setIsNotificationsPopupOpen] = useState(false);
     // const [searchQuery, setSearchQuery] = useState('');
-
+    const [loading, setLoading] = useState(false);
     const token = useSelector((state) => state.auth.token); // Access the token from Redux store
 
     const toggleSettingsPopup = () => setIsSettingsPopupOpen(!isSettingsPopupOpen);
@@ -42,11 +43,12 @@ const Header = ({ isSidebarOpen, setIsSidebarOpen }) => {
 
     const handleLogout = () => {
         dispatch(logoutUser());
-
+        setLoading(true);
         // Force the redirect after a small delay to make sure logout state is updated
         setTimeout(() => {
             navigate('/');
         }, 100);
+        setLoading(false);
     };
     return (
         <div className="fixed top-0 left-0 w-full bg-white shadow-lg p-4 flex justify-between items-center z-50 rounded-b-xl transition-all">
@@ -139,7 +141,12 @@ const Header = ({ isSidebarOpen, setIsSidebarOpen }) => {
                                         className="text-gray-600 hover:text-red-600 p-2 rounded-full hover:bg-gray-100 transition-all focus:ring-2 focus:ring-red-500 cursor-pointer"
                                         onClick={handleLogout}
                                     >
-                                        <MdExitToApp size={24} />
+                                        {!loading ?
+                                            (
+                                                <MdExitToApp size={24} />)
+                                            : (
+                                                <ClipLoader color="#3B82F6" size={24} />
+                                            )}
                                     </button>
                                 </Tooltip>
                             </div>

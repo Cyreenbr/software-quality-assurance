@@ -50,7 +50,7 @@ const DepotSujet = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-r from-blue-50 to-purple-100 py-10 rounded-lg">
-      <h2 className="text-3xl font-bold text-gray-900 mb-6 text-center">Submit an Internship</h2>
+      <h2 className="text-2xl font-bold text-black-700 mb-6 text-start">Submit an Internship</h2>
     <div className="max-w-4xl mx-auto py-10 px-6 ">
       {message && <p className="text-green-600 text-center">{message}</p>}
       {error && <p className="text-red-600 text-center">{error}</p>}

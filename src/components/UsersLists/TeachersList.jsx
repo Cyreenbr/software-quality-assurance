@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { getTeachers } from "../../services/ManageUsersServices/teachers.service";
-import { FaEdit, FaTrashAlt } from "react-icons/fa";
+import { FaEdit, FaTrashAlt, FaPlus } from "react-icons/fa";
 
-export function TeachersList() {
+export function TeachersList({ onAddClick }) {
   const [teachersList, setTeachersList] = useState([]);
 
   useEffect(() => {
@@ -35,7 +35,16 @@ export function TeachersList() {
     <div className="p-6 bg-white rounded-lg shadow-lg">
       <h1 className="text-2xl font-bold mb-4">Manage Teachers</h1>
       <div className="bg-white p-6 rounded-lg shadow-lg mb-6">
-        <h2 className="text-xl font-semibold mb-4">List of Teachers</h2>
+      <div className="flex items-center justify-between mb-4">
+  <h2 className="text-xl font-semibold">List of Teachers</h2>
+  <button 
+    className="bg-gray-400 text-white p-2 rounded-full hover:bg-gray-500"
+    onClick={onAddClick}
+  >
+    <FaPlus size={18} />
+  </button>
+</div>
+
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-100">
