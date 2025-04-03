@@ -2,13 +2,15 @@ import React, { useState, useEffect } from "react";
 import {
   getStudents,
   editStudent,
-  getStudentById,
   editPassword,
+  deleteStudent,
 } from "../../services/ManageUsersServices/students.service";
 import { FaTrashAlt, FaEdit } from "react-icons/fa";
 import { CgEyeAlt } from "react-icons/cg";
 import { RiLockPasswordFill } from "react-icons/ri";
-export default function StudentList() {
+import { FaPlus } from "react-icons/fa";
+
+export default function StudentList({ onAddClick }) {
   const [studentsList, setStudentsList] = useState([]);
   const [filteredStudents, setFilteredStudents] = useState([]);
   const [selectedLevel, setSelectedLevel] = useState("");
@@ -16,6 +18,10 @@ export default function StudentList() {
   const [isViewing, setIsViewing] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [isPasswordDialogOpen, setIsPasswordDialogOpen] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [studentToDelete, setStudentToDelete] = useState(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+
   const [editedData, setEditedData] = useState({
     firstName: "",
     lastName: "",
@@ -191,6 +197,42 @@ export default function StudentList() {
     });
   };
 
+  const handleDeleteClick = (student) => {
+    setStudentToDelete(student);
+    setShowDeleteModal(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!studentToDelete) return;
+
+    setIsDeleting(true);
+    try {
+      await deleteStudent(studentToDelete._id);
+      // Remove the deleted student from the lists
+      const updatedStudentsList = studentsList.filter(
+        (student) => student._id !== studentToDelete._id
+      );
+      setStudentsList(updatedStudentsList);
+      setFilteredStudents(
+        filteredStudents.filter(
+          (student) => student._id !== studentToDelete._id
+        )
+      );
+      setShowDeleteModal(false);
+      setStudentToDelete(null);
+    } catch (error) {
+      console.error("Error deleting student:", error);
+      alert("Failed to delete student. Please try again.");
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  const handleCancelDelete = () => {
+    setShowDeleteModal(false);
+    setStudentToDelete(null);
+  };
+
   return (
     <div className="p-6 bg-gray-100 min-h-screen relative">
       <h1 className="text-2xl font-bold mb-4">Manage Students</h1>
@@ -351,179 +393,53 @@ export default function StudentList() {
       )}
       {/* Students List */}
       <div className="bg-white p-6 rounded-lg shadow-lg mb-6">
-        <h2 className="text-xl font-semibold mb-4">List of Students</h2>
-        <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Filter by Level:
-          </label>
-          <select
-            value={selectedLevel}
-            onChange={handleLevelFilter}
-            className="w-full bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded-md px-3 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-300 shadow-sm focus:shadow"
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-xl font-semibold">List of Students</h2>
+          <button
+            className="bg-gray-400 text-white p-2 rounded-full hover:bg-gray-500"
+            onClick={onAddClick}
           >
-            <option value="">All Levels</option>
-            <option value="1year">1 Year</option>
-            <option value="2year">2 Year</option>
-            <option value="3year">3 Year</option>
-          </select>
+            <FaPlus size={18} />
+          </button>
         </div>
-        {/* Dialog for Edit Password */}
-        {isPasswordDialogOpen && (
-          <div className="pointer-events-auto fixed inset-0 z-[999] grid h-screen w-screen place-items-center bg-transparent backdrop-blur-sm transition-opacity duration-500 opacity-100">
-            <div className="relative mx-auto w-full max-w-[24rem] rounded-lg overflow-hidden shadow-sm">
-              <div className="relative flex flex-col bg-white">
-                <div className="relative m-2 items-center flex justify-center text-white h-12 rounded-md bg-indigo-600 px-4">
-                  <h3 className="text-lg font-semibold">Edit Password</h3>
-                </div>
-
-                <div className="flex flex-col gap-4 p-6 max-h-[80vh] overflow-y-auto">
-                  <div className="w-full max-w-sm min-w-[200px]">
-                    <label className="block mb-2 text-sm text-slate-600">
-                      Old Password
-                    </label>
-                    <input
-                      type="password"
-                      name="oldPassword"
-                      value={editedPassword.oldPassword}
-                      onChange={handlePasswordChange}
-                      className="w-full bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded-md px-3 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-300 shadow-sm focus:shadow"
-                      placeholder="Old password"
-                      required
-                    />
-                  </div>
-                  <div className="w-full max-w-sm min-w-[200px]">
-                    <label className="block mb-2 text-sm text-slate-600">
-                      New Password
-                    </label>
-                    <input
-                      type="password"
-                      name="newPassword"
-                      value={editedPassword.newPassword}
-                      onChange={handlePasswordChange}
-                      className="w-full bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded-md px-3 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-300 shadow-sm focus:shadow"
-                      placeholder="New password"
-                      required
-                    />
-                  </div>
-                  <div className="w-full max-w-sm min-w-[200px]">
-                    <label className="block mb-2 text-sm text-slate-600">
-                      Confirm New Password
-                    </label>
-                    <input
-                      type="password"
-                      name="confirmationPassword"
-                      value={editedPassword.confirmationPassword}
-                      onChange={handlePasswordChange}
-                      className="w-full bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded-md px-3 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-300 shadow-sm focus:shadow"
-                      placeholder="Confirm new password"
-                      required
-                    />
-                  </div>
-                </div>
-
-                <div className="p-6 pt-0 flex justify-between">
-                  <button
-                    className="rounded-md bg-indigo-600 py-2 px-4 border border-transparent text-center text-sm text-white transition-all shadow-md hover:shadow-lg focus:bg-indigo-500 focus:shadow-none active:bg-indigo-500 hover:bg-indigo-500 active:shadow-none"
-                    type="button"
-                    onClick={() => EditPassword(editedPassword)}
-                  >
-                    Save
-                  </button>
-                  <button
-                    className="rounded-md bg-gray-400 py-2 px-4 text-sm text-white"
-                    type="button"
-                    onClick={closePasswordDialog}
-                  >
-                    Close
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}{" "}
-        {/* Dialog for Edit Password */}
-        {isPasswordDialogOpen && (
-          <div className="pointer-events-auto fixed inset-0 z-[999] grid h-screen w-screen place-items-center bg-transparent backdrop-blur-sm transition-opacity duration-500 opacity-100">
-            <div className="relative mx-auto w-full max-w-[24rem] rounded-lg overflow-hidden shadow-sm">
-              <div className="relative flex flex-col bg-white">
-                <div className="relative m-2 items-center flex justify-center text-white h-12 rounded-md bg-indigo-600 px-4">
-                  <h3 className="text-lg font-semibold">Edit Password</h3>
-                </div>
-
-                <div className="flex flex-col gap-4 p-6 max-h-[80vh] overflow-y-auto">
-                  <div className="w-full max-w-sm min-w-[200px]">
-                    <label className="block mb-2 text-sm text-slate-600">
-                      Old Password
-                    </label>
-                    <input
-                      type="password"
-                      name="oldPassword"
-                      value={editedPassword.oldPassword}
-                      onChange={handlePasswordChange}
-                      className="w-full bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded-md px-3 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-300 shadow-sm focus:shadow"
-                      placeholder="Old password"
-                      required
-                    />
-                  </div>
-                  <div className="w-full max-w-sm min-w-[200px]">
-                    <label className="block mb-2 text-sm text-slate-600">
-                      New Password
-                    </label>
-                    <input
-                      type="password"
-                      name="newPassword"
-                      value={editedPassword.newPassword}
-                      onChange={handlePasswordChange}
-                      className="w-full bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded-md px-3 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-300 shadow-sm focus:shadow"
-                      placeholder="New password"
-                      required
-                    />
-                  </div>
-                  <div className="w-full max-w-sm min-w-[200px]">
-                    <label className="block mb-2 text-sm text-slate-600">
-                      Confirm New Password
-                    </label>
-                    <input
-                      type="password"
-                      name="confirmationPassword"
-                      value={editedPassword.confirmationPassword}
-                      onChange={handlePasswordChange}
-                      className="w-full bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded-md px-3 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-300 shadow-sm focus:shadow"
-                      placeholder="Confirm new password"
-                      required
-                    />
-                  </div>
-                </div>
-
-                <div className="p-6 pt-0 flex justify-between">
-                  <button
-                    className="rounded-md bg-indigo-600 py-2 px-4 border border-transparent text-center text-sm text-white transition-all shadow-md hover:shadow-lg focus:bg-indigo-500 focus:shadow-none active:bg-indigo-500 hover:bg-indigo-500 active:shadow-none"
-                    type="button"
-                    onClick={() => EditPassword(editedPassword)}
-                  >
-                    Save
-                  </button>
-                  <button
-                    className="rounded-md bg-gray-400 py-2 px-4 text-sm text-white"
-                    type="button"
-                    onClick={closePasswordDialog}
-                  >
-                    Close
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
         <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead>
-              <tr className="bg-gray-200 text-gray-600 uppercase text-sm leading-normal">
-                <th className="py-3 px-6 text-left">Full Name</th>
-                <th className="py-3 px-6 text-left">Email</th>
-                <th className="py-3 px-6 text-left">Level</th>
-                <th className="py-3 px-6 text-left">Creation Date</th>
-                <th className="py-3 px-6 text-center">Actions</th>
+          <div className="mb-4">
+            <label
+              htmlFor="levelFilter"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Filter by Level:
+            </label>
+            <select
+              id="levelFilter"
+              value={selectedLevel}
+              onChange={handleLevelFilter}
+              className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+            >
+              <option value="">All Levels</option>
+              <option value="1year">1 Year</option>
+              <option value="2year">2 Year</option>
+              <option value="3year">3 Year</option>
+            </select>
+          </div>
+          <table className="min-w-full divide-y divide-gray-200">
+            <thead className="bg-gray-100">
+              <tr>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+                  Full Name
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+                  Email
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+                  Level
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+                  Creation Date
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+                  Actions
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -555,8 +471,8 @@ export default function StudentList() {
                         <CgEyeAlt size={18} />
                       </button>
                       <button
-                        onClick={() => deleteStudent(student._id)}
                         className="bg-red-500 text-white p-2 rounded-full hover:bg-red-600"
+                        onClick={() => handleDeleteClick(student)}
                       >
                         <FaTrashAlt size={18} />
                       </button>
@@ -586,6 +502,38 @@ export default function StudentList() {
           </table>
         </div>
       </div>
+
+      {/* Delete Confirmation Modal */}
+      {/* Delete Confirmation Modal */}
+      {showDeleteModal && (
+        <div className="fixed inset-0 flex justify-center items-center z-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
+            <h3 className="text-lg font-medium text-gray-900 mb-4">
+              Confirm Deletion
+            </h3>
+            <p className="text-gray-600 mb-6">
+              Are you sure you want to delete {studentToDelete?.firstName}{" "}
+              {studentToDelete?.lastName}? This action cannot be undone.
+            </p>
+            <div className="flex justify-end gap-4">
+              <button
+                className="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300"
+                onClick={handleCancelDelete}
+                disabled={isDeleting}
+              >
+                Cancel
+              </button>
+              <button
+                className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600"
+                onClick={handleConfirmDelete}
+                disabled={isDeleting}
+              >
+                {isDeleting ? "Deleting..." : "Delete"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
