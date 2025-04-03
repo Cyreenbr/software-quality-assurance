@@ -1,16 +1,14 @@
 import { FaBook, FaGraduationCap, FaLightbulb } from "react-icons/fa";
 import { GiTeacher } from "react-icons/gi";
 import {
-
   MdAccountCircle,
+  MdAssignmentAdd,
+  MdCalendarMonth,
   MdDashboard,
   MdDownload,
   MdHome,
   MdList,
   MdNotifications,
-  MdSchool,
-  MdViewAgenda,
-
 } from "react-icons/md";
 import { PiStudentFill } from "react-icons/pi";
 import Pfa from "../../../src/pages/pfaPage/Pfa";
@@ -19,24 +17,20 @@ import AdminPeriods from "../../pages/adminPeriodsPage/AdminPeriods";
 import Competences from "../../pages/competenecesPage/Competences";
 import Dashboard from "../../pages/dashboardPage/Dashboard";
 import DepotSujet from "../../pages/depotSujetStagePage/DepotSujetStage";
-
 import ErrorPage from "../../pages/ErrorPage";
 import Home from "../../pages/homePage/Home";
 import Notifications from "../../pages/Notifications";
 import Profile from "../../pages/profilePage/Profile";
+
 import InternshipList from "../../pages/studentInternshipPage/studentInternship";
-
-import StudentManag from "../../pages/StudentManag";
 import Subjects from "../../pages/subjectsPage/Subjects";
-
 import StudentsManagPage from "../../pages/UsersManagementPage/StudentsManagPage";
 import TeachersManagPage from "../../pages/UsersManagementPage/TeachersManagPage";
 import { RoleEnum } from "../../utils/userRoles";
-import AdminPfeManagement from "../../pages/pfePage/pfe";
 import PFEStudent from "../../pages/pfePage/pfeStudent";
+import AdminPfeManagement from "../../pages/pfePage/pfe";
 
 export const menuConfig = [
-
   {
     order: 1,
     label: "Home",
@@ -141,19 +135,9 @@ export const menuConfig = [
     hideSideBar: false,
     hideHeader: false,
   },
+
   {
     order: 9,
-    label: "Student Management",
-    icon: MdSchool,
-    path: "/student-management",
-    component: StudentManag,
-    eligibleRoles: [RoleEnum.ADMIN],
-    active: true,
-    hideSideBar: false,
-    hideHeader: false,
-  },
-  {
-    order: 10,
     label: "Manage Students",
     icon: PiStudentFill,
     path: "/managestudents",
@@ -164,7 +148,7 @@ export const menuConfig = [
     hideHeader: false,
   },
   {
-    order: 11,
+    order: 10,
     label: "Manage Teachers",
     icon: GiTeacher,
     path: "/manageteachers",
@@ -177,7 +161,7 @@ export const menuConfig = [
   {
     order: 12,
     label: "Period",
-    icon: MdViewAgenda,
+    icon: MdCalendarMonth,
     path: "/period",
     tooltip: "period",
     component: AdminPeriods,
@@ -189,10 +173,10 @@ export const menuConfig = [
   },
   {
     order: 13,
-    label: "Depot",
+    label: "Internship Deposit",
     icon: MdDownload,
     path: "/deposit",
-    tooltip: "depot",
+    tooltip: "deposit",
     component: DepotSujet,
     eligibleRoles: [RoleEnum.STUDENT],
     active: true,
@@ -202,7 +186,7 @@ export const menuConfig = [
   },
   {
     order: 14,
-    label: "Internship",
+    label: "Internship List",
     icon: MdList,
     path: "/InternshipList",
     tooltip: "Internship",
@@ -262,5 +246,4 @@ export const getMenuItems = (role) => {
         item.eligibleRoles.length === 0 || item.eligibleRoles.includes(role)
     )
     .sort((a, b) => (a.order ?? Infinity) - (b.order ?? Infinity));
-
 };
