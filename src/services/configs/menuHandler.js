@@ -1,19 +1,18 @@
-import { FaBook, FaGraduationCap, FaLightbulb } from 'react-icons/fa';
+import { FaBook, FaGraduationCap, FaLightbulb } from "react-icons/fa";
 import { GiTeacher } from "react-icons/gi";
-import { MdAccountCircle, MdAssignmentAdd, MdCalendarMonth, MdDashboard, MdDownload, MdHome, MdList, MdNotifications } from 'react-icons/md';
+import { MdAccountCircle, MdDashboard, MdDownload, MdHome, MdList, MdNotifications, MdViewAgenda } from 'react-icons/md';
 import { PiStudentFill } from "react-icons/pi";
-import Pfa from '../../../src/pages/pfaPage/Pfa';
-import SubjectDetailsPage from '../../components/subjectsComponents/SubjectDetailsPage';
-import AdminPeriods from '../../pages/adminPeriodsPage/AdminPeriods';
-import Competences from '../../pages/competenecesPage/Competences';
-import Dashboard from '../../pages/dashboardPage/Dashboard';
+import Pfa from "../../../src/pages/pfaPage/Pfa";
+import SubjectDetailsPage from "../../components/subjectsComponents/SubjectDetailsPage";
+import AdminPeriods from "../../pages/adminPeriodsPage/AdminPeriods";
+import Competences from "../../pages/competenecesPage/Competences";
+import Dashboard from "../../pages/dashboardPage/Dashboard";
 import DepotSujet from "../../pages/depotSujetStagePage/DepotSujetStage";
 import ErrorPage from '../../pages/ErrorPage';
 import Home from '../../pages/homePage/Home';
 import Notifications from '../../pages/Notifications';
 import Profile from '../../pages/profilePage/Profile';
 
-import AssignInternships from '../../pages/assignInternshipsPage/AssignInternshipsPage';
 import InternshipList from "../../pages/studentInternshipPage/studentInternship";
 import Subjects from '../../pages/subjectsPage/Subjects';
 import StudentsManagPage from "../../pages/UsersManagementPage/StudentsManagPage";
@@ -152,7 +151,7 @@ export const menuConfig = [
     {
         order: 12,
         label: 'Period',
-        icon: MdCalendarMonth,
+        icon: MdViewAgenda,
         path: '/period',
         tooltip: "period",
         component: AdminPeriods,
@@ -176,8 +175,8 @@ export const menuConfig = [
         hideHeader: false,
     },
     {   order: 14,
-        label: 'Internship List',
-        icon: MdList ,
+        label: 'Internship',
+        icon: MdList,
         path: '/InternshipList',
         tooltip: "Internship",
         component: InternshipList,
@@ -187,18 +186,7 @@ export const menuConfig = [
         hideSideBar: false,
         hideHeader: false,
     },
-    {   order: 15,
-        label: 'Assign Internships',
-        icon: MdAssignmentAdd,
-        path: '/InternshipAssignment',
-        tooltip: "Internship",
-        component: AssignInternships,
-        eligibleRoles: [RoleEnum.ADMIN],
-        active: true,
-        dontShow: false,
-        hideSideBar: false,
-        hideHeader: false,
-    },
+
     // kifeh tzid route jdid ??
     // {
     //     order: 7,
@@ -214,9 +202,12 @@ export const menuConfig = [
 
 ];
 
- export const getMenuItems = (role) => {
-    return menuConfig
-        .filter((item) => item?.dontShow !== true)
-        .filter((item) => item.eligibleRoles.length === 0 || item.eligibleRoles.includes(role))
-        .sort((a, b) => (a.order ?? Infinity) - (b.order ?? Infinity));
+export const getMenuItems = (role) => {
+  return menuConfig
+    .filter((item) => item?.dontShow !== true)
+    .filter(
+      (item) =>
+        item.eligibleRoles.length === 0 || item.eligibleRoles.includes(role)
+    )
+    .sort((a, b) => (a.order ?? Infinity) - (b.order ?? Infinity));
 };
