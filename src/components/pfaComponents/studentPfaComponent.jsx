@@ -1,44 +1,44 @@
 import React, { useState } from 'react';
 
-import { getTeacherByName, getPfasByTeacherId } from '../../services/PfaServices/pfaService'; // Services pour la gestion des données
+//import {getTeacherByName , getPfasByTeacherId } from '../../services/PfaServices/pfaService'; 
 
 const StudentComponent = () => {
   const [teacherName, setTeacherName] = useState('');
-  const [teacherId, setTeacherId] = useState(null);
+//   const [teacherId, setTeacherId] = useState(null);
   const [pfas, setPfas] = useState([]);
-  const [error, setError] = useState('');
+//   const [error, setError] = useState('');
 
   
-  const handleSearchTeacher = async () => {
-    if (teacherName.trim() === '') {
-      setError('Please enter a teacher name');
-      return;
-    }
+//   const handleSearchTeacher = async () => {
+//     if (teacherName.trim() === '') {
+//       setError('Please enter a teacher name');
+//       return;
+//     }
 
-    try {
-      const teacher = await getTeacherByName(teacherName); 
-      if (teacher) {
-        setTeacherId(teacher.id); 
-        fetchPfas(teacher.id); 
-      } else {
-        setError('Teacher not found');
-      }
-    } catch (error) {
-        console.error("Error API (GET PFA) :", error);
-        return null;
-      }
-  };
+//     try {
+//       const teacher = await getTeacherByName(teacherName); 
+//       if (teacher) {
+//         setTeacherId(teacher.id); 
+//         fetchPfas(teacher.id); 
+//       } else {
+//         setError('Teacher not found');
+//       }
+//     } catch (error) {
+//         console.error("Error API (GET PFA) :", error);
+//         return null;
+//       }
+//   };
 
 
-  const fetchPfas = async (teacherId) => {
-    try {
-      const pfasData = await getPfasByTeacherId(teacherId); 
-      setPfas(pfasData);
-    } catch (error) {
-        console.error("Error API (GET PFA) :", error);
-        return null;
-      }
-  };
+//   const fetchPfas = async (teacherId) => {
+//     try {
+//       const pfasData = await getPfasByTeacherId(teacherId); 
+//       setPfas(pfasData);
+//     } catch (error) {
+//         console.error("Error API (GET PFA) :", error);
+//         return null;
+//       }
+//   };
 
   return (
     <div className="student-component">
@@ -52,7 +52,7 @@ const StudentComponent = () => {
         className="border px-4 py-2 rounded"
       />
       <button
-        onClick={handleSearchTeacher}
+       // onClick={handleSearchTeacher}
         className="bg-blue-500 text-white px-4 py-2 rounded ml-2"
       >
         Search
