@@ -14,21 +14,22 @@ import { PiStudentFill } from "react-icons/pi";
 import Pfa from "../../../src/pages/pfaPage/Pfa";
 import SubjectDetailsPage from "../../components/subjectsComponents/SubjectDetailsPage";
 import AdminPeriods from "../../pages/adminPeriodsPage/AdminPeriods";
+import AssignInternships from '../../pages/assignInternshipsPage/AssignInternshipsPage';
 import Competences from "../../pages/competenecesPage/Competences";
 import Dashboard from "../../pages/dashboardPage/Dashboard";
 import DepotSujet from "../../pages/depotSujetStagePage/DepotSujetStage";
 import ErrorPage from "../../pages/ErrorPage";
 import Home from "../../pages/homePage/Home";
 import Notifications from "../../pages/Notifications";
+import AdminPfeManagement from "../../pages/pfePage/pfe";
+import PFEStudent from "../../pages/pfePage/pfeStudent";
+import InternshipPlanning from "../../pages/PlanningUpdate/InternshipPlanningUpdate";
 import Profile from "../../pages/profilePage/Profile";
 import InternshipList from "../../pages/studentInternshipPage/studentInternship";
 import Subjects from "../../pages/subjectsPage/Subjects";
 import StudentsManagPage from "../../pages/UsersManagementPage/StudentsManagPage";
 import TeachersManagPage from "../../pages/UsersManagementPage/TeachersManagPage";
 import { RoleEnum } from "../../utils/userRoles";
-import PFEStudent from "../../pages/pfePage/pfeStudent";
-import AdminPfeManagement from "../../pages/pfePage/pfe";
-import AssignInternships from '../../pages/assignInternshipsPage/AssignInternshipsPage';
 
 export const menuConfig = [
   {
@@ -232,6 +233,15 @@ export const menuConfig = [
         eligibleRoles: [RoleEnum.ADMIN],
         active: true,
         dontShow: false,
+        hideSideBar: false,
+        hideHeader: false,
+    },
+    {   order: 18,
+        path: '/Planning Update',
+        component: InternshipPlanning ,
+        eligibleRoles: [RoleEnum.ADMIN],
+        active: true,
+        dontShow: true,
         hideSideBar: false,
         hideHeader: false,
     },
