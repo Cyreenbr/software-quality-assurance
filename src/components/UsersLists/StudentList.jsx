@@ -1,25 +1,31 @@
 import React, { useState, useEffect } from "react";
-import { getStudents } from "../../services/ManageUsersServices/students.service";
-import { FaTrashAlt, FaEdit } from "react-icons/fa";
-export default function StudentList() {
+import { getStudents, deleteStudent } from "../../services/ManageUsersServices/students.service";
+import { FaTrashAlt, FaEdit, FaPlus } from "react-icons/fa";
+
+export default function StudentList({ onAddClick }) {
   const [studentsList, setStudentsList] = useState([]);
   const [filteredStudents, setFilteredStudents] = useState([]);
   const [selectedLevel, setSelectedLevel] = useState("");
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [studentToDelete, setStudentToDelete] = useState(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+  
   useEffect(() => {
-    const fetchStudents = async () => {
-      try {
-        const response = await getStudents();
-        if (response && response.model) {
-          setStudentsList(response.model);
-          setFilteredStudents(response.model);
-        }
-      } catch (error) {
-        console.error("Error fetching students:", error);
-      }
-    };
-
     fetchStudents();
   }, []);
+  
+  const fetchStudents = async () => {
+    try {
+      const response = await getStudents();
+      if (response && response.model) {
+        setStudentsList(response.model);
+        setFilteredStudents(response.model);
+      }
+    } catch (error) {
+      console.error("Error fetching students:", error);
+    }
+  };
+  
   const formatDate = (dateString) => {
     const date = new Date(dateString);
     return date.toLocaleDateString("en-US", {
@@ -29,6 +35,7 @@ export default function StudentList() {
       day: "numeric",
     });
   };
+  
   const handleLevelFilter = (e) => {
     const level = e.target.value;
     setSelectedLevel(level);
@@ -42,11 +49,53 @@ export default function StudentList() {
     }
   };
 
+  const handleDeleteClick = (student) => {
+    setStudentToDelete(student);
+    setShowDeleteModal(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!studentToDelete) return;
+    
+    setIsDeleting(true);
+    try {
+      await deleteStudent(studentToDelete._id);
+      // Remove the deleted student from the lists
+      const updatedStudentsList = studentsList.filter(
+        student => student._id !== studentToDelete._id
+      );
+      setStudentsList(updatedStudentsList);
+      setFilteredStudents(
+        filteredStudents.filter(student => student._id !== studentToDelete._id)
+      );
+      setShowDeleteModal(false);
+      setStudentToDelete(null);
+    } catch (error) {
+      console.error("Error deleting student:", error);
+      alert("Failed to delete student. Please try again.");
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  const handleCancelDelete = () => {
+    setShowDeleteModal(false);
+    setStudentToDelete(null);
+  };
+
   return (
     <div className="p-6 bg-white rounded-lg shadow-lg">
-      <h1 className="text-2xl font-bold mb-4">Manage Students </h1>
+      <h1 className="text-2xl font-bold mb-4">Manage Students</h1>
       <div className="bg-white p-6 rounded-lg shadow-lg mb-6">
-        <h2 className="text-xl font-semibold mb-4">List of Students</h2>
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-xl font-semibold">List of Students</h2>
+          <button 
+            className="bg-gray-400 text-white p-2 rounded-full hover:bg-gray-500"
+            onClick={onAddClick}
+          >
+            <FaPlus size={18} />
+          </button>
+        </div>
         <div className="overflow-x-auto">
           <div className="mb-4">
             <label
@@ -111,7 +160,10 @@ export default function StudentList() {
                         <button className="bg-blue-500 text-white p-2 rounded-full hover:bg-blue-600">
                           <FaEdit size={18} />
                         </button>
-                        <button className="bg-red-500 text-white p-2 rounded-full hover:bg-red-600">
+                        <button 
+                          className="bg-red-500 text-white p-2 rounded-full hover:bg-red-600"
+                          onClick={() => handleDeleteClick(student)}
+                        >
                           <FaTrashAlt size={18} />
                         </button>
                       </div>
@@ -131,6 +183,35 @@ export default function StudentList() {
           </table>
         </div>
       </div>
+
+      {/* Delete Confirmation Modal */}
+  {/* Delete Confirmation Modal */}
+{showDeleteModal && (
+  <div className="fixed inset-0 flex justify-center items-center z-50">
+    <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
+      <h3 className="text-lg font-medium text-gray-900 mb-4">Confirm Deletion</h3>
+      <p className="text-gray-600 mb-6">
+        Are you sure you want to delete {studentToDelete?.firstName} {studentToDelete?.lastName}? This action cannot be undone.
+      </p>
+      <div className="flex justify-end gap-4">
+        <button
+          className="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300"
+          onClick={handleCancelDelete}
+          disabled={isDeleting}
+        >
+          Cancel
+        </button>
+        <button
+          className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600"
+          onClick={handleConfirmDelete}
+          disabled={isDeleting}
+        >
+          {isDeleting ? "Deleting..." : "Delete"}
+        </button>
+      </div>
+    </div>
+  </div>
+)}
     </div>
   );
 }
