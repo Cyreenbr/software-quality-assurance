@@ -1,4 +1,4 @@
-import { FaBook, FaGraduationCap, FaLightbulb } from "react-icons/fa";
+import { FaBook, FaGraduationCap, FaLightbulb, FaWindowRestore } from "react-icons/fa";
 import { GiTeacher } from "react-icons/gi";
 import {
   MdAccountCircle,
@@ -10,7 +10,6 @@ import {
   MdList,
   MdNotifications,
 } from "react-icons/md";
-import { FaWindowRestore } from "react-icons/fa";
 import { PiStudentFill } from "react-icons/pi";
 import Pfa from "../../../src/pages/pfaPage/Pfa";
 import SubjectDetailsPage from "../../components/subjectsComponents/SubjectDetailsPage";
@@ -22,6 +21,7 @@ import DepotSujet from "../../pages/depotSujetStagePage/DepotSujetStage";
 import ErrorPage from "../../pages/ErrorPage";
 import Home from "../../pages/homePage/Home";
 import Notifications from "../../pages/Notifications";
+import OptionListPage from "../../pages/optionPage/OptionListPage";
 import AdminPfeManagement from "../../pages/pfePage/pfe";
 import PFEStudent from "../../pages/pfePage/pfeStudent";
 import InternshipPlanning from "../../pages/PlanningUpdate/InternshipPlanningUpdate";
@@ -31,7 +31,6 @@ import Subjects from "../../pages/subjectsPage/Subjects";
 import StudentsManagPage from "../../pages/UsersManagementPage/StudentsManagPage";
 import TeachersManagPage from "../../pages/UsersManagementPage/TeachersManagPage";
 import { RoleEnum } from "../../utils/userRoles";
-import OptionListPage from "../../pages/optionPage/OptionListPage";
 
 export const menuConfig = [
   {
@@ -241,7 +240,7 @@ export const menuConfig = [
   },
   {
     order: 18,
-    path: '/Planning Update',
+    path: '/PlanningUpdate',
     component: InternshipPlanning,
     eligibleRoles: [RoleEnum.ADMIN],
     active: true,

@@ -1,17 +1,10 @@
-import axios from "axios";
-
-const BASE_URL = "http://localhost:3000/api/internship"; 
-
-const getAuthHeader = () => {
-  const token = localStorage.getItem("token");
-  return token ? { Authorization: `Bearer ${token}` } : {};
-};
+import axiosAPI from "../axiosAPI/axiosInstance";
 
 
 const teacherService = {
   getTeachers: async () => {
     try {
-      const response = await axios.get(`${BASE_URL}/teachers`, { headers: { ...getAuthHeader() } });
+      const response = await axiosAPI.get(`/internship/teachers`);
       return response.data; 
     } catch (error) {
       console.error("Erreur API teachers :", error);
@@ -23,10 +16,9 @@ const teacherService = {
 const internshipService = {
   assignInternships: async (assignmentData) => {
     try {
-      const response = await axios.post(
-        `${BASE_URL}/stage/planning/assign`,
-        assignmentData,
-        { headers: { "Content-Type": "application/json", ...getAuthHeader() } }
+      const response = await axiosAPI.post(
+        `/internship/stage/planning/assign`,
+        assignmentData
       );
       return response.data;
     } catch (error) {
