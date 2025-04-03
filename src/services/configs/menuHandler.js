@@ -11,7 +11,6 @@ import {
   MdNotifications,
 } from "react-icons/md";
 import { PiStudentBold } from "react-icons/pi";
-import { FaWindowRestore } from "react-icons/fa";
 import { PiStudentFill } from "react-icons/pi";
 import Pfa from "../../../src/pages/pfaPage/Pfa";
 import SubjectDetailsPage from "../../components/subjectsComponents/SubjectDetailsPage";
@@ -33,7 +32,6 @@ import Subjects from "../../pages/subjectsPage/Subjects";
 import StudentsManagPage from "../../pages/UsersManagementPage/StudentsManagPage";
 import TeachersManagPage from "../../pages/UsersManagementPage/TeachersManagPage";
 import { RoleEnum } from "../../utils/userRoles";
-import OptionListPage from "../../pages/optionPage/OptionListPage";
 import OptionPage from "../../pages/optionPage/OptionPage";
 import { MdAutoStories } from "react-icons/md";
 import StudentsListTeachers from "../../pages/usersListPage/StudentsListTeachers";
