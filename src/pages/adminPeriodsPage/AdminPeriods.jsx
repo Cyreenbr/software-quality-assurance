@@ -89,7 +89,7 @@ const AdminPeriods = () => {
       setShowForm(true);
     }}
     
-    className="bg-transparant text-blue-700 p-3 rounded-2xl shadow-lg  transition-all duration-300 transform hover:scale-105 hover:bg-blue-50 "
+    className="bg-green-500 text-white p-3 rounded-2xl shadow-lg  transition-all duration-300 transform hover:scale-105 "
   >
     <FontAwesomeIcon icon={faPlus} className="mr-2" />
     <span className="font-semibold">Add Period</span>
