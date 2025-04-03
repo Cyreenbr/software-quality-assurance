@@ -20,8 +20,8 @@ export const menuConfig = [
     //
     //zid fi e5er liste route kima hakka :
     {
-        label: 'Home',
-        icon: MdHome, //just chouf l essm Importih men biblio "react-icons" (chouf documentation en ligne)
+        label: 'Home', //essm li yodhher fel menu
+        icon: MdHome, //just chouf l essm Importih men biblio "react-icons" (chouf documentation en ligne https://react-icons.github.io/react-icons )
         path: '/', //hot l path exemple /login, /profile...
         component: Home, //menghir aka < /> just importih w hottou
         eligibleRoles: [ //tableau fih li aand'hom accesss kima mahtout louta
@@ -35,8 +35,8 @@ export const menuConfig = [
     },
     // Pour un routage dynamique
     {
-        label: 'Home',
-        icon: MdHome, //just chouf l essm Importih men biblio "react-icons" (chouf documentation en ligne)
+        label: 'Home', //essm li yodhher fel menu
+        icon: MdHome, //just chouf l essm Importih men biblio "react-icons" (chouf documentation en ligne https://react-icons.github.io/react-icons )
         path: (id)=> `/route/${id}`,
         dontShow : true, // lazem TZID'ha hedhy ken bech te5dem bel routage dynamique
         component: Home, //menghir aka < /> just importih w hottou
