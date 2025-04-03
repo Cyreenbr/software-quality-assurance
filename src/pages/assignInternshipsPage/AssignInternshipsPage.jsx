@@ -66,7 +66,7 @@ const AssignInternships = () => {
   };
 
   const handleUpdateAssignment = () => {
-    navigate('/Planning Update'); 
+    navigate('/PlanningUpdate'); 
   };
 
   return (

@@ -1,4 +1,4 @@
-import { FaBook, FaGraduationCap, FaLightbulb } from "react-icons/fa";
+import { FaBook, FaGraduationCap, FaLightbulb, FaWindowRestore } from "react-icons/fa";
 import { GiTeacher } from "react-icons/gi";
 import {
   MdAccountCircle,
@@ -21,6 +21,7 @@ import DepotSujet from "../../pages/depotSujetStagePage/DepotSujetStage";
 import ErrorPage from "../../pages/ErrorPage";
 import Home from "../../pages/homePage/Home";
 import Notifications from "../../pages/Notifications";
+import OptionListPage from "../../pages/optionPage/OptionListPage";
 import AdminPfeManagement from "../../pages/pfePage/pfe";
 import PFEStudent from "../../pages/pfePage/pfeStudent";
 import InternshipPlanning from "../../pages/PlanningUpdate/InternshipPlanningUpdate";
@@ -224,28 +225,40 @@ export const menuConfig = [
     hideSideBar: false,
     hideHeader: false,
   },
-    {   order: 17,
-        label: 'Assign Internships',
-        icon: MdAssignmentAdd,
-        path: '/InternshipAssignment',
-        tooltip: "Internship",
-        component: AssignInternships,
-        eligibleRoles: [RoleEnum.ADMIN],
-        active: true,
-        dontShow: false,
-        hideSideBar: false,
-        hideHeader: false,
-    },
-    {   order: 18,
-        path: '/PlanningUpdate',
-        component: InternshipPlanning ,
-        eligibleRoles: [RoleEnum.ADMIN],
-        active: true,
-        dontShow: true,
-        hideSideBar: false,
-        hideHeader: false,
-    },
-
+  {
+    order: 17,
+    label: 'Assign Internships',
+    icon: MdAssignmentAdd,
+    path: '/InternshipAssignment',
+    tooltip: "Internship",
+    component: AssignInternships,
+    eligibleRoles: [RoleEnum.ADMIN],
+    active: true,
+    dontShow: false,
+    hideSideBar: false,
+    hideHeader: false,
+  },
+  {
+    order: 18,
+    path: '/PlanningUpdate',
+    component: InternshipPlanning,
+    eligibleRoles: [RoleEnum.ADMIN],
+    active: true,
+    dontShow: true,
+    hideSideBar: false,
+    hideHeader: false,
+  },
+  {
+    order: 11,
+    label: 'Options List',
+    icon: FaWindowRestore,
+    path: '/OptionsList',
+    component: OptionListPage, //componet mta3 l page .JSX li sna3to enta
+    eligibleRoles: [RoleEnum.ADMIN],
+    active: true,
+    hideSideBar: false,
+    hideHeader: false,
+  },
   // kifeh tzid route jdid ??
   // {
   //     order: 7,
