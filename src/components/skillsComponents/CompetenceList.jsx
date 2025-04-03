@@ -22,11 +22,13 @@ const CompetenceList = ({
     families,
     setEditSkill,
     setIsEditPopupOpen,
+    enableSortingBtns = true,
+    enableDefaultPaginationbtns = false
 }) => {
     return (
         <div>
             {/* Sorting Buttons */}
-            <div className="flex space-x-4 w-full md:w-auto justify-center mb-6">
+            {enableSortingBtns && (<div className="flex space-x-4 w-full md:w-auto justify-center mb-6">
                 <Tooltip text={`${titleSortOrder.toUpperCase()} : Sort by Title`} position="top" bgColor="bg-black">
                     <button
                         onClick={handleSortByTitle}
@@ -47,7 +49,7 @@ const CompetenceList = ({
                         <span className="ml-2">Family</span>
                     </button>
                 </Tooltip>
-            </div>
+            </div>)}
 
             {/* Competence Cards Layout */}
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
@@ -75,12 +77,13 @@ const CompetenceList = ({
             </div>
 
             {/* Pagination */}
-            {skills.length > 0 && (
+            {enableDefaultPaginationbtns && skills.length > 0 && (
                 <Pagination
                     currentPage={currentPage}
                     totalPages={totalPages}
                     onPageChange={(pageNumber) => fetchCompetences(pageNumber)}
                     styles={" bg-blue-600 text-white"}
+                    hoverColor='bg-blue-500'
                 />
             )}
         </div>

@@ -2,7 +2,7 @@ import debounce from "lodash.debounce";
 import { useEffect, useMemo, useState } from "react";
 import { MdChevronLeft, MdChevronRight } from "react-icons/md"; // Importing the icons
 
-const Pagination = ({ currentPage, totalPages, onPageChange, styles = "bg-gray-600 text-white" }) => {
+const Pagination = ({ currentPage, totalPages, onPageChange, styles = "bg-gray-600 text-white", hoverColor = 'bg-gray-700' }) => {
     const [inputPage, setInputPage] = useState(currentPage);
 
     // Create a debounced version of the page change function
@@ -19,12 +19,11 @@ const Pagination = ({ currentPage, totalPages, onPageChange, styles = "bg-gray-6
     const handlePageInputChange = (e) => {
         const page = Math.max(1, Math.min(totalPages, e.target.value)); // Ensure page is between 1 and totalPages
         setInputPage(page);
-        debouncedPageChange(page);
     };
 
     // Update the input page when the current page changes
     useEffect(() => {
-        if (currentPage > 0 && currentPage <= totalPages) {
+        if (currentPage >= 1 && currentPage <= totalPages) {
             setInputPage(currentPage);
         }
     }, [currentPage, totalPages]);
@@ -53,10 +52,10 @@ const Pagination = ({ currentPage, totalPages, onPageChange, styles = "bg-gray-6
             {/* Previous Button with Icon */}
             <button
                 onClick={handlePreviousClick}
-                className={`${styles} px-4 py-2 rounded-lg ${currentPage <= 1 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-700'} transition`}
+                className={`${styles} px-4 py-2 rounded-lg ${currentPage <= 1 ? 'opacity-50 cursor-not-allowed' : `hover:${hoverColor}`} transition`}
                 disabled={currentPage <= 1}
             >
-                <MdChevronLeft className="inline-block mr-2" /> {/* Previous icon */}
+                <MdChevronLeft className="inline-block mr-2" />
                 Previous
             </button>
 
@@ -81,11 +80,11 @@ const Pagination = ({ currentPage, totalPages, onPageChange, styles = "bg-gray-6
             {/* Next Button with Icon */}
             <button
                 onClick={handleNextClick}
-                className={`${styles}  text-white px-4 py-2 rounded-lg ${currentPage === totalPages || totalPages === 0 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-700'} transition`}
+                className={`${styles} text-white px-4 py-2 rounded-lg ${currentPage === totalPages || totalPages === 0 ? 'opacity-50 cursor-not-allowed' : `hover:${hoverColor} `}} transition`}
                 disabled={currentPage === totalPages || totalPages === 0}
             >
                 Next
-                <MdChevronRight className="inline-block ml-2" /> {/* Next icon */}
+                <MdChevronRight className="inline-block ml-2" />
             </button>
         </div>
     );

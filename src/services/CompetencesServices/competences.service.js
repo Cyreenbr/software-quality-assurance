@@ -17,7 +17,7 @@ const competenceServices = {
             throw err.response?.data?.error || "Failed to load skills.";
         }
     },
-    fetchCompetencesForForm: async ({ page = 1, searchTerm = '', sortBy = '_id', order = 'desc', limit = 10 }) => {
+    fetchCompetencesForForm: async ({ page = 1, searchTerm = '', sortBy = '_id', order = 'desc', limit = 100 }) => {
         try {
             const response = await axiosAPI.get("/competences/forform", {
                 params: {

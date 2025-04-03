@@ -364,6 +364,7 @@ const SubjectForm = ({ initialData = null, onSubmit }) => {
                 if (!formData.curriculum[field]) {
                     valid = false;
                     newErrorMessages[field] = `${capitalizeFirstLetter(field.replace("_", " "))} is required.`;
+                    toast.error(newErrorMessages.newErrorMessages[field]);
                 }
             }
         );
@@ -372,21 +373,25 @@ const SubjectForm = ({ initialData = null, onSubmit }) => {
         if (formData.curriculum.module && !/^GM[1-5]\.[1-6]$/.test(formData.curriculum.module)) {
             valid = false;
             newErrorMessages.module = "Module must be in the format GMx.y, where x is between 1-5 and y is between 1-6.";
+            toast.error(newErrorMessages.module);
         }
 
         if (formData.curriculum.volume_horaire_total && !/^[1-9][0-9]*$/.test(formData.curriculum.volume_horaire_total)) {
             valid = false;
             newErrorMessages.volume_horaire_total = "Volume Horaire Total must be a valid integer without decimals.";
+            toast.error(newErrorMessages.volume_horaire_total);
         }
 
         if (formData.curriculum.credit && !/^[1-9][0-9]*$/.test(formData.curriculum.credit)) {
             valid = false;
             newErrorMessages.credit = "Crédit must be a valid integer without decimals.";
+            toast.error(newErrorMessages.credit);
         }
 
         if (formData.skillsId.length === 0) {
             valid = false;
             newErrorMessages.skillsId = "At least one skill must be selected.";
+            toast.error(newErrorMessages.skillsId);
         }
 
         setErrorMessages(newErrorMessages);

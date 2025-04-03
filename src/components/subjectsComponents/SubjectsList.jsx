@@ -169,7 +169,8 @@ const SubjectList = ({ onEdit, refresh = false }) => {
                     currentPage={currentPage}
                     totalPages={totalPages}
                     onPageChange={handlePageChange}
-                    styles="bg-blue-600 text-white"
+                    styles="bg-blue-700 text-white"
+                    hoverColor="bg-blue-500"
                 />
             )}
         </div>
