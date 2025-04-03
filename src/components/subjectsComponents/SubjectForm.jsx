@@ -3,26 +3,25 @@ import React, { useEffect, useState } from "react";
 import { FaCheckCircle } from "react-icons/fa";
 import { toast } from "react-toastify";
 import competenceServices from "../../services/CompetencesServices/competences.service";
+import matieresServices from "../../services/matieresServices/matieres.service";
 import MultiSelectDropdown from "../skillsComponents/MultiSelectDropdown";
+import TeacherSearchDropdown from "./TeacherSearchDropdown";
 
-// Helper function to capitalize the first letter of a string
 const capitalizeFirstLetter = (str) => str.charAt(0).toUpperCase() + str.slice(1);
 
 const SubjectForm = ({ initialData = null, onSubmit }) => {
     const [competences, setCompetences] = useState([]);
-    const [limit, setLimit] = useState(100); // Initial limit
-    const [totalItems, setTotalItems] = useState(Infinity); // Initially unknown total
-    const increment = 1; // Number of items to increase per load
-    // console.log(initialData);
+    const [limit, setLimit] = useState(100);
+    const [totalItems, setTotalItems] = useState(Infinity);
+    const increment = 1;
+    const [selectedTeacher, setSelectedTeacher] = useState(null);
 
     const fetchCompetencesOptions = async (newLimit) => {
         try {
             const data = await competenceServices.fetchCompetencesForForm({ limit: newLimit });
-
-            // Prevent duplicates when loading more
             setCompetences((prev) => [
                 ...prev,
-                ...data.skills.filter((skill) => !prev.some((s) => s._id === skill._id))
+                ...data.skills.filter((skill) => !prev.some((s) => s._id === skill._id)),
             ]);
             setTotalItems(data.pagination?.totalSkills || data.skills.length);
         } catch (error) {
@@ -30,180 +29,108 @@ const SubjectForm = ({ initialData = null, onSubmit }) => {
         }
     };
 
+    const handleSelectTeacher = (teacher) => {
+        setSelectedTeacher(teacher); // Update selectedTeacher with the full teacher object
+        setFormData((prev) => ({
+            ...prev,
+            teacherId: teacher ? [teacher._id] : [], // Update teacherId with the teacher's _id
+        }));
+    };
+
+
+    // Update formData when initialData changes
     useEffect(() => {
-        fetchCompetencesOptions(limit); // Fetch initial competences
+        if (initialData) {
+            // Extract skill IDs from initialData.skillIds
+            const initialSkillIds =
+                Array.isArray(initialData.skillIds) &&
+                    initialData.skillIds.every((skill) => typeof skill === "object" && skill._id)
+                    ? initialData.skillIds.map((skill) => skill._id) // Extract _id from each skill object
+                    : [];
+
+            setFormData((prev) => ({
+                ...prev,
+                _id: initialData._id,
+                title: initialData.title,
+                isPublish: initialData.isPublish,
+                isArchive: initialData.isArchive,
+                skillsId: initialSkillIds, // Populate skillsId with valid _id values
+                teacherId: initialData.teacherId || [],
+                curriculum: {
+                    ...prev.curriculum,
+                    ...initialData.curriculum,
+                    chapitres: initialData.curriculum?.chapitres?.map((chapter) => ({
+                        ...chapter,
+                        sections: Array.isArray(chapter.sections) ? chapter.sections : [],
+                    })),
+                },
+            }));
+        }
+    }, [initialData]);
+
+    // Handle fetching teacher if initialData contains teacherId
+    useEffect(() => {
+        if (initialData?.teacherId) {
+            const fetchTeacher = async () => {
+                try {
+                    let teacherId;
+
+                    // Validate structure of teacherId
+                    if (Array.isArray(initialData.teacherId) && initialData.teacherId.length > 0) {
+                        teacherId = initialData.teacherId[0]._id; // Extract _id from array
+                    } else if (typeof initialData.teacherId === "object" && initialData.teacherId?._id) {
+                        teacherId = initialData.teacherId._id; // Use _id if teacherId is an object
+                    } else if (typeof initialData.teacherId === "string") {
+                        teacherId = initialData.teacherId; // Use directly if it's a string
+                    } else {
+                        console.warn("Invalid or missing teacherId:", initialData.teacherId);
+                        return;
+                    }
+
+                    if (!teacherId || teacherId.trim() === "") {
+                        console.warn("Teacher ID is missing or invalid.");
+                        return;
+                    }
+
+                    // Fetch teacher by _id
+                    const teacherResponse = await matieresServices.fetchTeacherById(teacherId);
+
+                    // Ensure the response contains the expected structure
+                    const teacher = teacherResponse?.teacher;
+                    if (!teacher) {
+                        throw new Error("Teacher not found.");
+                    }
+
+                    // Log success message
+                    toast.success(`${teacher.firstName} ${teacher.lastName} has been selected.`);
+
+                    // Update state with fetched teacher data
+                    setSelectedTeacher(teacher); // Store the full teacher object
+                    setFormData((prev) => ({
+                        ...prev,
+                        teacherId: [teacher._id], // Store the teacher's _id in an array
+                    }));
+                } catch (error) {
+                    console.error("Failed to fetch teacher:", error);
+                    toast.error(`Failed to fetch teacher: ${error.message || "Unknown error"}`);
+                }
+            };
+            fetchTeacher();
+        }
+    }, [initialData]);
+
+    useEffect(() => {
+        fetchCompetencesOptions(limit);
     }, [limit]);
 
     const handleLoadMore = () => {
-        const newLimit = limit + increment; // Increase the limit
+        const newLimit = limit + increment;
         setLimit(newLimit);
         fetchCompetencesOptions(newLimit);
     };
 
-    // Handle change in selected skills
-    const handleSkillsChange = (selectedSkills) => {
-        // Update formData with selected skills
-        setFormData((prevData) => ({
-            ...prevData,
-            skillsId: selectedSkills.map((skill) => skill._id) // Extract _id to match formData structure
-        }));
-    };
-    // const handleSkillsChange = (e) => {
-    //     const selectedSkills = Array.from(e.target.selectedOptions, (option) => option.value);
-    //     setFormData({
-    //         ...formData,
-    //         skillsId: selectedSkills // Update the selected skills in form data
-    //     });
-    // };
-
-    // const handleSkillsChange = (e) => {
-    //     const selectedSkills = Array.from(e.target.selectedOptions, (option) => option.value);
-    //     console.log(selectedSkills);
-
-    //     setFormData((prev) => ({ ...prev, skillsId: selectedSkills }));
-    // };
-
-    useEffect(() => {
-        if (initialData) setFormData(initialData);
-    }, [initialData]);
-
-
-    // useEffect(() => {
-    //     const fetchCompetencesOptions = async (limit = 10) => {
-    //         try {
-    //             const data = await competenceServices.fetchCompetencesForForm({ limit: limit });
-    //             console.log(data);
-
-    //             // Extract the skills array from the response and store it in state
-    //             setCompetences(data.skills || []);
-    //         } catch (error) {
-    //             toast.error("Failed to load competences: " + error);
-    //         }
-    //     };
-    //     fetchCompetencesOptions();
-    // }, []); // The empty dependency array ensures it runs only once
-
-    // Add a prerequisite
-    const addPrerequisite = () =>
-        setFormData((prev) => ({
-            ...prev,
-            curriculum: {
-                ...prev.curriculum,
-                prerequis_recommandes: [...prev.curriculum.prerequis_recommandes, ""],
-            },
-        }));
-
-    // Handle prerequisite change
-    const handlePrerequisiteChange = (index, value) =>
-        setFormData((prev) => {
-            const updatedPrerequisites = [...prev.curriculum.prerequis_recommandes];
-            updatedPrerequisites[index] = value;
-            return {
-                ...prev,
-                curriculum: { ...prev.curriculum, prerequis_recommandes: updatedPrerequisites },
-            };
-        });
-
-    // Remove a prerequisite
-    const removePrerequisite = (index) =>
-        setFormData((prev) => {
-            const updatedPrerequisites = [...prev.curriculum.prerequis_recommandes];
-            updatedPrerequisites.splice(index, 1);
-            return {
-                ...prev,
-                curriculum: { ...prev.curriculum, prerequis_recommandes: updatedPrerequisites },
-            };
-        });
-
-    // Handle drag and drop
-    const handleDragEnd = (result) => {
-        const { source, destination, type } = result;
-        if (!destination) return;
-
-        if (type === "CHAPTER") {
-            const items = [...formData.curriculum.chapitres];
-            const [movedItem] = items.splice(source.index, 1);
-            items.splice(destination.index, 0, movedItem);
-            setFormData((prev) => ({ ...prev, curriculum: { ...prev.curriculum, chapitres: items } }));
-        }
-
-        if (type === "SECTION") {
-            const sourceChapterIndex = parseInt(source.droppableId.split("-")[1]);
-            const destChapterIndex = parseInt(destination.droppableId.split("-")[1]);
-            const updatedChapitres = formData.curriculum.chapitres.map((chap) => ({ ...chap, sections: [...chap.sections] }));
-            const [movedSection] = updatedChapitres[sourceChapterIndex].sections.splice(source.index, 1);
-            updatedChapitres[destChapterIndex].sections.splice(destination.index, 0, movedSection);
-            setFormData((prev) => ({ ...prev, curriculum: { ...prev.curriculum, chapitres: updatedChapitres } }));
-        }
-    };
-
-
-
-    // Delete a section
-
-    // Handle skills change
-
-    // Handle blur for validation
-    const handleBlur = (e, key, pattern, errorMessage) => {
-        const value = formData.curriculum[key]; // Get the current value of the field
-        if (!value && key !== "responsable") {
-            // If the field is empty and required, set an error message
-            setErrorMessages((prev) => ({
-                ...prev,
-                [key]: errorMessage || `${capitalizeFirstLetter(key.replace("_", " "))} is required.`,
-            }));
-        } else if (pattern && value && !pattern.test(value)) {
-            // If the field has a pattern and the value doesn't match, set an error message
-            setErrorMessages((prev) => ({
-                ...prev,
-                [key]: errorMessage || `${capitalizeFirstLetter(key.replace("_", " "))} is invalid.`,
-            }));
-        } else {
-            // Clear the error message if the input is valid
-            setErrorMessages((prev) => {
-                const newMessages = { ...prev };
-                delete newMessages[key];
-                return newMessages;
-            });
-        }
-    };
-
-    // const handleSubmit = (e) => {
-    //     e.preventDefault();
-
-    //     // Validate the form (if needed)
-    //     const valid = validateForm(); // Implement this function if necessary
-
-    //     if (valid) {
-    //         onSubmit(formData); // Pass the updated formData to the parent
-    //     }
-    // };
-
-    // *********************
-
-    // Validate the form
-
-
-    // ********************
-    // Handle form submission
-    // Handle form submission
-
-
-    // Save JSON data
-    // const saveJson = () => {
-    //     const formDataJson = JSON.stringify(formData, null, 2);
-    //     const blob = new Blob([formDataJson], { type: "application/json" });
-    //     const link = document.createElement("a");
-    //     link.href = URL.createObjectURL(blob);
-    //     link.download = "formData.json";
-    //     document.body.appendChild(link);
-    //     link.click();
-    //     document.body.removeChild(link);
-    // };
-    // ************************
-
     const [formData, setFormData] = useState({
-        _id: "", // Include _id in the initial state
+        _id: "",
         title: "",
         isPublish: false,
         isArchive: false,
@@ -221,24 +148,22 @@ const SubjectForm = ({ initialData = null, onSubmit }) => {
             volume_horaire_total: "",
             credit: "",
             prerequis_recommandes: [],
-            // chapitres: [{ title: "", status: false, sections: [{ title: "", status: false }] }],
             chapitres: [],
         },
     });
 
     const [errorMessages, setErrorMessages] = useState({});
 
-    // Update formData when initialData changes
     useEffect(() => {
         if (initialData) {
             setFormData((prev) => ({
                 ...prev,
-                _id: initialData._id, // Include _id
+                _id: initialData._id,
                 title: initialData.title,
                 isPublish: initialData.isPublish,
                 isArchive: initialData.isArchive,
                 skillsId: initialData.skillsId,
-                teacherId: initialData.teacherId,
+                teacherId: initialData.teacherId || [],
                 curriculum: {
                     ...prev.curriculum,
                     ...initialData.curriculum,
@@ -251,44 +176,25 @@ const SubjectForm = ({ initialData = null, onSubmit }) => {
         }
     }, [initialData]);
 
-    // Handle input changes
     const handleChange = (e, path) => {
-        const { value, type, checked, multiple } = e.target;
-        const newValue = type === "checkbox" ? checked : multiple ? Array.from(e.target.selectedOptions, (option) => option.value) : value;
+        const { value, type, checked } = e.target;
+        const newValue = type === "checkbox" ? checked : value;
 
         setFormData((prev) => {
-            // Helper function to update nested fields
             const updateNestedField = (obj, keys, val) => {
                 const [key, ...rest] = keys;
-
-                // If the object at the key is an array, create a shallow copy to prevent mutation
-                if (Array.isArray(obj[key])) {
-                    obj[key] = [...obj[key]];
-                } else if (typeof obj[key] === "object" && obj[key] !== null) {
-                    // If it's an object, create a shallow copy as well
-                    obj[key] = { ...obj[key] };
-                }
-
-                // If the path is longer, recurse
+                obj[key] = Array.isArray(obj[key]) ? [...obj[key]] : { ...obj[key] };
                 if (rest.length) {
                     obj[key] = updateNestedField(obj[key], rest, val);
                     return obj;
                 }
-
-                // Set the value at the final path
                 obj[key] = val;
                 return obj;
             };
-
-            // Start updating from the root object and ensure state is correctly mutated
             return updateNestedField({ ...prev }, path.split("."), newValue);
         });
     };
 
-
-
-
-    // Add a chapter
     const addChapter = () =>
         setFormData((prev) => ({
             ...prev,
@@ -301,22 +207,16 @@ const SubjectForm = ({ initialData = null, onSubmit }) => {
             },
         }));
 
-
-    // Delete a chapter
     const deleteChapter = (index) =>
         setFormData((prev) => {
             const updatedChapters = [...prev.curriculum.chapitres];
             updatedChapters.splice(index, 1);
             return {
                 ...prev,
-                curriculum: {
-                    ...prev.curriculum,
-                    chapitres: updatedChapters,
-                },
+                curriculum: { ...prev.curriculum, chapitres: updatedChapters },
             };
         });
 
-    // Add a section to a chapter
     const addSection = (chapterIndex) =>
         setFormData((prev) => {
             const updatedChapters = prev.curriculum.chapitres.map((chapter, idx) =>
@@ -324,16 +224,9 @@ const SubjectForm = ({ initialData = null, onSubmit }) => {
                     ? { ...chapter, sections: [...chapter.sections, { title: "", status: false }] }
                     : chapter
             );
-            return {
-                ...prev,
-                curriculum: {
-                    ...prev.curriculum,
-                    chapitres: updatedChapters,
-                },
-            };
+            return { ...prev, curriculum: { ...prev.curriculum, chapitres: updatedChapters } };
         });
 
-    // Delete a section from a chapter
     const deleteSection = (chapterIndex, sectionIndex) =>
         setFormData((prev) => {
             const updatedChapters = prev.curriculum.chapitres.map((chapter, idx) =>
@@ -344,39 +237,87 @@ const SubjectForm = ({ initialData = null, onSubmit }) => {
                     }
                     : chapter
             );
+            return { ...prev, curriculum: { ...prev.curriculum, chapitres: updatedChapters } };
+        });
+
+    const handlePrerequisiteChange = (index, value) =>
+        setFormData((prev) => {
+            const updatedPrerequisites = [...prev.curriculum.prerequis_recommandes];
+            updatedPrerequisites[index] = value;
             return {
                 ...prev,
-                curriculum: {
-                    ...prev.curriculum,
-                    chapitres: updatedChapters,
-                },
+                curriculum: { ...prev.curriculum, prerequis_recommandes: updatedPrerequisites },
             };
         });
 
-    // Validate the form
+    const removePrerequisite = (index) =>
+        setFormData((prev) => {
+            const updatedPrerequisites = [...prev.curriculum.prerequis_recommandes];
+            updatedPrerequisites.splice(index, 1);
+            return {
+                ...prev,
+                curriculum: { ...prev.curriculum, prerequis_recommandes: updatedPrerequisites },
+            };
+        });
+
+    const addPrerequisite = () =>
+        setFormData((prev) => ({
+            ...prev,
+            curriculum: {
+                ...prev.curriculum,
+                prerequis_recommandes: [...prev.curriculum.prerequis_recommandes, ""],
+            },
+        }));
+
+    const handleDragEnd = (result) => {
+        const { source, destination, type } = result;
+        if (!destination) return;
+
+        if (type === "CHAPTER") {
+            const items = [...formData.curriculum.chapitres];
+            const [movedItem] = items.splice(source.index, 1);
+            items.splice(destination.index, 0, movedItem);
+            setFormData((prev) => ({ ...prev, curriculum: { ...prev.curriculum, chapitres: items } }));
+        }
+
+        if (type === "SECTION") {
+            const sourceChapterIndex = parseInt(source.droppableId.split("-")[1]);
+            const destChapterIndex = parseInt(destination.droppableId.split("-")[1]);
+            const updatedChapitres = formData.curriculum.chapitres.map((chap) => ({
+                ...chap,
+                sections: [...chap.sections],
+            }));
+            const [movedSection] = updatedChapitres[sourceChapterIndex].sections.splice(source.index, 1);
+            updatedChapitres[destChapterIndex].sections.splice(destination.index, 0, movedSection);
+            setFormData((prev) => ({ ...prev, curriculum: { ...prev.curriculum, chapitres: updatedChapitres } }));
+        }
+    };
+
     const validateForm = () => {
         let valid = true;
         const newErrorMessages = {};
 
-        // Validate required fields
         ["module", "level", "code", "semestre", "langue", "type_enseignement", "volume_horaire_total", "credit"].forEach(
             (field) => {
                 if (!formData.curriculum[field]) {
                     valid = false;
                     newErrorMessages[field] = `${capitalizeFirstLetter(field.replace("_", " "))} is required.`;
-                    toast.error(newErrorMessages.newErrorMessages[field]);
+                    toast.error(newErrorMessages[field]);
                 }
             }
         );
 
-        // Validate specific formats
         if (formData.curriculum.module && !/^GM[1-5]\.[1-6]$/.test(formData.curriculum.module)) {
             valid = false;
-            newErrorMessages.module = "Module must be in the format GMx.y, where x is between 1-5 and y is between 1-6.";
+            newErrorMessages.module =
+                "Module must be in the format GMx.y, where x is between 1-5 and y is between 1-6.";
             toast.error(newErrorMessages.module);
         }
 
-        if (formData.curriculum.volume_horaire_total && !/^[1-9][0-9]*$/.test(formData.curriculum.volume_horaire_total)) {
+        if (
+            formData.curriculum.volume_horaire_total &&
+            !/^[1-9][0-9]*$/.test(formData.curriculum.volume_horaire_total)
+        ) {
             valid = false;
             newErrorMessages.volume_horaire_total = "Volume Horaire Total must be a valid integer without decimals.";
             toast.error(newErrorMessages.volume_horaire_total);
@@ -398,14 +339,11 @@ const SubjectForm = ({ initialData = null, onSubmit }) => {
         return valid;
     };
 
-    // Handle form submission
     const handleSubmit = (e) => {
         e.preventDefault();
-
         if (validateForm()) {
-            // Ensure the data matches the required format
             const finalData = {
-                _id: formData._id, // Include _id
+                _id: formData._id,
                 title: formData.title,
                 isPublish: formData.isPublish,
                 isArchive: formData.isArchive,
@@ -433,10 +371,10 @@ const SubjectForm = ({ initialData = null, onSubmit }) => {
                     })),
                 },
             };
-
-            onSubmit(finalData); // Pass the validated and structured data to the parent
+            onSubmit(finalData);
         }
     };
+
 
     return (
         <div className="max-w-7xl mx-auto p-3 bg-white">
@@ -462,9 +400,16 @@ const SubjectForm = ({ initialData = null, onSubmit }) => {
                             key: "module",
                             pattern: /^GM[1-5]\.[1-6]$/,
                             required: true,
-                            errorMessage: "Module must be in the format GMx.y, where x is between 1-5 and y is between 1-6.",
+                            errorMessage:
+                                "Module must be in the format GMx.y, where x is between 1-5 and y is between 1-6.",
                         },
-                        { label: "Level", key: "level", type: "select", options: ["1 year", "2 year", "3 year"], required: true },
+                        {
+                            label: "Level",
+                            key: "level",
+                            type: "select",
+                            options: ["1 year", "2 year", "3 year"],
+                            required: true,
+                        },
                         { label: "Code", key: "code", required: true },
                         {
                             label: "Semestre",
@@ -542,7 +487,6 @@ const SubjectForm = ({ initialData = null, onSubmit }) => {
                                     name={key}
                                     value={formData.curriculum[key] || ""}
                                     onChange={(e) => handleChange(e, `curriculum.${key}`)}
-                                    onBlur={(e) => handleBlur(e, key, pattern, errorMessage)}
                                     className="mt-2 p-3 w-full border border-gray-300 rounded-md"
                                 />
                             ) : type === "number" ? (
@@ -554,7 +498,6 @@ const SubjectForm = ({ initialData = null, onSubmit }) => {
                                     className="mt-2 p-3 w-full border border-gray-300 rounded-md"
                                     min={min}
                                     step={step}
-                                    onBlur={(e) => handleBlur(e, key, pattern, errorMessage)}
                                     required={required}
                                 />
                             ) : (
@@ -563,12 +506,13 @@ const SubjectForm = ({ initialData = null, onSubmit }) => {
                                     name={key}
                                     value={formData.curriculum[key] || defaultValue || ""}
                                     onChange={(e) => handleChange(e, `curriculum.${key}`)}
-                                    onBlur={(e) => handleBlur(e, key, pattern, errorMessage)}
                                     className="mt-2 p-3 w-full border border-gray-300 rounded-md"
                                     required={required}
                                 />
                             )}
-                            {errorMessages[key] && <p className="text-red-500 text-sm mt-1">{errorMessages[key]}</p>}
+                            {errorMessages[key] && (
+                                <p className="text-red-500 text-sm mt-1">{errorMessages[key]}</p>
+                            )}
                         </div>
                     ))}
                 </div>
@@ -578,61 +522,44 @@ const SubjectForm = ({ initialData = null, onSubmit }) => {
                     <label className="block text-gray-700 font-semibold">
                         Skills <span className="text-red-500">*</span>
                     </label>
-                    {/* <select
-                        required
-                        name="skills"
-                        value={formData.skillsId} // Track selected items
-                        onChange={handleSkillsChange}
-                        multiple
-                        className="mt-2 p-3 w-full border border-gray-300 rounded-md"
-                    >
-                        {competences.map((skill) => (
-                            <option key={skill._id} value={skill._id}>
-                                {skill.title}
-                            </option>
-                        ))}
-                    </select> */}
-                    {/* Replace <select> with MultiSelectDropdown */}
                     <MultiSelectDropdown
-                        options={competences}  // Array of skill objects
-                        selectedOptions={formData.skillsId}  // Array of selected skill IDs (e.g., ["skillId1", "skillId2"])
-                        setSelectedOptions={(selectedSkills) => {
-                            if (Array.isArray(selectedSkills)) {
-                                // Update formData with the selected IDs
-                                setFormData({
-                                    ...formData,
-                                    skillsId: selectedSkills,  // Directly set the selected skill IDs in formData
-                                });
-                            }
-                        }}
-                        onSelectionChange={handleSkillsChange}  // Any additional logic for handling change (optional)
+                        options={competences}
+                        selectedOptions={formData.skillsId}
+                        setSelectedOptions={(selectedSkills) =>
+                            setFormData({ ...formData, skillsId: selectedSkills })
+                        }
+                        onSelectionChange={() => { }}
                         label="Select Skills"
-                        icon={FaCheckCircle}  // Icon for selected items
+                        icon={FaCheckCircle}
                         tooltipText="Clear All Skills"
                         showClearAll={true}
                         styling="flex justify-between items-center cursor-pointer hover:outline-1 transform transition-all duration-300 ease-in-out"
                     />
-
-
-
-
-
                     {competences.length < totalItems && (
                         <button
-                            type="button" // Prevents form submission
-                            onClick={(e) => {
-                                e.preventDefault();
-                                handleLoadMore();
-                            }}
+                            type="button"
+                            onClick={handleLoadMore}
                             className="mt-2 bg-blue-500 text-white p-2 rounded"
                         >
                             Load More
                         </button>
                     )}
-
-                    {errorMessages.skillsId && <p className="text-red-500 text-sm mt-1">{errorMessages.skillsId}</p>}
+                    {errorMessages.skillsId && (
+                        <p className="text-red-500 text-sm mt-1">{errorMessages.skillsId}</p>
+                    )}
                 </div>
 
+                {/* Teacher Selection */}
+                <div className="relative">
+                    <label className="block text-gray-700 font-semibold mb-2">
+                        Teacher <span className="text-blue-500">(Optional)</span>
+                    </label>
+                    {/* <TeacherSearchDropdown onSelectTeacher={handleSelectTeacher} /> */}
+                    <TeacherSearchDropdown
+                        onSelectTeacher={handleSelectTeacher}
+                        preselectedTeacher={selectedTeacher} // Pass the full teacher object
+                    />
+                </div>
 
                 {/* Prerequisites */}
                 <div>
@@ -646,12 +573,20 @@ const SubjectForm = ({ initialData = null, onSubmit }) => {
                                 onChange={(e) => handlePrerequisiteChange(index, e.target.value)}
                                 className="p-3 w-full border border-gray-300 rounded-md"
                             />
-                            <button type="button" onClick={() => removePrerequisite(index)} className="text-red-500 font-bold">
+                            <button
+                                type="button"
+                                onClick={() => removePrerequisite(index)}
+                                className="text-red-500 font-bold"
+                            >
                                 ✖
                             </button>
                         </div>
                     ))}
-                    <button type="button" onClick={addPrerequisite} className="mt-3 px-4 py-2 bg-blue-500 text-white rounded-md shadow">
+                    <button
+                        type="button"
+                        onClick={addPrerequisite}
+                        className="mt-3 px-4 py-2 bg-blue-500 text-white rounded-md shadow"
+                    >
                         Add Prerequisite
                     </button>
                 </div>
@@ -663,99 +598,105 @@ const SubjectForm = ({ initialData = null, onSubmit }) => {
                         <Droppable droppableId="chapters" type="CHAPTER">
                             {(provided) => (
                                 <div ref={provided.innerRef} {...provided.droppableProps} className="space-y-4">
-                                    {(Array.isArray(formData.curriculum.chapitres) ? formData.curriculum.chapitres : []).map(
-                                        (chapter, chapterIndex) => (
-                                            <Draggable key={chapterIndex} draggableId={`chapter-${chapterIndex}`} index={chapterIndex}>
-                                                {(provided) => (
-                                                    <div
-                                                        ref={provided.innerRef}
-                                                        {...provided.draggableProps}
-                                                        {...provided.dragHandleProps}
-                                                        className="border p-6 rounded-lg bg-gray-50 shadow-sm"
-                                                    >
-                                                        <div className="flex justify-between items-center">
-                                                            <label className="block text-gray-700">Chapter {chapterIndex + 1} Title</label>
-                                                            <button
-                                                                type="button"
-                                                                onClick={() => deleteChapter(chapterIndex)}
-                                                                className="text-red-500 font-bold"
-                                                            >
-                                                                ✖
-                                                            </button>
-                                                        </div>
-                                                        <input
-                                                            type="text"
-                                                            required
-                                                            placeholder="Enter chapter title"
-                                                            value={chapter.title}
-                                                            onChange={(e) =>
-                                                                handleChange(e, `curriculum.chapitres.${chapterIndex}.title`)
-                                                            }
-                                                            className="mt-2 p-3 w-full border border-gray-300 rounded-md"
-                                                        />
-
-                                                        <Droppable droppableId={`chapter-${chapterIndex}`} type="SECTION">
-                                                            {(provided) => (
-                                                                <div ref={provided.innerRef} {...provided.droppableProps} className="mt-4">
-                                                                    {chapter.sections.map((section, sectionIndex) => (
-                                                                        <Draggable
-                                                                            key={`section-${chapterIndex}-${sectionIndex}`}
-                                                                            draggableId={`section-${chapterIndex}-${sectionIndex}`}
-                                                                            index={sectionIndex}
-                                                                        >
-                                                                            {(provided) => (
-                                                                                <div
-                                                                                    ref={provided.innerRef}
-                                                                                    {...provided.draggableProps}
-                                                                                    {...provided.dragHandleProps}
-                                                                                    className="border p-4 mt-3 rounded-lg bg-gray-100 shadow-sm flex justify-between items-center hover:bg-gray-200 transition-colors duration-300 ease-in-out"
-                                                                                >
-                                                                                    <span className="text-sm text-gray-700 font-semibold">
-                                                                                        Section {sectionIndex + 1}
-                                                                                    </span>
-                                                                                    <input
-                                                                                        type="text"
-                                                                                        value={section.title}
-                                                                                        required
-                                                                                        onChange={(e) =>
-                                                                                            handleChange(
-                                                                                                e,
-                                                                                                `curriculum.chapitres.${chapterIndex}.sections.${sectionIndex}.title`
-                                                                                            )
-                                                                                        }
-                                                                                        className="p-3 w-3/4 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                                                                        placeholder="Enter section title"
-                                                                                    />
-
-                                                                                    <button
-                                                                                        type="button"
-                                                                                        onClick={() =>
-                                                                                            deleteSection(chapterIndex, sectionIndex)
-                                                                                        }
-                                                                                        className="ml-2 text-red-500 font-bold hover:text-red-700 transition duration-300"
-                                                                                    >
-                                                                                        ✖
-                                                                                    </button>
-                                                                                </div>
-                                                                            )}
-                                                                        </Draggable>
-                                                                    ))}
-                                                                    {provided.placeholder}
-                                                                    <button
-                                                                        type="button"
-                                                                        onClick={() => addSection(chapterIndex)}
-                                                                        className="mt-3 px-4 py-2 bg-blue-500 text-white rounded-md shadow"
-                                                                    >
-                                                                        Add Section
-                                                                    </button>
-                                                                </div>
-                                                            )}
-                                                        </Droppable>
+                                    {formData.curriculum.chapitres.map((chapter, chapterIndex) => (
+                                        <Draggable
+                                            key={chapterIndex}
+                                            draggableId={`chapter-${chapterIndex}`}
+                                            index={chapterIndex}
+                                        >
+                                            {(provided) => (
+                                                <div
+                                                    ref={provided.innerRef}
+                                                    {...provided.draggableProps}
+                                                    {...provided.dragHandleProps}
+                                                    className="border p-6 rounded-lg bg-gray-50 shadow-sm"
+                                                >
+                                                    <div className="flex justify-between items-center">
+                                                        <label className="block text-gray-700">
+                                                            Chapter {chapterIndex + 1} Title
+                                                        </label>
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => deleteChapter(chapterIndex)}
+                                                            className="text-red-500 font-bold"
+                                                        >
+                                                            ✖
+                                                        </button>
                                                     </div>
-                                                )}
-                                            </Draggable>
-                                        )
-                                    )}
+                                                    <input
+                                                        type="text"
+                                                        required
+                                                        placeholder="Enter chapter title"
+                                                        value={chapter.title}
+                                                        onChange={(e) =>
+                                                            handleChange(e, `curriculum.chapitres.${chapterIndex}.title`)
+                                                        }
+                                                        className="mt-2 p-3 w-full border border-gray-300 rounded-md"
+                                                    />
+                                                    <Droppable droppableId={`chapter-${chapterIndex}`} type="SECTION">
+                                                        {(provided) => (
+                                                            <div
+                                                                ref={provided.innerRef}
+                                                                {...provided.droppableProps}
+                                                                className="mt-4"
+                                                            >
+                                                                {chapter.sections.map((section, sectionIndex) => (
+                                                                    <Draggable
+                                                                        key={`section-${chapterIndex}-${sectionIndex}`}
+                                                                        draggableId={`section-${chapterIndex}-${sectionIndex}`}
+                                                                        index={sectionIndex}
+                                                                    >
+                                                                        {(provided) => (
+                                                                            <div
+                                                                                ref={provided.innerRef}
+                                                                                {...provided.draggableProps}
+                                                                                {...provided.dragHandleProps}
+                                                                                className="border p-4 mt-3 rounded-lg bg-gray-100 shadow-sm flex justify-between items-center hover:bg-gray-200 transition-colors duration-300 ease-in-out"
+                                                                            >
+                                                                                <span className="text-sm text-gray-700 font-semibold">
+                                                                                    Section {sectionIndex + 1}
+                                                                                </span>
+                                                                                <input
+                                                                                    type="text"
+                                                                                    value={section.title}
+                                                                                    required
+                                                                                    onChange={(e) =>
+                                                                                        handleChange(
+                                                                                            e,
+                                                                                            `curriculum.chapitres.${chapterIndex}.sections.${sectionIndex}.title`
+                                                                                        )
+                                                                                    }
+                                                                                    className="p-3 w-3/4 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                                                                    placeholder="Enter section title"
+                                                                                />
+                                                                                <button
+                                                                                    type="button"
+                                                                                    onClick={() =>
+                                                                                        deleteSection(chapterIndex, sectionIndex)
+                                                                                    }
+                                                                                    className="ml-2 text-red-500 font-bold hover:text-red-700 transition duration-300"
+                                                                                >
+                                                                                    ✖
+                                                                                </button>
+                                                                            </div>
+                                                                        )}
+                                                                    </Draggable>
+                                                                ))}
+                                                                {provided.placeholder}
+                                                                <button
+                                                                    type="button"
+                                                                    onClick={() => addSection(chapterIndex)}
+                                                                    className="mt-3 px-4 py-2 bg-blue-500 text-white rounded-md shadow"
+                                                                >
+                                                                    Add Section
+                                                                </button>
+                                                            </div>
+                                                        )}
+                                                    </Droppable>
+                                                </div>
+                                            )}
+                                        </Draggable>
+                                    ))}
                                     {provided.placeholder}
                                     <button
                                         type="button"
@@ -770,9 +711,11 @@ const SubjectForm = ({ initialData = null, onSubmit }) => {
                     </DragDropContext>
                 </div>
 
-
                 <div className="text-center mt-6">
-                    <button type="submit" className="px-6 py-3 bg-blue-600 text-white font-semibold rounded-md shadow">
+                    <button
+                        type="submit"
+                        className="px-6 py-3 bg-blue-600 text-white font-semibold rounded-md shadow"
+                    >
                         Submit
                     </button>
                 </div>

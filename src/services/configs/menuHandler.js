@@ -87,7 +87,7 @@ export const menuConfig = [
         active: true,
         hideSideBar: false,
         hideHeader: false,
-        dontShow: true,
+        // dontShow: true,
     },
     {
         order: 5,
@@ -100,7 +100,7 @@ export const menuConfig = [
         active: true,
         hideSideBar: false,
         hideHeader: false,
-        dontShow: true,
+        // dontShow: true,
     },
     {
         order: 6,

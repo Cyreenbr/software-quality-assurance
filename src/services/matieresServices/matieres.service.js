@@ -98,7 +98,26 @@ const matieresServices = {
         } catch (err) {
             throw err.response?.data?.error || "Failed to evaluate subject.";
         }
-    }
+    },
+
+    fetchTeachers: async ({ page = 1, searchTerm = '', sortBy = '_id', order = 'desc', limit = 5 }) => {
+        try {
+            const response = await axiosAPI.get("/teachers/forForm", {
+                params: { page, limit, searchTerm, sortBy, order }
+            });
+            return response.data;
+        } catch (err) {
+            throw err.response?.data?.message || "Failed to load teachers.";
+        }
+    },
+    fetchTeacherById: async (id) => {
+        try {
+            const response = await axiosAPI.get(`/teachers/forForm/${id}`);
+            return response.data;
+        } catch (err) {
+            throw err.response?.data?.message || "Failed to load teacher with id " + id;
+        }
+    },
 };
 
 export default matieresServices;

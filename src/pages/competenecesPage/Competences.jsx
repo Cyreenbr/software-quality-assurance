@@ -1,6 +1,7 @@
 import debounce from "lodash.debounce";
 import React, { useCallback, useEffect, useState } from "react";
 import { FaPlusCircle, FaSortAlphaDown, FaSortAlphaUp } from 'react-icons/fa';
+import { useSelector } from "react-redux";
 import { toast } from 'react-toastify';
 import SkillForm from "../../components/skillsComponents/CompetenceForm";
 import CompetenceList from "../../components/skillsComponents/CompetenceList";
@@ -8,8 +9,10 @@ import Pagination from "../../components/skillsComponents/Pagination";
 import SearchBar from "../../components/skillsComponents/SearchBar";
 import Tooltip from "../../components/skillsComponents/Tooltip";
 import competenceServices from "../../services/CompetencesServices/competences.service";
+import { RoleEnum } from "../../utils/userRoles";
 
 const Competences = () => {
+    const role = useSelector((state) => state.auth.role);
     const [skills, setSkills] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -59,16 +62,18 @@ const Competences = () => {
     }, [currentPage, searchQuery, fetchCompetences]);
 
     useEffect(() => {
-        const fetchFamilies = async () => {
-            try {
-                const data = await competenceServices.fetchFamilies();
-                setFamilies(data.families);
-            } catch (error) {
-                setError(error);
-                toast.error("Failed to load families: " + error);
-            }
-        };
-        fetchFamilies();
+        if (role === RoleEnum.ADMIN) {
+            const fetchFamilies = async () => {
+                try {
+                    const data = await competenceServices.fetchFamilies();
+                    setFamilies(data.families);
+                } catch (error) {
+                    setError(error);
+                    toast.error("Failed to load families: " + error);
+                }
+            };
+            fetchFamilies();
+        }
     }, []);
 
     const handleSearch = debounce((query) => {
@@ -170,17 +175,18 @@ const Competences = () => {
             <div className="flex flex-col md:flex-row md:justify-between items-center mb-8 space-y-4 md:space-y-0 md:space-x-6">
                 <SearchBar handleSearch={handleSearch} className="w-full md:max-w-xs" />
                 <div className="flex space-x-4 w-full md:w-auto justify-center">
-
-                    {/* Bouton visible uniquement sur desktop */}
-                    <Tooltip text="Add Competence" position="top" bgColor="bg-black">
-                        <button
-                            onClick={handleOpenAddPopup}
-                            className="hidden md:flex items-center bg-indigo-500 text-white px-4 py-2 rounded-md hover:bg-indigo-700 transition duration-300 focus:outline-none focus:ring-2 focus:ring-indigo-400"
-                        >
-                            <FaPlusCircle className="text-2xl" />
-                            <span className="ml-2">Add</span>
-                        </button>
-                    </Tooltip>
+                    {(role === RoleEnum.ADMIN) &&
+                        /* Bouton visible uniquement sur desktop */
+                        <Tooltip text="Add Competence" position="top" bgColor="bg-black">
+                            <button
+                                onClick={handleOpenAddPopup}
+                                className="hidden md:flex items-center bg-indigo-500 text-white px-4 py-2 rounded-md hover:bg-indigo-700 transition duration-300 focus:outline-none focus:ring-2 focus:ring-indigo-400"
+                            >
+                                <FaPlusCircle className="text-2xl" />
+                                <span className="ml-2">Add</span>
+                            </button>
+                        </Tooltip>
+                    }
 
                     <Tooltip text={`${titleSortOrder.toUpperCase()} : Sort by Title`} position="top" bgColor="bg-black">
                         <button
@@ -231,30 +237,34 @@ const Competences = () => {
                 styles={" bg-blue-600 text-white"}
                 hoverColor="bg-blue-500"
             />
-            {/* Bouton flottant uniquement sur mobile */}
-            <div className="md:hidden">
-                <Tooltip text="Add Competence" position="top" bgColor="bg-black">
-                    <button
-                        onClick={handleOpenAddPopup}
-                        className=" fixed bottom-6 right-6 bg-indigo-500 text-white p-4 rounded-full shadow-lg 
+
+            {(role === RoleEnum.ADMIN) &&
+                <div className="md:hidden">
+                    <Tooltip text="Add Competence" position="top" bgColor="bg-black">
+                        <button
+                            onClick={handleOpenAddPopup}
+                            className=" fixed bottom-6 right-6 bg-indigo-500 text-white p-4 rounded-full shadow-lg 
                        hover:bg-indigo-700 transition duration-300 focus:outline-none focus:ring-2 focus:ring-indigo-400 flex items-center"
-                    >
-                        <FaPlusCircle className="text-2xl" />
-                    </button>
-                </Tooltip>
-            </div>
-            <SkillForm
-                isPopupOpen={isAddPopupOpen || isEditPopupOpen}
-                setIsPopupOpen={closePopup}
-                families={families}
-                newSkill={newSkill}
-                setNewSkill={setNewSkill}
-                handleAddSkill={handleAddSkill}
-                editSkill={editSkill}
-                setEditSkill={setEditSkill}
-                handleUpdateSkill={handleUpdateSkill}
-            />
-        </div>
+                        >
+                            <FaPlusCircle className="text-2xl" />
+                        </button>
+                    </Tooltip>
+                </div>
+            }
+            {(isAddPopupOpen || isEditPopupOpen) && (role == RoleEnum.ADMIN || role === RoleEnum.TEACHER) &&
+                <SkillForm
+                    isPopupOpen={isAddPopupOpen || isEditPopupOpen}
+                    setIsPopupOpen={closePopup}
+                    families={families}
+                    newSkill={newSkill}
+                    setNewSkill={setNewSkill}
+                    handleAddSkill={handleAddSkill}
+                    editSkill={editSkill}
+                    setEditSkill={setEditSkill}
+                    handleUpdateSkill={handleUpdateSkill}
+                />
+            }
+        </div >
 
     );
 };
