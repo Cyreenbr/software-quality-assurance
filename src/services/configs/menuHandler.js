@@ -1,14 +1,14 @@
 import { FaBook, FaGraduationCap, FaLightbulb, FaWindowRestore } from "react-icons/fa";
 import { GiTeacher } from "react-icons/gi";
 import {
-  MdAccountCircle,
-  MdAssignmentAdd,
-  MdCalendarMonth,
-  MdDashboard,
-  MdDownload,
-  MdHome,
-  MdList,
-  MdNotifications,
+    MdAccountCircle,
+    MdAssignmentAdd,
+    MdCalendarMonth,
+    MdDashboard,
+    MdDownload,
+    MdHome,
+    MdList,
+    MdNotifications,
 } from "react-icons/md";
 import { PiStudentBold } from "react-icons/pi";
 import { PiStudentFill } from "react-icons/pi";
@@ -36,110 +36,110 @@ import OptionPage from "../../pages/optionPage/OptionPage";
 import { MdAutoStories } from "react-icons/md";
 import StudentsListTeachers from "../../pages/usersListPage/StudentsListTeachers";
 export const menuConfig = [
-  {
-    order: 1,
-    label: "Home",
-    icon: MdHome,
-    path: "/",
-    component: Home,
-    eligibleRoles: [],
-    active: true,
-    hideSideBar: false,
-    hideHeader: false,
-  },
-  {
-    order: 2,
-    label: "Dashboard",
-    icon: MdDashboard,
-    path: "/dashboard",
-    component: Dashboard,
-    eligibleRoles: [RoleEnum.ADMIN, RoleEnum.TEACHER, RoleEnum.STUDENT],
-    active: true,
-    hideSideBar: false,
-    hideHeader: false,
-  },
-  {
-    label: "Error",
-    icon: undefined,
-    path: "/error",
-    component: ErrorPage,
-    eligibleRoles: [],
-    active: true,
-    dontShow: true,
-    hideSideBar: true,
-    hideHeader: false,
-  },
-  {
-    order: 3,
-    label: "Profile",
-    icon: MdAccountCircle,
-    path: "/profile",
-    component: Profile,
-    eligibleRoles: [RoleEnum.ADMIN, RoleEnum.TEACHER, RoleEnum.STUDENT],
-    active: true,
-    hideSideBar: false,
-    hideHeader: false,
-  },
-  {
-    order: 4,
-    label: "Competences",
-    icon: FaLightbulb,
-    path: "/competences",
-    tooltip: "Competences",
-    component: Competences,
-    eligibleRoles: [RoleEnum.ADMIN, RoleEnum.TEACHER],
-    active: true,
-    hideSideBar: false,
-    hideHeader: false,
-    dontShow: true,
-  },
-  {
-    order: 5,
-    label: "Subjects",
-    icon: FaBook,
-    path: "/subjects",
-    tooltip: "Subjects",
-    component: Subjects,
-    eligibleRoles: [RoleEnum.ADMIN, RoleEnum.TEACHER, RoleEnum.STUDENT],
-    active: true,
-    hideSideBar: false,
-    hideHeader: false,
-    dontShow: true,
-  },
-  {
-    order: 6,
-    // label: 'Subject Details',
-    icon: undefined,
-    path: (id) => `/subjects/${id}`, // Dynamic path
-    component: SubjectDetailsPage,
-    eligibleRoles: [RoleEnum.ADMIN, RoleEnum.TEACHER, RoleEnum.STUDENT],
-    active: true,
-    hideSideBar: false,
-    hideHeader: false,
-    dontShow: true,
-  },
-  {
-    order: 7,
-    label: "Notifications",
-    icon: MdNotifications,
-    path: "/notifications",
-    component: Notifications,
-    eligibleRoles: [RoleEnum.ADMIN, RoleEnum.TEACHER, RoleEnum.STUDENT],
-    active: true,
-    hideSideBar: false,
-    hideHeader: false,
-  },
-  {
-    order: 8,
-    label: "PFA",
-    icon: FaGraduationCap,
-    path: "/PFA",
-    component: Pfa,
-    eligibleRoles: [RoleEnum.ADMIN, RoleEnum.TEACHER, RoleEnum.STUDENT],
-    active: true,
-    hideSideBar: false,
-    hideHeader: false,
-  },
+    {
+        order: 1,
+        label: "Home",
+        icon: MdHome,
+        path: "/",
+        component: Home,
+        eligibleRoles: [],
+        active: true,
+        hideSideBar: false,
+        hideHeader: false,
+    },
+    {
+        order: 2,
+        label: "Dashboard",
+        icon: MdDashboard,
+        path: "/dashboard",
+        component: Dashboard,
+        eligibleRoles: [RoleEnum.ADMIN, RoleEnum.TEACHER, RoleEnum.STUDENT],
+        active: true,
+        hideSideBar: false,
+        hideHeader: false,
+    },
+    {
+        label: "Error",
+        icon: undefined,
+        path: "/error",
+        component: ErrorPage,
+        eligibleRoles: [],
+        active: true,
+        dontShow: true,
+        hideSideBar: true,
+        hideHeader: false,
+    },
+    {
+        order: 3,
+        label: "Profile",
+        icon: MdAccountCircle,
+        path: "/profile",
+        component: Profile,
+        eligibleRoles: [RoleEnum.ADMIN, RoleEnum.TEACHER, RoleEnum.STUDENT],
+        active: true,
+        hideSideBar: false,
+        hideHeader: false,
+    },
+    {
+        order: 4,
+        label: "Competences",
+        icon: FaLightbulb,
+        path: "/competences",
+        tooltip: "Competences",
+        component: Competences,
+        eligibleRoles: [RoleEnum.ADMIN, RoleEnum.TEACHER],
+        active: true,
+        hideSideBar: false,
+        hideHeader: false,
+        // dontShow: true,
+    },
+    {
+        order: 5,
+        label: "Subjects",
+        icon: FaBook,
+        path: "/subjects",
+        tooltip: "Subjects",
+        component: Subjects,
+        eligibleRoles: [RoleEnum.ADMIN, RoleEnum.TEACHER, RoleEnum.STUDENT],
+        active: true,
+        hideSideBar: false,
+        hideHeader: false,
+        dontShow: true,
+    },
+    {
+        order: 6,
+        // label: 'Subject Details',
+        icon: undefined,
+        path: (id) => `/subjects/${id}`, // Dynamic path
+        component: SubjectDetailsPage,
+        eligibleRoles: [RoleEnum.ADMIN, RoleEnum.TEACHER, RoleEnum.STUDENT],
+        active: true,
+        hideSideBar: false,
+        hideHeader: false,
+        dontShow: true,
+    },
+    {
+        order: 7,
+        label: "Notifications",
+        icon: MdNotifications,
+        path: "/notifications",
+        component: Notifications,
+        eligibleRoles: [RoleEnum.ADMIN, RoleEnum.TEACHER, RoleEnum.STUDENT],
+        active: true,
+        hideSideBar: false,
+        hideHeader: false,
+    },
+    {
+        order: 8,
+        label: "PFA",
+        icon: FaGraduationCap,
+        path: "/PFA",
+        component: Pfa,
+        eligibleRoles: [RoleEnum.ADMIN, RoleEnum.TEACHER, RoleEnum.STUDENT],
+        active: true,
+        hideSideBar: false,
+        hideHeader: false,
+    },
 
   {
     order: 9,
@@ -299,11 +299,11 @@ export const menuConfig = [
 ];
 
 export const getMenuItems = (role) => {
-  return menuConfig
-    .filter((item) => item?.dontShow !== true)
-    .filter(
-      (item) =>
-        item.eligibleRoles.length === 0 || item.eligibleRoles.includes(role)
-    )
-    .sort((a, b) => (a.order ?? Infinity) - (b.order ?? Infinity));
+    return menuConfig
+        .filter((item) => item?.dontShow !== true)
+        .filter(
+            (item) =>
+                item.eligibleRoles.length === 0 || item.eligibleRoles.includes(role)
+        )
+        .sort((a, b) => (a.order ?? Infinity) - (b.order ?? Infinity));
 };

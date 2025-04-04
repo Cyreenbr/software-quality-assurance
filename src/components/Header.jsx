@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
     MdAccountCircle,
     MdExitToApp,
@@ -9,227 +9,175 @@ import {
     MdPersonAdd,
     MdSettings
 } from 'react-icons/md';
-import { useDispatch, useSelector } from 'react-redux'; // Import useDispatch and useSelector
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { Link, useNavigate } from 'react-router-dom';
 import { ClipLoader } from 'react-spinners';
 import isammLogo from '../assets/logo_isamm.png';
 import { logoutUser } from '../redux/authSlice';
-import { menuConfig } from '../services/configs/menuHandler';
-import Popup from './skillsComponents/Popup';
-import Tooltip from './skillsComponents/tooltip';
-// import SearchBar from './skillsComponents/SearchBar';
+import Breadcrumb from './Breadcrumb';
+import Tooltip from './skillsComponents/Tooltip';
 
 const Header = ({ isSidebarOpen, setIsSidebarOpen }) => {
-    const location = useLocation();
-    const navigate = useNavigate(); // Hook to navigate
-    const dispatch = useDispatch(); // Hook to dispatch actions
-    const [isSettingsPopupOpen, setIsSettingsPopupOpen] = useState(false);
-    const [isNotificationsPopupOpen, setIsNotificationsPopupOpen] = useState(false);
-    // const [searchQuery, setSearchQuery] = useState('');
+    const navigate = useNavigate();
+    const dispatch = useDispatch();
     const [loading, setLoading] = useState(false);
-    const token = useSelector((state) => state.auth.token); // Access the token from Redux store
+    const token = useSelector((state) => state.auth.token);
+    // Gestion unifiée des popups
+    const [openMenu, setOpenMenu] = useState(null);
+    const menuRef = useRef(null);
 
-    const toggleSettingsPopup = () => setIsSettingsPopupOpen(!isSettingsPopupOpen);
-    const toggleNotificationsPopup = () => setIsNotificationsPopupOpen(!isNotificationsPopupOpen);
-    const getBreadcrumb = () => {
-        const menuItem = menuConfig.find(item => item.path === location.pathname);
-        return menuItem ? menuItem.label : 'Unknown';
+    const toggleMenu = (menu) => {
+        setOpenMenu(openMenu === menu ? null : menu);
     };
-    // Method to handle search query
-    // const handleSearch = (query) => {
-    //     setSearchQuery(query);
-    //     console.log('Search query:', query);
-    // };
+
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (menuRef.current && !menuRef.current.contains(event.target)) {
+                setOpenMenu(null);
+            }
+        };
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, []);
 
     const handleLogout = () => {
         dispatch(logoutUser());
         setLoading(true);
-        // Force the redirect after a small delay to make sure logout state is updated
         setTimeout(() => {
             navigate('/');
+            setLoading(false);
         }, 100);
-        setLoading(false);
     };
+
     return (
         <div className="fixed top-0 left-0 w-full bg-white shadow-lg p-4 flex justify-between items-center z-50 rounded-b-xl transition-all">
-            {/* Left - ISAMM Logo & Sidebar Toggle & Breadcrumb */}
-            <div className="flex items-center space-x-2 text-gray-700">
-                {/* Sidebar Toggle Button */}
-                <div className="group relative">
-                    <button
-                        className="lg:hidden text-gray-600 hover:text-indigo-600 p-2 rounded-full hover:bg-gray-100 transition-all focus:outline-none focus:ring-2 focus:ring-indigo-500 cursor-pointer"
-                        onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-                        aria-label="Toggle Sidebar"
-                    >
-                        <MdMenu size={24} />
-                    </button>
-                </div>
+            {/* Left - ISAMM Logo & Sidebar Toggle */}
+            <div className="flex items-center space-x-3 text-gray-700">
+                <button
+                    className="lg:hidden text-gray-600 hover:text-indigo-600 p-2 rounded-full hover:bg-gray-100 transition-all focus:ring-2 focus:ring-indigo-500 cursor-pointer"
+                    onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+                    aria-label="Toggle Sidebar"
+                >
+                    <MdMenu size={24} />
+                </button>
 
-                {/* ISAMM Logo & "ING Parcours" Text */}
-                <Link to="/" className="flex items-center space-x-2 mr-4">
-                    <img
-                        src={isammLogo}
-                        alt="ISAMM Logo"
-                        className="w-10 sm:w-12 sm:h-12"
-                    />
+                <Link to="/" className="flex items-center space-x-2">
+                    <img src={isammLogo} alt="ISAMM Logo" className="w-10 sm:w-12 sm:h-12" />
                     <span className="font-bold text-sm text-gray-800 hidden sm:block">ING Parcours</span>
                 </Link>
-
-                {/* Breadcrumb Text */}
-                <span className="text-sm sm:text-base font-semibold text-gray-800">
-                    {location.pathname !== '/' && (
-                        <Link to="/" className="hover:text-indigo-600">
-                            Home
-                        </Link>
-                    )}
-                    {getBreadcrumb() !== 'Home' && ` / ${getBreadcrumb()}`}
-                </span>
+                <Breadcrumb />
             </div>
 
-            {/* Right - Search & Actions */}
-            <div className="flex items-center space-x-4">
-                {/* Search Bar */}
-                {/* <SearchBar handleSearch={handleSearch} /> */}
+            {/* Right - Actions */}
+            <div className="flex items-center space-x-4" ref={menuRef}>
+                {token ? (
+                    <>
+                        {/* Notifications */}
+                        <div className="relative">
+                            <Tooltip text="Notifications" position="bottom">
+                                <button
+                                    className="text-gray-600 hover:text-indigo-600 p-2 rounded-full hover:bg-gray-100 transition-all"
+                                    onClick={() => toggleMenu('notifications')}
+                                >
+                                    <MdNotifications size={24} />
+                                </button>
+                            </Tooltip>
 
-                {/* Actions for Larger Screens */}
-                <div className="hidden sm:flex items-center space-x-4">
-                    {token ? (
-                        <>
-                            {/* Profile, Notifications, and Settings Buttons */}
-                            <div className="group relative" data-tooltip="Profile">
+                            {openMenu === 'notifications' && (
+                                <div className="absolute right-0 mt-2 bg-white shadow-lg rounded-lg w-48 p-2 z-50">
+                                    <ul className="space-y-2">
+                                        <li className="text-gray-700 hover:text-indigo-600 cursor-pointer p-2">Notification 1</li>
+                                        <li className="text-gray-700 hover:text-indigo-600 cursor-pointer p-2">Notification 2</li>
+                                    </ul>
+                                </div>
+                            )}
+                        </div>
+
+                        <div className="hidden md:flex items-center space-x-4">
+                            {/* Profile */}
+                            <Tooltip text="Profile" position="bottom">
                                 <Link to="/profile">
-                                    <Tooltip text={"Profile"} position='bottom' >
-                                        <button
-                                            className="text-gray-600 hover:text-indigo-600 p-2 rounded-full hover:bg-gray-100 transition-all focus:ring-2 focus:ring-indigo-500 cursor-pointer"
-                                            aria-label="Profile"
-                                        >
-                                            <MdAccountCircle size={24} />
-                                        </button>
-                                    </Tooltip>
-                                </Link>
-                            </div>
-
-                            <div className="group relative" data-tooltip="Notifications">
-                                <Tooltip text={"Notifications"} position='bottom' >
-                                    <button
-                                        className="text-gray-600 hover:text-indigo-600 p-2 rounded-full hover:bg-gray-100 transition-all focus:ring-2 focus:ring-indigo-500 cursor-pointer"
-                                        onClick={toggleNotificationsPopup}
-                                        aria-label="Notifications"
-                                    >
-                                        <MdNotifications size={24} />
+                                    <button className="text-gray-600 hover:text-indigo-600 p-2 rounded-full hover:bg-gray-100 transition-all">
+                                        <MdAccountCircle size={24} />
                                     </button>
-                                </Tooltip>
-                            </div>
+                                </Link>
+                            </Tooltip>
 
-                            {/* Settings with Popup */}
-                            <div className="group relative" data-tooltip="Settings">
-                                <Tooltip text={"Settings"} position='bottom' >
+                            {/* Settings */}
+                            <div className="relative">
+                                <Tooltip text="Settings" position="bottom">
                                     <button
-                                        className="text-gray-600 hover:text-indigo-600 p-2 rounded-full hover:bg-gray-100 transition-all focus:ring-2 focus:ring-indigo-500 cursor-pointer"
-                                        onClick={toggleSettingsPopup}
-                                        aria-label="Settings"
+                                        className="text-gray-600 hover:text-indigo-600 p-2 rounded-full hover:bg-gray-100 transition-all"
+                                        onClick={() => toggleMenu('settings')}
                                     >
                                         <MdSettings size={24} />
                                     </button>
                                 </Tooltip>
+
+                                {openMenu === 'settings' && (
+                                    <div className="absolute right-0 mt-2 bg-white shadow-lg rounded-lg w-48 p-2 z-50">
+                                        <ul className="space-y-2">
+                                            <li className="text-gray-700 hover:text-indigo-600 cursor-pointer p-2">Profile Settings</li>
+                                            <li className="text-gray-700 hover:text-indigo-600 cursor-pointer p-2">Account Settings</li>
+                                        </ul>
+                                    </div>
+                                )}
                             </div>
 
-                            {/* Logout Button */}
-                            <div className="group relative" title="Logout">
-                                <Tooltip text={"Logout"} position='bottom' >
-                                    <button
-                                        className="text-gray-600 hover:text-red-600 p-2 rounded-full hover:bg-gray-100 transition-all focus:ring-2 focus:ring-red-500 cursor-pointer"
-                                        onClick={handleLogout}
-                                    >
-                                        {!loading ?
-                                            (
-                                                <MdExitToApp size={24} />)
-                                            : (
-                                                <ClipLoader color="#3B82F6" size={24} />
-                                            )}
-                                    </button>
-                                </Tooltip>
-                            </div>
-                        </>
-                    ) : (
-                        // Login & Sign Up Buttons when not logged in
-                        <>
-                            <Link to="/signin">
-                                <div className="group relative" title="Sign In">
-                                    <Tooltip text={"Login"} position='bottom' >
-                                        <button
-                                            className="text-gray-600 hover:text-indigo-600 p-2 rounded-full hover:bg-gray-100 transition-all focus:ring-2 focus:ring-indigo-500 cursor-pointer"
-                                        >
-                                            <MdLogin size={24} />
-                                        </button>
-                                    </Tooltip>
-                                </div>
-                            </Link>
-                            <Link to="/signup">
-                                <div className="group relative" title="Sign Up">
-                                    <Tooltip text={"Register"} position='bottom' >
-                                        <button
-                                            className="text-gray-600 hover:text-indigo-600 p-2 rounded-full hover:bg-gray-100 transition-all focus:ring-2 focus:ring-indigo-500 cursor-pointer"
-                                        >
-                                            <MdPersonAdd size={24} />
-                                        </button>
-                                    </Tooltip>
-                                </div>
-                            </Link>
-                        </>
-                    )}
-                </div>
+                            {/* Logout */}
+                            <Tooltip text="Logout" position="bottom">
+                                <button
+                                    className="text-gray-600 hover:text-red-600 p-2 rounded-full hover:bg-gray-100 transition-all"
+                                    onClick={handleLogout}
+                                >
+                                    {!loading ? <MdExitToApp size={24} /> : <ClipLoader color="#3B82F6" size={24} />}
+                                </button>
+                            </Tooltip>
+                        </div>
+                    </>
+                ) : (
+                    <>
+                        <Link to="/signin">
+                            <Tooltip text="Login" position="bottom">
+                                <button className="text-gray-600 hover:text-indigo-600 p-2 rounded-full hover:bg-gray-100 transition-all">
+                                    <MdLogin size={24} />
+                                </button>
+                            </Tooltip>
+                        </Link>
+                        <Link to="/signup">
+                            <Tooltip text="Register" position="bottom">
+                                <button className="text-gray-600 hover:text-indigo-600 p-2 rounded-full hover:bg-gray-100 transition-all">
+                                    <MdPersonAdd size={24} />
+                                </button>
+                            </Tooltip>
+                        </Link>
+                    </>
+                )}
 
                 {/* More Options for Small Screens */}
-                <div className="sm:hidden group relative" title="More Options">
-                    <button
-                        className="text-gray-600 hover:text-indigo-600 p-2 rounded-full hover:bg-gray-100 transition-all focus:ring-2 focus:ring-indigo-500 cursor-pointer"
-                        aria-label="More Options"
-                    >
-                        <MdMoreVert size={24} />
-                    </button>
-                </div>
+                {token && (
+                    <div className="md:hidden relative">
+                        <button className="text-gray-600 hover:text-indigo-600 p-2 rounded-full hover:bg-gray-100" onClick={() => toggleMenu('more')}>
+                            <MdMoreVert size={24} />
+                        </button>
+                        {openMenu === 'more' && (
+                            <div className="absolute right-0 mt-2 bg-white shadow-lg rounded-lg w-48 p-2 z-50">
+                                <Link to="/profile">
+                                    <button className="w-full text-left text-gray-700 hover:text-gray-500 p-2">
+                                        <MdAccountCircle size={20} className="mr-2" /> Profile
+                                    </button>
+                                </Link>
+                                <button className="w-full text-left text-gray-700 hover:text-red-600 p-2" onClick={handleLogout}>
+                                    <MdExitToApp size={20} className="mr-2" /> Logout
+                                </button>
+                            </div>
+                        )}
+                    </div>
+                )}
             </div>
-
-            {/* Popups for Settings and Notifications */}
-            <Popup
-                isOpen={isSettingsPopupOpen}
-                onClose={toggleSettingsPopup}
-                title="Settings"
-                position="top-right"
-            >
-                <ul className="space-y-2">
-                    <li className="text-gray-700 hover:text-indigo-600 cursor-pointer">
-                        Profile Settings
-                    </li>
-                    <li className="text-gray-700 hover:text-indigo-600 cursor-pointer">
-                        Account Settings
-                    </li>
-                    <li className="text-gray-700 hover:text-indigo-600 cursor-pointer">
-                        Privacy Settings
-                    </li>
-                </ul>
-            </Popup>
-
-            <Popup
-                isOpen={isNotificationsPopupOpen}
-                onClose={toggleNotificationsPopup}
-                title="Notifications"
-                position="top-right"
-            >
-                <ul className="space-y-2">
-                    <li className="text-gray-700 hover:text-indigo-600 cursor-pointer">
-                        Notification 1
-                    </li>
-                    <li className="text-gray-700 hover:text-indigo-600 cursor-pointer">
-                        Notification 2
-                    </li>
-                    <li className="text-gray-700 hover:text-indigo-600 cursor-pointer">
-                        Notification 3
-                    </li>
-                </ul>
-            </Popup>
-        </div >
+        </div>
     );
 };
 

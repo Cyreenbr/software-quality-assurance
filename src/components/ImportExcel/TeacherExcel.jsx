@@ -2,6 +2,7 @@ import { useState } from "react";
 import * as XLSX from "xlsx";
 import { MdSchool, MdUploadFile, MdRefresh } from "react-icons/md";
 import { insertTeacherFromExcel } from "../../services/ManageUsersServices/teachers.service";
+import AddTeacher from "../AddUser/AddTeacher"
 
 const TeacherExcel = ({ onBackClick }) => {
   const [file, setFile] = useState(null);
@@ -11,12 +12,23 @@ const TeacherExcel = ({ onBackClick }) => {
   const [importedTeachers, setImportedTeachers] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
+  const [showAddTeacher, setShowAddTeacher] = useState(false);
   const teachersPerPage = 5;
 
   const handleFileChange = (event) => {
     const selectedFile = event.target.files[0];
     setFile(selectedFile);
     readExcel(selectedFile);
+  };
+
+  const handleAddTeachersClick = () => {
+    // Show the AddTeacher component instead of navigating
+    setShowAddTeacher(true);
+  };
+
+  // Handler for when user returns from AddTeacher component
+  const handleReturnFromAddTeacher = () => {
+    setShowAddTeacher(false);
   };
 
   const readExcel = (file) => {
@@ -88,16 +100,31 @@ const TeacherExcel = ({ onBackClick }) => {
     return importedTeachers.slice(startIndex, endIndex);
   };
 
+  // If AddTeacher component should be shown, render it instead of the main content
+  if (showAddTeacher) {
+    return <AddTeacher onBackClick={handleReturnFromAddTeacher} />;
+  }
+
   const renderImportForm = () => {
     return (
       <div className="bg-white shadow-md rounded-lg p-4 w-full">
         <div className="flex justify-between mb-4">
-          <input 
-            type="file" 
-            accept=".xlsx,.xls" 
-            onChange={handleFileChange} 
-            className="border p-2 rounded" 
-          />
+          <div className="flex flex-col gap-2">
+            <input 
+              type="file" 
+              accept=".xlsx,.xls" 
+              onChange={handleFileChange} 
+              className="border p-2 rounded" 
+            />
+            
+            <button 
+              onClick={handleAddTeachersClick} 
+              className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600"
+            >
+              Add Teachers
+            </button>
+          </div>
+
           <div className="flex items-center gap-2">
             <button 
               onClick={handleImportClick}

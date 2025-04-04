@@ -1,18 +1,29 @@
 import React, { useEffect, useRef, useState } from "react";
+import useDeviceType from "../utils/useDeviceType";
 import Header from "./Header";
 import Sidebar from "./Sidebar";
 
 const Layout = ({ hideHeader = false, hideSideBar = false, children }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [windowWidth, setWindowWidth] = useState(window.innerWidth);
   const sidebarRef = useRef(null);
-  const isMobileOrTablet = windowWidth < 1024; // Mobile & Tablette
 
+  const deviceType = useDeviceType(); // Get the device type using the custom hook
+  const isMobileOrTablet = deviceType === "mobile" || deviceType === "tablet"; // Check if the device is mobile or tablet
+  // Fermer le sidebar si on clique en dehors (uniquement sur mobile)
   useEffect(() => {
-    const handleResize = () => setWindowWidth(window.innerWidth);
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
+    const handleClickOutside = (event) => {
+      if (
+        isSidebarOpen &&
+        isMobileOrTablet &&
+        sidebarRef.current &&
+        !sidebarRef.current.contains(event.target)
+      ) {
+        setIsSidebarOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [isSidebarOpen, isMobileOrTablet]);
 
   // Fermer le sidebar si on clique en dehors (uniquement sur mobile)
   useEffect(() => {
