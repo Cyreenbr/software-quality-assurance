@@ -135,7 +135,12 @@ const StudentPfaComponent = () => {
       </div>
 
       {/* PFA Card Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+      <div className="bg-white p-6 rounded-lg shadow-lg mb-6">
+        <h2 className="text-xl font-semibold mb-4 flex items-center">
+          <FaTag className="text-blue-500 mr-2" size={16} />
+          List of PFAs
+        </h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
         {filteredPfas.map((pfa) => (
           <div
             key={pfa._id}
@@ -279,6 +284,7 @@ const StudentPfaComponent = () => {
           </div>
         </div>
       )}
+    </div>
     </div>
   );
 };
