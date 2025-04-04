@@ -74,7 +74,7 @@ const Competences = () => {
             };
             fetchFamilies();
         }
-    }, []);
+    }, [role]);
 
     const handleSearch = debounce((query) => {
         setSearchQuery(query.trim());

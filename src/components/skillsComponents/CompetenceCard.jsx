@@ -163,11 +163,28 @@ const SkillCard = ({ skill, setEditSkill, setIsEditPopupOpen, handleDeleteSkill,
             }
             {/* Skill Details Popup */}
             <Popup showCloseButton isOpen={isDetailsPopupOpen} onClose={() => setIsDetailsPopupOpen(false)} position="center">
-                {role === RoleEnum.ADMIN &&
-                    <h3 className="text-sm text-center text-gray-400">ID: {skill?._id || 'No ID'}</h3>
-                }
+
                 <div className="p-6">
-                    <h2 className="text-xl font-semibold text-blue-600">{skill?.title || 'No Title'}</h2>
+                    <h2 className="text-xl font-semibold text-blue-600">{skill?.title || 'No Title'}
+
+                        {role === RoleEnum.ADMIN &&
+                            <div>
+
+                                <span
+                                    className={`ml-5 text-sm font-semibold px-2 py-1 rounded-full ${skill.isPublish ? "bg-green-200 text-green-800" : "bg-red-200 text-red-800"
+                                        }`}
+                                >
+                                    {skill.isPublish ? "Published" : "Hidden"}
+                                </span>
+                                <span
+                                    className={`ml-5 text-sm font-semibold px-2 py-1 rounded-full ${skill.archive ? "bg-orange-200 text-orange-800" : "bg-gray-200 text-gray-800"
+                                        }`}
+                                >
+                                    {skill.archive ? "Archived" : "Not Archived"}
+                                </span>
+                            </div>
+                        }
+                    </h2>
                     <p className="text-gray-700 mt-4">
                         <span className="text-sm font-bold">Description (FR): </span>{skill?.frDescription || 'No Description'}
                     </p>
@@ -182,9 +199,6 @@ const SkillCard = ({ skill, setEditSkill, setIsEditPopupOpen, handleDeleteSkill,
                             {familiesList.length > 0 ? familiesList : <p className="text-gray-500">No Family</p>}
                         </div>
                     </div>
-                    {role === RoleEnum.ADMIN &&
-                        <h3 className="text-sm text-center text-gray-400">ID: {skill?.isPublish || 'No Infos'}</h3>
-                    }
                 </div>
             </Popup>
         </div>

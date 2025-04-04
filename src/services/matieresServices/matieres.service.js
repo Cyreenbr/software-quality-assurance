@@ -69,19 +69,25 @@ const matieresServices = {
             throw err.response?.data?.error || err.response?.data?.message || "Failed to update subject.";
         }
     },
-
-    deleteMatieres: async (id, forced = false) => {
-        if (!id) throw new Error("Invalid subject ID.");
+    deleteMatiere: async (id, { forced = false, archive = false }) => {
+        if (!id) {
+            throw new Error("Invalid skill ID.");
+        }
         try {
-            await axiosAPI.delete(`/matieres/${id}`, { data: { forced } });
-            return { message: "Subject deleted successfully!" };
+            const resonse = await axiosAPI.delete(`/matieres/${id}`, { data: { forced, archive } });
+            console.log(resonse.data);
+
+            return { message: resonse?.message ? resonse.message : archive ? "Matiere archived successfully!" : "Matiere deleted successfully!" };
         } catch (err) {
-            throw err.response?.data?.error || err.response?.data?.message || "Failed to delete subject.";
+            throw err.response?.data?.error || err.response?.data?.message || "Failed to delete Matiere.";
         }
     },
-
     // 🔹 Publier une matière (POST /publish/:response)
-    publishMatiere: async (responseValue) => {
+    publishMatieres: async (responseValue) => {
+        console.log(responseValue);
+
+        if (!responseValue || responseValue !== "publish" && responseValue !== "masque")
+            throw new Error("Invalid subject response.");
         try {
             const response = await axiosAPI.post(`/matieres/publish/${responseValue}`);
             return response.data;
@@ -89,7 +95,17 @@ const matieresServices = {
             throw err.response?.data?.error || "Failed to publish subject.";
         }
     },
-
+    publishMatiereById: async (id, responseValue) => {
+        if (!id) throw new Error("Invalid subject ID.");
+        if (!responseValue || responseValue !== "publish" || responseValue !== "masque")
+            throw new Error("Invalid subject response.");
+        try {
+            const response = await axiosAPI.post(`/matieres/publish/${id}/${responseValue}`);
+            return response.data;
+        } catch (err) {
+            throw err.response?.data?.error || "Failed to publish subject.";
+        }
+    },
     evaluateMatiere: async (id, evaluationData) => {
         if (!id) throw new Error("Invalid subject ID.");
         try {

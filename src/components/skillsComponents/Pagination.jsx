@@ -2,7 +2,13 @@ import debounce from "lodash.debounce";
 import { useEffect, useMemo, useState } from "react";
 import { MdChevronLeft, MdChevronRight } from "react-icons/md"; // Importing the icons
 
-const Pagination = ({ currentPage, totalPages, onPageChange, styles = "bg-gray-600 text-white", hoverColor = 'bg-gray-700' }) => {
+const Pagination = ({ currentPage,
+    totalPages,
+    onPageChange,
+    styles = "bg-gray-600 text-white",
+    hoverColor = "bg-gray-700",
+    NextTxtBtn = "Next",
+    PreviousTxtBtn = "Previous" }) => {
     const [inputPage, setInputPage] = useState(currentPage);
 
     // Create a debounced version of the page change function
@@ -56,7 +62,7 @@ const Pagination = ({ currentPage, totalPages, onPageChange, styles = "bg-gray-6
                 disabled={currentPage <= 1}
             >
                 <MdChevronLeft className="inline-block mr-2" />
-                Previous
+                {PreviousTxtBtn}
             </button>
 
             {/* Page Input */}
@@ -83,7 +89,7 @@ const Pagination = ({ currentPage, totalPages, onPageChange, styles = "bg-gray-6
                 className={`${styles} text-white px-4 py-2 rounded-lg ${currentPage === totalPages || totalPages === 0 ? 'opacity-50 cursor-not-allowed' : `hover:${hoverColor} `}} transition`}
                 disabled={currentPage === totalPages || totalPages === 0}
             >
-                Next
+                {NextTxtBtn}
                 <MdChevronRight className="inline-block ml-2" />
             </button>
         </div>

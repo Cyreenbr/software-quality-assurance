@@ -102,7 +102,7 @@ const SubjectForm = ({ initialData = null, onSubmit }) => {
                     }
 
                     // Log success message
-                    toast.success(`${teacher.firstName} ${teacher.lastName} has been selected.`);
+                    // toast.success(`${teacher.firstName} ${teacher.lastName} has been selected.`);
 
                     // Update state with fetched teacher data
                     setSelectedTeacher(teacher); // Store the full teacher object
