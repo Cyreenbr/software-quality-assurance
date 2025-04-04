@@ -103,7 +103,7 @@ const StudentPfaComponent = () => {
 
   const acceptTeacher = async (pfaId, acceptTeacher) => {
     const response = await pfaService.acceptTeacher(pfaId, acceptTeacher);
-   
+
     console.log(response);
   };
 
@@ -141,150 +141,168 @@ const StudentPfaComponent = () => {
           List of PFAs
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-        {filteredPfas.map((pfa) => (
-          <div
-            key={pfa._id}
-            className="border border-gray-300 p-6 shadow-sm rounded-lg hover:shadow-xl hover:bg-gradient-to-r from-blue-50 to-purple-100 transition-all duration-300 overflow-auto"
-          >
-            <h3 className="text-lg font-semibold text-gray-900">
-              {pfa.projectTitle}
-            </h3>
-            <p className="text-gray-600 mt-2">{pfa.description}</p>
-            <p className="text-gray-500 text-sm mt-2">
-              {pfa.technologies.slice(0, 3).join(", ")}...
-            </p>
+          {filteredPfas.map((pfa) => (
+            <div
+              key={pfa._id}
+              className="border border-gray-300 p-6 shadow-sm rounded-lg hover:shadow-xl hover:bg-gradient-to-r from-blue-50 to-purple-100 transition-all duration-300 overflow-auto"
+            >
+              <h3 className="text-lg font-semibold text-gray-900">
+                {pfa.projectTitle}
+              </h3>
+              <p className="text-gray-600 mt-2">{pfa.description}</p>
+              <p className="text-gray-500 text-sm mt-2">
+                {pfa.technologies.slice(0, 3).join(", ")}...
+              </p>
 
-            <div className="mt-4 flex justify-between items-center">
-              <td className="px-6 py-4 text-center flex  gap-2 justify-center items-center">
-                {!checkUserInPfa(
-                  pfa,
-                  JSON.parse(localStorage.getItem("user")).id
-                ) &&
-                  !checkAccepted(
+              <div className="mt-4 flex justify-between items-center">
+                <td className="px-6 py-4 text-center flex  gap-2 justify-center items-center">
+                  {!checkUserInPfa(
                     pfa,
                     JSON.parse(localStorage.getItem("user")).id
-                  ) && (
-                    <button
-                      onClick={() => openPopup(pfa)}
-                      className="bg-gradient-to-r from-indigo-600 to-purple-300 text-white px-6 py-3 rounded-lg shadow-lg transform transition-all hover:scale-105 hover:bg-gradient-to-r hover:from-blue-600 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                    >
-                      Set Priority
-                    </button>
-                  )}
+                  ) &&
+                    !checkAccepted(
+                      pfa,
+                      JSON.parse(localStorage.getItem("user")).id
+                    ) && (
+                      <button
+                        onClick={() => openPopup(pfa)}
+                        className="bg-gradient-to-r from-indigo-600 to-purple-300 text-white px-6 py-3 rounded-lg shadow-lg transform transition-all hover:scale-105 hover:bg-gradient-to-r hover:from-blue-600 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                      >
+                        Set Priority
+                      </button>
+                    )}
 
-                <div className="flex items-center space-x-4">
-                  {checkAccepted(
-                    pfa,
-                    JSON.parse(localStorage.getItem("user")).id
-                  ) ? (
-                    <button
-                      onClick={() => {
-                        acceptTeacher(pfa._id, true);
-                        setAcceptedTeacher(true); // Assurez-vous que cet état est défini
-                      }}
-                      className="bg-green-500 px-6 py-4 rounded-t-lg shadow-md"
-                      title={
-                        acceptedTeacher ? "Teacher accepté" : "PFA accepté"
-                      }
-                    >
-                      {acceptedTeacher ? (
-                        <FaCheckCircle className="w-6 h-6 text-green-700" />
-                      ) : (
-                        "Accepter Teacher"
-                      )}
-                    </button>
-                  ) : checkUserInPfa(
+                  <div className="flex items-center space-x-4">
+                    {checkAccepted(
                       pfa,
                       JSON.parse(localStorage.getItem("user")).id
                     ) ? (
-                    <FaClock
-                      className="text-yellow-500 w-5 h-5"
-                      title="En attente"
-                    />
-                  ) : null}
-                </div>
-              </td>
-            </div>
-          </div>
-        ))}
-      </div>
+                      <div>
+                        {pfa.priorities.map((priority) =>
+                          priority.monome.toString() === JSON.parse(localStorage.getItem("user")).id ? (
+                            <div
+                              key={priority._id}
+                              className="flex items-center"
+                            >
+                              {priority.acceptTeacher && (
+                                <FaCheckCircle className="text-green-700 w-6 h-6" />
+                              )}
+                            </div>
+                          ) : null
+                        )}
 
-      {/* Priority Modal */}
-      {selectedPfa && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-transparent bg-opacity-50 backdrop-blur-lg">
-          <div className="bg-white p-6 rounded-lg shadow-2xl w-96 max-w-lg transition-all transform scale-95 hover:scale-100">
-            {/* Header with Gradient Background */}
-            <div className="bg-gradient-to-r from-indigo-600 to-purple-300 px-6 py-4 rounded-t-lg shadow-md">
-              <h3 className="text-xl font-semibold text-white">
-                Set Priority for {selectedPfa.projectTitle}
-              </h3>
+                        {!pfa.priorities.some(
+                          (priority) =>
+                            priority.monome.toString() === JSON.parse(localStorage.getItem("user")).id &&
+                            priority.acceptTeacher
+                        ) && (
+                          <button
+                            onClick={() => {
+                              acceptTeacher(pfa._id, true);
+                              setAcceptedTeacher(true); // Assurez-vous que cet état est défini
+                            }}
+                            className="text-green-700 hover:text-green-800 transition duration-200"
+                            title="Accepter Teacher"
+                          >
+                            "Accepter Teacher"
+                          </button>
+                        )}
+                      </div>
+                    ) : checkUserInPfa(
+                        pfa,
+                        JSON.parse(localStorage.getItem("user")).id
+                      ) ? (
+                      <FaClock
+                        className="text-yellow-500 w-5 h-5"
+                        title="En attente"
+                      />
+                    ) : null}
+                  </div>
+                </td>
+              </div>
             </div>
+          ))}
+        </div>
 
-            {/* Priority Select */}
-            <div className="mt-4">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Priority
-              </label>
-              <select
-                value={selectedPriorities[selectedPfa._id] || ""}
-                onChange={(e) =>
-                  handlePriorityChange(selectedPfa._id, Number(e.target.value))
-                }
-                className="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none"
-              >
-                <option value="" disabled>
-                  Select priority
-                </option>
-                {getAvailablePriorities(selectedPfa._id).map((num) => (
-                  <option key={num} value={num}>
-                    {num}
-                  </option>
-                ))}
-              </select>
-            </div>
+        {/* Priority Modal */}
+        {selectedPfa && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-transparent bg-opacity-50 backdrop-blur-lg">
+            <div className="bg-white p-6 rounded-lg shadow-2xl w-96 max-w-lg transition-all transform scale-95 hover:scale-100">
+              {/* Header with Gradient Background */}
+              <div className="bg-gradient-to-r from-indigo-600 to-purple-300 px-6 py-4 rounded-t-lg shadow-md">
+                <h3 className="text-xl font-semibold text-white">
+                  Set Priority for {selectedPfa.projectTitle}
+                </h3>
+              </div>
 
-            {/* Binome Search (if Team Project) */}
-            {selectedPfa.isTeamProject && (
+              {/* Priority Select */}
               <div className="mt-4">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Binome
+                  Priority
                 </label>
-                <input
-                  type="text"
-                  value={binome.name}
-                  onChange={handleBinomeChange}
-                  placeholder="Search for a binome"
+                <select
+                  value={selectedPriorities[selectedPfa._id] || ""}
+                  onChange={(e) =>
+                    handlePriorityChange(
+                      selectedPfa._id,
+                      Number(e.target.value)
+                    )
+                  }
                   className="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none"
-                />
-                <ul className="mt-2 border rounded-lg bg-white max-h-40 overflow-y-auto shadow-md">
-                  {filteredUsers.map((user) => (
-                    <li
-                      key={user._id}
-                      className="p-3 hover:bg-gray-100 cursor-pointer transition-all"
-                      onClick={() =>
-                        setBinome({ name: user.firstName, id: user._id })
-                      }
-                    >
-                      {user.firstName + " " + user.lastName}
-                    </li>
+                >
+                  <option value="" disabled>
+                    Select priority
+                  </option>
+                  {getAvailablePriorities(selectedPfa._id).map((num) => (
+                    <option key={num} value={num}>
+                      {num}
+                    </option>
                   ))}
-                </ul>
+                </select>
               </div>
-            )}
 
-            {/* Action Buttons */}
-            <div className="flex justify-between mt-6">
-              <button
-                onClick={closePopup}
-                className="bg-blue-500 text-white px-6 py-3 rounded-l  hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
-              >
-                Add Priority
-              </button>
+              {/* Binome Search (if Team Project) */}
+              {selectedPfa.isTeamProject && (
+                <div className="mt-4">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Binome
+                  </label>
+                  <input
+                    type="text"
+                    value={binome.name}
+                    onChange={handleBinomeChange}
+                    placeholder="Search for a binome"
+                    className="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                  />
+                  <ul className="mt-2 border rounded-lg bg-white max-h-40 overflow-y-auto shadow-md">
+                    {filteredUsers.map((user) => (
+                      <li
+                        key={user._id}
+                        className="p-3 hover:bg-gray-100 cursor-pointer transition-all"
+                        onClick={() =>
+                          setBinome({ name: user.firstName, id: user._id })
+                        }
+                      >
+                        {user.firstName + " " + user.lastName}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              {/* Action Buttons */}
+              <div className="flex justify-between mt-6">
+                <button
+                  onClick={closePopup}
+                  className="bg-blue-500 text-white px-6 py-3 rounded-l  hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+                >
+                  Add Priority
+                </button>
+              </div>
             </div>
           </div>
-        </div>
-      )}
-    </div>
+        )}
+      </div>
     </div>
   );
 };
