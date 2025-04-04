@@ -69,7 +69,8 @@ const Competences = () => {
                     setFamilies(data.families);
                 } catch (error) {
                     setError(error);
-                    toast.error("Failed to load families: " + error);
+                    // toast.error("Failed to load families: " + error);
+                    console.error("Failed to load families: " + error);
                 }
             };
             fetchFamilies();
