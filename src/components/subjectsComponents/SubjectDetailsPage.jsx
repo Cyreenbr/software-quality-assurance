@@ -70,7 +70,7 @@ const SubjectDetailsPage = () => {
         };
 
         fetchSubject();
-    }, [id]);
+    }, [formData?.subject?._id, id]);
 
     const toggleChapterExpand = (index) => {
         setExpandedChapters((prev) => ({ ...prev, [index]: !prev[index] }));

@@ -169,12 +169,15 @@ const Competences = () => {
     };
 
     return (
-        <div className="container mx-auto p-6 bg-white shadow-lg rounded-xl min-h-screen">
+        // <div className="min-h-screen bg-gray-100 p-4">
+        //     <div className=" mx-auto bg-white shadow-lg rounded-xl overflow-hidden border border-gray-200">
+
+        <div className="  mx-auto p-8 bg-white shadow-lg rounded-xl min-h-screen overflow-hidden border border-gray-200">
             <h1 className="text-4xl font-bold text-center mb-8 text-indigo-700">List of Competences</h1>
 
             <div className="flex flex-col md:flex-row md:justify-between items-center mb-8 space-y-4 md:space-y-0 md:space-x-6">
                 <SearchBar handleSearch={handleSearch} className="w-full md:max-w-xs" />
-                <div className="flex space-x-4 w-full md:w-auto justify-center">
+                <div className="pl-4 pr-4 flex space-x-4 w-full md:w-auto justify-center">
                     {(role === RoleEnum.ADMIN) &&
                         /* Bouton visible uniquement sur desktop */
                         <Tooltip text="Add Competence" position="top" bgColor="bg-black">
@@ -213,7 +216,7 @@ const Competences = () => {
                 </div>
             </div>
 
-            <CompetenceList
+            <CompetenceList className="pl-4 pr-4"
                 skills={sortedSkills}
                 loading={loading}
                 handleDeleteSkill={handleDeleteSkill}

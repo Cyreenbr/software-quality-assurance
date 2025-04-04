@@ -89,7 +89,7 @@ const Subject = () => {
                                 <div className="absolute right-0 mt-2 w-32 bg-white shadow-lg rounded-md z-10">
                                     <button
                                         onClick={() => { setResponseValue('publish'); handlePublishSubjects(); setIsMenuOpen(false); }}
-                                        className="w-full text-left px-4 py-2 text-sm text-blue-800 hover:bg-blue-100 focus:outline-none"
+                                        className="w-full text-left mb-1 px-4 py-2 text-sm text-blue-800 hover:bg-blue-100 focus:outline-none"
                                     >
                                         <span className="inline-flex items-center">
                                             <FiEye className="text-sm mr-2" />

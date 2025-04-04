@@ -23,10 +23,11 @@ const CompetenceList = ({
     setEditSkill,
     setIsEditPopupOpen,
     enableSortingBtns = true,
-    enableDefaultPaginationbtns = false
+    enableDefaultPaginationbtns = false,
+    className = ''
 }) => {
     return (
-        <div>
+        <div className={className}>
             {/* Sorting Buttons */}
             {enableSortingBtns && (<div className="flex space-x-4 w-full md:w-auto justify-center mb-6">
                 <Tooltip text={`${titleSortOrder.toUpperCase()} : Sort by Title`} position="top" bgColor="bg-black">
