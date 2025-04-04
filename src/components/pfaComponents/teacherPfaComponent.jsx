@@ -134,7 +134,7 @@ const TeacherPfaComponent = () => {
     setIsDialogOpen(false);
   };
 
-  const handelAcceptPfa = () => {};
+
 
   return (
     <div className="p-6 bg-gray-100 min-h-screen relative">
@@ -160,7 +160,12 @@ const TeacherPfaComponent = () => {
         />
       )}
       {isAcceptPfaDialogOpen && (
-        <AcceptPfaPopUp  pfaPriority={selectedPfa.priorities} pfaId={selectedPfa._id} />
+        <AcceptPfaPopUp
+          pfaPriority={selectedPfa.priorities}
+          pfaId={selectedPfa._id}
+          isAcceptPfaDialogOpen={true}
+          // Passer la fonction de fermeture ici
+      />
       )}
 
       {/* Tableau des PFA */}
