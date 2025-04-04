@@ -40,3 +40,25 @@ export const deleteTeacher = async (teacherId) => {
     throw error;
   }
 };
+
+export const editTeacher = async (_id, editedData) => {
+  try {
+    const response = await axiosAPI.patch(`/teachers/${_id}`, editedData);
+    console.log("teacher edited successfully:", response.data);
+    return response.data;
+  } catch (error) {
+    console.error("Error editing teacher:", error);
+    throw error;
+  }
+};
+export const editPasswordTeacher = async (_id, userpass) => {
+  try {
+    const response = await axiosAPI.patch(`/teachers/${_id}/password`, userpass);
+    console.log("Teacher's password updated successfully:", response.data);
+    return response.data;
+  } catch (error) {
+    console.error("Error updating student's password:", error);
+    throw error;
+  }
+};
+

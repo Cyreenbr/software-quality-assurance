@@ -1,9 +1,12 @@
-import { FaEdit, FaTrashAlt, FaPlus } from "react-icons/fa";
+import { FaEdit, FaTrashAlt, FaPlus, FaEye } from "react-icons/fa";
 import { useEffect, useState } from "react";
 import pfaService from "../../services/PfaServices/pfaService";
+import AddPfaPopUp from "./addPfaPopUp";
+import AcceptPfaPopUp from "./acceptPfaPopUp";
 
 const TeacherPfaComponent = () => {
   const [pfaList, setpfaList] = useState([]);
+  const [selectedPfa, setSelectedPfa] = useState({});
   const [projectType, setProjectType] = useState("monome");
   const [studentOne, setStudentOne] = useState("");
   const [studentTwo, setStudentTwo] = useState("");
@@ -26,21 +29,6 @@ const TeacherPfaComponent = () => {
     }
   };
 
-  // const [pfaList, pfaList] = useState([
-  //   {
-  //     id: 1,
-  //     title: "Projet React",
-  //     description: "Description courte",
-  //     technologies: "React, Node.js",
-  //   },
-  //   {
-  //     id: 2,
-  //     title: "Projet Node",
-  //     description: "Autre description",
-  //     technologies: "Node.js, Express",
-  //   },
-  // ]);
-
   const [isEditing, setIsEditing] = useState(null);
   const [editedData, setEditedData] = useState({
     projectTitle: "",
@@ -53,6 +41,7 @@ const TeacherPfaComponent = () => {
     technologies: "",
   });
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isAcceptPfaDialogOpen, setIsAcceptPfaDialogOpen] = useState(false);
 
   const handleDelete = (id) => {
     console.log(id);
@@ -145,138 +134,33 @@ const TeacherPfaComponent = () => {
     setIsDialogOpen(false);
   };
 
+  const handelAcceptPfa = () => {};
+
   return (
     <div className="p-6 bg-gray-100 min-h-screen relative">
       <h1 className="text-2xl font-bold mb-4">PFA Management </h1>
 
       {/* Modal de création avec animation */}
       {isDialogOpen && (
-        <div className="pointer-events-auto fixed inset-0 z-[999] grid h-screen w-screen place-items-center bg-transparent backdrop-blur-sm transition-opacity duration-500 opacity-100">
-          <div className="relative mx-auto w-full max-w-[24rem] rounded-lg overflow-hidden shadow-sm">
-            <div className="relative flex flex-col bg-white">
-              <div className="relative m-2 items-center flex justify-center text-white h-12 rounded-md bg-indigo-600 px-4">
-                <h3 className="text-lg font-semibold">
-                  {isEditing ? "Update PFA" : "Create PFA"}
-                </h3>
-              </div>
-
-              <div className="flex flex-col gap-4 p-6">
-                <div className="w-full max-w-sm min-w-[200px]">
-                  <label className="block mb-2 text-sm text-slate-600">
-                    Title of The Project
-                  </label>
-                  <input
-                    type="text"
-                    name="projectTitle"
-                    value={
-                      isEditing ? editedData.projectTitle : newPfa.projectTitle
-                    }
-                    onChange={isEditing ? handleChange : handleCreateChange}
-                    className="w-full bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded-md px-3 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-300 shadow-sm focus:shadow"
-                    placeholder="Title of the project"
-                    required
-                  />
-                </div>
-
-                <div className="w-full max-w-sm min-w-[200px]">
-                  <label className="block mb-2 text-sm text-slate-600">
-                    Description
-                  </label>
-                  <textarea
-                    name="description"
-                    value={
-                      isEditing ? editedData.description : newPfa.description
-                    }
-                    onChange={isEditing ? handleChange : handleCreateChange}
-                    className="w-full bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded-md px-3 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-300 shadow-sm focus:shadow"
-                    placeholder="Description of the project"
-                    required
-                  />
-                </div>
-
-                <div className="w-full max-w-sm min-w-[200px]">
-                  <label className="block mb-2 text-sm text-slate-600">
-                    Technologies
-                  </label>
-                  <input
-                    type="text"
-                    name="technologies"
-                    value={
-                      isEditing ? editedData.technologies : newPfa.technologies
-                    }
-                    onChange={isEditing ? handleChange : handleCreateChange}
-                    className="w-full bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded-md px-3 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-300 shadow-sm focus:shadow"
-                    placeholder="Technologies"
-                    required
-                  />
-                </div>
-
-                <div className="w-full max-w-sm min-w-[200px]">
-                  <label className="block mb-2 text-sm text-slate-600">
-                    Project Type
-                  </label>
-                  <div className="flex gap-4">
-                    <label className="flex items-center gap-2">
-                      <input
-                        type="radio"
-                        name="projectType"
-                        value="monome"
-                        checked={projectType === "monome"}
-                        onChange={() => setProjectType("monome")}
-                      />
-                      Monome
-                    </label>
-                    <label className="flex items-center gap-2">
-                      <input
-                        type="radio"
-                        name="projectType"
-                        value="binome"
-                        checked={projectType === "binome"}
-                        onChange={() => setProjectType("binome")}
-                      />
-                      Binome
-                    </label>
-                  </div>
-                  <input
-                    type="text"
-                    placeholder="Enter Student One Name"
-                    value={studentOne}
-                    onChange={(e) => setStudentOne(e.target.value)}
-                    className="w-full mt-2 bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded-md px-3 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-300 shadow-sm focus:shadow"
-                    required
-                  />
-                  {projectType === "binome" && (
-                    <input
-                      type="text"
-                      placeholder="Enter Student Two Name"
-                      value={studentTwo}
-                      onChange={(e) => setStudentTwo(e.target.value)}
-                      className="w-full mt-2 bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded-md px-3 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-300 shadow-sm focus:shadow"
-                      required
-                    />
-                  )}
-                </div>
-              </div>
-
-              <div className="p-6 pt-0 flex justify-between">
-                <button
-                  className="rounded-md bg-indigo-600 py-2 px-4 border border-transparent text-center text-sm text-white transition-all shadow-md hover:shadow-lg focus:bg-indigo-500 focus:shadow-none active:bg-indigo-500 hover:bg-indigo-500 active:shadow-none"
-                  type="button"
-                  onClick={isEditing ? handleSubmitEdit : handleSubmitCreate}
-                >
-                  {isEditing ? "Save" : "Create"}
-                </button>
-                <button
-                  className="rounded-md bg-gray-400 py-2 px-4 text-sm text-white"
-                  type="button"
-                  onClick={() => setIsDialogOpen(false)}
-                >
-                  Cancel
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
+        <AddPfaPopUp
+          isEditing={isEditing}
+          editedData={editedData}
+          newPfa={newPfa}
+          handleCreateChange={handleCreateChange}
+          studentOne={studentOne}
+          projectType={projectType}
+          handleSubmitCreate={handleSubmitCreate}
+          setProjectType={setProjectType}
+          studentTwo={studentTwo}
+          setStudentOne={setStudentOne}
+          setStudentTwo={setStudentTwo}
+          handleChange={handleChange}
+          setIsDialogOpen={setIsDialogOpen}
+          handleSubmitEdit={handleSubmitEdit}
+        />
+      )}
+      {isAcceptPfaDialogOpen && (
+        <AcceptPfaPopUp  pfaPriority={selectedPfa.priorities} pfaId={selectedPfa._id} />
       )}
 
       {/* Tableau des PFA */}
@@ -286,10 +170,18 @@ const TeacherPfaComponent = () => {
           <table className="w-full">
             <thead>
               <tr className="bg-gray-200 text-gray-600 uppercase text-sm leading-normal">
-                <th className="py-3 px-6 text-left">Title</th>
-                <th className="py-3 px-6 text-left">Description</th>
-                <th className="py-3 px-6 text-left">Technologies</th>
-                <th className="py-3 px-6 text-center">Actions</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+                  Title
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+                  Description
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+                  Technologies
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+                  Actions
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -313,6 +205,16 @@ const TeacherPfaComponent = () => {
                       className="bg-red-500 text-white p-2 rounded-full hover:bg-red-600"
                     >
                       <FaTrashAlt size={18} />
+                    </button>
+                    <button
+                      onClick={() => {
+                        setIsAcceptPfaDialogOpen(true);
+                        setSelectedPfa(pfa);
+                        console.log(pfa._id);
+                      }}
+                      className="bg-green-500 text-white p-2 rounded-full hover:bg-green-600"
+                    >
+                      <FaEye size={18} />
                     </button>
                   </td>
                 </tr>

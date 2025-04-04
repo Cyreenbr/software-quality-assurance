@@ -11,3 +11,70 @@ export const chooseOption = async (optionData) => {
         throw error;
     }
 };
+export const getOptions = async () => {
+    try {
+        console.log("Fetching options list data...");
+        const response = await axiosAPI.get('/options/students');
+
+        console.log("Options retrieved successfully:", response.data);
+        return response.data;
+    } catch (error) {
+        console.error("Error fetching option list:", error.response?.data || error.message);
+        throw error;
+    }
+};
+export const deleteOption = async () => {
+    try {
+        console.log("Fetching options list data...");
+        const response = await axiosAPI.get('/options/students');
+
+        console.log("Options retrieved successfully:", response.data);
+        return response.data;
+    } catch (error) {
+        console.error("Error fetching option list:", error.response?.data || error.message);
+        throw error;
+    }
+};
+export const editOption = async () => {
+    try {
+        console.log("Fetching options list data...");
+        const response = await axiosAPI.get('/options/students');
+
+        console.log("Options retrieved successfully:", response.data);
+        return response.data;
+    } catch (error) {
+        console.error("Error fetching option list:", error.response?.data || error.message);
+        throw error;
+    }
+};
+
+export const checkOptionperiod = async () => {
+    try {
+        console.log("checking option period...");
+        const response = await axiosAPI.get("/period/checkoptionperiod");
+
+        console.log("Option period retrieved successfully:", response.data);
+        return response.data;
+    } catch (error) {
+        console.error(
+            "Error checking eligibility::",
+            error.response?.data || error.message
+        );
+        throw error;
+    }
+};
+
+export const checkOptionstudent = async (userId) => {
+    try {
+        console.log("checking option for user...");
+        const response = await axiosAPI.get(`/options/optionstudent/${userId}`);
+        console.log("Option retrieved successfully:", response.data);
+        return response.data;
+    } catch (error) {
+        console.error(
+            "Error checking option::",
+            error.response?.data || error.message
+        );
+        throw error;
+    }
+};

@@ -2,7 +2,7 @@
 
 // URL du backend (remplacer par l'URL de votre API)
 
-import axios from "axios";
+import axiosAPI from "../axiosAPI/axiosInstance";
 
 const API_BASE_URL = "http://localhost:3000/api/PFA";
 
@@ -14,7 +14,20 @@ const getAuthHeader = () => {
 const pfaService = {
   getPfas: async () => {
     try {
-      const response = await axios.get(`${API_BASE_URL}/list`, {
+      const response = await axiosAPI.get(`${API_BASE_URL}/list`, {
+        headers: { ...getAuthHeader() },
+      });
+      return response.data;
+    } catch (error) {
+      console.error("Error API (GET PFA) :", error);
+      return null;
+    }
+  },
+
+  getPublishedPfas: async () => {
+    try {
+      console.log("i trigred the publish pfas");
+      const response = await axiosAPI.get(`${API_BASE_URL}/open`, {
         headers: { ...getAuthHeader() },
       });
       return response.data;
@@ -26,7 +39,7 @@ const pfaService = {
 
   rejectPfa: async (pfaId) => {
     try {
-      const response = await axios.patch(
+      const response = await axiosAPI.patch(
         `${API_BASE_URL}/${pfaId}/reject`,
         {}, // Pass an empty body if the API requires it
         { headers: { ...getAuthHeader() } } // Headers should be the third argument
@@ -42,7 +55,7 @@ const pfaService = {
 
   publishPfa: async (pfaId) => {
     try {
-      const response = await axios.patch(
+      const response = await axiosAPI.patch(
         `${API_BASE_URL}/${pfaId}/publish`,
         {}, // Pass an empty body if the API requires it
         { headers: { ...getAuthHeader() } } // Headers should be the third argument
@@ -58,7 +71,7 @@ const pfaService = {
 
   getTeacherPfas: async () => {
     try {
-      const response = await axios.get(`${API_BASE_URL}/mine`, {
+      const response = await axiosAPI.get(`${API_BASE_URL}/mine`, {
         headers: { ...getAuthHeader() },
       });
       console.log(response);
@@ -71,7 +84,7 @@ const pfaService = {
 
   createPfa: async (pfaData) => {
     try {
-      const response = await axios.post(`${API_BASE_URL}/post`, pfaData, {
+      const response = await axiosAPI.post(`${API_BASE_URL}/post`, pfaData, {
         headers: { ...getAuthHeader() },
       });
 
@@ -85,7 +98,7 @@ const pfaService = {
 
   updatePfa: async (pfaData, pfaId) => {
     try {
-      const response = await axios.patch(
+      const response = await axiosAPI.patch(
         `${API_BASE_URL}/${pfaId}/mine`,
         pfaData,
         {
@@ -103,7 +116,7 @@ const pfaService = {
 
   deletePfa: async (pfaId) => {
     try {
-      const response = await axios.delete(`${API_BASE_URL}/${pfaId}`, {
+      const response = await axiosAPI.delete(`${API_BASE_URL}/${pfaId}`, {
         headers: { ...getAuthHeader() },
       });
 
@@ -126,7 +139,7 @@ const pfaService = {
       status = "first";
     }
     try {
-      const response = await axios.post(
+      const response = await axiosAPI.post(
         `${API_BASE_URL}/send/${status}`,
         {},
         {
@@ -137,6 +150,107 @@ const pfaService = {
       console.log("i netred the send mail fnct");
       alert("email has been sent");
 
+      return response.data;
+    } catch (error) {
+      console.error("Error API (POST PFA) :", error);
+      return null;
+    }
+  },
+
+  // get teacher par son nom  a verifirer avec farah
+  getTeacherByName: async (teacherName) => {
+    try {
+      const response = await axiosAPI.get(
+        `/api/teacher/${teacherName}`,
+        {},
+        {
+          headers: { ...getAuthHeader() },
+        }
+      );
+
+      return response.data;
+    } catch (error) {
+      console.error("Error API (POST PFA) :", error);
+      return null;
+    }
+  },
+
+  // get les PFAs par ID de teacher
+  getPfasByTeacherId: async (teacherId) => {
+    try {
+      const response = await axiosAPI.get(
+        `/${API_BASE_URL}/teacher/${teacherId}/subjects`,
+        {},
+        {
+          headers: { ...getAuthHeader() },
+        }
+      );
+      return response.data;
+    } catch (error) {
+      console.error("Error API (POST PFA) :", error);
+      return null;
+    }
+  },
+
+  getStudents: async () => {
+    try {
+      const response = await axiosAPI.get(
+        `http://localhost:3000/api/students/studentlist
+        `,
+        {},
+        {
+          headers: { ...getAuthHeader() },
+        }
+      );
+      return response.data;
+    } catch (error) {
+      console.error("Error API (POST PFA) :", error);
+      return null;
+    }
+  },
+
+  addPriority: async (pfaId, data) => {
+    try {
+      const response = await axiosAPI.patch(
+        `${API_BASE_URL}/${pfaId}/choice`,
+        data,
+        {
+          headers: { ...getAuthHeader() },
+        }
+      );
+      return response.data;
+    } catch (error) {
+      console.error("Error API (POST PFA) :", error);
+      return null;
+    }
+  },
+
+  acceptBinome: async (pfaId, studentIds) => {
+    try {
+      const response = await axiosAPI.patch(
+        `${API_BASE_URL}/${pfaId}/accept`,
+        { studentIds },
+        {
+          headers: { ...getAuthHeader() },
+        }
+      );
+      return response.data;
+    } catch (error) {
+      console.error("Error API (POST PFA) :", error);
+      return null;
+    }
+  },
+
+  acceptTeacher: async (pfaId, acceptTeacher) => {
+    try {
+      console.log(pfaId, acceptTeacher);
+      const response = await axiosAPI.patch(
+        `${API_BASE_URL}/${pfaId}/acceptance`,
+        { acceptTeacher },
+        {
+          headers: { ...getAuthHeader() },
+        }
+      );
       return response.data;
     } catch (error) {
       console.error("Error API (POST PFA) :", error);
