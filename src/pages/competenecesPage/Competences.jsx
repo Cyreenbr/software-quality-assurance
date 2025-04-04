@@ -1,17 +1,18 @@
 import debounce from "lodash.debounce";
 import React, { useCallback, useEffect, useState } from "react";
 import { FaPlusCircle, FaSortAlphaDown, FaSortAlphaUp } from 'react-icons/fa';
-import { ClipLoader } from "react-spinners";
+import { useSelector } from "react-redux";
 import { toast } from 'react-toastify';
-import SkillCard from "../../components/skillsComponents/CompetenceCard";
 import SkillForm from "../../components/skillsComponents/CompetenceForm";
-import NotFound404 from "../../components/skillsComponents/NotFound404";
+import CompetenceList from "../../components/skillsComponents/CompetenceList";
 import Pagination from "../../components/skillsComponents/Pagination";
 import SearchBar from "../../components/skillsComponents/SearchBar";
-import Tooltip from "../../components/skillsComponents/tooltip";
+import Tooltip from "../../components/skillsComponents/Tooltip";
 import competenceServices from "../../services/CompetencesServices/competences.service";
+import { RoleEnum } from "../../utils/userRoles";
 
 const Competences = () => {
+    const role = useSelector((state) => state.auth.role);
     const [skills, setSkills] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -34,19 +35,17 @@ const Competences = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const [itemsOnPage, setItemsOnPage] = useState(8);
     const [itemsPerPage] = useState(8);
-    const [totalItems, setTotalItems] = useState(0);
     const [totalPages, setTotalPages] = useState(1);
     const [hasSearched, setHasSearched] = useState(false);
-
+    const handlePageChange = (pageNumber) => {
+        setCurrentPage(pageNumber);
+    };
     const fetchCompetences = useCallback(async (page = 1, searchTerm = '', sortBy = '_id', order = 'desc') => {
         setLoading(true);
         try {
-            // Appel du service pour récupérer les compétences
             const data = await competenceServices.fetchCompetences(page, searchTerm, sortBy, order, itemsPerPage);
-
             setSkills(data.skills);
             setSortedSkills(data.skills);
-            setTotalItems(data.pagination.totalSkills);
             setItemsOnPage(data.pagination.itemsOnPage);
             setTotalPages(data.pagination.totalPages);
         } catch (er) {
@@ -63,21 +62,24 @@ const Competences = () => {
     }, [currentPage, searchQuery, fetchCompetences]);
 
     useEffect(() => {
-        const fetchFamilies = async () => {
-            try {
-                const data = await competenceServices.fetchFamilies();
-                setFamilies(data.families);
-            } catch (error) {
-                setError(error);
-                toast.error("Failed to load families: " + error);
-            }
-        };
-        fetchFamilies();
-    }, []); // Le tableau de dépendances vide assure que cela ne s'exécute qu'une seule fois
+        if (role === RoleEnum.ADMIN) {
+            const fetchFamilies = async () => {
+                try {
+                    const data = await competenceServices.fetchFamilies();
+                    setFamilies(data.families);
+                } catch (error) {
+                    setError(error);
+                    // toast.error("Failed to load families: " + error);
+                    console.error("Failed to load families: " + error);
+                }
+            };
+            fetchFamilies();
+        }
+    }, [role]);
 
     const handleSearch = debounce((query) => {
         setSearchQuery(query.trim());
-        setCurrentPage(1);  // Reset page to 1 whenever the search query changes
+        setCurrentPage(1);
         setHasSearched(true);
     }, 500);
 
@@ -85,16 +87,11 @@ const Competences = () => {
         event.preventDefault();
 
         try {
-            // Appel du service pour ajouter la compétence
             const data = await competenceServices.addCompetence(newSkill);
-
             setIsAddPopupOpen(false);
             setSearchQuery('');
-
-            // Mise à jour du state avec la nouvelle compétence
             setSkills(prevSkills => [...prevSkills, data.skill]);
             setSortedSkills(prevSkills => [...prevSkills, data.skill]);
-
             setNewSkill({
                 title: '',
                 frDescription: '',
@@ -104,9 +101,7 @@ const Competences = () => {
                 forced: false,
             });
 
-            // Rafraîchir la liste des compétences
             await fetchCompetences(currentPage, searchQuery);
-
             toast.success(data.message || "Skill added successfully!");
         } catch (error) {
             setError(error);
@@ -116,12 +111,8 @@ const Competences = () => {
 
     const handleUpdateSkill = useCallback(async (event) => {
         event.preventDefault();
-
         try {
-            // Appel du service pour mettre à jour la compétence
             const data = await competenceServices.updateCompetence(editSkill);
-
-            // Mise à jour du state avec la nouvelle liste
             const updatedSkillsList = skills.map(skill =>
                 skill._id === editSkill._id ? data.skill : skill
             );
@@ -129,9 +120,7 @@ const Competences = () => {
             setSortedSkills(updatedSkillsList);
             setIsEditPopupOpen(false);
 
-            // Rafraîchir la liste des compétences
             await fetchCompetences(currentPage);
-
             toast.success(data.message || "Skill updated successfully!");
         } catch (error) {
             setError(error);
@@ -139,14 +128,14 @@ const Competences = () => {
         }
     }, [editSkill, skills, currentPage, fetchCompetences]);
 
-    const handleDeleteSkill = useCallback(async (id, forced = false) => {
+    const handleDeleteSkill = useCallback(async (id, { forced = false, archive = false }) => {
         try {
-            await competenceServices.deleteCompetence(id, forced);
+            const response = await competenceServices.deleteCompetence(id, { forced, archive });
+            // console.log(response);
 
-            // Met à jour la page actuelle si l'élément supprimé était le dernier de la page
             setCurrentPage(prevPage => (itemsOnPage === 1 && prevPage > 1 ? prevPage - 1 : prevPage));
             await fetchCompetences(currentPage, searchQuery);
-            toast.success("Competence deleted successfully!");
+            toast.success(response.message);
             return true;
         } catch (error) {
             setError(error);
@@ -156,57 +145,53 @@ const Competences = () => {
         }
     }, [itemsOnPage, fetchCompetences, currentPage, searchQuery]);
 
-
     const handleSortByTitle = useCallback(() => {
         const newSortOrder = titleSortOrder === 'asc' ? 'desc' : 'asc';
         setTitleSortOrder(newSortOrder);
-        fetchCompetences(currentPage, searchQuery, 'title', newSortOrder); // Fetch sorted data from backend
+        fetchCompetences(currentPage, searchQuery, 'title', newSortOrder);
     }, [currentPage, searchQuery, titleSortOrder, fetchCompetences]);
 
     const handleSortByFamily = useCallback(() => {
         const newSortOrder = familySortOrder === 'asc' ? 'desc' : 'asc';
         setFamilySortOrder(newSortOrder);
-        fetchCompetences(currentPage, searchQuery, 'familyId', newSortOrder); // Fetch sorted data from backend
+        fetchCompetences(currentPage, searchQuery, 'familyId', newSortOrder);
     }, [currentPage, searchQuery, familySortOrder, fetchCompetences]);
 
-    const handlePageChange = (pageNumber) => {
-        if (pageNumber < 1 || pageNumber > totalPages) return; // Prevent navigating out of bounds
-        setCurrentPage(pageNumber);
+    const handleOpenAddPopup = () => {
+        setEditSkill(null);
+        setIsEditPopupOpen(false);
+        setIsAddPopupOpen(true);
     };
 
-    const handleOpenAddPopup = () => {
-        setEditSkill(null); // Réinitialiser l'état d'édition
-        setIsEditPopupOpen(false); // Fermer le popup d'édition au cas où
-        setIsAddPopupOpen(true); // Ouvrir l'ajout
-    };
     const closePopup = () => {
         setIsAddPopupOpen(false);
         setIsEditPopupOpen(false);
-        setEditSkill(null); // Réinitialiser `editSkill` à la fermeture
+        setEditSkill(null);
     };
+
     return (
-        <div className="container mx-auto p-6 bg-white shadow-l rounded-xl min-h-screen">
+        // <div className="min-h-screen bg-gray-100 p-4">
+        //     <div className=" mx-auto bg-white shadow-lg rounded-xl overflow-hidden border border-gray-200">
+
+        <div className="  mx-auto p-8 bg-white shadow-lg rounded-xl min-h-screen overflow-hidden border border-gray-200">
             <h1 className="text-4xl font-bold text-center mb-8 text-indigo-700">List of Competences</h1>
 
-            {/* Search bar, Add Competence button, and Sorting buttons */}
             <div className="flex flex-col md:flex-row md:justify-between items-center mb-8 space-y-4 md:space-y-0 md:space-x-6">
-
-                {/* Search Bar */}
                 <SearchBar handleSearch={handleSearch} className="w-full md:max-w-xs" />
+                <div className="pl-4 pr-4 flex space-x-4 w-full md:w-auto justify-center">
+                    {(role === RoleEnum.ADMIN) &&
+                        /* Bouton visible uniquement sur desktop */
+                        <Tooltip text="Add Competence" position="top" bgColor="bg-black">
+                            <button
+                                onClick={handleOpenAddPopup}
+                                className="hidden md:flex items-center bg-indigo-500 text-white px-4 py-2 rounded-md hover:bg-indigo-700 transition duration-300 focus:outline-none focus:ring-2 focus:ring-indigo-400"
+                            >
+                                <FaPlusCircle className="text-2xl" />
+                                <span className="ml-2">Add</span>
+                            </button>
+                        </Tooltip>
+                    }
 
-                {/* Add Competence Button */}
-                <Tooltip text="Add Competence" position="top" bgColor="bg-black">
-                    <button
-                        onClick={handleOpenAddPopup}
-                        className="bg-indigo-500 text-white px-4 py-2 rounded-md hover:bg-indigo-700 transition duration-300 focus:outline-none focus:ring-2 focus:ring-indigo-400 flex items-center w-full md:w-auto justify-center"
-                    >
-                        <FaPlusCircle className="mr-2" />
-                        <span className="font-semibold">Add</span>
-                    </button>
-                </Tooltip>
-
-                {/* Sorting Buttons */}
-                <div className="flex space-x-4 w-full md:w-auto justify-center">
                     <Tooltip text={`${titleSortOrder.toUpperCase()} : Sort by Title`} position="top" bgColor="bg-black">
                         <button
                             onClick={handleSortByTitle}
@@ -227,54 +212,64 @@ const Competences = () => {
                             <span className="ml-2">Family</span>
                         </button>
                     </Tooltip>
+
+
                 </div>
             </div>
 
-            {/* Competences Cards Layout */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                {loading ? (
-                    <div className="col-span-full text-center py-6">
-                        <ClipLoader color="#4A90E2" size={50} />
-                        <p>Loading...</p>
-                    </div>
-                ) : sortedSkills.length === 0 && hasSearched ? (
-                    <div className="col-span-full text-center py-6">
-                        <NotFound404 iconSize={250} />
-                    </div>
-                ) : (
-                    sortedSkills.map((skill, index) => (
-                        <SkillCard
-                            key={skill?._id || index}
-                            skill={skill}
-                            setEditSkill={setEditSkill}
-                            setIsEditPopupOpen={setIsEditPopupOpen}
-                            handleDeleteSkill={handleDeleteSkill}
-                            families={families}
-                        />
-                    ))
-                )}
-            </div>
+            <CompetenceList className="pl-4 pr-4"
+                skills={sortedSkills}
+                loading={loading}
+                handleDeleteSkill={handleDeleteSkill}
+                handleSortByTitle={handleSortByTitle}
+                handleSortByFamily={handleSortByFamily}
+                titleSortOrder={titleSortOrder}
+                familySortOrder={familySortOrder}
+                currentPage={currentPage}
+                totalPages={totalPages}
+                fetchCompetences={fetchCompetences}
+                hasSearched={hasSearched}
+                families={families}
+                setEditSkill={setEditSkill}
+                setIsEditPopupOpen={setIsEditPopupOpen}
+                enableSortingBtns={false}
+            />
+            <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={handlePageChange}
+                styles={" bg-blue-600 text-white"}
+                hoverColor="bg-blue-500"
+            />
 
-            {/* Pagination */}
-            {sortedSkills.length > 0 && totalItems > 0 &&
-                <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange}
-                    styles={" bg-blue-600 text-white"}
+            {(role === RoleEnum.ADMIN) &&
+                <div className="md:hidden">
+                    <Tooltip text="Add Competence" position="top" bgColor="bg-black">
+                        <button
+                            onClick={handleOpenAddPopup}
+                            className=" fixed bottom-6 right-6 bg-indigo-500 text-white p-4 rounded-full shadow-lg 
+                       hover:bg-indigo-700 transition duration-300 focus:outline-none focus:ring-2 focus:ring-indigo-400 flex items-center"
+                        >
+                            <FaPlusCircle className="text-2xl" />
+                        </button>
+                    </Tooltip>
+                </div>
+            }
+            {(isAddPopupOpen || isEditPopupOpen) && (role == RoleEnum.ADMIN || role === RoleEnum.TEACHER) &&
+                <SkillForm
+                    isPopupOpen={isAddPopupOpen || isEditPopupOpen}
+                    setIsPopupOpen={closePopup}
+                    families={families}
+                    newSkill={newSkill}
+                    setNewSkill={setNewSkill}
+                    handleAddSkill={handleAddSkill}
+                    editSkill={editSkill}
+                    setEditSkill={setEditSkill}
+                    handleUpdateSkill={handleUpdateSkill}
                 />
             }
-
-            {/* Use the SkillForm component for both Add and Edit popups */}
-            <SkillForm
-                isPopupOpen={isAddPopupOpen || isEditPopupOpen}
-                setIsPopupOpen={closePopup}
-                families={families}
-                newSkill={newSkill}
-                setNewSkill={setNewSkill}
-                handleAddSkill={handleAddSkill}
-                editSkill={editSkill}
-                setEditSkill={setEditSkill}
-                handleUpdateSkill={handleUpdateSkill}
-            />
         </div >
+
     );
 };
 

@@ -257,8 +257,11 @@ const Competences = () => {
 
             {/* Pagination */}
             {sortedSkills.length > 0 && totalItems > 0 &&
-                <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange}
+                <Pagination currentPage={currentPage}
+                    totalPages={totalPages}
+                    onPageChange={handlePageChange}
                     styles={" bg-blue-600 text-white"}
+                    hoverColor='bg-blue-500'
                 />
             }
 

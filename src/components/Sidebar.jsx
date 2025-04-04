@@ -3,7 +3,8 @@ import { FaQuestion } from 'react-icons/fa';
 import { useSelector } from 'react-redux';
 import { Link, useLocation } from 'react-router-dom';
 import { getMenuItems } from '../services/configs/menuHandler';
-import Tooltip from './skillsComponents/tooltip';
+import useDeviceType from '../utils/useDeviceType';
+import Tooltip from './skillsComponents/Tooltip';
 
 const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
     const role = useSelector((state) => state.auth.role);
@@ -15,16 +16,10 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
         return JSON.parse(localStorage.getItem('isSidebarCollapsed')) || false;
     });
 
-    // State for mobile/tablet and desktop detection
-    const [isMobileOrTablet, setIsMobileOrTablet] = useState(window.innerWidth < 1024);
+    // Use the custom hook to get the device type
+    const deviceType = useDeviceType();
+    const isMobileOrTablet = deviceType === 'mobile' || deviceType === 'tablet'; // Check if mobile or tablet
 
-    useEffect(() => {
-        const handleResize = () => {
-            setIsMobileOrTablet(window.innerWidth < 1024);
-        };
-        window.addEventListener('resize', handleResize);
-        return () => window.removeEventListener('resize', handleResize);
-    }, []);
 
     useEffect(() => {
         if (isMobileOrTablet) setIsCollapsed(false); // Automatically collapse on mobile/tablet
