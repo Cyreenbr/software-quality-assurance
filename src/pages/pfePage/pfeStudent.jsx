@@ -3,7 +3,7 @@ import {
   createPFE,
   updatePFE,
   getPFEByUser,
-} from "../../services/pfeService/pfeStudent";
+} from "../../services/pfeService/pfeService";
 
 const PFEStudent = ({ userId }) => {
   const [formData, setFormData] = useState({
@@ -13,12 +13,18 @@ const PFEStudent = ({ userId }) => {
     company: "",
     technologies: "",
     documents: [],
+    status: "",
+    supervisor: null,
   });
 
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState(null);
   const [error, setError] = useState(null);
   const [pfeId, setPfeId] = useState(null);
+  const [refreshKey, setRefreshKey] = useState(0);
+
+  const isReadOnly =
+    formData.status === "approved" || formData.supervisor !== null;
 
   useEffect(() => {
     const fetchUserPFE = async () => {
@@ -37,8 +43,22 @@ const PFEStudent = ({ userId }) => {
             company: pfe.company || "",
             technologies: pfe.technologies || "",
             documents: pfe.documents || [],
+            status: pfe.status || "",
+            supervisor: pfe.IsammSupervisor || null,
           });
           setPfeId(pfe._id);
+        } else {
+          setFormData({
+            title: "",
+            description: "",
+            domain: "",
+            company: "",
+            technologies: "",
+            documents: [],
+            status: "",
+            supervisor: null,
+          });
+          setPfeId(null);
         }
       } catch (err) {
         console.error("Error fetching PFE data:", err);
@@ -46,13 +66,15 @@ const PFEStudent = ({ userId }) => {
     };
 
     fetchUserPFE();
-  }, [userId]);
+  }, [userId, refreshKey]);
 
   const handleChange = (e) => {
+    if (isReadOnly) return;
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
   const handleFileChange = (e) => {
+    if (isReadOnly) return;
     const newFiles = Array.from(e.target.files);
     setFormData((prevFormData) => ({
       ...prevFormData,
@@ -61,6 +83,7 @@ const PFEStudent = ({ userId }) => {
   };
 
   const handleRemoveFile = (index) => {
+    if (isReadOnly) return;
     setFormData((prevFormData) => ({
       ...prevFormData,
       documents: prevFormData.documents.filter((_, i) => i !== index),
@@ -69,6 +92,8 @@ const PFEStudent = ({ userId }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (isReadOnly) return;
+
     setLoading(true);
     setError(null);
     setMessage(null);
@@ -101,15 +126,12 @@ const PFEStudent = ({ userId }) => {
       } else {
         await createPFE(data);
         setMessage("PFE submitted successfully!");
+        setRefreshKey((prev) => prev + 1);
       }
     } catch (err) {
-      if (err.response && err.response.data) {
-        setError(
-          err.response.data.message || "An error occurred while submitting."
-        );
-      } else {
-        setError(err.message || "An error occurred while submitting.");
-      }
+      setError(
+        err.response?.data?.message || "An error occurred while submitting."
+      );
       setMessage(null);
     } finally {
       setLoading(false);
@@ -122,6 +144,17 @@ const PFEStudent = ({ userId }) => {
         {pfeId ? "Update Your PFE" : "Submit a PFE"}
       </h2>
       <div className="max-w-4xl mx-auto py-10 px-6">
+        {formData.status === "approved" && (
+          <p className="text-green-600 font-medium mb-4">
+            ✅ Your PFE has been approved and can no longer be modified.
+          </p>
+        )}
+        {formData.supervisor && (
+          <p className="text-blue-600 font-medium mb-4">
+            👨‍🏫 Assigned Supervisor: {formData.supervisor.email}
+          </p>
+        )}
+
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
             <label className="block text-gray-800 font-semibold">Title</label>
@@ -132,6 +165,7 @@ const PFEStudent = ({ userId }) => {
               onChange={handleChange}
               className="w-full p-3 border border-gray-300 rounded-lg shadow-sm"
               required
+              disabled={isReadOnly}
             />
           </div>
           <div>
@@ -144,6 +178,7 @@ const PFEStudent = ({ userId }) => {
               onChange={handleChange}
               className="w-full p-3 border border-gray-300 rounded-lg shadow-sm"
               required
+              disabled={isReadOnly}
             />
           </div>
           <div>
@@ -155,6 +190,7 @@ const PFEStudent = ({ userId }) => {
               onChange={handleChange}
               className="w-full p-3 border border-gray-300 rounded-lg shadow-sm"
               required
+              disabled={isReadOnly}
             />
           </div>
           <div>
@@ -166,6 +202,7 @@ const PFEStudent = ({ userId }) => {
               onChange={handleChange}
               className="w-full p-3 border border-gray-300 rounded-lg shadow-sm"
               required
+              disabled={isReadOnly}
             />
           </div>
           <div>
@@ -179,6 +216,7 @@ const PFEStudent = ({ userId }) => {
               onChange={handleChange}
               className="w-full p-3 border border-gray-300 rounded-lg shadow-sm"
               required
+              disabled={isReadOnly}
             />
           </div>
           <div>
@@ -191,6 +229,7 @@ const PFEStudent = ({ userId }) => {
               multiple
               onChange={handleFileChange}
               className="w-full p-3 border border-gray-300 rounded-lg shadow-sm"
+              disabled={isReadOnly}
             />
             <ul className="mt-2">
               {formData.documents.map((doc, index) => (
@@ -199,24 +238,29 @@ const PFEStudent = ({ userId }) => {
                   className="flex items-center justify-between bg-gray-100 p-2 rounded-lg"
                 >
                   <span>{doc.name || doc}</span>
-                  <button
-                    type="button"
-                    onClick={() => handleRemoveFile(index)}
-                    className="text-red-600 hover:text-red-800"
-                  >
-                    Remove
-                  </button>
+                  {!isReadOnly && (
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveFile(index)}
+                      className="text-red-600 hover:text-red-800"
+                    >
+                      Remove
+                    </button>
+                  )}
                 </li>
               ))}
             </ul>
           </div>
-          <button
-            type="submit"
-            className="w-full bg-blue-600 text-white py-3 rounded-lg font-medium"
-            disabled={loading}
-          >
-            {loading ? "Processing..." : pfeId ? "Update PFE" : "Submit PFE"}
-          </button>
+
+          {!isReadOnly && (
+            <button
+              type="submit"
+              className="w-full bg-blue-600 text-white py-3 rounded-lg font-medium"
+              disabled={loading}
+            >
+              {loading ? "Processing..." : pfeId ? "Update PFE" : "Submit PFE"}
+            </button>
+          )}
 
           {message && (
             <p className="text-green-600 text-center mt-4">{message}</p>
