@@ -243,7 +243,7 @@ export const menuConfig = [
     tooltip: "pfe",
     component: PFEStudent,
     eligbleRoles: [RoleEnum.STUDENT],
-    eligibleLevels: [RoleEnum.ISPFE],
+    //eligibleLevels: [RoleEnum.ISPFE],
     active: true,
     dontShow: false,
     hideSideBar: false,
@@ -341,7 +341,6 @@ export const getMenuItems = (role, level = null) => {
       const hasEligibleLevels = item.eligibleLevels?.length > 0;
 
       // Handle role eligibility
-
       const roleEligible =
         !hasEligibleRoles || item.eligibleRoles.includes(role);
 

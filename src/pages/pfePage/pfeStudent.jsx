@@ -1,11 +1,20 @@
 import { useState, useEffect } from "react";
+
+import { Navigate } from "react-router-dom";
 import {
   createPFE,
   updatePFE,
   getPFEByUser,
 } from "../../services/pfeService/pfe.service";
+import { RoleEnum } from "../../utils/userRoles";
 
 const PFEStudent = ({ userId }) => {
+  const storedUser = JSON.parse(localStorage.getItem("user"));
+  const userLevel = storedUser?.level;
+
+  if (userLevel !== RoleEnum.ISPFE) {
+    return <Navigate to="/error" replace />;
+  }
   const [formData, setFormData] = useState({
     title: "",
     description: "",
