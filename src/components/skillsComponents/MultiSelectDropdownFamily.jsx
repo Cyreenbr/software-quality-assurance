@@ -3,7 +3,11 @@ import { Fragment } from 'react';
 import { FaCheckCircle, FaTimesCircle } from 'react-icons/fa';
 import Tooltip from './Tooltip';
 
-const MultiSelectDropdownFamily = ({ families, selectedFamilies, setSelectedFamilies, onSelectionChange }) => {
+const MultiSelectDropdownFamily = ({
+    families,
+    selectedFamilies,
+    setSelectedFamilies,
+}) => {
     // Function to get the selected families (objects) and display them in the input field
     const getSelectedFamilies = () => {
         return families.filter(family => selectedFamilies.includes(family._id));
@@ -15,10 +19,6 @@ const MultiSelectDropdownFamily = ({ families, selectedFamilies, setSelectedFami
             const newSelection = prevSelectedFamilies.includes(familyId)
                 ? prevSelectedFamilies.filter(id => id !== familyId)
                 : [...prevSelectedFamilies, familyId];
-
-            // Call onSelectionChange to pass the updated families
-            onSelectionChange(families.filter(family => newSelection.includes(family._id)));
-
             return newSelection;
         });
     };
@@ -26,7 +26,6 @@ const MultiSelectDropdownFamily = ({ families, selectedFamilies, setSelectedFami
     // Clear all selected families
     const handleClearAll = () => {
         setSelectedFamilies([]);
-        onSelectionChange([]);
     };
 
 

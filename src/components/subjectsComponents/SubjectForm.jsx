@@ -1,11 +1,10 @@
 import { DragDropContext, Draggable, Droppable } from "@hello-pangea/dnd";
-import React, { useEffect, useState } from "react";
-import { FaCheckCircle } from "react-icons/fa";
+import React, { useEffect, useMemo, useState } from "react";
+import { FaTimesCircle } from "react-icons/fa";
 import { toast } from "react-toastify";
 import competenceServices from "../../services/CompetencesServices/competences.service";
 import matieresServices from "../../services/matieresServices/matieres.service";
-import MultiSelectDropdown from "../skillsComponents/MultiSelectDropdown";
-import TeacherSearchDropdown from "./TeacherSearchDropdown";
+import SearchDropdown from "./SearchDropdown";
 
 const capitalizeFirstLetter = (str) => str.charAt(0).toUpperCase() + str.slice(1);
 
@@ -16,6 +15,48 @@ const SubjectForm = ({ initialData = null, onSubmit }) => {
     const increment = 1;
     const [selectedTeacher, setSelectedTeacher] = useState(null);
 
+    const [preselectedCompetences, setPreselectedCompetences] = useState([]);
+    const handleSelectCompetence = (selectedCompetences) => {
+        console.log("Selected Competences:", selectedCompetences); // Logs full objects
+        setFormData((prev) => ({
+            ...prev,
+            skillsId: selectedCompetences.map((competence) => competence._id), // Extract IDs if needed
+        }));
+    };
+
+    // Stable preselected competences derived from initialData.skillIds
+    const stablePreselectedCompetences = useMemo(() => {
+        return Array.isArray(initialData?.skillIds)
+            ? initialData.skillIds.map((idOrObj) =>
+                typeof idOrObj === "object"
+                    ? { _id: idOrObj._id, title: idOrObj.title } // If the element is already an object
+                    : { _id: idOrObj, title: `Title for ${idOrObj}` } // If the element is an ID, assign a default title
+            )
+            : [];
+    }, [initialData?.skillIds]);
+    const handleSelectTeacher = (teacher) => {
+        // Prevent setting the same teacher again to avoid re-rendering
+        if (selectedTeacher?._id === teacher?._id) return;
+
+        setSelectedTeacher(teacher); // Update selectedTeacher with the full teacher object
+        setFormData((prev) => ({
+            ...prev,
+            teacherId: teacher ? [teacher._id] : [], // Update teacherId with the teacher's _id
+        }));
+
+        console.log('Selected Teacher:', teacher);
+    };
+
+
+    const fetchTeachers = async (searchTerm) => {
+        try {
+            const data = await matieresServices.fetchTeachers({ page: 1, searchTerm: searchTerm, limit: 5 });
+            return data.teachers; // Ensure the response has the list of teachers
+        } catch (error) {
+            console.error("Error fetching teachers:", error);
+            return [];
+        }
+    };
     const fetchCompetencesOptions = async (newLimit) => {
         try {
             const data = await competenceServices.fetchCompetencesForForm({ limit: newLimit });
@@ -28,14 +69,21 @@ const SubjectForm = ({ initialData = null, onSubmit }) => {
             toast.error("Failed to load competences: " + error);
         }
     };
-
-    const handleSelectTeacher = (teacher) => {
-        setSelectedTeacher(teacher); // Update selectedTeacher with the full teacher object
-        setFormData((prev) => ({
-            ...prev,
-            teacherId: teacher ? [teacher._id] : [], // Update teacherId with the teacher's _id
-        }));
+    const fetchCompetences = async (searchTerm2) => {
+        try {
+            const data = await competenceServices.fetchCompetencesForForm({ searchTerm: searchTerm2 });
+            setCompetences((prev) => [
+                ...prev,
+                ...data.skills.filter((skill) => !prev.some((s) => s._id === skill._id)),
+            ]);
+            setTotalItems(data.pagination?.totalSkills || data.skills.length);
+            return competences
+        } catch (error) {
+            toast.error("Failed to load competences: " + error);
+        }
     };
+
+
 
 
     // Update formData when initialData changes
@@ -374,6 +422,13 @@ const SubjectForm = ({ initialData = null, onSubmit }) => {
             onSubmit(finalData);
         }
     };
+    const getCurrentAcademicYear = () => {
+        const currentYear = new Date().getFullYear();
+        const month = new Date().getMonth();
+        return month >= 8
+            ? `${currentYear}-${currentYear + 1}`
+            : `${currentYear - 1}-${currentYear}`;
+    };
 
 
     return (
@@ -388,6 +443,7 @@ const SubjectForm = ({ initialData = null, onSubmit }) => {
                         value={formData.title}
                         onChange={(e) => handleChange(e, "title")}
                         className="mt-2 p-3 w-full border border-gray-300 rounded-md"
+                        placeholder="Enter Subjet Title"
                         required
                     />
                 </div>
@@ -398,6 +454,7 @@ const SubjectForm = ({ initialData = null, onSubmit }) => {
                         {
                             label: "Module",
                             key: "module",
+                            placeholder: "Enter module name",
                             pattern: /^GM[1-5]\.[1-6]$/,
                             required: true,
                             errorMessage:
@@ -410,56 +467,74 @@ const SubjectForm = ({ initialData = null, onSubmit }) => {
                             options: ["1 year", "2 year", "3 year"],
                             required: true,
                         },
-                        { label: "Code", key: "code", required: true },
                         {
-                            label: "Semestre",
+                            label: "Code", key: "code", required: true,
+                            placeholder: "Enter subject Code",
+
+                        },
+                        {
+                            label: "Semester",
                             key: "semestre",
                             type: "select",
                             options: ["semestre 1", "semestre 2"],
                             required: true,
                         },
                         {
-                            label: "Responsable",
+                            label: "Responsible",
+                            placeholder: "Enter Responsible email",
                             key: "responsable",
                             type: "email",
                             required: false,
                         },
                         {
-                            label: "Langue",
+                            label: "Language",
                             key: "langue",
                             type: "select",
                             options: ["Arabic", "English", "French"],
                             required: true,
                         },
-                        { label: "Relation", key: "relation", type: "text", defaultValue: "" },
                         {
-                            label: "Type d'enseignement",
+                            label: "Relation", key: "relation", type: "text", defaultValue: "",
+                            placeholder: "Enter Relation",
+                        },
+                        {
+                            label: "Type of teaching",
                             key: "type_enseignement",
                             type: "select",
                             options: ["Presentiel", "En ligne", "Hybrid"],
                             required: true,
                         },
                         {
-                            label: "Volume Horaire Total",
+                            label: "Total Hours Volume",
                             key: "volume_horaire_total",
+                            placeholder: "Enter Total Hours Volume",
                             type: "number",
                             min: 1,
                             step: "1",
                             required: true,
                             pattern: /^[1-9][0-9]*$/,
-                            errorMessage: "Volume Horaire Total must be a valid integer without decimals.",
+                            errorMessage: "Total Hours Volume must be a valid integer without decimals.",
                         },
                         {
-                            label: "Crédit",
+                            label: "Credit",
                             key: "credit",
+                            placeholder: "Enter Credit",
                             type: "number",
                             min: 1,
                             step: "1",
                             required: true,
                             pattern: /^[1-9][0-9]*$/,
-                            errorMessage: "Crédit must be a valid integer without decimals.",
+                            errorMessage: "Credit must be a valid integer without decimals.",
                         },
-                    ].map(({ label, key, type, options, min, step, required, defaultValue, pattern, errorMessage }) => (
+                        {
+                            label: "Academic Year",
+                            key: "academicYear",
+                            type: "academicYear",
+                            // required: true,
+                            pattern: /^(19|20)\d{2}-(19|20)\d{2}$/,
+                            errorMessage: `Valid Format : AAAA-AAAA (ex: ${getCurrentAcademicYear()})`
+                        }
+                    ].map(({ label, key, type, options, min, step, required, defaultValue, pattern, placeholder, errorMessage }) => (
                         <div key={key} className="relative">
                             <label className="block text-gray-700 font-semibold">
                                 {label} {required && <span className="text-red-500">*</span>}
@@ -484,6 +559,7 @@ const SubjectForm = ({ initialData = null, onSubmit }) => {
                             ) : type === "email" ? (
                                 <input
                                     type="email"
+                                    placeholder={placeholder}
                                     name={key}
                                     value={formData.curriculum[key] || ""}
                                     onChange={(e) => handleChange(e, `curriculum.${key}`)}
@@ -498,18 +574,42 @@ const SubjectForm = ({ initialData = null, onSubmit }) => {
                                     className="mt-2 p-3 w-full border border-gray-300 rounded-md"
                                     min={min}
                                     step={step}
+                                    placeholder={placeholder}
                                     required={required}
                                 />
-                            ) : (
+                            ) : type === "academicYear" ?
                                 <input
                                     type="text"
                                     name={key}
                                     value={formData.curriculum[key] || defaultValue || ""}
-                                    onChange={(e) => handleChange(e, `curriculum.${key}`)}
+                                    onChange={(e) => {
+                                        const value = e.target.value;
+                                        if (/^[0-9-]*$/.test(value)) {
+                                            handleChange(e, `curriculum.${key}`);
+                                        }
+                                    }}
+                                    inputMode="numeric"
                                     className="mt-2 p-3 w-full border border-gray-300 rounded-md"
-                                    required={required}
+                                    placeholder={`ex: ${getCurrentAcademicYear()}`}
+                                    pattern="^(19|20)\d{2}-(19|20)\d{2}$"
+                                    // pattern={pattern}
+                                    title={`Valid Format : AAAA-AAAA (ex: ${getCurrentAcademicYear()})`}
+                                // required={required}
                                 />
-                            )}
+
+
+                                :
+                                (
+                                    <input
+                                        type="text"
+                                        name={key}
+                                        value={formData.curriculum[key] || defaultValue || ""}
+                                        onChange={(e) => handleChange(e, `curriculum.${key}`)}
+                                        className="mt-2 p-3 w-full border border-gray-300 rounded-md"
+                                        placeholder={placeholder}
+                                        required={required}
+                                    />
+                                )}
                             {errorMessages[key] && (
                                 <p className="text-red-500 text-sm mt-1">{errorMessages[key]}</p>
                             )}
@@ -522,7 +622,7 @@ const SubjectForm = ({ initialData = null, onSubmit }) => {
                     <label className="block text-gray-700 font-semibold">
                         Skills <span className="text-red-500">*</span>
                     </label>
-                    <MultiSelectDropdown
+                    {/* <MultiSelectDropdownOLD
                         options={competences}
                         selectedOptions={formData.skillsId}
                         setSelectedOptions={(selectedSkills) =>
@@ -543,7 +643,66 @@ const SubjectForm = ({ initialData = null, onSubmit }) => {
                         >
                             Load More
                         </button>
-                    )}
+                    )} */}
+
+                    <SearchDropdown
+                        fetchData={fetchCompetences}
+                        onSelectItem={handleSelectCompetence}
+                        preselectedItem={stablePreselectedCompetences} // Pass preselected competences
+                        itemLabel="title"
+                        itemValue="_id"
+                        showSelectedZone={false} // Disable internal selected items zone
+                        placeholder="Search for competences..."
+                        multiple={true} // Enable multiple selections
+                    >
+                        {/* Custom Children: External Selected Items Zone */}
+                        <div className="mt-4 p-2 bg-blue-50 border border-blue-300 rounded-md flex flex-wrap gap-2">
+                            {formData.skillsId.length > 0 ? (
+                                formData.skillsId.map((itemId) => {
+                                    const item =
+                                        competences.find((c) => c._id === itemId) ||
+                                        stablePreselectedCompetences.find((c) => c._id === itemId);
+                                    if (!item) return null; // Skip rendering if item is not found
+                                    return (
+                                        <div key={itemId} className="flex items-center space-x-2 bg-blue-100 p-1 rounded-md">
+                                            <span>{item.title}</span>
+                                            <button
+                                                onClick={(e) => {
+                                                    e.preventDefault(); // Prevent form submission
+                                                    const updatedSkills = formData.skillsId.filter((_id) => _id !== itemId);
+                                                    setFormData((prev) => ({
+                                                        ...prev,
+                                                        skillsId: updatedSkills,
+                                                    }));
+                                                    handleSelectCompetence(updatedSkills); // Notify parent of updated selection
+                                                }}
+                                                className="text-red-500 hover:text-red-700"
+                                            >
+                                                <FaTimesCircle size={16} />
+                                            </button>
+                                        </div>
+                                    );
+                                })
+                            ) : (
+                                <p className="text-gray-500">No competences selected.</p>
+                            )}
+                            {formData.skillsId.length > 0 && (
+                                <button
+                                    onClick={(e) => {
+                                        e.preventDefault(); // Prevent form submission
+                                        setFormData((prev) => ({
+                                            ...prev,
+                                            skillsId: [],
+                                        }));
+                                        handleSelectCompetence([]); // Notify parent of cleared selection
+                                    }}
+                                    className="text-red-500 hover:text-red-700 mt-2"
+                                >
+                                    Clear All
+                                </button>
+                            )}
+                        </div>
+                    </SearchDropdown>
                     {errorMessages.skillsId && (
                         <p className="text-red-500 text-sm mt-1">{errorMessages.skillsId}</p>
                     )}
@@ -555,10 +714,23 @@ const SubjectForm = ({ initialData = null, onSubmit }) => {
                         Teacher <span className="text-blue-500">(Optional)</span>
                     </label>
                     {/* <TeacherSearchDropdown onSelectTeacher={handleSelectTeacher} /> */}
-                    <TeacherSearchDropdown
+                    {/* <TeacherSearchDropdown
                         onSelectTeacher={handleSelectTeacher}
                         preselectedTeacher={selectedTeacher} // Pass the full teacher object
+                    /> */}
+
+                    <SearchDropdown
+                        fetchData={fetchTeachers}
+                        onSelectItem={handleSelectTeacher}
+                        preselectedItem={selectedTeacher}
+                        itemLabel={selectedTeacher?.firstName ? "firstName" : selectedTeacher?.lastName ? "lastName" : "_id"}
+                        selectedItem={`${selectedTeacher?.firstName && selectedTeacher?.lastName ?
+                            `${selectedTeacher.firstName} ${selectedTeacher.lastName}` :
+                            selectedTeacher?.firstName || selectedTeacher?.lastName || ''}`.trim()}
+                        itemValue="_id"
+                        placeholder="Search for a teacher..."
                     />
+
                 </div>
 
                 {/* Prerequisites */}

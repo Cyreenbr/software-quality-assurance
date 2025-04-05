@@ -23,6 +23,7 @@ function App() {
             path,
             component: Component,
             eligibleRoles,
+            eligibleLevels,
             hideHeader,
             hideSideBar,
           }) => {
@@ -37,6 +38,7 @@ function App() {
                   <ProtectedRoute
                     element={withLayout(Component, hideSideBar, hideHeader)}
                     roles={eligibleRoles}
+                    levels={eligibleLevels}
                   />
                 }
               />

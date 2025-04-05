@@ -277,8 +277,7 @@ export default function StudentList({ onAddClick }) {
       month: "short",
       day: "numeric",
     });
-  };
-  const handleDeleteClick = async (student) => {
+  };const handleDeleteClick = async (student) => {
     setStudentToDelete(student);
     setIsDeleting(true);
     
