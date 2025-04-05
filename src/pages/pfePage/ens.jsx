@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { getPfeList, choosePfe } from "../../services/pfeService/pfeService";
+import { getPfeList, choosePfe } from "../../services/pfeService/pfe.service";
 
 const TeacherPFEList = () => {
   const [pfeList, setPfeList] = useState([]);
