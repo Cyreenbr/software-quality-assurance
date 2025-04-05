@@ -3,6 +3,7 @@ const RoleEnum = {
   TEACHER: "teacher",
   STUDENT: "student",
   ISPFE: "3year",
+  ISPFA: "2year",
 };
 
 export { RoleEnum };
