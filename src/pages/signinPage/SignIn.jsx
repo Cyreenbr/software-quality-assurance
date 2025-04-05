@@ -39,6 +39,7 @@ const SignIn = () => {
       ...formData,
       [name]: value,
     });
+    setFormErrors(false);
   };
 
   const handleClickShowPassword = () => setShowPassword((show) => !show);
