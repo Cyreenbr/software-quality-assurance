@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { FaCheckCircle, FaEnvelope, FaExclamationCircle, FaEye, FaEyeSlash, FaInfoCircle, FaPencilAlt, FaPlus, FaSync } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
-import { internshipService, teacherService } from "../../services/internshipServices/AssignInternshipsServices";
+import { internshipService, teacherService } from "../../services/internshipServices/AssignInternships.service";
 
 const AssignInternships = () => {
   const [teachers, setTeachers] = useState([]);
