@@ -71,7 +71,7 @@ const PeriodForm = ({ newPeriod, setNewPeriod, onSave, onCancel, editing }) => {
                 <option value="periode_depot_stage">Internship</option>
                 <option value="periode_choix_option">Option</option>
                 <option value="periode_depot_pfa">depot PFA</option>
-                <option value="periode_choix_pfa">Choix PFA</option>
+                <option value="periode_choix_pfe">Choix PFE</option>
 
               </select>
             </div>
