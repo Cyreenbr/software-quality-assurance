@@ -1,10 +1,12 @@
 import React, { useState } from "react";
 import backgroundImage from "/src/assets/ISAMMBackground.jpg";
 import { Link } from "react-router-dom";
+import { useSelector } from "react-redux";
 export default function Home() {
   const [showLoginForm, setShowLoginForm] = useState(false);
   const [activeTab, setActiveTab] = useState("documents");
   const [expandedFeature, setExpandedFeature] = useState(null);
+  const token = useSelector((state) => state.auth.token);
 
   const toggleFeature = (feature) => {
     setExpandedFeature(expandedFeature === feature ? null : feature);
@@ -15,11 +17,9 @@ export default function Home() {
       <div
         className="fixed inset-0 z-0 bg-cover bg-center bg-no-repeat"
         style={{ backgroundImage: `url(${backgroundImage})` }}
-      >
-      </div>
+      ></div>
 
       <div className="relative z-10">
-       
         {/* Hero Section */}
         <section className="pt-32 pb-20 px-4 text-center">
           <div className="max-w-4xl mx-auto">
@@ -56,11 +56,13 @@ export default function Home() {
                   graduates' profiles. ISAMM is part of the International
                   University Network for Digital Creation (RUN).
                 </p>
-                <Link to="/signin">
-                  <button className="text-gray-600 hover:text-indigo-600 p-2 rounded-full bg-gray-100 transition-all">
-                    Sign In
-                  </button>
-                </Link>
+                {!token && (
+                  <Link to="/signin">
+                    <button className="text-gray-600 hover:text-indigo-600 p-2 rounded-full bg-gray-100 transition-all">
+                      Sign In
+                    </button>
+                  </Link>
+                )}
               </div>
               <div className="aspect-video w-full h-full">
                 <iframe
