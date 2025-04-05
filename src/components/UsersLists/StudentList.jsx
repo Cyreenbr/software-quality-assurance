@@ -9,7 +9,7 @@ import { FaTrashAlt, FaEdit } from "react-icons/fa";
 import { CgEyeAlt } from "react-icons/cg";
 import { RiLockPasswordFill } from "react-icons/ri";
 import { FaPlus } from "react-icons/fa";
-
+import Swal from "sweetalert2";
 export default function StudentList({ onAddClick }) {
   const [studentsList, setStudentsList] = useState([]);
   const [filteredStudents, setFilteredStudents] = useState([]);
@@ -23,8 +23,6 @@ export default function StudentList({ onAddClick }) {
   const [studentToDelete, setStudentToDelete] = useState(null);
   const [deleteDetails, setDeleteDetails] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
-  
-  // Toast state
   const [toast, setToast] = useState({
     show: false,
     message: "",
@@ -57,7 +55,7 @@ export default function StudentList({ onAddClick }) {
   useEffect(() => {
     setFilteredStudents(studentsList);
   }, [studentsList]);
-  
+
   // Toast function
   const showToast = (message, type = "success") => {
     setToast({
@@ -65,13 +63,12 @@ export default function StudentList({ onAddClick }) {
       message,
       type,
     });
-    
-    // Auto-hide toast after 3 seconds
+
     setTimeout(() => {
       setToast((prev) => ({ ...prev, show: false }));
     }, 3000);
   };
-  
+
   const fetchStudents = async () => {
     try {
       const response = await getStudents();
@@ -80,41 +77,57 @@ export default function StudentList({ onAddClick }) {
       }
     } catch (error) {
       console.error("Error fetching students:", error);
-      showToast("Impossible de récupérer la liste des étudiants", "error");
+      Swal.fire({
+        title: "Error",
+        text: "Error getting students!",
+        icon: "error",
+      });
     }
   };
-  
   const EditPassword = async (passwordData) => {
     try {
       if (!selectedStudent || !selectedStudent._id) {
         console.error("No selected student found.");
-        showToast("Aucun étudiant sélectionné", "error");
+        showToast("You should select a student!", "error");
         return;
       }
       const response = await editPassword(selectedStudent._id, passwordData);
       console.log("Password updated successfully:", response);
+      Swal.fire({
+        title: "Success",
+        text: "Password updated successfully!",
+        icon: "success",
+      });
       closePasswordDialog();
-      // Afficher un message de succès
-      showToast("Mot de passe mis à jour avec succès", "success");
     } catch (error) {
       console.error("Error updating password:", error);
-      
-      // Afficher le message d'erreur précis du serveur
       if (error.response && error.response.data) {
-        showToast(`Erreur: ${error.response.data.message || "Une erreur est survenue"}`, "error");
         console.error("Détails:", error.response.data);
+        Swal.fire({
+          title: "Error",
+          text: "Check the Old Password please and try again.",
+          icon: "error",
+        });
       } else {
-        showToast("Une erreur est survenue lors de la mise à jour du mot de passe", "error");
+        Swal.fire({
+          title: "Error",
+          text: "Error updating password. Please try again.",
+          icon: "error",
+        });
       }
     }
   };
-  
+
   const watch = async (studentId) => {
     try {
       const student = studentsList.find((student) => student._id === studentId);
       if (!student) {
         console.error("Student not found");
-        showToast("Étudiant non trouvé", "error");
+        Swal.fire({
+          title: "Error",
+          text: "Student not found. Please try again.",
+          icon: "error",
+        });
         return;
       }
 
@@ -136,16 +149,25 @@ export default function StudentList({ onAddClick }) {
       setIsDialogOpen(true);
     } catch (error) {
       console.error("Error fetching student:", error);
-      showToast("Erreur lors de la récupération des données de l'étudiant", "error");
+      //showToast("Error fetching student", "error");
+      Swal.fire({
+        title: "Error",
+        text: "Error fetching student. Please try again.",
+        icon: "error",
+      });
     }
   };
-  
+
   const edit = async (studentId) => {
     try {
       const student = studentsList.find((student) => student._id === studentId);
       if (!student) {
         console.error("Student not found");
-        showToast("Étudiant non trouvé", "error");
+        Swal.fire({
+          title: "Error",
+          text: "Student not foundd. Please try again.",
+          icon: "error",
+        });
         return;
       }
       setSelectedStudent(student);
@@ -166,19 +188,23 @@ export default function StudentList({ onAddClick }) {
       setIsDialogOpen(true);
     } catch (error) {
       console.error("Error fetching student:", error);
-      showToast("Erreur lors de la récupération des données de l'étudiant", "error");
+      Swal.fire({
+        title: "Error",
+        text: "Error fetching student. Please try again.",
+        icon: "error",
+      });
     }
   };
-  
+
   const handleChange = (e) => {
     setEditedData({ ...editedData, [e.target.name]: e.target.value });
   };
-  
+
   const handleSubmitEdit = async (e) => {
     e.preventDefault();
     if (!selectedStudent || !selectedStudent._id) {
       console.error("No student selected or missing ID");
-      showToast("Aucun étudiant sélectionné ou identifiant manquant", "error");
+      showToast("No student selected or missing ID", "error");
       return;
     }
     try {
@@ -191,17 +217,23 @@ export default function StudentList({ onAddClick }) {
         )
       );
       closeDialog();
-      showToast("Informations de l'étudiant mises à jour avec succès", "success");
+      Swal.fire({
+        title: "Success",
+        text: "Student informations updated successfully!",
+        icon: "success",
+      });
     } catch (error) {
       console.error("Error updating student:", error);
-      showToast("Erreur lors de la mise à jour de l'étudiant", "error");
+      Swal.fire({
+        title: "Error",
+        text: "Error updating student. Please verify the informations.",
+        icon: "error",
+      });
     }
   };
-  
   const handlePasswordChange = (e) => {
     setEditedPassword({ ...editedPassword, [e.target.name]: e.target.value });
   };
-  
   const handleLevelFilter = (e) => {
     const level = e.target.value;
     setSelectedLevel(level);
@@ -209,7 +241,7 @@ export default function StudentList({ onAddClick }) {
       level ? studentsList.filter((s) => s.level === level) : studentsList
     );
   };
-  
+
   const closeDialog = () => {
     setIsDialogOpen(false);
     setSelectedStudent(null);
@@ -228,7 +260,7 @@ export default function StudentList({ onAddClick }) {
       lastNameArabic: "",
     });
   };
-  
+
   const closePasswordDialog = () => {
     setIsPasswordDialogOpen(false);
     setEditedPassword({
@@ -237,7 +269,7 @@ export default function StudentList({ onAddClick }) {
       confirmationPassword: "",
     });
   };
-  
+
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString("en-US", {
       weekday: "short",
@@ -287,7 +319,7 @@ export default function StudentList({ onAddClick }) {
     setStudentsList(prev => prev.filter(s => s._id !== studentId));
     setFilteredStudents(prev => prev.filter(s => s._id !== studentId));
   };
-  const handleForceDelete = async () => {
+ const handleForceDelete = async () => {
     if (!studentToDelete) return;
     
     setIsDeleting(true);
@@ -324,29 +356,33 @@ export default function StudentList({ onAddClick }) {
   };
   const handleSubmitPassword = (e) => {
     e.preventDefault();
-    
     // Vérification côté client
     if (editedPassword.newPassword !== editedPassword.confirmationPassword) {
-      showToast("Le nouveau mot de passe et la confirmation ne correspondent pas !", "error");
+      showToast("The new password and confirmation doesn't match !", "error");
       return;
     }
-    
-    // Vérification de la validité du mot de passe (si vous avez des critères similaires à votre backend)
-    if (editedPassword.newPassword.length < 8) { // exemple de critère
-      showToast("Le mot de passe doit contenir au moins 8 caractères.", "error");
+    if (
+      editedPassword.newPassword.length < 8 ||
+      !/[A-Z]/.test(editedPassword.newPassword)
+    ) {
+      showToast(
+        "Password should have at least 8 characters and contain at least one uppercase letter!",
+        "error"
+      );
       return;
     }
-    
+
     EditPassword({
       oldPassword: editedPassword.oldPassword,
       newPassword: editedPassword.newPassword,
-      confirmationPassword: editedPassword.confirmationPassword
+      confirmationPassword: editedPassword.confirmationPassword,
     });
   };
 
   return (
     <div className="p-6 bg-gray-100 min-h-screen relative">
       <h1 className="text-2xl font-bold mb-4">Manage Students</h1>
+
 
         {/* Toast Notification */}
         {toast.show && (
@@ -356,6 +392,7 @@ export default function StudentList({ onAddClick }) {
           toast.type === "warning" ? "bg-yellow-500 text-white" :
           "bg-blue-500 text-white"
         }`}>
+
           <p>{toast.message}</p>
           <button
             onClick={() => setToast((prev) => ({ ...prev, show: false }))}
@@ -534,7 +571,7 @@ export default function StudentList({ onAddClick }) {
                 <div className="flex flex-col gap-4 p-6">
                   <div className="w-full max-w-sm min-w-[200px]">
                     <label className="block mb-2 text-sm text-slate-600">
-                      Current Password
+                      Old Password
                     </label>
                     <input
                       type="password"

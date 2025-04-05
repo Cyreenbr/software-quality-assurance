@@ -1,3 +1,5 @@
+import { useState } from "react";
+
 export default function AddPfaPopUp({
   isEditing,
   editedData,
@@ -14,128 +16,161 @@ export default function AddPfaPopUp({
   setIsDialogOpen,
   handleSubmitEdit
 }) {
+  const [errorMessage, setErrorMessage] = useState("");
+
+  // Fonction de validation pour la création
+  const validateFields = () => {
+    if (
+      !newPfa.projectTitle.trim() ||
+      !newPfa.description.trim() ||
+      !newPfa.technologies.trim() ||
+      !studentOne.trim() ||
+      (projectType === "binome" && !studentTwo.trim())
+    ) {
+      return false;
+    }
+    return true;
+  };
+
+  const handleButtonClick = (e) => {
+    e.preventDefault();
+    if (!isEditing) {
+      if (!validateFields()) {
+        setErrorMessage("Please fill in all required fields");
+        // Effacer le message après 3 secondes
+        setTimeout(() => setErrorMessage(""), 3000);
+        return;
+      }
+      handleSubmitCreate(e);
+    } else {
+      handleSubmitEdit(e);
+    }
+  };
+
   return (
-    <div className="pointer-events-auto fixed inset-0 z-[999] grid h-screen w-screen place-items-center bg-transparent backdrop-blur-sm transition-opacity duration-500 opacity-100">
-      <div className="relative mx-auto w-full max-w-[24rem] rounded-lg overflow-hidden shadow-sm">
-        <div className="relative flex flex-col bg-white">
-          <div className="relative m-2 items-center flex justify-center text-white h-12 rounded-md bg-indigo-600 px-4">
-            <h3 className="text-lg font-semibold">
-              {isEditing ? "Update PFA" : "Create PFA"}
-            </h3>
+    <div className="fixed inset-0 mt-20 z-20 bg-transparent bg-opacity-30 backdrop-blur-md flex justify-center items-center">
+      <div className="bg-white rounded-xl shadow-xl w-full max-w-xl p-6 space-y-6">
+        <h3 className="text-3xl font-semibold text-center text-white bg-gradient-to-r from-indigo-600 to-purple-300 py-4 rounded-t-xl shadow-md">
+          {isEditing ? "Update PFA" : "Create PFA"}
+        </h3>
+
+        {/* Popup d'erreur */}
+        {errorMessage && (
+          <div className="bg-red-100 border border-red-300 text-red-700 text-sm rounded-md px-4 py-2 text-center">
+            {errorMessage}
+          </div>
+        )}
+
+        <div className="space-y-4 px-2 sm:px-4">
+          {/* Title */}
+          <div>
+            <label className="block text-sm text-gray-700 mb-1">
+              Title of The Project
+            </label>
+            <input
+              type="text"
+              name="projectTitle"
+              value={isEditing ? editedData.projectTitle : newPfa.projectTitle}
+              onChange={isEditing ? handleChange : handleCreateChange}
+              placeholder="Enter project title"
+              className="w-full rounded-md border border-gray-300 px-4 py-2 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-indigo-300 shadow-sm"
+              required
+            />
           </div>
 
-          <div className="flex flex-col gap-4 p-6">
-            <div className="w-full max-w-sm min-w-[200px]">
-              <label className="block mb-2 text-sm text-slate-600">
-                Title of The Project
-              </label>
-              <input
-                type="text"
-                name="projectTitle"
-                value={
-                  isEditing ? editedData.projectTitle : newPfa.projectTitle
-                }
-                onChange={isEditing ? handleChange : handleCreateChange}
-                className="w-full bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded-md px-3 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-300 shadow-sm focus:shadow"
-                placeholder="Title of the project"
-                required
-              />
-            </div>
+          {/* Description */}
+          <div>
+            <label className="block text-sm text-gray-700 mb-1">
+              Description
+            </label>
+            <textarea
+              name="description"
+              value={isEditing ? editedData.description : newPfa.description}
+              onChange={isEditing ? handleChange : handleCreateChange}
+              placeholder="Project description"
+              className="w-full rounded-md border border-gray-300 px-4 py-2 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-indigo-300 shadow-sm"
+              required
+            />
+          </div>
 
-            <div className="w-full max-w-sm min-w-[200px]">
-              <label className="block mb-2 text-sm text-slate-600">
-                Description
-              </label>
-              <textarea
-                name="description"
-                value={isEditing ? editedData.description : newPfa.description}
-                onChange={isEditing ? handleChange : handleCreateChange}
-                className="w-full bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded-md px-3 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-300 shadow-sm focus:shadow"
-                placeholder="Description of the project"
-                required
-              />
-            </div>
+          {/* Technologies */}
+          <div>
+            <label className="block text-sm text-gray-700 mb-1">
+              Technologies
+            </label>
+            <input
+              type="text"
+              name="technologies"
+              value={isEditing ? editedData.technologies : newPfa.technologies}
+              onChange={isEditing ? handleChange : handleCreateChange}
+              placeholder="e.g., React, Node.js"
+              className="w-full rounded-md border border-gray-300 px-4 py-2 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-indigo-300 shadow-sm"
+              required
+            />
+          </div>
 
-            <div className="w-full max-w-sm min-w-[200px]">
-              <label className="block mb-2 text-sm text-slate-600">
-                Technologies
-              </label>
-              <input
-                type="text"
-                name="technologies"
-                value={
-                  isEditing ? editedData.technologies : newPfa.technologies
-                }
-                onChange={isEditing ? handleChange : handleCreateChange}
-                className="w-full bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded-md px-3 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-300 shadow-sm focus:shadow"
-                placeholder="Technologies"
-                required
-              />
-            </div>
-
-            <div className="w-full max-w-sm min-w-[200px]">
-              <label className="block mb-2 text-sm text-slate-600">
-                Project Type
-              </label>
-              <div className="flex gap-4">
-                <label className="flex items-center gap-2">
-                  <input
-                    type="radio"
-                    name="projectType"
-                    value="monome"
-                    checked={projectType === "monome"}
-                    onChange={() => setProjectType("monome")}
-                  />
-                  Monome
-                </label>
-                <label className="flex items-center gap-2">
-                  <input
-                    type="radio"
-                    name="projectType"
-                    value="binome"
-                    checked={projectType === "binome"}
-                    onChange={() => setProjectType("binome")}
-                  />
-                  Binome
-                </label>
-              </div>
-              <input
-                type="text"
-                placeholder="Enter Student One Name"
-                value={studentOne}
-                onChange={(e) => setStudentOne(e.target.value)}
-                className="w-full mt-2 bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded-md px-3 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-300 shadow-sm focus:shadow"
-                required
-              />
-              {projectType === "binome" && (
+          {/* Project Type & Students */}
+          <div>
+            <label className="block text-sm text-gray-700 mb-2">
+              Project Type
+            </label>
+            <div className="flex gap-4 mb-2">
+              <label className="flex items-center gap-2 text-sm">
                 <input
-                  type="text"
-                  placeholder="Enter Student Two Name"
-                  value={studentTwo}
-                  onChange={(e) => setStudentTwo(e.target.value)}
-                  className="w-full mt-2 bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded-md px-3 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-300 shadow-sm focus:shadow"
-                  required
+                  type="radio"
+                  name="projectType"
+                  value="monome"
+                  checked={projectType === "monome"}
+                  onChange={() => setProjectType("monome")}
                 />
-              )}
+                Monome
+              </label>
+              <label className="flex items-center gap-2 text-sm">
+                <input
+                  type="radio"
+                  name="projectType"
+                  value="binome"
+                  checked={projectType === "binome"}
+                  onChange={() => setProjectType("binome")}
+                />
+                Binome
+              </label>
             </div>
+            <input
+              type="text"
+              placeholder="Enter Student One Name"
+              value={studentOne}
+              onChange={(e) => setStudentOne(e.target.value)}
+              className="w-full rounded-md border border-gray-300 px-4 py-2 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-indigo-300 shadow-sm"
+              required
+            />
+            {projectType === "binome" && (
+              <input
+                type="text"
+                placeholder="Enter Student Two Name"
+                value={studentTwo}
+                onChange={(e) => setStudentTwo(e.target.value)}
+                className="w-full mt-2 rounded-md border border-gray-300 px-4 py-2 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-indigo-300 shadow-sm"
+                required
+              />
+            )}
           </div>
+        </div>
 
-          <div className="p-6 pt-0 flex justify-between">
-            <button
-              className="rounded-md bg-indigo-600 py-2 px-4 border border-transparent text-center text-sm text-white transition-all shadow-md hover:shadow-lg focus:bg-indigo-500 focus:shadow-none active:bg-indigo-500 hover:bg-indigo-500 active:shadow-none"
-              type="button"
-              onClick={isEditing ? handleSubmitEdit : handleSubmitCreate}
-            >
-              {isEditing ? "Save" : "Create"}
-            </button>
-            <button
-              className="rounded-md bg-gray-400 py-2 px-4 text-sm text-white"
-              type="button"
-              onClick={() => setIsDialogOpen(false)}
-            >
-              Cancel
-            </button>
-          </div>
+        {/* Buttons */}
+        <div className="flex justify-end space-x-4 pt-4">
+          <button
+            onClick={() => setIsDialogOpen(false)}
+            className="bg-gray-400 text-white px-4 py-2 rounded-full hover:bg-gray-500 transition-all duration-200 shadow"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={handleButtonClick}
+            className="bg-indigo-600 text-white px-5 py-2 rounded-full hover:bg-indigo-700 transition-all duration-200 shadow"
+          >
+            {isEditing ? "Save" : "Create"}
+          </button>
         </div>
       </div>
     </div>

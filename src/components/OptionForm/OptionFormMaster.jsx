@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { chooseOption } from "../../services/OptionServices/option.service";
 import { toast } from "react-toastify";
+import Swal from "sweetalert2";
 export default function OptionFormMaster() {
   const [firstchoice, setFirstChoice] = useState("INLOG");
   const [loading, setLoading] = useState(false);
@@ -15,9 +16,18 @@ export default function OptionFormMaster() {
     try {
       const response = await chooseOption({ firstchoice });
       console.log("Option choice sent:", response);
-      toast.success("Option chosen successfully!");
+      Swal.fire({
+        title: "Success",
+        text: "Option chosen successfully!",
+        icon: "success",
+      });
     } catch (error) {
       console.error("Error sending option choice:", error);
+      Swal.fire({
+        title: "Error",
+        text: "Error sending option choice. Please try again.",
+        icon: "error",
+      });
       if (error.response?.status === 500) {
         toast.error("You already did chose your option.");
       } else {
@@ -40,7 +50,7 @@ export default function OptionFormMaster() {
               htmlFor="firstChoice"
               className="block text-sm font-medium text-gray-700"
             >
-              First Choice
+              Your First Choice
             </label>
             <select
               id="firstChoice"
