@@ -32,12 +32,18 @@ export const createPFE = async (formData) => {
 // 🟢 Function to update a PFE
 export const updatePFE = async (id, formData) => {
   try {
+    console.log("📦 FormData before sending:");
+    for (let [key, value] of formData.entries()) {
+      console.log(`${key}:`, value);
+    }
+
     const response = await axios.patch(`${API_URL}/${id}`, formData, {
       headers: {
         ...authHeader,
         "Content-Type": "multipart/form-data",
       },
     });
+
     console.log("✅ PFE updated successfully:", response.data);
     return response.data;
   } catch (error) {

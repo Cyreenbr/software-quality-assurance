@@ -1,8 +1,7 @@
 const RoleEnum = {
-    ADMIN: 'admin',
-    TEACHER: 'teacher',
-    STUDENT: 'student',
+  ADMIN: "admin",
+  TEACHER: "teacher",
+  STUDENT: "student",
 };
 
 export { RoleEnum };
-

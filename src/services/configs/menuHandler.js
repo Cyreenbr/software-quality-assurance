@@ -42,6 +42,7 @@ import TeachersManagPage from "../../pages/UsersManagementPage/TeachersManagPage
 import { RoleEnum } from "../../utils/userRoles";
 import TeacherPFEList from "../../pages/pfePage/ens";
 
+const user = JSON.parse(localStorage.getItem("user"));
 export const menuConfig = [
   {
     order: 1,
