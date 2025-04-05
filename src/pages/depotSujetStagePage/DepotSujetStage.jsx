@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { createInternship } from "../../services/internshipServices/DepositInternshipService";
+import { createInternship } from "../../services/internshipServices/DepositInternship.service";
 
 const DepotSujet = () => {
   const [formData, setFormData] = useState({
@@ -18,7 +18,19 @@ const DepotSujet = () => {
   };
 
   const handleFileChange = (e) => {
-    setFormData({ ...formData, documents: e.target.files });
+    const newFiles = Array.from(e.target.files);
+    setFormData((prevFormData) => ({
+      ...prevFormData,
+      documents: [...prevFormData.documents, ...newFiles],
+    }));
+  };
+
+  // New function to handle file removal
+  const handleRemoveFile = (index) => {
+    setFormData((prevFormData) => ({
+      ...prevFormData,
+      documents: prevFormData.documents.filter((_, i) => i !== index),
+    }));
   };
 
   const handleSubmit = async (e) => {
@@ -117,12 +129,29 @@ const DepotSujet = () => {
                 multiple
                 onChange={handleFileChange}
                 className="hidden"
-                required
               />
             </label>
           </div>
+          
+          {/* Display selected files with remove button */}
           {formData.documents.length > 0 && (
-            <p className="text-gray-600 mt-2">{formData.documents.length} file(s) selected</p>
+            <ul className="mt-2">
+              {formData.documents.map((doc, index) => (
+                <li
+                  key={index}
+                  className="flex items-center justify-between bg-gray-100 p-2 rounded-lg mt-2"
+                >
+                  <span>{doc.name}</span>
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveFile(index)}
+                    className="text-red-600 hover:text-red-800"
+                  >
+                    Remove
+                  </button>
+                </li>
+              ))}
+            </ul>
           )}
         </div>
         <button

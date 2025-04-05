@@ -341,6 +341,7 @@ export const getMenuItems = (role, level = null) => {
       const hasEligibleLevels = item.eligibleLevels?.length > 0;
 
       // Handle role eligibility
+
       const roleEligible =
         !hasEligibleRoles || item.eligibleRoles.includes(role);
 

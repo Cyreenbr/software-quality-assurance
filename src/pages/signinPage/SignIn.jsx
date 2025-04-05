@@ -1,10 +1,10 @@
 import React, { useState } from "react";
+import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { ClipLoader } from "react-spinners";
 import Swal from "sweetalert2";
-import { useDispatch } from "react-redux";
-import backgroundImage from "/src/assets/ISAMMBackground.jpg";
 import { loginUser } from "../../redux/authSlice";
+import backgroundImage from "/src/assets/ISAMMBackground.jpg";
 
 const SignIn = () => {
   const [formData, setFormData] = useState({
@@ -61,6 +61,7 @@ const SignIn = () => {
         if (result.meta.requestStatus === "fulfilled") {
           // login with success
           navigate("/");
+          // window.location.reload();
         } else if (result.payload) {
           //error message from payload
           const errorMessage =

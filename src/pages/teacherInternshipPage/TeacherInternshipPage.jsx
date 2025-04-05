@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { FaSearch } from "react-icons/fa";
 import TeacherInternshipCard from "../../components/internshipComponents/TeacherInternshipCard";
-import { teacherinternshipService } from "../../services/internshipServices/TeacherInternshipServices";
+import { teacherinternshipService } from "../../services/internshipServices/TeacherInternship.service";
 
 const TeacherInternshipList = () => {
   const [internships, setInternships] = useState([]);
@@ -25,7 +25,7 @@ const TeacherInternshipList = () => {
     setSearchTerm(value); //what the user gonna search
 
     const filtered = internships.filter((internship) =>
-      internship.studentId.name.toLowerCase().includes(value.toLowerCase())
+      internship.studentId?.name?.toLowerCase().includes(value.toLowerCase())
     );
     setFilteredInternships(filtered);
   };
