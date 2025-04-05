@@ -107,6 +107,7 @@ const AdminPfeManagement = () => {
               <th className="py-3 px-6">Student</th>
               <th className="py-3 px-6">Project</th>
               <th className="py-3 px-6">Status</th>
+              <th className="py-3 px-6">Supervisor</th>
               <th className="py-3 px-6">Actions</th>
             </tr>
           </thead>
@@ -119,6 +120,21 @@ const AdminPfeManagement = () => {
                 </td>
                 <td className="py-3 px-6">{choice.title || "No Title"}</td>
                 <td className="py-3 px-6 font-semibold">{choice.status}</td>
+                <td className="py-3 px-6">
+                  <button
+                    onClick={() => {
+                      setSelectedPfe(choice);
+                      setShowTeacherModal(true);
+                    }}
+                    className="bg-blue-500 text-white p-2 rounded-full hover:bg-blue-600"
+                    disabled={loadingId === choice._id}
+                  >
+                    <FaUserPlus />
+                  </button>
+                  {choice.IsammSupervisor
+                    ? `${choice.IsammSupervisor.firstName} `
+                    : "No Supervisor"}
+                </td>
                 <td className="py-3 px-6 flex space-x-2">
                   <button
                     onClick={() => handleApproveOrReject(choice._id, "approve")}
@@ -133,16 +149,6 @@ const AdminPfeManagement = () => {
                     disabled={loadingId === choice._id}
                   >
                     {loadingId === choice._id ? "..." : <FaTimes />}
-                  </button>
-                  <button
-                    onClick={() => {
-                      setSelectedPfe(choice);
-                      setShowTeacherModal(true);
-                    }}
-                    className="bg-blue-500 text-white p-2 rounded-full hover:bg-blue-600"
-                    disabled={loadingId === choice._id}
-                  >
-                    <FaUserPlus />
                   </button>
                 </td>
               </tr>
