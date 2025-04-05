@@ -7,4 +7,3 @@ const RoleEnum = {
 };
 
 export { RoleEnum };
-
