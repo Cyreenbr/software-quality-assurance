@@ -1,4 +1,4 @@
-import { FaEdit, FaTrashAlt, FaPlus } from "react-icons/fa";
+import { FaEdit, FaTrashAlt, FaPlus, FaSearch, FaClock } from "react-icons/fa";
 import { useEffect, useState } from "react";
 import pfaService from "../../services/PfaServices/pfaService";
 import { FaCheckCircle, FaTimesCircle, FaPaperPlane } from "react-icons/fa";
@@ -99,6 +99,7 @@ const StudentPfaComponent = () => {
 
     return false;
   };
+  const [acceptedTeacher, setAcceptedTeacher] = useState(false);
 
   const acceptTeacher = async (pfaId, acceptTeacher) => {
     const response = await pfaService.acceptTeacher(pfaId, acceptTeacher);
@@ -106,138 +107,202 @@ const StudentPfaComponent = () => {
     console.log(response);
   };
 
-  return (
-    <div className="p-6 bg-gray-100 min-h-screen relative">
-      <h1 className="text-2xl font-bold mb-4">Manage PFAs</h1>
+  const [searchTerm, setSearchTerm] = useState("");
 
-      <div className="bg-white p-6 rounded-lg shadow-lg mb-6">
-        <h2 className="text-xl font-semibold mb-4 flex items-center">
-          <FaTag className="text-blue-500 mr-2" size={18} /> List of PFAs
-        </h2>
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-100">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase">
-                  Title
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase">
-                  Description
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase">
-                  Technologies
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase">
-                  Priority
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {pfaList.map((pfa) => (
-                <tr
-                  key={pfa._id}
-                  className="hover:bg-gray-50 transition-colors"
-                >
-                  <td className="px-6 py-4 text-left font-medium text-gray-900">
-                    {pfa.projectTitle}
-                  </td>
-                  <td className="px-6 py-4 text-left text-gray-900">
-                    {pfa.description}
-                  </td>
-                  <td className="px-6 py-4 text-left text-gray-500">
-                    {pfa.technologies.slice(0, 3).join(", ")}
-                    {pfa.technologies.length > 3 && " ..."}
-                  </td>
-                  <td className="px-6 py-4 text-center flex  gap-2 justify-center items-center">
-                    <button
-                      onClick={() => openPopup(pfa)}
-                      className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700"
-                    >
-                      Set Priority
-                    </button>
-                    {checkUserInPfa(
-                      pfa,
-                      JSON.parse(localStorage.getItem("user")).id
-                    ) && (
-                      <div className=" w-3 aspect-square rounded-full bg-yellow-400 "></div>
-                    )}
-                    {checkAccepted(
-                      pfa,
-                      JSON.parse(localStorage.getItem("user")).id
-                    ) && (
-                      <button onClick={() => acceptTeacher(pfa._id, true)}>
-                        <FaCheckCircle className=" w-10 text-green-700 " />
-                      </button>
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+  const filteredPfas = pfaList.filter((pfa) => {
+    return (
+      pfa.projectTitle.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      pfa.description.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  });
+
+  return (
+    <div className="p-6 bg-gray-100 min-h-screen">
+      {/* Search Bar */}
+      <div className="flex justify-end mb-4">
+        <div className="relative w-full sm:w-auto md:w-80">
+          <input
+            type="text"
+            placeholder="Search by title or description"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full p-3 pl-10 pr-4 rounded-lg border border-gray-300 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          />
+          <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
+            <FaSearch size={20} />
+          </div>
         </div>
       </div>
 
-      {selectedPfa && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
-          <div className="bg-white p-6 rounded-lg shadow-lg w-96">
-            <h3 className="text-xl font-semibold mb-4 text-center">
-              Set Priority for {selectedPfa.projectTitle}
-            </h3>
-            <label className="block mb-2">Priority:</label>
-            <select
-              value={selectedPriorities[selectedPfa._id] || ""}
-              onChange={(e) =>
-                handlePriorityChange(selectedPfa._id, Number(e.target.value))
-              }
-              className="border rounded px-2 py-1"
+      {/* PFA Card Grid */}
+      <div className="bg-white p-6 rounded-lg shadow-lg mb-6">
+        <h2 className="text-xl font-semibold mb-4 flex items-center">
+          <FaTag className="text-blue-500 mr-2" size={16} />
+          List of PFAs
+        </h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          {filteredPfas.map((pfa) => (
+            <div
+              key={pfa._id}
+              className="border border-gray-300 p-6 shadow-sm rounded-lg hover:shadow-xl hover:bg-gradient-to-r from-blue-50 to-purple-100 transition-all duration-300 overflow-auto"
             >
-              <option value="" disabled>
-                Select priority
-              </option>
-              {getAvailablePriorities(selectedPfa._id).map((num) => (
-                <option key={num} value={num}>
-                  {num}
-                </option>
-              ))}
-            </select>
+              <h3 className="text-lg font-semibold text-gray-900">
+                {pfa.projectTitle}
+              </h3>
+              <p className="text-gray-600 mt-2">{pfa.description}</p>
+              <p className="text-gray-500 text-sm mt-2">
+                {pfa.technologies.slice(0, 3).join(", ")}...
+              </p>
 
-            {selectedPfa.isTeamProject && (
-              <div>
-                <label className="block mb-2">Binome:</label>
-                <input
-                  type="text"
-                  value={binome.name}
-                  onChange={handleBinomeChange}
-                  placeholder="Search for a binome"
-                  className="w-full p-2 border rounded mb-2"
-                />
-                <ul className="border rounded bg-white max-h-32 overflow-y-auto">
-                  {filteredUsers.map((user) => (
-                    <li
-                      key={user._id}
-                      className="p-2 hover:bg-gray-200 cursor-pointer"
-                      onClick={() =>
-                        setBinome({ name: user.firstName, id: user._id })
-                      }
-                    >
-                      {user.firstName + " " + user.lastName}
-                    </li>
-                  ))}
-                </ul>
+              <div className="mt-4 flex justify-between items-center">
+                <td className="px-6 py-4 text-center flex  gap-2 justify-center items-center">
+                  {!checkUserInPfa(
+                    pfa,
+                    JSON.parse(localStorage.getItem("user")).id
+                  ) &&
+                    !checkAccepted(
+                      pfa,
+                      JSON.parse(localStorage.getItem("user")).id
+                    ) && (
+                      <button
+                        onClick={() => openPopup(pfa)}
+                        className="bg-gradient-to-r from-indigo-600 to-purple-300 text-white px-6 py-3 rounded-lg shadow-lg transform transition-all hover:scale-105 hover:bg-gradient-to-r hover:from-blue-600 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                      >
+                        Set Priority
+                      </button>
+                    )}
+
+                  <div className="flex items-center space-x-4">
+                    {checkAccepted(
+                      pfa,
+                      JSON.parse(localStorage.getItem("user")).id
+                    ) ? (
+                      <div>
+                        {pfa.priorities.map((priority) =>
+                          priority.monome.toString() === JSON.parse(localStorage.getItem("user")).id ? (
+                            <div
+                              key={priority._id}
+                              className="flex items-center"
+                            >
+                              {priority.acceptTeacher && (
+                                <FaCheckCircle className="text-green-700 w-6 h-6" />
+                              )}
+                            </div>
+                          ) : null
+                        )}
+
+                        {!pfa.priorities.some(
+                          (priority) =>
+                            priority.monome.toString() === JSON.parse(localStorage.getItem("user")).id &&
+                            priority.acceptTeacher
+                        ) && (
+                          <button
+                            onClick={() => {
+                              acceptTeacher(pfa._id, true);
+                              setAcceptedTeacher(true); // Assurez-vous que cet état est défini
+                            }}
+                            className="text-green-700 hover:text-green-800 transition duration-200"
+                            title="Accepter Teacher"
+                          >
+                            "Accepter Teacher"
+                          </button>
+                        )}
+                      </div>
+                    ) : checkUserInPfa(
+                        pfa,
+                        JSON.parse(localStorage.getItem("user")).id
+                      ) ? (
+                      <FaClock
+                        className="text-yellow-500 w-5 h-5"
+                        title="En attente"
+                      />
+                    ) : null}
+                  </div>
+                </td>
               </div>
-            )}
+            </div>
+          ))}
+        </div>
 
-            <div className="flex justify-end mt-4">
-              <button
-                onClick={closePopup}
-                className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
-              >
-                Add Priority
-              </button>
+        {/* Priority Modal */}
+        {selectedPfa && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-transparent bg-opacity-50 backdrop-blur-lg">
+            <div className="bg-white p-6 rounded-lg shadow-2xl w-96 max-w-lg transition-all transform scale-95 hover:scale-100">
+              {/* Header with Gradient Background */}
+              <div className="bg-gradient-to-r from-indigo-600 to-purple-300 px-6 py-4 rounded-t-lg shadow-md">
+                <h3 className="text-xl font-semibold text-white">
+                  Set Priority for {selectedPfa.projectTitle}
+                </h3>
+              </div>
+
+              {/* Priority Select */}
+              <div className="mt-4">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Priority
+                </label>
+                <select
+                  value={selectedPriorities[selectedPfa._id] || ""}
+                  onChange={(e) =>
+                    handlePriorityChange(
+                      selectedPfa._id,
+                      Number(e.target.value)
+                    )
+                  }
+                  className="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                >
+                  <option value="" disabled>
+                    Select priority
+                  </option>
+                  {getAvailablePriorities(selectedPfa._id).map((num) => (
+                    <option key={num} value={num}>
+                      {num}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Binome Search (if Team Project) */}
+              {selectedPfa.isTeamProject && (
+                <div className="mt-4">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Binome
+                  </label>
+                  <input
+                    type="text"
+                    value={binome.name}
+                    onChange={handleBinomeChange}
+                    placeholder="Search for a binome"
+                    className="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                  />
+                  <ul className="mt-2 border rounded-lg bg-white max-h-40 overflow-y-auto shadow-md">
+                    {filteredUsers.map((user) => (
+                      <li
+                        key={user._id}
+                        className="p-3 hover:bg-gray-100 cursor-pointer transition-all"
+                        onClick={() =>
+                          setBinome({ name: user.firstName, id: user._id })
+                        }
+                      >
+                        {user.firstName + " " + user.lastName}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              {/* Action Buttons */}
+              <div className="flex justify-between mt-6">
+                <button
+                  onClick={closePopup}
+                  className="bg-blue-500 text-white px-6 py-3 rounded-l  hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+                >
+                  Add Priority
+                </button>
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 };

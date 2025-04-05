@@ -40,7 +40,8 @@ export const internshipService = {
     }
   },
 
-  sendPlanning: async (sendType) => {
+
+sendPlanning: async (sendType) => {
     try {
       const response = await axiosAPI.post("/internship/stage/planning/send", { sendType });
       return response.data;
