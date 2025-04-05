@@ -1,4 +1,9 @@
-import { FaBook, FaGraduationCap, FaLightbulb, FaWindowRestore } from "react-icons/fa";
+import {
+  FaBook,
+  FaGraduationCap,
+  FaLightbulb,
+  FaWindowRestore,
+} from "react-icons/fa";
 import { GiTeacher } from "react-icons/gi";
 import {
   MdAccountCircle,
@@ -15,7 +20,7 @@ import { PiStudentBold, PiStudentFill } from "react-icons/pi";
 import Pfa from "../../../src/pages/pfaPage/Pfa";
 import SubjectDetailsPage from "../../components/subjectsComponents/SubjectDetailsPage";
 import AdminPeriods from "../../pages/adminPeriodsPage/AdminPeriods";
-import AssignInternships from '../../pages/assignInternshipsPage/AssignInternshipsPage';
+import AssignInternships from "../../pages/assignInternshipsPage/AssignInternshipsPage";
 import Competences from "../../pages/competenecesPage/Competences";
 import Dashboard from "../../pages/dashboardPage/Dashboard";
 import DepotSujet from "../../pages/depotSujetStagePage/DepotSujetStage";
@@ -30,10 +35,14 @@ import InternshipPlanning from "../../pages/PlanningUpdate/InternshipPlanningUpd
 import Profile from "../../pages/profilePage/Profile";
 import InternshipList from "../../pages/studentInternshipPage/studentInternship";
 import Subjects from "../../pages/subjectsPage/Subjects";
+import TeacherInternshipList from "../../pages/teacherInternshipPage/TeacherInternshipPage";
 import StudentsListTeachers from "../../pages/usersListPage/StudentsListTeachers";
 import StudentsManagPage from "../../pages/UsersManagementPage/StudentsManagPage";
 import TeachersManagPage from "../../pages/UsersManagementPage/TeachersManagPage";
 import { RoleEnum } from "../../utils/userRoles";
+import TeacherPFEList from "../../pages/pfePage/ens";
+
+const user = JSON.parse(localStorage.getItem("user"));
 export const menuConfig = [
   {
     order: 1,
@@ -90,7 +99,7 @@ export const menuConfig = [
     active: true,
     hideSideBar: false,
     hideHeader: false,
-    dontShow: true,
+    // dontShow: true,
   },
   {
     order: 5,
@@ -103,7 +112,7 @@ export const menuConfig = [
     active: true,
     hideSideBar: false,
     hideHeader: false,
-    // dontShow: true,
+    dontShow: true,
   },
   {
     order: 6,
@@ -118,12 +127,12 @@ export const menuConfig = [
     dontShow: true,
   },
   {
-    order: 100,
-    label: "PFE ROUTE test(only 3rd year)",
+    order: 7,
+    label: "Notifications",
     icon: MdNotifications,
-    path: "/pfeRoueTest",
+    path: "/notifications",
     component: Notifications,
-    eligibleRoles: [RoleEnum.ISPFE],
+    eligibleRoles: [RoleEnum.ADMIN, RoleEnum.TEACHER, RoleEnum.STUDENT],
     active: true,
     hideSideBar: false,
     hideHeader: false,
@@ -135,6 +144,7 @@ export const menuConfig = [
     path: "/PFA",
     component: Pfa,
     eligibleRoles: [RoleEnum.ADMIN, RoleEnum.TEACHER, RoleEnum.STUDENT],
+    eligibleLevels: [RoleEnum.ISPFA],
     active: true,
     hideSideBar: false,
     hideHeader: false,
@@ -177,9 +187,9 @@ export const menuConfig = [
   },
   {
     order: 12,
-    label: 'Choose Option',
+    label: "Choose Option",
     icon: MdAutoStories,
-    path: '/chooseoption',
+    path: "/chooseoption",
     component: OptionPage,
     eligibleRoles: [RoleEnum.STUDENT],
     active: true,
@@ -214,8 +224,8 @@ export const menuConfig = [
   },
   {
     order: 15,
-    label: "ahmed",
-    icon: MdList,
+    label: "PFE",
+    icon: FaGraduationCap,
     path: "/pfe",
     tooltip: "pfe",
     component: AdminPfeManagement,
@@ -228,11 +238,12 @@ export const menuConfig = [
   {
     order: 16,
     label: "ahmed",
-    icon: MdList,
+    icon: FaGraduationCap,
     path: "/pfeStudent",
     tooltip: "pfe",
     component: PFEStudent,
-    eligibleRoles: [RoleEnum.STUDENT],
+    eligbleRoles: [RoleEnum.STUDENT],
+    eligibleLevels: [RoleEnum.ISPFE],
     active: true,
     dontShow: false,
     hideSideBar: false,
@@ -240,9 +251,9 @@ export const menuConfig = [
   },
   {
     order: 17,
-    label: 'Assign Internships',
+    label: "Assign Internships",
     icon: MdAssignmentAdd,
-    path: '/InternshipAssignment',
+    path: "/InternshipAssignment",
     tooltip: "Internship",
     component: AssignInternships,
     eligibleRoles: [RoleEnum.ADMIN],
@@ -253,7 +264,7 @@ export const menuConfig = [
   },
   {
     order: 18,
-    path: '/PlanningUpdate',
+    path: "/PlanningUpdate",
     component: InternshipPlanning,
     eligibleRoles: [RoleEnum.ADMIN],
     active: true,
@@ -263,9 +274,9 @@ export const menuConfig = [
   },
   {
     order: 19,
-    label: 'Options List',
+    label: "Options List",
     icon: FaWindowRestore,
-    path: '/OptionsList',
+    path: "/OptionsList",
     component: OptionListPage,
     eligibleRoles: [RoleEnum.ADMIN],
     active: true,
@@ -274,12 +285,37 @@ export const menuConfig = [
   },
   {
     order: 20,
-    label: 'Students List',
+    label: "Students List",
     icon: PiStudentBold,
-    path: '/StudentsList',
+    path: "/StudentsList",
     component: StudentsListTeachers,
     eligibleRoles: [RoleEnum.TEACHER],
     active: true,
+    hideSideBar: false,
+    hideHeader: false,
+  },
+
+  {
+    order: 21,
+    label: "Internship List",
+    icon: MdList,
+    path: "/TeacherInternshipList",
+    component: TeacherInternshipList,
+    eligibleRoles: [RoleEnum.TEACHER],
+    active: true,
+    hideSideBar: false,
+    hideHeader: false,
+  },
+  {
+    order: 22,
+    label: "PFE",
+    icon: FaGraduationCap,
+    path: "/pfeens",
+    tooltip: "pfe",
+    component: TeacherPFEList,
+    eligibleRoles: [RoleEnum.TEACHER],
+    active: true,
+    dontShow: false,
     hideSideBar: false,
     hideHeader: false,
   },
@@ -297,15 +333,37 @@ export const menuConfig = [
   // },
 ];
 
+
 export const getMenuItems = (role, level = null) => {
   return menuConfig
     .filter((item) => item?.dontShow !== true)
     .filter((item) => {
-      const roleEligible = item.eligibleRoles.length === 0 || item.eligibleRoles.includes(role);
-      const levelEligible =
-        role !== 'student' || level === null || !item.eligibleLevels
-          ? true
-          : item.eligibleLevels.length === 0 || item.eligibleLevels.includes(level);
+      const hasEligibleRoles = item.eligibleRoles?.length > 0;
+      const hasEligibleLevels = item.eligibleLevels?.length > 0;
+
+      // Handle role eligibility
+      const roleEligible = !hasEligibleRoles || item.eligibleRoles.includes(role);
+
+      let levelEligible = true;
+
+      if (role === RoleEnum.STUDENT) {
+        // For students, check both eligibleRoles and eligibleLevels
+        if (hasEligibleRoles && hasEligibleLevels) {
+          levelEligible = item.eligibleLevels.includes(level) && item.eligibleRoles.includes(role);
+        } else if (hasEligibleRoles) {
+          // If only eligibleRoles exist, check only that
+          levelEligible = item.eligibleRoles.includes(role);
+        } else if (hasEligibleLevels) {
+          // If only eligibleLevels exist, check only that
+          levelEligible = item.eligibleLevels.includes(level);
+        }
+      } else {
+        // For non-students, ignore the eligibleLevels check if not needed
+        if (hasEligibleLevels) {
+          levelEligible = true; // Ignoring eligibleLevels for non-student roles
+        }
+      }
+
       return roleEligible && levelEligible;
     })
     .sort((a, b) => (a.order ?? Infinity) - (b.order ?? Infinity));

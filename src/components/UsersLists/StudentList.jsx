@@ -318,7 +318,7 @@ export default function StudentList({ onAddClick }) {
     setStudentsList(prev => prev.filter(s => s._id !== studentId));
     setFilteredStudents(prev => prev.filter(s => s._id !== studentId));
   };
-  const handleForceDelete = async () => {
+ const handleForceDelete = async () => {
     if (!studentToDelete) return;
     
     setIsDeleting(true);
@@ -382,14 +382,16 @@ export default function StudentList({ onAddClick }) {
     <div className="p-6 bg-gray-100 min-h-screen relative">
       <h1 className="text-2xl font-bold mb-4">Manage Students</h1>
 
-      {/* Toast Notification */}
-      {toast.show && (
+
+        {/* Toast Notification */}
+        {toast.show && (
         <div className={`fixed top-4 right-4 z-[1000] px-4 py-3 rounded-md shadow-md flex items-center justify-between max-w-sm transition-all duration-300 ${
           toast.type === "success" ? "bg-green-500 text-white" :
           toast.type === "error" ? "bg-red-500 text-white" :
           toast.type === "warning" ? "bg-yellow-500 text-white" :
           "bg-blue-500 text-white"
         }`}>
+
           <p>{toast.message}</p>
           <button
             onClick={() => setToast((prev) => ({ ...prev, show: false }))}

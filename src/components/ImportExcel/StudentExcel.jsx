@@ -1,7 +1,7 @@
 import { useState } from "react";
 import * as XLSX from "xlsx";
 import { MdSchool, MdUploadFile, MdRefresh } from "react-icons/md";
-import { insertStudentsFromExcel } from "../../services/StudentServices/student.service";
+import { insertStudentsFromExcel } from "../../services/ManageUsersServices/students.service";
 import { useNavigate } from "react-router-dom";
 import AddStudent from "../AddUser/AddStudent"; // Import the AddStudent component
 import { registerUser } from "../../services/AccountServices/account.service";

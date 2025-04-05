@@ -14,7 +14,7 @@ import {
   assignPFEManually,
   togglePublication,
   sendEmail,
-} from "../../services/pfeService/pfeService";
+} from "../../services/pfeService/pfe.service";
 
 const AdminPfeManagement = () => {
   const [pfeChoices, setPfeChoices] = useState([]);
