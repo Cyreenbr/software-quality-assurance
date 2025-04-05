@@ -297,12 +297,16 @@ export const menuConfig = [
   // },
 ];
 
-export const getMenuItems = (role) => {
+export const getMenuItems = (role, level = null) => {
   return menuConfig
     .filter((item) => item?.dontShow !== true)
-    .filter(
-      (item) =>
-        item.eligibleRoles.length === 0 || item.eligibleRoles.includes(role)
-    )
+    .filter((item) => {
+      const roleEligible = item.eligibleRoles.length === 0 || item.eligibleRoles.includes(role);
+      const levelEligible =
+        role !== 'student' || level === null || !item.eligibleLevels
+          ? true
+          : item.eligibleLevels.length === 0 || item.eligibleLevels.includes(level);
+      return roleEligible && levelEligible;
+    })
     .sort((a, b) => (a.order ?? Infinity) - (b.order ?? Infinity));
 };
