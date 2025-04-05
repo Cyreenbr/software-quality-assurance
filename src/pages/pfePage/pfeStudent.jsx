@@ -3,7 +3,7 @@ import {
   createPFE,
   updatePFE,
   getPFEByUser,
-} from "../../services/pfeService/pfeStudent";
+} from "../../services/pfeService/pfeService";
 
 const PFEStudent = ({ userId }) => {
   const [formData, setFormData] = useState({
@@ -19,6 +19,9 @@ const PFEStudent = ({ userId }) => {
   const [message, setMessage] = useState(null);
   const [error, setError] = useState(null);
   const [pfeId, setPfeId] = useState(null);
+
+  // Refresh key to force re-fetch after creation
+  const [refreshKey, setRefreshKey] = useState(0);
 
   useEffect(() => {
     const fetchUserPFE = async () => {
@@ -39,6 +42,17 @@ const PFEStudent = ({ userId }) => {
             documents: pfe.documents || [],
           });
           setPfeId(pfe._id);
+        } else {
+          // Reset form if no PFE found
+          setFormData({
+            title: "",
+            description: "",
+            domain: "",
+            company: "",
+            technologies: "",
+            documents: [],
+          });
+          setPfeId(null);
         }
       } catch (err) {
         console.error("Error fetching PFE data:", err);
@@ -46,7 +60,7 @@ const PFEStudent = ({ userId }) => {
     };
 
     fetchUserPFE();
-  }, [userId]);
+  }, [userId, refreshKey]);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -101,6 +115,8 @@ const PFEStudent = ({ userId }) => {
       } else {
         await createPFE(data);
         setMessage("PFE submitted successfully!");
+        // Trigger re-fetch of PFE data by updating the key
+        setRefreshKey((prev) => prev + 1);
       }
     } catch (err) {
       if (err.response && err.response.data) {
