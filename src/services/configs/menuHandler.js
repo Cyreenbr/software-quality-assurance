@@ -135,6 +135,7 @@ export const menuConfig = [
     path: "/PFA",
     component: Pfa,
     eligibleRoles: [RoleEnum.ADMIN, RoleEnum.TEACHER, RoleEnum.STUDENT],
+    eligibleLevels: [RoleEnum.ISPFA],
     active: true,
     hideSideBar: false,
     hideHeader: false,
@@ -233,6 +234,7 @@ export const menuConfig = [
     tooltip: "pfe",
     component: PFEStudent,
     eligibleRoles: [RoleEnum.STUDENT],
+    eligibleLevels: [RoleEnum.ISPFE],
     active: true,
     dontShow: false,
     hideSideBar: false,
@@ -297,12 +299,37 @@ export const menuConfig = [
   // },
 ];
 
-export const getMenuItems = (role) => {
+export const getMenuItems = (role, level = null) => {
   return menuConfig
     .filter((item) => item?.dontShow !== true)
-    .filter(
-      (item) =>
-        item.eligibleRoles.length === 0 || item.eligibleRoles.includes(role)
-    )
+    .filter((item) => {
+      const hasEligibleRoles = item.eligibleRoles?.length > 0;
+      const hasEligibleLevels = item.eligibleLevels?.length > 0;
+
+      // Handle role eligibility
+      const roleEligible = !hasEligibleRoles || item.eligibleRoles.includes(role);
+
+      let levelEligible = true;
+
+      if (role === RoleEnum.STUDENT) {
+        // For students, check both eligibleRoles and eligibleLevels
+        if (hasEligibleRoles && hasEligibleLevels) {
+          levelEligible = item.eligibleLevels.includes(level) && item.eligibleRoles.includes(role);
+        } else if (hasEligibleRoles) {
+          // If only eligibleRoles exist, check only that
+          levelEligible = item.eligibleRoles.includes(role);
+        } else if (hasEligibleLevels) {
+          // If only eligibleLevels exist, check only that
+          levelEligible = item.eligibleLevels.includes(level);
+        }
+      } else {
+        // For non-students, ignore the eligibleLevels check if not needed
+        if (hasEligibleLevels) {
+          levelEligible = true; // Ignoring eligibleLevels for non-student roles
+        }
+      }
+
+      return roleEligible && levelEligible;
+    })
     .sort((a, b) => (a.order ?? Infinity) - (b.order ?? Infinity));
 };
