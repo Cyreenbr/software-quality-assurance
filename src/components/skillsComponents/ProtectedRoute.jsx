@@ -7,6 +7,7 @@ function ProtectedRoute({ element, roles = [] }) {
   const level = useSelector((state) => state.auth.user?.level);
   console.log(level);
   console.log(roles);
+
   if (!role) {
     return <Navigate to="/signin" replace />;
   }

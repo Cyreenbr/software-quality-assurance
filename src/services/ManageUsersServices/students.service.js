@@ -32,17 +32,30 @@ export const getStudentById = async (userid) => {
     throw error;
   }
 
-};
-export const deleteStudent = async (studentId) => {
+};/*
+export const deleteStudent = async (studentId, force = false) => {
   try {
     const response = await axiosAPI.post(`/students/archiveStudent`, {
       studentId: studentId,
-      force: true
+      force: force
     });
-    console.log("Student deleted successfully:", response.data);
+    console.log("Sending delete with:", { studentId, force });
+
+    console.log("Student deletion response:", response.data);
     return response.data;
   } catch (error) {
     console.error("Error deleting student:", error.response?.data || error.message);
+    throw error;
+  }
+};*/export const deleteStudent = async (studentId, force = false) => {
+  try {
+    const response = await axiosAPI.post(`/students/archiveStudent`, {
+      studentId,
+      force: force // Bien envoyer le paramètre force
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error:", error.response?.data || error.message);
     throw error;
   }
 };
