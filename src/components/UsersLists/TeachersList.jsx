@@ -12,9 +12,11 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 export function TeachersList({ onAddClick }) {
+  const [showForceDeleteModal, setShowForceDeleteModal] = useState(false);
   const [teachersList, setTeachersList] = useState([]);
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [filteredTeachers, setFilteredTeachers] = useState([]);
   const [teacherToDelete, setTeacherToDelete] = useState(null);
+  const [deleteDetails, setDeleteDetails] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isViewing, setIsViewing] = useState(false);
@@ -38,7 +40,19 @@ export function TeachersList({ onAddClick }) {
     confirmationPassword: "",
   });
   const [selectedTeacher, setSelectedTeacher] = useState(null);
-
+ 
+  // Toast notification
+  const showToast = (message, type = "success") => {
+    toast[type](message, {
+      position: "top-right",
+      autoClose: 3000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+    });
+  };
+  
   useEffect(() => {
     const fetchTeachers = async () => {
       try {
@@ -54,7 +68,7 @@ export function TeachersList({ onAddClick }) {
 
     fetchTeachers();
   }, []);
-
+ 
   // Function to format the date
   const formatDate = (dateString) => {
     const date = new Date(dateString);
@@ -64,39 +78,90 @@ export function TeachersList({ onAddClick }) {
       month: "short", // e.g. "Mar"
       day: "numeric", // e.g. "30"
     });
-  };
-
-  const handleDeleteClick = (teacher) => {
+  }; 
+ // Fonction utilitaire pour mettre à jour les listes
+ const updateTeacherLists = (teacherId) => {
+  setTeachersList(prev => prev.filter(t => t._id !== teacherId));
+  setFilteredTeachers(prev => prev.filter(t => t._id !== teacherId));
+};
+ 
+  // Fonction pour gérer la suppression d'un enseignant
+  const handleDeleteClick = async (teacher) => {
     setTeacherToDelete(teacher);
-    setShowDeleteModal(true);
-  };
-
-  const handleCancelDelete = () => {
-    setShowDeleteModal(false);
-    setTeacherToDelete(null);
-  };
-
-  const handleConfirmDelete = async () => {
-    if (!teacherToDelete) return;
     setIsDeleting(true);
+    
     try {
-      await deleteTeacher(teacherToDelete._id);
-      // Remove the deleted teacher from the list
-      const updatedTeachersList = teachersList.filter(
-        (teacher) => teacher._id !== teacherToDelete._id
-      );
-      setTeachersList(updatedTeachersList);
-      setShowDeleteModal(false);
-      setTeacherToDelete(null);
-      toast.success(`${teacherToDelete.firstName} ${teacherToDelete.lastName} has been deleted successfully`);
+      // Premier essai avec force: false
+      const response = await deleteTeacher(teacher._id, false);
+      
+      if (response.success) {
+        // Si la suppression a réussi sans forcer
+        updateTeacherLists(teacher._id);
+        showToast("Enseignant supprimé avec succès", "success");
+        setTeacherToDelete(null);
+        setIsDeleting(false);
+      } else {
+        // Si échec à cause de dépendances
+        if (response.details?.hasSubjects || response.hasSubjects) {
+          // Afficher la modal de confirmation seulement si l'enseignant a des matières
+          setDeleteDetails(response.details || { hasSubjects: response.hasSubjects });
+          setShowForceDeleteModal(true);
+        } else {
+          // S'il y a une autre erreur sans dépendances
+          showToast(`Erreur: ${response.message || "Échec de la suppression de l'enseignant"}`, "error");
+          setTeacherToDelete(null);
+          setIsDeleting(false);
+        }
+      }
     } catch (error) {
       console.error("Error deleting teacher:", error);
-      toast.error("Failed to delete teacher. Please try again.");
+      if (error.response?.status === 400 && error.response.data.details?.hasSubjects) {
+        // Si le serveur retourne une erreur 400 avec la présence de matières
+        setDeleteDetails(error.response.data.details);
+        setShowForceDeleteModal(true);
+      } else {
+        // Pour les autres types d'erreurs
+        showToast("Échec de la suppression. Veuillez réessayer.", "error");
+        setTeacherToDelete(null);
+        setIsDeleting(false);
+      }
+    }
+  };
+  
+  // Fonction pour effectuer la suppression forcée
+  const handleForceDelete = async () => {
+    if (!teacherToDelete) return;
+    
+    setIsDeleting(true);
+    try {
+      // On appelle deleteTeacher avec force: true
+      const response = await deleteTeacher(teacherToDelete._id, true);
+      
+      if (response.success) {
+        // Suppression réussie
+        updateTeacherLists(teacherToDelete._id);
+        showToast("Enseignant supprimé avec succès", "success");
+      } else {
+        showToast(`Erreur: ${response.message || "Échec de la suppression forcée"}`, "error");
+      }
+    } catch (error) {
+      console.error("Error force deleting teacher:", error);
+      showToast("Échec de la suppression forcée. Veuillez réessayer.", "error");
     } finally {
+      setShowForceDeleteModal(false);
+      setTeacherToDelete(null);
+      setDeleteDetails(null);
       setIsDeleting(false);
     }
   };
 
+  // Fonction pour annuler la suppression
+  const handleCancelDelete = () => {
+    setShowForceDeleteModal(false);
+    setTeacherToDelete(null);
+    setDeleteDetails(null);
+    setIsDeleting(false);
+  };
   const watch = async (teacherId) => {
     try {
       const teacher = teachersList.find((teacher) => teacher._id === teacherId);
@@ -375,37 +440,6 @@ export function TeachersList({ onAddClick }) {
         </div>
       </div>
 
-      {/* Delete Confirmation Modal */}
-      {showDeleteModal && (
-        <div className="fixed inset-0 flex justify-center items-center z-50">
-          <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
-            <h3 className="text-lg font-medium text-gray-900 mb-4">
-              Confirm Deletion
-            </h3>
-            <p className="text-gray-600 mb-6">
-              Are you sure you want to delete {teacherToDelete?.firstName}{" "}
-              {teacherToDelete?.lastName}? This action cannot be undone.
-            </p>
-            <div className="flex justify-end gap-4">
-              <button
-                className="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300"
-                onClick={handleCancelDelete}
-                disabled={isDeleting}
-              >
-                Cancel
-              </button>
-              <button
-                className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600"
-                onClick={handleConfirmDelete}
-                disabled={isDeleting}
-              >
-                {isDeleting ? "Deleting..." : "Delete"}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
       {/* Dialog for Edit/View */}
       {isDialogOpen && (
         <div className="pointer-events-auto fixed inset-0 z-[999] grid h-screen w-screen place-items-center bg-transparent backdrop-blur-sm transition-opacity duration-500 opacity-100">
@@ -634,6 +668,55 @@ export function TeachersList({ onAddClick }) {
                   Cancel
                 </button>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+ 
+     
+      {/* Modal de confirmation pour la suppression forcée - 
+          Affichée uniquement si l'enseignant a des matières associées */}
+      {showForceDeleteModal && (
+        <div className="fixed inset-0 flex justify-center items-center z-50 bg-gray-900 bg-opacity-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
+            <h3 className="text-lg font-medium text-gray-900 mb-4">
+              Confirmer la suppression forcée
+            </h3>
+            
+            <div className="mb-4 p-3 bg-yellow-50 rounded-md border border-yellow-200">
+              <p className="text-red-500 font-medium">
+                Attention: Cette action est irréversible!
+              </p>
+              <p className="text-gray-700 mt-2">
+                Cet enseignant a des matières associées qui seront également supprimées.
+              </p>
+            </div>
+            
+            <div className="flex justify-end gap-4">
+              <button
+                className="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300"
+                onClick={handleCancelDelete}
+                disabled={isDeleting}
+              >
+                Annuler
+              </button>
+              <button
+                onClick={handleForceDelete}
+                disabled={isDeleting}
+                className={`px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 ${
+                  isDeleting ? 'opacity-50 cursor-not-allowed' : ''
+                }`}
+              >
+                {isDeleting ? (
+                  <span className="flex items-center">
+                    <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Suppression...
+                  </span>
+                ) : "Confirmer la suppression"}
+              </button>
             </div>
           </div>
         </div>

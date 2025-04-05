@@ -18,8 +18,10 @@ export default function StudentList({ onAddClick }) {
   const [isViewing, setIsViewing] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [isPasswordDialogOpen, setIsPasswordDialogOpen] = useState(false);
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  
+  const [showForceDeleteModal, setShowForceDeleteModal] = useState(false);
   const [studentToDelete, setStudentToDelete] = useState(null);
+  const [deleteDetails, setDeleteDetails] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
   
   // Toast state
@@ -244,44 +246,82 @@ export default function StudentList({ onAddClick }) {
       day: "numeric",
     });
   };
-
-  const handleDeleteClick = (student) => {
+  const handleDeleteClick = async (student) => {
     setStudentToDelete(student);
-    setShowDeleteModal(true);
-  };
-
-  const handleConfirmDelete = async () => {
-    if (!studentToDelete) return;
-
     setIsDeleting(true);
+    
     try {
-      await deleteStudent(studentToDelete._id);
-      // Remove the deleted student from the lists
-      const updatedStudentsList = studentsList.filter(
-        (student) => student._id !== studentToDelete._id
-      );
-      setStudentsList(updatedStudentsList);
-      setFilteredStudents(
-        filteredStudents.filter(
-          (student) => student._id !== studentToDelete._id
-        )
-      );
-      setShowDeleteModal(false);
-      setStudentToDelete(null);
-      showToast("Étudiant supprimé avec succès", "success");
+      // Premier essai avec force: false
+      const response = await deleteStudent(student._id, false);
+      
+      if (response.success) {
+        // Si réussi sans force
+        updateStudentLists(student._id);
+        showToast("Student deleted successfully.", "success");
+      } else {
+        // Si échec à cause de dépendances
+        setDeleteDetails(response.details || {
+          hasPfe: response.hasPfe,
+          hasSubjects: response.hasSubjects
+        });
+        setShowForceDeleteModal(true);
+      }
     } catch (error) {
       console.error("Error deleting student:", error);
-      showToast("Échec de la suppression de l'étudiant. Veuillez réessayer.", "error");
+      if (error.response?.status === 400) {
+        setDeleteDetails(error.response.data.details || {
+          hasPfe: true, // Par défaut on suppose qu'il y a des dépendances
+          hasSubjects: true
+        });
+        setShowForceDeleteModal(true);
+      } else {
+        showToast("Échec de la suppression. Veuillez réessayer.", "error");
+      }
     } finally {
       setIsDeleting(false);
     }
   };
-
-  const handleCancelDelete = () => {
-    setShowDeleteModal(false);
-    setStudentToDelete(null);
+  
+  // Fonction utilitaire pour mettre à jour les listes
+  const updateStudentLists = (studentId) => {
+    setStudentsList(prev => prev.filter(s => s._id !== studentId));
+    setFilteredStudents(prev => prev.filter(s => s._id !== studentId));
   };
-
+  const handleForceDelete = async () => {
+    if (!studentToDelete) return;
+    
+    setIsDeleting(true);
+  
+    try {
+      // Deuxième appel avec force: true
+      const response = await deleteStudent(studentToDelete._id, true);
+      
+      if (response.success) {
+        updateStudentLists(studentToDelete._id);
+        showToast("Student forcefully deleted successfully", "success");
+      } else {
+        showToast(response.message || "Forced deletion failed.", "error");
+      }
+    } catch (error) {
+      console.error("Force delete error:", error);
+      showToast(
+        error.response?.data?.message || 
+        "Forced deletion failed.", 
+        "error"
+      );
+    } finally {
+      setShowForceDeleteModal(false);
+      setStudentToDelete(null);
+      setDeleteDetails(null);
+      setIsDeleting(false);
+    }
+  };
+  const handleCancelDelete = () => {
+    setShowForceDeleteModal(false);
+    setStudentToDelete(null);
+    setDeleteDetails(null);
+    setIsDeleting(false);
+  };
   const handleSubmitPassword = (e) => {
     e.preventDefault();
     
@@ -308,8 +348,8 @@ export default function StudentList({ onAddClick }) {
     <div className="p-6 bg-gray-100 min-h-screen relative">
       <h1 className="text-2xl font-bold mb-4">Manage Students</h1>
 
-      {/* Toast Notification */}
-      {toast.show && (
+        {/* Toast Notification */}
+        {toast.show && (
         <div className={`fixed top-4 right-4 z-[1000] px-4 py-3 rounded-md shadow-md flex items-center justify-between max-w-sm transition-all duration-300 ${
           toast.type === "success" ? "bg-green-500 text-white" :
           toast.type === "error" ? "bg-red-500 text-white" :
@@ -557,7 +597,6 @@ export default function StudentList({ onAddClick }) {
           </div>
         </div>
       )}
-
       {/* Students List */}
       <div className="bg-white p-6 rounded-lg shadow-lg mb-6">
         <div className="flex justify-between items-center mb-4">
@@ -649,6 +688,7 @@ export default function StudentList({ onAddClick }) {
                       <button
                         className="bg-red-500 text-white p-2 rounded-full hover:bg-red-600"
                         onClick={() => handleDeleteClick(student)}
+                        disabled={isDeleting}
                       >
                         <FaTrashAlt size={18} />
                       </button>
@@ -669,37 +709,59 @@ export default function StudentList({ onAddClick }) {
           </table>
         </div>
       </div>
+      {showForceDeleteModal && (
+  <div className="fixed inset-0 flex justify-center items-center z-50 ">
+    <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
+      <h3 className="text-lg font-medium text-gray-900 mb-4">
+        Confirm Force Deletion
+      </h3>
+      
+      <div className="mb-4 p-3 bg-yellow-50 rounded-md border border-yellow-200">
+        <p className="text-red-500 font-medium">
+          Attention: This action is irreversible!
+        </p>
+        {deleteDetails && (
+          <ul className="list-disc pl-5 text-sm text-gray-700 mt-2">
+            {deleteDetails.hasSubjects && (
+              <li>Enrolled in subjects</li>
+            )}
+            {deleteDetails.hasPfe && (
+              <li>Has an associated PFE project</li>
+            )}
+          </ul>
+        )}
+      </div>
+      
+      <div className="flex justify-end gap-4">
+        <button
+          className="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300"
+          onClick={handleCancelDelete}
+          disabled={isDeleting}
+        >
+          Cancel
+        </button>
+        <button
+          onClick={handleForceDelete}
+          disabled={isDeleting}
+          className={`px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 ${
+            isDeleting ? 'opacity-50 cursor-not-allowed' : ''
+          }`}
+        >
+          {isDeleting ? (
+            <span className="flex items-center">
+              <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              Deleting...
+            </span>
+          ) : "Force Delete"}
+        </button>
+      </div>
+    </div>
+  </div>
+)}
 
-      {/* Delete Confirmation Modal */}
-      {showDeleteModal && (
-        <div className="fixed inset-0 flex justify-center items-center z-50">
-          <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
-            <h3 className="text-lg font-medium text-gray-900 mb-4">
-              Confirm Deletion
-            </h3>
-            <p className="text-gray-600 mb-6">
-              Are you sure you want to delete {studentToDelete?.firstName}{" "}
-              {studentToDelete?.lastName}? This action cannot be undone.
-            </p>
-            <div className="flex justify-end gap-4">
-              <button
-                className="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300"
-                onClick={handleCancelDelete}
-                disabled={isDeleting}
-              >
-                Cancel
-              </button>
-              <button
-                className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600"
-                onClick={handleConfirmDelete}
-                disabled={isDeleting}
-              >
-                {isDeleting ? "Deleting..." : "Delete"}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
