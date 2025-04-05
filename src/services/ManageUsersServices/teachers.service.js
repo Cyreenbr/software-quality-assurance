@@ -51,14 +51,23 @@ export const editTeacher = async (_id, editedData) => {
     throw error;
   }
 };
+
+
 export const editPasswordTeacher = async (_id, userpass) => {
   try {
+    console.log("Sending password update:", {
+      _id,
+      oldPassword: userpass.oldPassword,
+      newPassword: userpass.newPassword,
+      confirmationPassword: userpass.confirmationPassword
+    });
+    
     const response = await axiosAPI.patch(`/teachers/${_id}/password`, userpass);
-    console.log("Teacher's password updated successfully:", response.data);
+    
+    console.log("teacher's password updated successfully:", response.data);
     return response.data;
   } catch (error) {
-    console.error("Error updating student's password:", error);
+    console.error("Error updating teacher's password:", error);
     throw error;
   }
 };
-

@@ -135,6 +135,7 @@ const AssignInternships = () => {
           </div>
 
           <div className="ml-auto flex items-center">
+            {/* Group 1: Publish and Hide buttons */}
             <div className="flex items-center mr-4 border-r border-gray-200 pr-4">
               <button
                 onClick={handlePublishPlanning}
@@ -153,6 +154,7 @@ const AssignInternships = () => {
               </button>
             </div>
 
+            {/* Group 2: Modified and First Notice buttons */}
             <div className="flex items-center mr-4 border-r border-gray-200 pr-4">
               <button
                 onClick={() => handleSendPlanning("modified")}
@@ -185,6 +187,7 @@ const AssignInternships = () => {
 
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-semibold mb-4">List of Teachers</h2>
+
           <button
             onClick={handleAssignInternships}
             className="bg-blue-500 text-white px-4 py-1.5 rounded-lg text-sm font-medium hover:bg-blue-600 flex items-center"

@@ -24,6 +24,19 @@ const pfaService = {
     }
   },
 
+  getPublishedPfas: async () => {
+    try {
+      console.log("i trigred the publish pfas");
+      const response = await axiosAPI.get(`${API_BASE_URL}/open`, {
+        headers: { ...getAuthHeader() },
+      });
+      return response.data;
+    } catch (error) {
+      console.error("Error API (GET PFA) :", error);
+      return null;
+    }
+  },
+
   rejectPfa: async (pfaId) => {
     try {
       const response = await axiosAPI.patch(
@@ -146,38 +159,123 @@ const pfaService = {
 
   
 
-  // get teacher par son nom  a verifirer avec farah 
-  getTeacherByName : async (teacherName) => {
-    try {
-      const response = await axiosAPI.get(`/api/teacher/${teacherName}`, 
-        {},
-        {
-          headers: { ...getAuthHeader() },
-        }); 
+//   // get les PFAs par ID de teacher
+//  getPfasByTeacherName = async (teacherName) => {
+//     try {
+//       const response = await axios.get(
+//         `${API_BASE_URL}/teacher/${teacherName}/subjects`, // Assurez-vous que l'URL est correcte
+//         {
+//           headers: { ...getAuthHeader() }
+//         }
+//       );
+//       return response.data;
+//     } catch (error) {
+//       console.error("Error fetching PFAs by teacher:", error);
+//       return null;
+//     }
+//   },
 
+  // getTeachers = async () => {
+  //   try {
+  //     const response = await axios.get('http://localhost:3000/api/teachers/teacherslist');
+  //     return response.data; // Liste des enseignants
+  //   } catch (error) {
+  //     console.error("Error fetching teachers:", error);
+  //     return [];
+  //   }
+  // };
   
-      return response.data; 
-    } catch (error) {
-      console.error("Error API (POST PFA) :", error);
-      return null;
-    }
-  },
-  
-  // get les PFAs par ID de teacher
-   getPfasByTeacherId : async (teacherId) => {
+
+  // getPfasByTeacherName: async (teacherName) => {
+  //   try {
+  //     const response = await axiosAPI.get(`${API_BASE_URL}/teacher/${teacherName}/subjects`, {
+  //       headers: { ...getAuthHeader() },
+  //     });
+  //     return response.data;
+  //   } catch (error) {
+  //     console.error("Error API (GET PFA) :", error);
+  //     return null;
+  //   }
+  // },
+
+  // getPfasByTeacherId: async (teacherId) => {
+  //   try {
+  //     const response = await axiosAPI.get(`${API_BASE_URL}/teacher/${teacherId}/subjects`, {
+  //       headers: { ...getAuthHeader() },
+  //     });
+  //     return response.data;
+  //   } catch (error) {
+  //     console.error("Error API (GET PFA) :", error);
+  //     return null;
+  //   }
+  // },
+  getStudents: async () => {
     try {
-      const response = await axiosAPI.get(`/${API_BASE_URL}/teacher/${teacherId}/subjects` ,
+      const response = await axiosAPI.get(
+        `http://localhost:3000/api/students/studentlist
+        `,
         {},
         {
           headers: { ...getAuthHeader() },
-        }); 
-      return response.data; 
+        }
+      );
+      return response.data;
     } catch (error) {
       console.error("Error API (POST PFA) :", error);
       return null;
     }
   },
-  
+
+  addPriority: async (pfaId, data) => {
+    try {
+      const response = await axiosAPI.patch(
+        `${API_BASE_URL}/${pfaId}/choice`,
+        data,
+        {
+          headers: { ...getAuthHeader() },
+        }
+      );
+      return response.data;
+    } catch (error) {
+      console.error("Error API (POST PFA) :", error);
+      return null;
+    }
+  },
+
+  acceptBinome: async (pfaId, studentIds) => {
+    try {
+      const response = await axiosAPI.patch(
+        `${API_BASE_URL}/${pfaId}/accept`,
+        { studentIds },
+        {
+          headers: { ...getAuthHeader() },
+        }
+      );
+      return response.data;
+    } catch (error) {
+      console.error("Error API (POST PFA) :", error);
+      return null;
+    }
+  },
+
+  acceptTeacher: async (pfaId, acceptTeacher) => {
+    try {
+      console.log('Data:', { acceptTeacher });
+      console.log(pfaId, acceptTeacher);
+      const response = await axiosAPI.patch(
+        `${API_BASE_URL}/${pfaId}/acceptance`,
+        { acceptTeacher },
+        {
+          headers: { ...getAuthHeader() },
+        }
+      );
+      console.log('Data:', { acceptTeacher });
+      return response.data;
+    } catch (error) {
+      console.error("Error API (POST PFA) :", error);
+      return null;
+    }
+  },
 
   //   addPeriod: async (periodData) => {
   //     try {

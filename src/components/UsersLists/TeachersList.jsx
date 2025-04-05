@@ -8,6 +8,8 @@ import {
 import { FaEdit, FaTrashAlt, FaPlus } from "react-icons/fa";
 import { CgEyeAlt } from "react-icons/cg";
 import { RiLockPasswordFill } from "react-icons/ri";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 export function TeachersList({ onAddClick }) {
   const [teachersList, setTeachersList] = useState([]);
@@ -46,6 +48,7 @@ export function TeachersList({ onAddClick }) {
         }
       } catch (error) {
         console.error("Error fetching teachers:", error);
+        toast.error("Failed to load teachers. Please try again.");
       }
     };
 
@@ -85,9 +88,10 @@ export function TeachersList({ onAddClick }) {
       setTeachersList(updatedTeachersList);
       setShowDeleteModal(false);
       setTeacherToDelete(null);
+      toast.success(`${teacherToDelete.firstName} ${teacherToDelete.lastName} has been deleted successfully`);
     } catch (error) {
       console.error("Error deleting teacher:", error);
-      alert("Failed to delete teacher. Please try again.");
+      toast.error("Failed to delete teacher. Please try again.");
     } finally {
       setIsDeleting(false);
     }
@@ -98,6 +102,7 @@ export function TeachersList({ onAddClick }) {
       const teacher = teachersList.find((teacher) => teacher._id === teacherId);
       if (!teacher) {
         console.error("Teacher not found");
+        toast.error("Teacher information could not be found");
         return;
       }
 
@@ -119,6 +124,7 @@ export function TeachersList({ onAddClick }) {
       setIsDialogOpen(true);
     } catch (error) {
       console.error("Error fetching teacher details:", error);
+      toast.error("Failed to load teacher details");
     }
   };
 
@@ -127,6 +133,7 @@ export function TeachersList({ onAddClick }) {
       const teacher = teachersList.find((teacher) => teacher._id === teacherId);
       if (!teacher) {
         console.error("Teacher not found");
+        toast.error("Teacher information could not be found");
         return;
       }
       setSelectedTeacher(teacher);
@@ -147,6 +154,7 @@ export function TeachersList({ onAddClick }) {
       setIsDialogOpen(true);
     } catch (error) {
       console.error("Error fetching teacher details:", error);
+      toast.error("Failed to load teacher details for editing");
     }
   };
 
@@ -158,6 +166,7 @@ export function TeachersList({ onAddClick }) {
     e.preventDefault();
     if (!selectedTeacher || !selectedTeacher._id) {
       console.error("No teacher selected or missing ID");
+      toast.error("Invalid teacher data. Please try again.");
       return;
     }
     try {
@@ -170,8 +179,10 @@ export function TeachersList({ onAddClick }) {
         )
       );
       closeDialog();
+      toast.success("Teacher information updated successfully");
     } catch (error) {
       console.error("Error updating teacher:", error);
+      toast.error("Failed to update teacher information. Please try again.");
     }
   };
 
@@ -179,26 +190,53 @@ export function TeachersList({ onAddClick }) {
     setEditedPassword({ ...editedPassword, [e.target.name]: e.target.value });
   };
 
-  const handleSubmitPassword = async (e) => {
+  const handleSubmitPassword = (e) => {
     e.preventDefault();
-    if (!selectedTeacher || !selectedTeacher._id) {
-      console.error("No teacher selected or missing ID");
-      return;
-    }
+    
+    // Vérification côté client
     if (editedPassword.newPassword !== editedPassword.confirmationPassword) {
-      alert("New password and confirmation do not match");
+      toast.error("New password and confirmation do not match!");
       return;
     }
+    
+    // Vérification de la validité du mot de passe (si vous avez des critères similaires à votre backend)
+    if (editedPassword.newPassword.length < 8) { // exemple de critère
+      toast.error("Password must be at least 8 characters long.");
+      return;
+    }
+    
+    EditPassword({
+      oldPassword: editedPassword.oldPassword,
+      newPassword: editedPassword.newPassword,
+      confirmationPassword: editedPassword.confirmationPassword
+    });
+  };
+  
+  const EditPassword = async (passwordData) => {
     try {
-      await editPasswordTeacher(selectedTeacher._id, editedPassword);
+      if (!selectedTeacher || !selectedTeacher._id) {
+        console.error("No selected teacher found.");
+        toast.error("No teacher selected");
+        return;
+      }
+      const response = await editPasswordTeacher(selectedTeacher._id, passwordData);
+      console.log("Password updated successfully:", response);
       closePasswordDialog();
-      alert("Password updated successfully");
+      // Toast de succès
+      toast.success("Password updated successfully");
     } catch (error) {
       console.error("Error updating password:", error);
-      alert("Failed to update password. Please try again.");
+      
+      // Message d'erreur précis du serveur avec toast
+      if (error.response && error.response.data) {
+        toast.error(`Error: ${error.response.data.message || "An error occurred"}`);
+        console.error("Details:", error.response.data);
+      } else {
+        toast.error("An error occurred while updating the password");
+      }
     }
   };
-
+  
   const closeDialog = () => {
     setIsDialogOpen(false);
     setSelectedTeacher(null);
@@ -229,6 +267,17 @@ export function TeachersList({ onAddClick }) {
 
   return (
     <div className="p-6 bg-white rounded-lg shadow-lg">
+      <ToastContainer
+        position="top-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+      />
       <h1 className="text-2xl font-bold mb-4">Manage Teachers</h1>
       <div className="bg-white p-6 rounded-lg shadow-lg mb-6">
         <div className="flex items-center justify-between mb-4">
