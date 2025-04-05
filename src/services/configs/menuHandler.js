@@ -8,6 +8,7 @@ import { GiTeacher } from "react-icons/gi";
 import {
   MdAccountCircle,
   MdAssignmentAdd,
+  MdAutoStories,
   MdCalendarMonth,
   MdDashboard,
   MdDownload,
@@ -15,8 +16,7 @@ import {
   MdList,
   MdNotifications,
 } from "react-icons/md";
-import { PiStudentBold } from "react-icons/pi";
-import { PiStudentFill } from "react-icons/pi";
+import { PiStudentBold, PiStudentFill } from "react-icons/pi";
 import Pfa from "../../../src/pages/pfaPage/Pfa";
 import SubjectDetailsPage from "../../components/subjectsComponents/SubjectDetailsPage";
 import AdminPeriods from "../../pages/adminPeriodsPage/AdminPeriods";
@@ -28,19 +28,20 @@ import ErrorPage from "../../pages/ErrorPage";
 import Home from "../../pages/homePage/Home";
 import Notifications from "../../pages/Notifications";
 import OptionListPage from "../../pages/optionPage/OptionListPage";
+import OptionPage from "../../pages/optionPage/OptionPage";
 import AdminPfeManagement from "../../pages/pfePage/pfe";
 import PFEStudent from "../../pages/pfePage/pfeStudent";
 import InternshipPlanning from "../../pages/PlanningUpdate/InternshipPlanningUpdate";
 import Profile from "../../pages/profilePage/Profile";
 import InternshipList from "../../pages/studentInternshipPage/studentInternship";
 import Subjects from "../../pages/subjectsPage/Subjects";
+import TeacherInternshipList from "../../pages/teacherInternshipPage/TeacherInternshipPage";
+import StudentsListTeachers from "../../pages/usersListPage/StudentsListTeachers";
 import StudentsManagPage from "../../pages/UsersManagementPage/StudentsManagPage";
 import TeachersManagPage from "../../pages/UsersManagementPage/TeachersManagPage";
 import { RoleEnum } from "../../utils/userRoles";
-import OptionPage from "../../pages/optionPage/OptionPage";
-import { MdAutoStories } from "react-icons/md";
-import StudentsListTeachers from "../../pages/usersListPage/StudentsListTeachers";
 import TeacherPFEList from "../../pages/pfePage/ens";
+
 export const menuConfig = [
   {
     order: 1,
@@ -97,7 +98,7 @@ export const menuConfig = [
     active: true,
     hideSideBar: false,
     hideHeader: false,
-    dontShow: true,
+    // dontShow: true,
   },
   {
     order: 5,
@@ -290,8 +291,20 @@ export const menuConfig = [
     hideSideBar: false,
     hideHeader: false,
   },
+
   {
     order: 21,
+    label: "Internship List",
+    icon: MdList,
+    path: "/TeacherInternshipList",
+    component: TeacherInternshipList,
+    eligibleRoles: [RoleEnum.TEACHER],
+    active: true,
+    hideSideBar: false,
+    hideHeader: false,
+  },
+  {
+    order: 22,
     label: "PFE",
     icon: FaGraduationCap,
     path: "/pfeens",

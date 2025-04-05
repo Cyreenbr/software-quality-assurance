@@ -1,32 +1,53 @@
 import axiosAPI from "../axiosAPI/axiosInstance";
 
-
-const teacherService = {
+export const teacherService = {
   getTeachers: async () => {
     try {
-      const response = await axiosAPI.get(`/internship/teachers`);
-      return response.data; 
+      const response = await axiosAPI.get("/internship/teachers");
+      return response.data;
     } catch (error) {
-      console.error("Erreur API teachers :", error);
+      console.error("Error fetching teachers:", error.response?.data?.message || error);
       return [];
     }
   },
 };
 
-const internshipService = {
+export const internshipService = {
   assignInternships: async (assignmentData) => {
     try {
       const response = await axiosAPI.post(
-        `/internship/stage/planning/assign`,
+        "/internship/stage/planning/assign",
         assignmentData
       );
       return response.data;
     } catch (error) {
-      console.error("Erreur while assigning internships:", error.response?.status, error.response?.data);
+      console.error(
+        "Error assigning internships:",
+        error.response?.status,
+        error.response?.data?.message || error
+      );
+      throw error;
+    }
+  },
+
+  publishPlanning: async (action) => {
+    try {
+      const response = await axiosAPI.post(`/internship/stage/planning/publish/${action}`);
+      return response.data;
+    } catch (error) {
+      console.error("Error publishing planning:", error.response?.data?.message || error);
+      throw error;
+    }
+  },
+
+
+sendPlanning: async (sendType) => {
+    try {
+      const response = await axiosAPI.post("/internship/stage/planning/send", { sendType });
+      return response.data;
+    } catch (error) {
+      console.error("Error sending planning:", error.response?.data?.message || error);
       throw error;
     }
   },
 };
-
-export { internshipService, teacherService };
-

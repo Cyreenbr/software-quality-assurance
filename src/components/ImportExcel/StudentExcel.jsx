@@ -2,8 +2,12 @@ import { useState } from "react";
 import * as XLSX from "xlsx";
 import { MdSchool, MdUploadFile, MdRefresh } from "react-icons/md";
 import { insertStudentsFromExcel } from "../../services/StudentServices/student.service";
+import { useNavigate } from "react-router-dom";
+import AddStudent from "../AddUser/AddStudent"; // Import the AddStudent component
+import { registerUser } from "../../services/AccountServices/account.service";
 
 const StudentExcel = ({ onBackClick }) => {
+  const navigate = useNavigate();
   const [file, setFile] = useState(null);
   const [tableData, setTableData] = useState([]);
   const [columns, setColumns] = useState([]);
@@ -11,12 +15,18 @@ const StudentExcel = ({ onBackClick }) => {
   const [importedStudents, setImportedStudents] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
+  const [showAddStudent, setShowAddStudent] = useState(false); // New state to control AddStudent visibility
   const studentsPerPage = 5;
 
   const handleFileChange = (event) => {
     const selectedFile = event.target.files[0];
     setFile(selectedFile);
     readExcel(selectedFile);
+  };
+
+  const handleAddStudentClick = () => {
+    // Set state to show AddStudent component
+    setShowAddStudent(true);
   };
 
   const readExcel = (file) => {
@@ -97,16 +107,31 @@ const StudentExcel = ({ onBackClick }) => {
     }
   };
 
+  // Handle back from AddStudent component
+  const handleBackFromAddStudent = () => {
+    setShowAddStudent(false);
+  };
+
   const renderImportForm = () => {
     return (
       <div className="bg-white shadow-md rounded-lg p-4 w-full">
         <div className="flex justify-between mb-4">
-          <input 
-            type="file" 
-            accept=".xlsx,.xls" 
-            onChange={handleFileChange} 
-            className="border p-2 rounded" 
-          />
+          <div className="flex flex-col gap-2">
+            <input 
+              type="file" 
+              accept=".xlsx,.xls" 
+              onChange={handleFileChange} 
+              className="border p-2 rounded" 
+            />
+            
+            <button 
+              onClick={handleAddStudentClick} 
+              className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600"
+            >
+              Add Student
+            </button>
+          </div>
+
           <div className="flex items-center gap-2">
             <button 
               onClick={handleImportClick}
@@ -182,7 +207,6 @@ const StudentExcel = ({ onBackClick }) => {
                     {col || "-"}
                   </th>
                 ))}
-                
               </tr>
             </thead>
             <tbody>
@@ -193,7 +217,6 @@ const StudentExcel = ({ onBackClick }) => {
                       {student[col] || "-"}
                     </td>
                   ))}
-                 
                 </tr>
               ))}
             </tbody>
@@ -221,6 +244,11 @@ const StudentExcel = ({ onBackClick }) => {
       </div>
     );
   };
+
+  // If showAddStudent is true, render the AddStudent component
+  if (showAddStudent) {
+    return <AddStudent onBackClick={handleBackFromAddStudent} />;
+  }
 
   return (
     <div className="w-full p-6">

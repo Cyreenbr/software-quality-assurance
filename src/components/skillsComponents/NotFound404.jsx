@@ -1,12 +1,13 @@
 import React from 'react';
 import { TbError404 } from 'react-icons/tb';
 
-const NotFound404 = ({ title = 'No data found', iconSize = 60, textStyle = 'text-2xl text-gray-800' }) => {
+const NotFound404 = ({ title = 'No data found', iconSize = 60, textStyle = 'text-2xl text-gray-800', codeError = "404" }) => {
     return (
         <div className="flex flex-col items-center justify-center text-gray-700 p-6">
             {/* Error Icon */}
-            <TbError404 size={iconSize} className="text-red-500 mb-4" />
-
+            {codeError === "404" &&
+                <TbError404 size={iconSize} className="text-red-500 mb-4" />
+            }
             {/* Title */}
             <p className={`mt-2 ${textStyle} text-center font-semibold`}>{title}</p>
 

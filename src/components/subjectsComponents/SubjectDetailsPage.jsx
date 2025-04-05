@@ -7,10 +7,13 @@ import {
     FaHistory,
     FaTimes,
 } from "react-icons/fa";
+import { MdTitle } from "react-icons/md";
 import { useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
+import { ClipLoader } from "react-spinners";
 import { toast } from "react-toastify";
 import matieresServices from "../../services/matieresServices/matieres.service";
+import humanizeDate from "../../utils/humanizeDate";
 import { RoleEnum } from "../../utils/userRoles";
 import Popup from "../skillsComponents/Popup";
 
@@ -24,22 +27,16 @@ const SubjectDetailsPage = () => {
     const [expandedChapters, setExpandedChapters] = useState({});
     const userRole = useSelector((state) => state.auth.role);
 
-    // Ref to track if data has been fetched for the current ID
     const fetchRef = useRef(false);
 
     useEffect(() => {
         const fetchSubject = async () => {
             try {
-                // Reset loading and error states
                 setLoading(true);
                 setError(null);
 
-                // Check if data has already been fetched for this ID
-                if (fetchRef.current && formData?.subject?._id === id) {
-                    return;
-                }
+                if (fetchRef.current && formData?.subject?._id === id) return;
 
-                // Fetch subject data
                 const response = await matieresServices.fetchMatiereById(id);
                 const { subject, history, historyPagination } = response;
 
@@ -47,7 +44,6 @@ const SubjectDetailsPage = () => {
                     throw new Error("Invalid subject data received from the server.");
                 }
 
-                // Update formData with the new structure
                 setFormData({
                     subject: {
                         ...subject,
@@ -63,12 +59,8 @@ const SubjectDetailsPage = () => {
                     historyPagination: historyPagination || null,
                 });
 
-                // Mark that data has been fetched for this ID
                 fetchRef.current = true;
                 console.log(response.message);
-
-                // toast.success(response.message);
-                setError(null);
             } catch (err) {
                 toast.error(err.response?.message || "Failed to load subject data.");
                 setError(err.message || "Failed to load subject data.");
@@ -77,25 +69,18 @@ const SubjectDetailsPage = () => {
             }
         };
 
-        // Call the fetch function
         fetchSubject();
-    }, [formData?.subject?._id, id]); // Re-run effect only when `id` changes
+    }, [formData?.subject?._id, id]);
 
-    // Toggle chapter expand/collapse
     const toggleChapterExpand = (index) => {
-        setExpandedChapters((prev) => ({
-            ...prev,
-            [index]: !prev[index],
-        }));
+        setExpandedChapters((prev) => ({ ...prev, [index]: !prev[index] }));
     };
 
-    // Toggle status for chapter
     const toggleChapterStatus = (index) => {
         setFormData((prevData) => {
             const updatedChapters = prevData.subject.curriculum.chapitres.map((chapter, i) =>
                 i === index ? { ...chapter, status: !chapter.status } : chapter
             );
-
             return {
                 ...prevData,
                 subject: {
@@ -109,7 +94,6 @@ const SubjectDetailsPage = () => {
         });
     };
 
-    // Toggle status for section
     const toggleSectionStatus = (chapterIndex, sectionIndex) => {
         setFormData((prevData) => {
             const updatedChapters = prevData.subject.curriculum.chapitres.map((chapter, cIndex) => {
@@ -121,7 +105,6 @@ const SubjectDetailsPage = () => {
                 }
                 return chapter;
             });
-
             return {
                 ...prevData,
                 subject: {
@@ -135,33 +118,53 @@ const SubjectDetailsPage = () => {
         });
     };
 
-    if (loading) return <LoadingState message="Loading subject details..." />;
+    if (loading)
+        return (
+            <div className="flex justify-center items-center h-screen text-center">
+                <div>
+                    <ClipLoader size={50} color="#3B82F6" />
+                    <p className="mt-4 font-bold text-gray-700">Loading subject details...</p>
+                </div>
+            </div>
+        );
+
     if (error) return <ErrorState message={error} />;
     if (!formData) return <ErrorState message="Invalid subject data." />;
 
     return (
         <div className="min-h-screen bg-gray-100 p-6">
-            <form className="w-full max-w-5xl mx-auto bg-white rounded-lg shadow-lg p-8 space-y-8">
+            <div className="w-full max-w-6xl mx-auto bg-white rounded-lg shadow-lg p-8 space-y-8">
                 {/* Header */}
-                <header className="text-center mb-4">
-                    <h1 className="text-3xl font-bold text-blue-800 flex items-center justify-center gap-2">
-                        <FaBook className="text-blue-600" /> {formData.subject.title}
+                <header className="text-center mb-8">
+                    <h1 className="text-4xl font-bold text-blue-800 flex items-center justify-center gap-2">
+                        <FaBook className="text-3xl text-blue-600" /> {formData.subject.title}
                     </h1>
+                    <p className="text-sm text-gray-600">{humanizeDate(formData.subject.createdAt)}</p>
                 </header>
 
-                {/* Subject Information */}
-                <Section title="Subject Details">
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {/* Subject Overview */}
+                <Section title="Overview">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                         <InfoCard label="Module" value={formData.subject.curriculum?.module || "N/A"} />
                         <InfoCard label="Level" value={formData.subject.curriculum?.level || "N/A"} />
-                        <InfoCard label="Code" value={formData.subject.curriculum?.code || "N/A"} />
+                        <InfoCard
+                            label="Teacher"
+                            value={
+                                formData.subject.teacherId
+                                    ? formData.subject.teacherId
+                                        .map((teacher) => `${teacher.firstName} ${teacher.lastName} (${teacher.email})`)
+                                        .join(", ")
+                                    : "N/A"
+                            }
+                        />
                         <InfoCard label="Semester" value={formData.subject.curriculum?.semestre || "N/A"} />
                         <InfoCard label="Responsible" value={formData.subject.curriculum?.responsable || "N/A"} />
                         <InfoCard label="Language" value={formData.subject.curriculum?.langue || "N/A"} />
-                        <InfoCard label="Relation" value={formData.subject.curriculum?.relation || "N/A"} />
-                        <InfoCard label="Teaching Type" value={formData.subject.curriculum?.type_enseignement || "N/A"} />
                         <InfoCard label="Total Hours" value={formData.subject.curriculum?.volume_horaire_total || "N/A"} />
                         <InfoCard label="Credits" value={formData.subject.curriculum?.credit || "N/A"} />
+                        <InfoCard label="Code" value={formData.subject.curriculum?.code || "N/A"} />
+                        <InfoCard label="Relation" value={formData.subject.curriculum?.relation || "N/A"} />
+                        <InfoCard label="Teaching Type" value={formData.subject.curriculum?.type_enseignement || "N/A"} />
                         <InfoCard
                             label="Prerequisites"
                             value={formData.subject.curriculum?.prerequis_recommandes?.join(", ") || "None"}
@@ -169,10 +172,10 @@ const SubjectDetailsPage = () => {
                     </div>
                 </Section>
 
-                {/* Chapters List */}
-                <Section title="Chapters">
+                {/* Chapters and Sections */}
+                <Section title="Chapters & Sections">
                     {formData.subject.curriculum.chapitres.length > 0 ? (
-                        <div className="space-y-4">
+                        <div className="space-y-6">
                             {formData.subject.curriculum.chapitres.map((chapter, index) => (
                                 <div key={index} className="border rounded-lg p-4 bg-gray-50 shadow-sm">
                                     {/* Chapter Header */}
@@ -194,7 +197,6 @@ const SubjectDetailsPage = () => {
                                             <FaChevronDown className="text-gray-600" />
                                         )}
                                     </div>
-
                                     {/* Chapter Status Checkbox */}
                                     <div className="flex items-center mt-2">
                                         <input
@@ -205,7 +207,6 @@ const SubjectDetailsPage = () => {
                                         />
                                         <label className="text-sm text-gray-700">Mark as complete</label>
                                     </div>
-
                                     {/* Sections (if expanded) */}
                                     {expandedChapters[index] && chapter.sections.length > 0 && (
                                         <ul className="mt-3 pl-4 border-l-2 border-gray-300 space-y-2">
@@ -224,7 +225,6 @@ const SubjectDetailsPage = () => {
                                                             )}
                                                         </span>
                                                     </div>
-                                                    {/* Section Status Checkbox */}
                                                     <input
                                                         type="checkbox"
                                                         checked={section.status}
@@ -246,7 +246,7 @@ const SubjectDetailsPage = () => {
                 {/* Skills */}
                 <Section title="Skills">
                     {formData.subject.skillsId.length > 0 ? (
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                             {formData.subject.skillsId.map((skill, index) => (
                                 <SkillCard
                                     key={index}
@@ -295,38 +295,50 @@ const SubjectDetailsPage = () => {
                         title="History Details"
                         position="center"
                         showCloseButton={true}
-                        closeButtonStyle="absolute top-2 right-2 text-gray-600 hover:text-gray-900 cursor-pointer"
                         zindex="z-50"
-                        styles="bg-white w-full max-w-3xl p-6 rounded-lg shadow-lg"
                     >
-                        <div className="space-y-4">
+                        <div className="space-y-6">
+                            {/* Header Section */}
+                            <div className="flex items-center space-x-3">
+                                <MdTitle className="text-2xl text-primary-600" />
+                                <h2 className="text-lg font-bold text-gray-900">History Details</h2>
+                            </div>
+                            {/* Title Row */}
                             <DetailRow label="Title" value={selectedHistory.title} />
-                            <DetailRow
-                                label="Modified At"
-                                value={new Date(selectedHistory.modifiedAt).toLocaleString()}
-                            />
+                            {/* Modified At Row */}
+                            <DetailRow label="Modified At" value={humanizeDate(selectedHistory.modifiedAt)} />
+                            {/* Teachers Row */}
                             <DetailRow
                                 label="Teachers"
                                 value={
-                                    selectedHistory.teacherId
-                                        .map((t) => `${t.firstName} ${t.lastName} (${t.email})`)
-                                        .join(", ") || "None"
+                                    selectedHistory.teacherId.length > 0 ? (
+                                        selectedHistory.teacherId
+                                            .map((t) => `${t.firstName} ${t.lastName} (${t.email})`)
+                                            .join(", ")
+                                    ) : (
+                                        "None"
+                                    )
                                 }
                             />
+                            {/* Skills Row */}
                             <DetailRow
                                 label="Skills"
                                 value={
-                                    selectedHistory.skillsId
-                                        .map((s) =>
-                                            `${s.title} (${s.familyId.map((f) => f.title).join(", ")})`
-                                        )
-                                        .join(", ") || "None"
+                                    selectedHistory.skillsId.length > 0 ? (
+                                        selectedHistory.skillsId
+                                            .map((s) =>
+                                                `${s.title} (${s.familyId.map((f) => f.title).join(", ")})`
+                                            )
+                                            .join(", ")
+                                    ) : (
+                                        "None"
+                                    )
                                 }
                             />
                         </div>
                     </Popup>
                 )}
-            </form>
+            </div>
         </div>
     );
 };
@@ -334,7 +346,7 @@ const SubjectDetailsPage = () => {
 // Helper Components
 const Section = ({ title, icon, children }) => (
     <section className="p-6 border-b border-gray-200 last:border-none">
-        <h2 className="text-xl font-semibold text-gray-800 flex items-center mb-4 gap-2">
+        <h2 className="text-2xl font-semibold text-gray-800 flex items-center mb-4 gap-2">
             {icon && <span>{icon}</span>}
             {title}
         </h2>
@@ -368,13 +380,11 @@ const ErrorState = ({ message }) => (
     <p className="text-red-600 text-center py-4">{message}</p>
 );
 
-const LoadingState = ({ message }) => (
-    <p className="text-blue-600 text-center py-4">{message}</p>
-);
 const DetailRow = ({ label, value }) => (
-    <div>
-        <p className="font-semibold text-gray-700">{label}:</p>
-        <p className="text-gray-600">{value}</p>
+    <div className="flex flex-col space-y-1 transition-all duration-200 hover:bg-gray-100 rounded-lg p-3">
+        <span className="text-sm font-medium text-gray-600">{label}</span>
+        <span className="text-base font-semibold text-gray-900">{value}</span>
     </div>
 );
+
 export default SubjectDetailsPage;

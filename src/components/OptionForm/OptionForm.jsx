@@ -1,20 +1,19 @@
 import React, { useState } from "react";
 import { chooseOption } from "../../services/OptionServices/option.service";
-
+import Swal from "sweetalert2";
 export default function OptionForm() {
   const [firstchoice, setFirstChoice] = useState("INLOG");
   const [moy_general_1ING, setMoyGeneral1ING] = useState("");
-  const [moy_algo_complexité, setMoyAlgoComplexite] = useState("");
+  const [moy_algo_complexite, setMoyAlgoComplexite] = useState("");
   const [moy_POO, setMoyPOO] = useState("");
   const [moy_programmation_web, setMoyProgrammationWeb] = useState("");
-  const [statut, setStatut] = useState("");
+  const [statut, setStatut] = useState("validé");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-
   const validateMoyennes = () => {
     const moyennes = [
       moy_general_1ING,
-      moy_algo_complexité,
+      moy_algo_complexite,
       moy_POO,
       moy_programmation_web,
     ];
@@ -22,34 +21,34 @@ export default function OptionForm() {
       const numValue = parseFloat(value);
       if (isNaN(numValue) || numValue < 1 || numValue > 20) {
         setError("All averages must be between 1 and 20.");
-        setLoading(false);
         return false;
       }
     }
     setError("");
     return true;
   };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!validateMoyennes()) return;
     setLoading(true);
-    if (
-      !firstchoice ||
-      !moy_general_1ING ||
-      !moy_algo_complexité ||
-      !moy_POO ||
-      !moy_programmation_web
-    ) {
-      alert("Please fill in all fields.");
+    if (!validateMoyennes()) {
       setLoading(false);
       return;
     }
-    setStatut("validé");
+    if (
+      !firstchoice ||
+      !moy_general_1ING ||
+      !moy_algo_complexite ||
+      !moy_POO ||
+      !moy_programmation_web
+    ) {
+      setError("Please fill in all fields.");
+      setLoading(false);
+      return;
+    }
     const optionData = {
       firstchoice,
       moy_general_1ING,
-      moy_algo_complexité,
+      moy_algo_complexite,
       moy_POO,
       moy_programmation_web,
       statut,
@@ -57,16 +56,57 @@ export default function OptionForm() {
     try {
       const response = await chooseOption(optionData);
       console.log("Option choice sent:", response);
+      Swal.fire({
+        title: "Success",
+        text: "Option chosen successfully!",
+        icon: "success",
+      });
     } catch (error) {
       console.error("Error sending option choice:", error);
-      alert(error);
+      Swal.fire({
+        title: "Error",
+        text: "Error sending option choice. Please try again.",
+        icon: "error",
+      });
+      // Handle backend errors
+      if (error.response) {
+        const { status, data } = error.response;
+
+        if (status === 404 && data.message === "Utilisateur non trouvé") {
+          setError("User not found. Please log in again.");
+        } else if (
+          status === 403 &&
+          data.message.includes("période de choix")
+        ) {
+          setError(data.message);
+        } else if (
+          status === 400 &&
+          data.message === "Erreur de validation des données"
+        ) {
+          setError(
+            "Data validation error: " +
+              (data.error ? data.error.join(", ") : "")
+          );
+        } else if (status === 500) {
+          if (data.error && data.error.includes("duplicate key")) {
+            setError("You have already chosen your option.");
+          } else {
+            setError("An internal server error occurred: " + data.message);
+          }
+        } else {
+          setError(data.message || "An error occurred. Please try again.");
+        }
+      } else {
+        setError("Network error. Please check your connection.");
+      }
+    } finally {
       setLoading(false);
     }
   };
 
   return (
     <div className="flex items-center justify-center h-screen bg-gray-100">
-      <div className="w-full max-w-md p-8 bg-white shadow rounded">
+      <div className="w-full max-w-2xl p-16 bg-white shadow-xl rounded">
         <h1 className="text-2xl font-bold text-center mb-6">
           Choose Your Option
         </h1>
@@ -77,7 +117,7 @@ export default function OptionForm() {
               htmlFor="firstChoice"
               className="block text-sm font-medium text-gray-700"
             >
-              First Choice
+              Your First Choice
             </label>
             <select
               id="firstChoice"
@@ -89,6 +129,9 @@ export default function OptionForm() {
               <option value="INREV">Réalité Virtuelle</option>
               <option value="INLOG">Génie Logiciel</option>
             </select>
+          </div>
+
+          <div className="mb-4">
             <label
               htmlFor="moygen"
               className="block text-sm font-medium text-gray-700"
@@ -106,8 +149,11 @@ export default function OptionForm() {
               placeholder="Enter your general average in your 1st year ING"
               required
             />
+          </div>
+
+          <div className="mb-4">
             <label
-              htmlFor="moy_algo_complexité"
+              htmlFor="moy_algo_complexite"
               className="block text-sm font-medium text-gray-700"
             >
               Your average in algorithm and complexity
@@ -115,14 +161,17 @@ export default function OptionForm() {
             <input
               type="number"
               step="0.01"
-              id="moy_algo_complexité"
-              name="moy_algo_complexité"
-              value={moy_algo_complexité}
+              id="moy_algo_complexite"
+              name="moy_algo_complexite"
+              value={moy_algo_complexite}
               onChange={(e) => setMoyAlgoComplexite(e.target.value)}
               className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
               placeholder="Enter your average in algorithm and complexity"
               required
             />
+          </div>
+
+          <div className="mb-4">
             <label
               htmlFor="moy_POO"
               className="block text-sm font-medium text-gray-700"
@@ -140,6 +189,9 @@ export default function OptionForm() {
               placeholder="Enter your average in programming oriented object"
               required
             />
+          </div>
+
+          <div className="mb-4">
             <label
               htmlFor="moy_programmation_web"
               className="block text-sm font-medium text-gray-700"
@@ -158,6 +210,7 @@ export default function OptionForm() {
               required
             />
           </div>
+
           <button
             type="submit"
             disabled={loading}

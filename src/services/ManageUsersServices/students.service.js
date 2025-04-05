@@ -48,14 +48,22 @@ export const deleteStudent = async (studentId) => {
 };
 export const editPassword = async (_id, userpass) => {
   try {
+    console.log("Sending password update:", {
+      _id,
+      oldPassword: userpass.oldPassword,
+      newPassword: userpass.newPassword,
+      confirmationPassword: userpass.confirmationPassword
+    });
+    
     const response = await axiosAPI.patch(`/students/${_id}/password`, userpass);
-
+    
     console.log("Student's password updated successfully:", response.data);
     return response.data;
   } catch (error) {
     console.error("Error updating student's password:", error);
     throw error;
   }
+
 };
 export const getStudentsforTearchers = async () => {
   try {
