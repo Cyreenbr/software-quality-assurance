@@ -241,7 +241,7 @@ export const menuConfig = [
     path: "/pfeStudent",
     tooltip: "pfe",
     component: PFEStudent,
-    eligibleRoles: [RoleEnum.STUDENT],
+    eligibleRoles: [RoleEnum.ISPFE],
     active: true,
     dontShow: false,
     hideSideBar: false,
