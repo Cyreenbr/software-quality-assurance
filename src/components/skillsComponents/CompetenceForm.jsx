@@ -3,7 +3,7 @@ import { FaEdit, FaPlusCircle } from 'react-icons/fa';
 import { ImPower } from "react-icons/im";
 import { TiWarning } from "react-icons/ti";
 import useDeviceType from '../../utils/useDeviceType';
-import MultiSelectDropdownFamily from './MultiSelectDropdownFamily';
+import MultiSelectDropdown from './MultiSelectDropdown';
 import Popup from './Popup';
 import Tooltip from './Tooltip';
 
@@ -20,17 +20,32 @@ const SkillForm = ({
 }) => {
     const deviceType = useDeviceType(); // Utilisation du hook
     const isMobile = deviceType === "mobile"; // Vérification si c'est un mobile
+    const [forced, setForced] = useState(false);
 
     const [selectedFamilies, setSelectedFamilies] = useState(editSkill ? editSkill.familyId : []);
 
-    useEffect(() => {
-        if (editSkill && editSkill.familyId) {
-            // Ensure familyId is in the correct format (array of IDs)
-            setSelectedFamilies(editSkill.familyId.map(family => family._id || family)); // Assuming familyId is an array of family objects
-        } else {
-            setSelectedFamilies([]); // Reset to empty array if no editSkill or familyId is empty
-        }
-    }, [editSkill]);
+    // useEffect(() => {
+    //     if (editSkill && editSkill.familyId) {
+    //         // Ensure familyId is in the correct format (array of IDs)
+    //         setSelectedFamilies(editSkill.familyId.map(family => family._id || family)); // Assuming familyId is an array of family objects
+    //     } else {
+    //         setSelectedFamilies([]); // Reset to empty array if no editSkill or familyId is empty
+    //     }
+    // }, [editSkill]);
+    // useEffect(() => {
+    //     if (editSkill) {
+    //         setEditSkill(prev => ({
+    //             ...prev,
+    //             familyId: selectedFamilies
+    //         }));
+    //     } else {
+    //         setNewSkill(prev => ({
+    //             ...prev,
+    //             familyId: selectedFamilies
+    //         }));
+    //     }
+    // }, [selectedFamilies]);
+
 
     const renderInputField = ({ id, label, value, onChange, type = "text", placeholder, classNames }) => (
         <div className="mb-3">
@@ -56,31 +71,20 @@ const SkillForm = ({
         </div>
     );
 
-    const handleSelectedFamiliesChange = (selectedFamiliesObjects) => {
-        // console.log("Selected Families:", selectedFamiliesObjects);
-        if (editSkill) {
-            setEditSkill(prev => ({ ...prev, familyId: selectedFamiliesObjects }));
-        } else {
-            setNewSkill(prev => ({ ...prev, familyId: selectedFamiliesObjects }));
-        }
-    };
-
     // Handle submit logic for both Add and Edit
     const handleSubmit = (e) => {
-        e.preventDefault();
-        // Set familyId in either newSkill or editSkill based on the scenario
+        if (e && e.preventDefault) e.preventDefault();
+
         if (editSkill) {
-            setEditSkill({ ...editSkill, familyId: selectedFamilies });
-            handleUpdateSkill(e);
+            handleUpdateSkill(); // Ne passe plus l'événement
         } else {
-            setNewSkill({ ...newSkill, familyId: selectedFamilies });
-            handleAddSkill(e);
+            handleAddSkill(); // Ne passe plus l'événement
         }
     };
 
     const size = isMobile ? 25 : 20;
     const buttonLabel = editSkill
-        ? `Update Competence${editSkill?.forced ? ' (Forced)' : ''}`
+        ? `Update Competence${forced ? ' (Forced)' : ''}`
         : 'Add Competence';
     const buttonIcon = editSkill ? <FaEdit size={size} className="text-xl" /> : <FaPlusCircle size={size} className="text-xl" />;
 
@@ -96,6 +100,9 @@ const SkillForm = ({
             <span className="text-sm font-medium">{buttonLabel}</span>
         </button>
     );
+    useEffect(() => {
+        console.log("Selected Families from MultiSelectDropdown:", selectedFamilies);
+    }, [selectedFamilies]);
 
 
     return (
@@ -107,7 +114,7 @@ const SkillForm = ({
             position="center"
             titlePosition="center"
         >
-            <form onSubmit={(e) => { handleSubmit(e) }} className="animate__animated animate__fadeIn">
+            <form onSubmit={handleSubmit} className="animate__animated animate__fadeIn">
                 {/* Title Input */}
                 {renderInputField({
                     id: editSkill ? "editTitle" : "title",
@@ -169,27 +176,47 @@ const SkillForm = ({
                         ) */}
                     </label>
 
-                    <MultiSelectDropdownFamily
+                    {/* <MultiSelectDropdownFamily
                         families={families}
                         selectedFamilies={selectedFamilies}
                         setSelectedFamilies={setSelectedFamilies}
-                        onSelectionChange={handleSelectedFamiliesChange}
+                    /> */}
+
+                    {/* <MultiSelectDropdown
+                        items={families}
+                        selectedItems={selectedFamilies}
+                        setSelectedItems={setSelectedFamilies}
+                        getItemId={item => item._id}
+                        getItemLabel={item => item.title}
+                        placeholder="Select Skill Families"
+                        clearTooltip="Clear All"
+                    /> */}
+                    <MultiSelectDropdown
+                        items={families}
+                        selectedItems={selectedFamilies}
+                        setSelectedItems={setSelectedFamilies}
+                        getItemId={item => item._id}
+                        getItemLabel={item => item.title}
                     />
+
+
                 </div>
 
                 {/* Force Update Checkbox (only for Edit) */}
                 {editSkill && (
                     <div className="flex mb-5 mt-5 justify-center">
-                        <Tooltip text={editSkill?.forced ? 'Force Update Enabled' : 'Enable Force Update'} position='top'>
+                        <Tooltip text={forced ? 'Force Update Enabled' : 'Enable Force Update'} position='top'>
                             <button
                                 onClick={(e) => {
                                     e.preventDefault();
-                                    setEditSkill({ ...editSkill, forced: !editSkill?.forced });
+                                    // setEditSkill({ ...editSkill, forced: !editSkill?.forced });
+                                    setForced(prev => !prev);
+                                    // setEditSkill(prev => ({ ...prev, forced: !prev?.forced }));
                                 }}
                                 className={`flex items-center space-x-2 px-4 py-2 rounded-full font-medium transition duration-300 shadow-md
-                            ${editSkill?.forced ? "bg-indigo-600 text-white hover:bg-indigo-700" : "bg-gray-300 text-gray-700 hover:bg-gray-400"}`}
+                            ${forced ? "bg-indigo-600 text-white hover:bg-indigo-700" : "bg-gray-300 text-gray-700 hover:bg-gray-400"}`}
                             >
-                                {editSkill?.forced ? (
+                                {forced ? (
                                     <>
                                         <TiWarning className="text-white text-lg" /> <span>Enabled</span>
                                     </>

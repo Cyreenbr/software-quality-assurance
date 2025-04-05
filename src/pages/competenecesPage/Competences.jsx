@@ -83,9 +83,32 @@ const Competences = () => {
         setHasSearched(true);
     }, 500);
 
-    const handleAddSkill = useCallback(async (event) => {
-        event.preventDefault();
+    // const handleAddSkill = useCallback(async (event) => {
+    //     event.preventDefault();
 
+    //     try {
+    //         const data = await competenceServices.addCompetence(newSkill);
+    //         setIsAddPopupOpen(false);
+    //         setSearchQuery('');
+    //         setSkills(prevSkills => [...prevSkills, data.skill]);
+    //         setSortedSkills(prevSkills => [...prevSkills, data.skill]);
+    //         setNewSkill({
+    //             title: '',
+    //             frDescription: '',
+    //             enDescription: '',
+    //             isPublish: false,
+    //             familyId: [],
+    //             forced: false,
+    //         });
+
+    //         await fetchCompetences(currentPage, searchQuery);
+    //         toast.success(data.message || "Skill added successfully!");
+    //     } catch (error) {
+    //         setError(error);
+    //         toast.error("Failed to add skill: " + error);
+    //     }
+    // }, [newSkill, fetchCompetences, currentPage, searchQuery]);
+    const handleAddSkill = useCallback(async () => {
         try {
             const data = await competenceServices.addCompetence(newSkill);
             setIsAddPopupOpen(false);
@@ -109,8 +132,25 @@ const Competences = () => {
         }
     }, [newSkill, fetchCompetences, currentPage, searchQuery]);
 
-    const handleUpdateSkill = useCallback(async (event) => {
-        event.preventDefault();
+    // const handleUpdateSkill = useCallback(async (event) => {
+    //     event.preventDefault();
+    //     try {
+    //         const data = await competenceServices.updateCompetence(editSkill);
+    //         const updatedSkillsList = skills.map(skill =>
+    //             skill._id === editSkill._id ? data.skill : skill
+    //         );
+    //         setSkills(updatedSkillsList);
+    //         setSortedSkills(updatedSkillsList);
+    //         setIsEditPopupOpen(false);
+
+    //         await fetchCompetences(currentPage);
+    //         toast.success(data.message || "Skill updated successfully!");
+    //     } catch (error) {
+    //         setError(error);
+    //         toast.error("Failed to update skill: " + error);
+    //     }
+    // }, [editSkill, skills, currentPage, fetchCompetences]);
+    const handleUpdateSkill = useCallback(async () => {
         try {
             const data = await competenceServices.updateCompetence(editSkill);
             const updatedSkillsList = skills.map(skill =>
