@@ -5,7 +5,7 @@ import { Navigate } from "react-router-dom";
 function ProtectedRoute({ element, roles = [] }) {
     const role = useSelector((state) => state.auth.role);
     const level = useSelector((state) => state.auth.user?.level || null);
-    console.log(level);
+    // console.log(level);
 
 
     if (!role) {
