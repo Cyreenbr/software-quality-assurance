@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { registerUser } from "../../services/AccountServices/account.service";
 import backgroundImage from "/src/assets/ISAMMBackground.jpg";
-
+import { toast } from "react-toastify";
 const AddTeacher = ({ onBackClick }) => {
   const navigate = useNavigate();
 
@@ -23,7 +23,7 @@ const AddTeacher = ({ onBackClick }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!firstName || !lastName || !email || !password) {
-      alert("Please fill in all fields.");
+      toast.error("Please fill in all fields.");
       return;
     }
 
@@ -32,27 +32,30 @@ const AddTeacher = ({ onBackClick }) => {
       lastName,
       email,
       password,
-      role: "teacher" // Add role to identify as teacher
+      role: "teacher", // Add role to identify as teacher
     };
-    
+
     try {
       const response = await registerUser(userData);
       console.log("Teacher registered:", response);
-      
+
       // Display success message
-      setSuccessMessage(`Teacher ${firstName} ${lastName} registered successfully!`);
-      
+      setSuccessMessage(
+        `Teacher ${firstName} ${lastName} registered successfully!`
+      );
+
       // Reset form for new registration
       resetForm();
-      
+
       // Clear success message after 5 seconds
       setTimeout(() => {
         setSuccessMessage("");
       }, 5000);
-      
     } catch (error) {
       console.error("Error registering teacher:", error);
-      alert(`Registration error: ${error.response?.data?.message || error.message}`);
+      alert(
+        `Registration error: ${error.response?.data?.message || error.message}`
+      );
     }
   };
 
@@ -74,22 +77,22 @@ const AddTeacher = ({ onBackClick }) => {
   return (
     <div className="fixed inset-0 flex items-center justify-center overflow-hidden">
       {/* Background image */}
-      <div 
+      <div
         className="fixed inset-0 z-0 bg-cover bg-center bg-no-repeat"
-        style={{ 
+        style={{
           backgroundImage: `url(${backgroundImage})`,
-          backgroundAttachment: "fixed"
+          backgroundAttachment: "fixed",
         }}
       ></div>
-      
+
       {/* Overlay with slight blur */}
       <div className="fixed inset-0 z-0 bg-black/30 backdrop-blur-sm"></div>
-      
+
       {/* Form container - centered without overflow */}
       <div className="relative z-10 w-full max-w-md p-8 bg-white/95 shadow-lg rounded-lg m-4 mt-20">
         <div className="flex justify-between items-center mb-4">
           <h1 className="text-2xl font-bold">Add New Teacher</h1>
-          <button 
+          <button
             onClick={handleBackClick}
             className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
           >
@@ -156,7 +159,7 @@ const AddTeacher = ({ onBackClick }) => {
               onChange={(e) => setEmail(e.target.value)}
             />
           </div>
-          
+
           <div className="mb-6">
             <label
               htmlFor="password"
