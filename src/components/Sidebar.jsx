@@ -8,8 +8,7 @@ import Tooltip from "./skillsComponents/Tooltip";
 
 const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
   const role = useSelector((state) => state.auth.role);
-  const level = useSelector((state) => state.auth.user?.level || "BARRAWA7");
-  const menuItems = getMenuItems(role, level);
+  const menuItems = getMenuItems(role);
   const location = useLocation();
 
   // State for collapsed sidebar
