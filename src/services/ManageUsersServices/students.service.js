@@ -88,3 +88,18 @@ export const getStudentsforTearchers = async () => {
     throw error;
   }
 };
+export const insertStudentsFromExcel= async (formData) => {
+  try {
+    const config = {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
+    };
+    const response = await axiosAPI.post(`/students/upload`, formData, config);
+    console.log("student upload successful");
+    return response.data;
+  } catch (error) {
+    console.error("Error uploading students:", error.response?.data || error.message);
+    throw error;
+  }
+};
