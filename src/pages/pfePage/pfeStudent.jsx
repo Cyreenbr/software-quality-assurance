@@ -3,7 +3,7 @@ import {
   createPFE,
   updatePFE,
   getPFEByUser,
-} from "../../services/pfeService/pfeService";
+} from "../../services/pfeService/pfe.service";
 
 const PFEStudent = ({ userId }) => {
   const [formData, setFormData] = useState({
