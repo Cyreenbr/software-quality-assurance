@@ -26,17 +26,15 @@ export const insertTeacherFromExcel = async (formData) => {
     throw error;
   }
 };
-
-export const deleteTeacher = async (teacherId) => {
+export const deleteTeacher = async (teacherId, force = false) => {
   try {
     const response = await axiosAPI.post(`/teachers/archiveTeacher`, {
-      teacherId: teacherId,  // Changé de studentId à teacherId
-      force: true
+      teacherId,
+      force: force // Bien envoyer le paramètre force
     });
-    console.log("Teacher deleted successfully:", response.data);
     return response.data;
   } catch (error) {
-    console.error("Error deleting Teacher:", error.response?.data || error.message);
+    console.error("Error:", error.response?.data || error.message);
     throw error;
   }
 };

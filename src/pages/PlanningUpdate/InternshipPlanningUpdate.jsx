@@ -1,6 +1,7 @@
+
 import React, { useEffect, useState } from "react";
 import { FaEdit, FaEnvelope, FaSearch, FaTimes, FaUserTie } from "react-icons/fa";
-import internshipService from "../../services/updateplanninginternship/UpdateInternshipPlanning";
+import internshipService from "../../services/updateplanninginternship/UpdateInternshipPlanning.service";
 
 const InternshipPlanning = () => {
   const [internships, setInternships] = useState([]);
