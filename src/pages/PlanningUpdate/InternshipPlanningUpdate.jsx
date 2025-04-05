@@ -33,7 +33,6 @@ const InternshipPlanning = () => {
     fetchData();
   }, []);
 
-
   const handleSearch = (e) => {
     const value = e.target.value.toLowerCase();
     setSearchTerm(value);
@@ -57,17 +56,22 @@ const InternshipPlanning = () => {
   
       if (response) {
         alert("Internship updated successfully!");
-        setInternships((prev) =>
-          prev.map((internship) =>
-            internship._id === selectedInternship._id
-              ? {
-                  ...internship,
-                  teacher:
-                    teachers.find((t) => t._id === selectedTeacher) || "Not Assigned",
-                }
-              : internship
-          )
+        
+        // Find the complete teacher object
+        const selectedTeacherObj = teachers.find(t => t._id === selectedTeacher);
+        
+        const updatedInternships = internships.map((internship) =>
+          internship._id === selectedInternship._id
+            ? {
+                ...internship,
+                teacher: selectedTeacherObj, // Use the complete teacher object
+              }
+            : internship
         );
+      
+        setInternships(updatedInternships);
+        setFilteredInternships(updatedInternships);
+      
         setSelectedTeacher("");
         setSelectedInternship(null);
       } else {
@@ -79,6 +83,23 @@ const InternshipPlanning = () => {
     }
   };
   
+  // get teacher name to change it in tab
+  const getTeacherName = (teacher) => {
+    if (!teacher) return "Not Assigned";
+    
+    // If teacher is an object with firstName and lastName
+    if (teacher.firstName && teacher.lastName) {
+      return `${teacher.firstName} ${teacher.lastName}`;
+    }
+    
+    // If teacher is an object with name property
+    if (teacher.name) {
+      return teacher.name;
+    }
+    
+    // If teacher is just an ID or other value
+    return "Not Assigned";
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-r from-blue-50 to-purple-100 py-10">
@@ -127,18 +148,14 @@ const InternshipPlanning = () => {
                         <span>{internship.student?.email || "No Email Available"}</span>
                       </td>
                       <td className="p-4">
-                        {internship.teacher?.name ||
-                        (typeof internship.teacher === "string" ? internship.teacher : "Not assigned")}
+                        {getTeacherName(internship.teacher)}
                       </td>
                       <td className="p-4 text-center">
                         <button
                           onClick={() => {
                             setSelectedInternship(internship);
                             setSelectedTeacher(
-                              internship.teacher?._id ||
-                                (typeof internship.teacher === "object" && internship.teacher !== null
-                                  ? internship.teacher._id
-                                  : "")
+                              internship.teacher?._id || ""
                             );
                           }}
                           className="bg-blue-500 text-white px-3 py-2 rounded-lg hover:scale-105 transition"

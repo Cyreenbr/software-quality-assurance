@@ -50,6 +50,7 @@ const DepotSujet = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-r from-blue-50 to-purple-100 py-10 rounded-lg">
+      <div className="max-w-4xl mx-auto bg-white rounded-xl shadow-lg p-8">
       <h2 className="text-2xl font-bold text-black-700 mb-6 text-start">Submit an Internship</h2>
     <div className="max-w-4xl mx-auto py-10 px-6 ">
       {message && <p className="text-green-600 text-center">{message}</p>}
@@ -139,6 +140,7 @@ const DepotSujet = () => {
           )}
         </button>
       </form>
+    </div>
     </div>
     </div>
   );
