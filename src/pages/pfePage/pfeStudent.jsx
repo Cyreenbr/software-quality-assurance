@@ -1,11 +1,9 @@
-import { useState, useEffect } from "react";
-import { Navigate } from "react-router-dom";
+import { useEffect, useState } from "react";
 import {
   createPFE,
-  updatePFE,
   getPFEByUser,
+  updatePFE,
 } from "../../services/pfeService/pfe.service";
-import { RoleEnum } from "../../utils/userRoles";
 
 const PFEStudent = ({ userId }) => {
   const storedUser = JSON.parse(localStorage.getItem("user"));
@@ -156,6 +154,7 @@ const PFEStudent = ({ userId }) => {
 
   return (
     <div className="min-h-screen bg-gradient-to-r from-blue-50 to-purple-100 py-10 rounded-lg">
+      <div className="max-w-4xl mx-auto bg-white rounded-xl shadow-lg p-8">
       <h2 className="text-2xl font-bold text-black-700 mb-6 text-start">
         {pfeId ? "Update Your PFE" : "Submit a PFE"}
       </h2>
@@ -286,6 +285,7 @@ const PFEStudent = ({ userId }) => {
           )}
         </form>
       </div>
+    </div>
     </div>
   );
 };
