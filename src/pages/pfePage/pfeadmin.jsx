@@ -87,6 +87,15 @@ const AdminPfeManagement = () => {
     }
   };
 
+  const handleOpenDocument = (document) => {
+    if (document) {
+      const url = `http://localhost:3000/uploads/${document}`;
+      window.open(url, "_blank"); // Open the document in a new tab
+    } else {
+      console.log("No document found");
+    }
+  };
+
   const filteredTeachers = teachers.filter((teacher) =>
     `${teacher.firstName} ${teacher.lastName}`
       .toLowerCase()
@@ -104,6 +113,7 @@ const AdminPfeManagement = () => {
             <tr className="bg-gray-200 text-gray-600 uppercase text-sm">
               <th className="py-3 px-6">Student</th>
               <th className="py-3 px-6">Project</th>
+              <th className="py-3 px-6">Documents</th>
               <th className="py-3 px-6">Status</th>
               <th className="py-3 px-6">Supervisor</th>
               <th className="py-3 px-6">Actions</th>
@@ -117,6 +127,22 @@ const AdminPfeManagement = () => {
                     "Unknown"}
                 </td>
                 <td className="py-3 px-6">{choice.title || "No Title"}</td>
+                <td>
+                  {/* Display clickable documents */}
+                  {choice.documents && choice.documents.length > 0 && (
+                    <div className="space-y-2">
+                      {choice.documents.map((document, index) => (
+                        <button
+                          key={index}
+                          onClick={() => handleOpenDocument(document)}
+                          className="text-blue-500 hover:underline"
+                        >
+                          {`Doc ${index + 1}`}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </td>
                 <td className="py-3 px-6 font-semibold">{choice.status}</td>
                 <td className="py-3 px-6">
                   <button
