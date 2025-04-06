@@ -59,6 +59,7 @@ export function TeachersList({ onAddClick }) {
         const response = await getTeachers();
         if (response && response.model) {
           setTeachersList(response.model); // Initialize teachers list
+          setFilteredTeachers(response.model); // Initialize filtered teachers list
         }
       } catch (error) {
         console.error("Error fetching teachers:", error);
@@ -79,74 +80,66 @@ export function TeachersList({ onAddClick }) {
       day: "numeric", // e.g. "30"
     });
   }; 
- // Fonction utilitaire pour mettre à jour les listes
- const updateTeacherLists = (teacherId) => {
-  setTeachersList(prev => prev.filter(t => t._id !== teacherId));
-  setFilteredTeachers(prev => prev.filter(t => t._id !== teacherId));
-};
- 
-  // Fonction pour gérer la suppression d'un enseignant
+  
+  // Directly attempt to delete without confirmation popup
   const handleDeleteClick = async (teacher) => {
-    setTeacherToDelete(teacher);
     setIsDeleting(true);
+    setTeacherToDelete(teacher);
     
     try {
-      // Premier essai avec force: false
-      const response = await deleteTeacher(teacher._id, false);
+      const response = await deleteTeacher(teacher._id);
       
-      if (response.success) {
-        // Si la suppression a réussi sans forcer
-        updateTeacherLists(teacher._id);
-        showToast("Enseignant supprimé avec succès", "success");
-        setTeacherToDelete(null);
-        setIsDeleting(false);
+      // Check if a force delete is required
+      if (!response.success && response.details) {
+        // Show force confirmation dialog since teacher has dependencies
+        setDeleteDetails(response.details);
+        setShowForceDeleteModal(true);
       } else {
-        // Si échec à cause de dépendances
-        if (response.details?.hasSubjects || response.hasSubjects) {
-          // Afficher la modal de confirmation seulement si l'enseignant a des matières
-          setDeleteDetails(response.details || { hasSubjects: response.hasSubjects });
-          setShowForceDeleteModal(true);
-        } else {
-          // S'il y a une autre erreur sans dépendances
-          showToast(`Erreur: ${response.message || "Échec de la suppression de l'enseignant"}`, "error");
-          setTeacherToDelete(null);
-          setIsDeleting(false);
-        }
+        // Regular delete succeeded
+        const updatedTeachersList = teachersList.filter(
+          (t) => t._id !== teacher._id
+        );
+        setTeachersList(updatedTeachersList);
+        toast.success(`${teacher.firstName} ${teacher.lastName} has been deleted successfully`);
       }
     } catch (error) {
       console.error("Error deleting teacher:", error);
-      if (error.response?.status === 400 && error.response.data.details?.hasSubjects) {
-        // Si le serveur retourne une erreur 400 avec la présence de matières
-        setDeleteDetails(error.response.data.details);
-        setShowForceDeleteModal(true);
-      } else {
-        // Pour les autres types d'erreurs
-        showToast("Échec de la suppression. Veuillez réessayer.", "error");
-        setTeacherToDelete(null);
+      toast.error("Failed to delete teacher. Please try again.");
+    } finally {
+      if (!showForceDeleteModal) {
         setIsDeleting(false);
+        setTeacherToDelete(null);
       }
     }
   };
-  
-  // Fonction pour effectuer la suppression forcée
+
+  const handleCancelDelete = () => {
+    setShowForceDeleteModal(false);
+    setTeacherToDelete(null);
+    setDeleteDetails(null);
+    setIsDeleting(false);
+  };
+
   const handleForceDelete = async () => {
     if (!teacherToDelete) return;
-    
-    setIsDeleting(true);
+
     try {
-      // On appelle deleteTeacher avec force: true
+      // Call delete with force=true
       const response = await deleteTeacher(teacherToDelete._id, true);
       
       if (response.success) {
-        // Suppression réussie
-        updateTeacherLists(teacherToDelete._id);
-        showToast("Enseignant supprimé avec succès", "success");
+        // Remove the deleted teacher from the list
+        const updatedTeachersList = teachersList.filter(
+          (teacher) => teacher._id !== teacherToDelete._id
+        );
+        setTeachersList(updatedTeachersList);
+        toast.success(`${teacherToDelete.firstName} ${teacherToDelete.lastName} has been deleted successfully (force delete)`);
       } else {
-        showToast(`Erreur: ${response.message || "Échec de la suppression forcée"}`, "error");
+        toast.error(`Error: ${response.message}`);
       }
     } catch (error) {
       console.error("Error force deleting teacher:", error);
-      showToast("Échec de la suppression forcée. Veuillez réessayer.", "error");
+      toast.error("Failed to delete teacher. Please try again.");
     } finally {
       setShowForceDeleteModal(false);
       setTeacherToDelete(null);
@@ -155,13 +148,6 @@ export function TeachersList({ onAddClick }) {
     }
   };
 
-  // Fonction pour annuler la suppression
-  const handleCancelDelete = () => {
-    setShowForceDeleteModal(false);
-    setTeacherToDelete(null);
-    setDeleteDetails(null);
-    setIsDeleting(false);
-  };
   const watch = async (teacherId) => {
     try {
       const teacher = teachersList.find((teacher) => teacher._id === teacherId);
@@ -243,6 +229,13 @@ export function TeachersList({ onAddClick }) {
             : teacher
         )
       );
+      setFilteredTeachers((prevList) =>
+        prevList.map((teacher) =>
+          teacher._id === selectedTeacher._id
+            ? { ...teacher, ...editedData }
+            : teacher
+        )
+      );
       closeDialog();
       toast.success("Teacher information updated successfully");
     } catch (error) {
@@ -258,26 +251,26 @@ export function TeachersList({ onAddClick }) {
   const handleSubmitPassword = (e) => {
     e.preventDefault();
     
-    // Vérification côté client
+    // Client-side validation
     if (editedPassword.newPassword !== editedPassword.confirmationPassword) {
       toast.error("New password and confirmation do not match!");
       return;
     }
     
-    // Vérification de la validité du mot de passe (si vous avez des critères similaires à votre backend)
-    if (editedPassword.newPassword.length < 8) { // exemple de critère
+    // Password validity check
+    if (editedPassword.newPassword.length < 8) {
       toast.error("Password must be at least 8 characters long.");
       return;
     }
     
-    EditPassword({
+    editPassword({
       oldPassword: editedPassword.oldPassword,
       newPassword: editedPassword.newPassword,
       confirmationPassword: editedPassword.confirmationPassword
     });
   };
   
-  const EditPassword = async (passwordData) => {
+  const editPassword = async (passwordData) => {
     try {
       if (!selectedTeacher || !selectedTeacher._id) {
         console.error("No selected teacher found.");
@@ -287,12 +280,12 @@ export function TeachersList({ onAddClick }) {
       const response = await editPasswordTeacher(selectedTeacher._id, passwordData);
       console.log("Password updated successfully:", response);
       closePasswordDialog();
-      // Toast de succès
+      // Success toast
       toast.success("Password updated successfully");
     } catch (error) {
       console.error("Error updating password:", error);
       
-      // Message d'erreur précis du serveur avec toast
+      // Precise error message from server with toast
       if (error.response && error.response.data) {
         toast.error(`Error: ${error.response.data.message || "An error occurred"}`);
         console.error("Details:", error.response.data);
@@ -331,21 +324,14 @@ export function TeachersList({ onAddClick }) {
   };
 
   return (
-    <div className="p-6 bg-white rounded-lg shadow-lg">
-      <ToastContainer
-        position="top-right"
-        autoClose={5000}
-        hideProgressBar={false}
-        newestOnTop
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-      />
+    <div className="p-6 bg-gray-100 min-h-screen relative">
       <h1 className="text-2xl font-bold mb-4">Manage Teachers</h1>
+
+      <ToastContainer />
+
+      {/* Teachers List */}
       <div className="bg-white p-6 rounded-lg shadow-lg mb-6">
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-semibold">List of Teachers</h2>
           <button
             className="bg-gray-400 text-white p-2 rounded-full hover:bg-gray-500"
@@ -354,7 +340,7 @@ export function TeachersList({ onAddClick }) {
             <FaPlus size={18} />
           </button>
         </div>
-
+        
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-100">
@@ -366,71 +352,62 @@ export function TeachersList({ onAddClick }) {
                   Email
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
-                  Grade
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
-                  Hiring Date
+                  Subjects
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
                   Actions
                 </th>
               </tr>
             </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {teachersList.length > 0 ? (
-                teachersList.map((teacher) => (
+            <tbody>
+              {filteredTeachers.length > 0 ? (
+                filteredTeachers.map((teacher) => (
                   <tr
                     key={teacher._id}
-                    className="hover:bg-gray-50 transition-colors"
+                    className="border-b border-gray-200 hover:bg-gray-50"
                   >
-                    <td className="px-6 py-4 text-sm font-medium text-gray-900">
+                    <td className="py-3 px-6 text-left">
                       {teacher.firstName} {teacher.lastName}
                     </td>
-                    <td className="px-6 py-4 text-sm text-gray-500">
-                      {teacher.email}
+                    <td className="py-3 px-6 text-left">{teacher.email}</td>
+                    <td className="py-3 px-6 text-left">
+                      {teacher.subjects?.length || 0}
                     </td>
-                    <td className="px-6 py-4 text-sm text-left text-gray-900">
-                      {teacher.grade}
-                    </td>
-                    <td className="px-6 py-4 text-sm text-left text-gray-500">
-                      {formatDate(teacher.hiringDate)}
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-500">
-                      <div className="flex items-center gap-4">
-                        <button
-                          className="bg-green-500 text-white p-2 rounded-full hover:bg-green-600"
-                          onClick={() => watch(teacher._id)}
-                        >
-                          <CgEyeAlt size={18} />
-                        </button>
-                        <button
-                          className="bg-blue-500 text-white p-2 rounded-full hover:bg-blue-600"
-                          onClick={() => edit(teacher._id)}
-                        >
-                          <FaEdit size={18} />
-                        </button>
-                        <button
-                          onClick={() => {
-                            setSelectedTeacher(teacher);
-                            setIsPasswordDialogOpen(true);
-                          }}
-                          className="bg-purple-500 text-white p-2 rounded-full hover:bg-purple-600"
-                        >
-                          <RiLockPasswordFill size={18} />
-                        </button>
-                        <button
-                          className="bg-red-500 text-white p-2 rounded-full hover:bg-red-600"
-                          onClick={() => handleDeleteClick(teacher)}
-                        >
-                          <FaTrashAlt size={18} />
-                        </button>
-                      </div>
+                    <td className="py-3 px-6 text-center flex justify-center space-x-2">
+                      <button
+                        onClick={() => watch(teacher._id)}
+                        className="bg-green-500 text-white p-2 rounded-full hover:bg-green-600"
+                      >
+                        <CgEyeAlt size={18} />
+                      </button>
+                      <button
+                        onClick={() => edit(teacher._id)}
+                        className="bg-blue-500 text-white p-2 rounded-full hover:bg-blue-600"
+                      >
+                        <FaEdit size={18} />
+                      </button>
+                      <button
+                        onClick={() => {
+                          setSelectedTeacher(teacher);
+                          setIsPasswordDialogOpen(true);
+                        }}
+                        className="bg-purple-500 text-white p-2 rounded-full hover:bg-purple-600"
+                      >
+                        <RiLockPasswordFill size={18} />
+                      </button>
+                      <button
+                        className="bg-red-500 text-white p-2 rounded-full hover:bg-red-600"
+                        onClick={() => handleDeleteClick(teacher)}
+                        disabled={isDeleting}
+                      >
+                        <FaTrashAlt size={18} />
+                      </button>
                     </td>
                   </tr>
                 ))
               ) : (
                 <tr>
-                  <td colSpan="5" className="text-center text-gray-500 py-4">
+                  <td colSpan="4" className="py-4 px-6 text-center text-gray-500">
                     No teachers available
                   </td>
                 </tr>
@@ -672,25 +649,35 @@ export function TeachersList({ onAddClick }) {
           </div>
         </div>
       )}
- 
-     
-      {/* Modal de confirmation pour la suppression forcée - 
-          Affichée uniquement si l'enseignant a des matières associées */}
-      {showForceDeleteModal && (
-        <div className="fixed inset-0 flex justify-center items-center z-50 bg-gray-900 bg-opacity-50">
+    
+    {/* Force Delete Confirmation Modal */}
+    {showForceDeleteModal && (
+        <div className="fixed inset-0 flex justify-center items-center z-50 bg-black bg-opacity-50">
           <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
             <h3 className="text-lg font-medium text-gray-900 mb-4">
-              Confirmer la suppression forcée
+              Confirm Force Deletion
             </h3>
+            <p className="text-gray-600 mb-4">
+              Teacher {teacherToDelete?.firstName} {teacherToDelete?.lastName} has associated data:
+            </p>
             
-            <div className="mb-4 p-3 bg-yellow-50 rounded-md border border-yellow-200">
-              <p className="text-red-500 font-medium">
-                Attention: Cette action est irréversible!
-              </p>
-              <p className="text-gray-700 mt-2">
-                Cet enseignant a des matières associées qui seront également supprimées.
-              </p>
-            </div>
+            {deleteDetails && (
+              <div className="mb-4 p-3 bg-yellow-50 rounded-md border border-yellow-200">
+                <ul className="list-disc pl-5 text-sm text-gray-700">
+                  {deleteDetails.courses && (
+                    <li>Teaching {deleteDetails.courses} courses</li>
+                  )}
+                  {deleteDetails.supervising && (
+                    <li>Supervising {deleteDetails.supervising} PFE projects</li>
+                  )}
+                  {/* Add other types of associated data here */}
+                </ul>
+              </div>
+            )}
+            
+            <p className="text-red-500 text-sm mb-6">
+              Are you sure you want to delete this teacher? This will also remove all associated data and cannot be undone.
+            </p>
             
             <div className="flex justify-end gap-4">
               <button
@@ -698,24 +685,14 @@ export function TeachersList({ onAddClick }) {
                 onClick={handleCancelDelete}
                 disabled={isDeleting}
               >
-                Annuler
+                Cancel
               </button>
               <button
+                className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600"
                 onClick={handleForceDelete}
                 disabled={isDeleting}
-                className={`px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 ${
-                  isDeleting ? 'opacity-50 cursor-not-allowed' : ''
-                }`}
               >
-                {isDeleting ? (
-                  <span className="flex items-center">
-                    <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                    Suppression...
-                  </span>
-                ) : "Confirmer la suppression"}
+                {isDeleting ? "Deleting..." : "Force Delete"}
               </button>
             </div>
           </div>
