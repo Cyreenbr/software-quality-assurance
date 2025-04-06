@@ -17,7 +17,7 @@ export const createPFE = async (formData) => {
         "Content-Type": "multipart/form-data",
       },
     });
-    console.log("✅ PFE created successfully:", response.data);
+
     return response.data;
   } catch (error) {
     s;
@@ -58,6 +58,7 @@ export const updatePFE = async (id, formData) => {
 // 🟢 Function to get PFE by user
 export const getPFEByUser = async (userId) => {
   try {
+    console.log("✅ Fetched PFE:" + authHeader);
     const response = await axios.get(`${API_URL}/user/${userId}`, {
       headers: authHeader,
     });
@@ -191,7 +192,7 @@ export const fetchPFEChoices = async (token) => {
     const response = await axios.get("http://localhost:3000/api/pfe/list", {
       headers: { Authorization: `Bearer ${token}` },
     });
-    console.log(response.data);
+
     return response.data;
   } catch (error) {
     console.error("Error fetching PFE data:", error);
@@ -215,18 +216,12 @@ export const fetchTeachers = async (token) => {
 // Assuming authHeader and API_URL are declared elsewhere, like in an environment file or constants.
 export const getPlanning = async () => {
   try {
-    console.log("Authorization Header:", authHeader);
-    console.log("API URL:", API_URL);
-
     const response = await axios.get(`${API_URL}/planning`, {
       headers: authHeader,
     });
 
-    console.log("✅ Fetched PFE:", response.data);
     return response.data; // Return the fetched data
   } catch (error) {
-    console.error("🔴 Error fetching PFE:", error);
-
     if (error.response) {
       console.error("Server Error:", error.response.data);
     } else if (error.request) {

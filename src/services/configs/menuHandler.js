@@ -29,7 +29,7 @@ import Home from "../../pages/homePage/Home";
 import Notifications from "../../pages/Notifications";
 import OptionListPage from "../../pages/optionPage/OptionListPage";
 import OptionPage from "../../pages/optionPage/OptionPage";
-import AdminPfeManagement from "../../pages/pfePage/pfe";
+import AdminPfeManagement from "../../pages/pfePage/pfeadmin";
 import PFEStudent from "../../pages/pfePage/pfeStudent";
 import InternshipPlanning from "../../pages/PlanningUpdate/InternshipPlanningUpdate";
 import Profile from "../../pages/profilePage/Profile";
@@ -40,7 +40,7 @@ import StudentsListTeachers from "../../pages/usersListPage/StudentsListTeachers
 import StudentsManagPage from "../../pages/UsersManagementPage/StudentsManagPage";
 import TeachersManagPage from "../../pages/UsersManagementPage/TeachersManagPage";
 import { RoleEnum } from "../../utils/userRoles";
-import TeacherPFEList from "../../pages/pfePage/ens";
+import TeacherPFEList from "../../pages/pfePage/pfeens";
 import PlanningPage from "../../pages/pfePage/planning";
 
 const user = JSON.parse(localStorage.getItem("user"));
@@ -362,6 +362,7 @@ export const menuConfig = [
   //     hideHeader: false,
   // },
 ];
+
 export const getMenuItems = (role, level = null) => {
   return (menuConfig || [])
     .filter((item) => item?.dontShow !== true)
