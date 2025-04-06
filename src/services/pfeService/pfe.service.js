@@ -53,6 +53,7 @@ export const updatePFE = async (id, formData) => {
 export const getPFEByUser = async (userId) => {
   try {
     const response = await axiosAPI.get(`${API_URL}/user/${userId}`);
+    console.log(response.data);
     return response.data;
   } catch (error) {
     console.error(

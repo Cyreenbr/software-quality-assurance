@@ -8,9 +8,8 @@ import { useSelector } from "react-redux";
 
 const PFEStudent = ({ userId }) => {
   const storedUser = useSelector((status) => status.auth.user);
-
-  const userLevel = storedUser?.level;
-  /*
+  /*const userLevel = storedUser?.level;
+  
   if (userLevel !== RoleEnum.ISPFE) {
     return <Navigate to="/error" replace />;
   }*/
@@ -25,22 +24,23 @@ const PFEStudent = ({ userId }) => {
     supervisor: null,
   });
 
+  const [removedExistingDocs, setRemovedExistingDocs] = useState([]);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState(null);
   const [error, setError] = useState(null);
   const [pfeId, setPfeId] = useState(null);
   const [refreshKey, setRefreshKey] = useState(0);
-  const [isFetching, setIsFetching] = useState(true); // State to track if data is being fetched
+  const [isFetching, setIsFetching] = useState(true);
 
   const isReadOnly =
-    formData.status === "approved" || formData.supervisor !== null;
+    formData.status === "approved" ||
+    (formData.supervisor !== null && formData.status !== "rejected");
 
   useEffect(() => {
     const fetchUserPFE = async () => {
       try {
-        setIsFetching(true); // Set fetching to true before starting request
+        setIsFetching(true);
         const userId = storedUser ? storedUser._id || storedUser.id : null;
-
         if (!userId) return;
 
         const pfe = await getPFEByUser(userId);
@@ -72,7 +72,7 @@ const PFEStudent = ({ userId }) => {
       } catch (err) {
         console.error("Error fetching PFE data:", err);
       } finally {
-        setIsFetching(false); // Set fetching to false after request completes
+        setIsFetching(false);
       }
     };
 
@@ -95,10 +95,19 @@ const PFEStudent = ({ userId }) => {
 
   const handleRemoveFile = (index) => {
     if (isReadOnly) return;
-    setFormData((prevFormData) => ({
-      ...prevFormData,
-      documents: prevFormData.documents.filter((_, i) => i !== index),
-    }));
+
+    setFormData((prevFormData) => {
+      const removedDoc = prevFormData.documents[index];
+
+      if (typeof removedDoc === "string") {
+        setRemovedExistingDocs((prev) => [...prev, removedDoc]);
+      }
+
+      return {
+        ...prevFormData,
+        documents: prevFormData.documents.filter((_, i) => i !== index),
+      };
+    });
   };
 
   const handleSubmit = async (e) => {
@@ -121,7 +130,7 @@ const PFEStudent = ({ userId }) => {
         formData.documents.forEach((file) => {
           if (file instanceof File) {
             data.append("documents", file);
-          } else {
+          } else if (!removedExistingDocs.includes(file)) {
             data.append("existingDocuments[]", file);
           }
         });
@@ -139,6 +148,7 @@ const PFEStudent = ({ userId }) => {
         setMessage("PFE submitted successfully!");
         setRefreshKey((prev) => prev + 1);
       }
+      setRemovedExistingDocs([]); // Clear removed documents after successful submission
     } catch (err) {
       setError(
         err.response?.data?.message || "An error occurred while submitting."
@@ -150,7 +160,7 @@ const PFEStudent = ({ userId }) => {
   };
 
   if (isFetching) {
-    return <div>Loading...</div>; // Show loading message while fetching data
+    return <div>Loading...</div>;
   }
 
   return (
@@ -286,8 +296,9 @@ const PFEStudent = ({ userId }) => {
               </button>
             )}
 
-            {error && (
-              <p className="text-red-600 text-center mt-4">{error.message}</p>
+            {error && <p className="text-red-600 text-center mt-4">{error}</p>}
+            {message && (
+              <p className="text-green-600 text-center mt-4">{message}</p>
             )}
           </form>
         </div>
