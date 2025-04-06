@@ -69,6 +69,21 @@ const matieresServices = {
             throw err.response?.data?.error || err.response?.data?.message || "Failed to update subject.";
         }
     },
+    updateMatiereAvancement: async (editSubject) => {
+        if (!editSubject || !editSubject._id) {
+            throw new Error("Invalid subject data: Missing ID.");
+        }
+        try {
+            const response = await axiosAPI.patch(`/matieres/${editSubject._id}/avancement`, editSubject);
+            if (response.status >= 200 && response.status < 300) {
+                return response.data;
+            } else {
+                throw new Error("Unexpected response from server.");
+            }
+        } catch (err) {
+            throw err.response?.data?.error || err.response?.data?.message || "Failed to update subject.";
+        }
+    },
     deleteMatiere: async (id, { forced = false, archive = false }) => {
         if (!id) {
             throw new Error("Invalid skill ID.");

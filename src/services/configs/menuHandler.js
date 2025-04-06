@@ -2,19 +2,17 @@ import {
   FaBook,
   FaGraduationCap,
   FaLightbulb,
-  FaWindowRestore,
+  FaWindowRestore
 } from "react-icons/fa";
 import { GiTeacher } from "react-icons/gi";
 import {
-  MdAccountCircle,
   MdAssignmentAdd,
   MdAutoStories,
   MdCalendarMonth,
-  MdDashboard,
   MdDownload,
   MdHome,
   MdList,
-  MdNotifications,
+  MdNotifications
 } from "react-icons/md";
 import { PiStudentBold, PiStudentFill } from "react-icons/pi";
 import Pfa from "../../../src/pages/pfaPage/Pfa";
@@ -22,7 +20,6 @@ import SubjectDetailsPage from "../../components/subjectsComponents/SubjectDetai
 import AdminPeriods from "../../pages/adminPeriodsPage/AdminPeriods";
 import AssignInternships from "../../pages/assignInternshipsPage/AssignInternshipsPage";
 import Competences from "../../pages/competenecesPage/Competences";
-import Dashboard from "../../pages/dashboardPage/Dashboard";
 import DepotSujet from "../../pages/depotSujetStagePage/DepotSujetStage";
 import ErrorPage from "../../pages/ErrorPage";
 import Home from "../../pages/homePage/Home";
@@ -30,9 +27,10 @@ import Notifications from "../../pages/Notifications";
 import OptionListPage from "../../pages/optionPage/OptionListPage";
 import OptionPage from "../../pages/optionPage/OptionPage";
 import AdminPfeManagement from "../../pages/pfePage/pfeadmin";
+import TeacherPFEList from "../../pages/pfePage/pfeens";
 import PFEStudent from "../../pages/pfePage/pfeStudent";
+import PlanningPage from "../../pages/pfePage/planning";
 import InternshipPlanning from "../../pages/PlanningUpdate/InternshipPlanningUpdate";
-import Profile from "../../pages/profilePage/Profile";
 import InternshipList from "../../pages/studentInternshipPage/studentInternship";
 import Subjects from "../../pages/subjectsPage/Subjects";
 import TeacherInternshipList from "../../pages/teacherInternshipPage/TeacherInternshipPage";
@@ -40,10 +38,7 @@ import StudentsListTeachers from "../../pages/usersListPage/StudentsListTeachers
 import StudentsManagPage from "../../pages/UsersManagementPage/StudentsManagPage";
 import TeachersManagPage from "../../pages/UsersManagementPage/TeachersManagPage";
 import { RoleEnum } from "../../utils/userRoles";
-import TeacherPFEList from "../../pages/pfePage/pfeens";
-import PlanningPage from "../../pages/pfePage/planning";
 
-const user = JSON.parse(localStorage.getItem("user"));
 export const menuConfig = [
   {
     order: 1,
@@ -56,17 +51,17 @@ export const menuConfig = [
     hideSideBar: false,
     hideHeader: false,
   },
-  {
-    order: 2,
-    label: "Dashboard",
-    icon: MdDashboard,
-    path: "/dashboard",
-    component: Dashboard,
-    eligibleRoles: [RoleEnum.ADMIN, RoleEnum.TEACHER, RoleEnum.STUDENT],
-    active: true,
-    hideSideBar: false,
-    hideHeader: false,
-  },
+  // {
+  //   order: 2,
+  //   label: "Dashboard",
+  //   icon: MdDashboard,
+  //   path: "/dashboard",
+  //   component: Dashboard,
+  //   eligibleRoles: [RoleEnum.ADMIN, RoleEnum.TEACHER, RoleEnum.STUDENT],
+  //   active: true,
+  //   hideSideBar: false,
+  //   hideHeader: false,
+  // },
   {
     label: "Error",
     icon: undefined,
@@ -75,20 +70,20 @@ export const menuConfig = [
     eligibleRoles: [],
     active: true,
     dontShow: true,
-    hideSideBar: true,
-    hideHeader: false,
-  },
-  {
-    order: 3,
-    label: "Profile",
-    icon: MdAccountCircle,
-    path: "/profile",
-    component: Profile,
-    eligibleRoles: [RoleEnum.ADMIN, RoleEnum.TEACHER, RoleEnum.STUDENT],
-    active: true,
     hideSideBar: false,
     hideHeader: false,
   },
+  // {
+  //   order: 3,
+  //   label: "Profile",
+  //   icon: MdAccountCircle,
+  //   path: "/profile",
+  //   component: Profile,
+  //   eligibleRoles: [RoleEnum.ADMIN, RoleEnum.TEACHER, RoleEnum.STUDENT],
+  //   active: true,
+  //   hideSideBar: false,
+  //   hideHeader: false,
+  // },
   {
     order: 4,
     label: "Competences",
@@ -96,7 +91,7 @@ export const menuConfig = [
     path: "/competences",
     tooltip: "Competences",
     component: Competences,
-    eligibleRoles: [RoleEnum.ADMIN, RoleEnum.TEACHER],
+    eligibleRoles: [RoleEnum.ADMIN, RoleEnum.TEACHER,],
     active: true,
     hideSideBar: false,
     hideHeader: false,
@@ -113,7 +108,7 @@ export const menuConfig = [
     active: true,
     hideSideBar: false,
     hideHeader: false,
-    dontShow: true,
+    // dontShow: true,
   },
   {
     order: 6,
@@ -145,7 +140,7 @@ export const menuConfig = [
     path: "/PFA",
     component: Pfa,
     eligibleRoles: [RoleEnum.ADMIN, RoleEnum.TEACHER, RoleEnum.STUDENT],
-    eligibleLevels: [RoleEnum.ISPFA],
+    // eligibleLevels: [RoleEnum.ISPFA],
     active: true,
     hideSideBar: false,
     hideHeader: false,

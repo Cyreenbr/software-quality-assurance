@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import {
     FaBook,
+    FaCalendarAlt,
     FaCheck,
     FaChevronDown,
     FaChevronUp,
@@ -16,6 +17,7 @@ import matieresServices from "../../services/matieresServices/matieres.service";
 import humanizeDate from "../../utils/humanizeDate";
 import { RoleEnum } from "../../utils/userRoles";
 import Popup from "../skillsComponents/Popup";
+import Tooltip from "../skillsComponents/Tooltip";
 
 const SubjectDetailsPage = () => {
     const { id } = useParams();
@@ -26,7 +28,10 @@ const SubjectDetailsPage = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [expandedChapters, setExpandedChapters] = useState({});
     const userRole = useSelector((state) => state.auth.role);
+    const userId = useSelector((state) => state.auth.user.id);
 
+
+    const [completedAtDates, setCompletedAtDates] = useState({}); // Store completedAt dates
     const fetchRef = useRef(false);
 
     useEffect(() => {
@@ -130,7 +135,90 @@ const SubjectDetailsPage = () => {
 
     if (error) return <ErrorState message={error} />;
     if (!formData) return <ErrorState message="Invalid subject data." />;
+    const handleDateChange = (type, index, sectionIndex = null, date) => {
+        setCompletedAtDates((prev) => {
+            if (type === "chapter") {
+                return { ...prev, [`chapter-${index}`]: date };
+            } else if (type === "section") {
+                return { ...prev, [`section-${index}-${sectionIndex}`]: date };
+            }
+            return prev;
+        });
+    };
 
+    const handleSubmit = async () => {
+        try {
+            // Étape 1 : Mise à jour des dates dans les chapitres et sections
+            const updatedChapters = formData.subject.curriculum.chapitres.map((chapter, cIndex) => {
+                const chapterKey = `chapter-${cIndex}`;
+
+                // Si le chapitre est marqué comme sélectionné, et qu'il n'a pas de date, mettre à jour avec la date actuelle
+                const updatedChapter = {
+                    ...chapter,
+                    completedAt: chapter.status && !completedAtDates[chapterKey]
+                        ? new Date().toISOString().split('T')[0]  // Date actuelle (format yyyy-mm-dd)
+                        : completedAtDates[chapterKey] || chapter.completedAt,
+                    sections: chapter.sections.map((section, sIndex) => {
+                        const sectionKey = `section-${cIndex}-${sIndex}`;
+
+                        // Si la section est marquée comme sélectionnée, et qu'elle n'a pas de date, mettre à jour avec la date actuelle
+                        return {
+                            ...section,
+                            completedAt: section.status && !completedAtDates[sectionKey]
+                                ? new Date().toISOString().split('T')[0]  // Date actuelle (format yyyy-mm-dd)
+                                : completedAtDates[sectionKey] || section.completedAt,
+                        };
+                    }),
+                };
+                return updatedChapter;
+            });
+
+            // Étape 2 : Construction du payload complet
+            const payload = {
+                curriculum: {
+                    ...formData.subject.curriculum,
+                    chapitres: updatedChapters,
+                },
+            };
+
+            console.log("Payload envoyé au backend :", payload);
+            payload._id = id;
+
+            // Étape 3 : Appel au service avec l’ID de la matière
+            await matieresServices.updateMatiereAvancement(payload);
+
+            toast.success("Subject details updated successfully!");
+
+            // Facultatif : mettre à jour l’état local
+            setFormData({
+                ...formData,
+                subject: {
+                    ...formData.subject,
+                    curriculum: {
+                        ...formData.subject.curriculum,
+                        chapitres: updatedChapters,
+                    },
+                },
+            });
+
+        } catch (err) {
+            console.error("Erreur lors de la mise à jour :", err);
+            toast.error("Échec de la mise à jour de la matière.");
+            toast.error(err.message || err);
+        }
+    };
+
+    if (loading)
+        return (
+            <div className="flex justify-center items-center h-screen text-center">
+                <div>
+                    <ClipLoader size={50} color="#3B82F6" />
+                    <p className="mt-4 font-bold text-gray-700">Loading subject details...</p>
+                </div>
+            </div>
+        );
+    if (error) return <ErrorState message={error} />;
+    if (!formData) return <ErrorState message="Invalid subject data." />;
     return (
         <div className="min-h-screen bg-gray-100 p-6">
             <div className="w-full max-w-6xl mx-auto bg-white rounded-lg shadow-lg p-8 space-y-8">
@@ -172,77 +260,148 @@ const SubjectDetailsPage = () => {
                     </div>
                 </Section>
 
-                {/* Chapters and Sections */}
+
                 <Section title="Chapters & Sections">
                     {formData.subject.curriculum.chapitres.length > 0 ? (
                         <div className="space-y-6">
-                            {formData.subject.curriculum.chapitres.map((chapter, index) => (
-                                <div key={index} className="border rounded-lg p-4 bg-gray-50 shadow-sm">
-                                    {/* Chapter Header */}
+                            {formData.subject.curriculum.chapitres.map((chapter, index) => {
+                                const chapterKey = `chapter-${index}`;
+                                const isCompleted = chapter.status;
+                                const completedAt = completedAtDates[chapterKey] || chapter.completedAt;
+
+                                return (
                                     <div
-                                        className="flex justify-between items-center cursor-pointer"
-                                        onClick={() => toggleChapterExpand(index)}
+                                        key={index}
+                                        className={`border rounded-2xl p-5 shadow-md transition-colors duration-200 ${isCompleted ? "bg-green-50 border-green-300" : "bg-white"
+                                            }`}
                                     >
-                                        <h3 className="text-lg font-semibold flex items-center gap-2">
-                                            {chapter.title || `Chapter ${index + 1}`}{" "}
-                                            {chapter.status ? (
-                                                <FaCheck className="text-green-500" />
-                                            ) : (
-                                                <FaTimes className="text-red-500" />
-                                            )}
-                                        </h3>
-                                        {expandedChapters[index] ? (
-                                            <FaChevronUp className="text-gray-600" />
-                                        ) : (
-                                            <FaChevronDown className="text-gray-600" />
+                                        {/* Chapter Header */}
+                                        <div
+                                            className="flex justify-between items-center cursor-pointer"
+                                            onClick={() => toggleChapterExpand(index)}
+                                        >
+                                            <h3 className={`text-xl font-semibold flex items-center gap-2 ${isCompleted ? "text-green-800" : "text-gray-800"}`}>
+                                                {chapter.title || `Chapter ${index + 1}`}
+                                                {isCompleted ? (
+                                                    <FaCheck className="text-green-500" />
+                                                ) : (
+                                                    <FaTimes className="text-red-500" />
+                                                )}
+                                            </h3>
+                                            {expandedChapters[index] ? (
+                                                <Tooltip text={"close"} position="top">
+                                                    <FaChevronUp className="text-gray-500" />
+                                                </Tooltip>
+                                            ) : (<Tooltip text={"open"} position="top" alwaysOn>
+                                                <FaChevronDown className="text-gray-500" />
+                                            </Tooltip>)}
+                                        </div>
+
+                                        {/* Chapter Status Checkbox */}
+                                        {(userRole === RoleEnum.ADMIN || userId === formData?.teacherId) && (
+                                            <div className="flex items-center mt-3 gap-3">
+                                                <input
+                                                    type="checkbox"
+                                                    checked={chapter.status}
+                                                    onChange={() => toggleChapterStatus(index)}
+                                                    className="w-5 h-5 text-green-600 border-gray-300 focus:ring-green-500 rounded"
+                                                    aria-label={`Mark Chapter ${index + 1} as complete`}
+                                                />
+                                                <label className="text-sm text-gray-700">Mark as complete</label>
+                                            </div>
+                                        )}
+
+                                        {/* Completed At Date */}
+                                        {isCompleted && (
+                                            <div className="flex items-center mt-2 text-sm text-gray-600 gap-2">
+                                                <FaCalendarAlt />
+                                                <span>
+                                                    Completed At:{" "}
+                                                    {completedAt ? (
+                                                        <span className="font-medium">{humanizeDate(completedAt)}</span>
+                                                    ) : (
+                                                        <span className="text-gray-400">Not yet updated</span>
+                                                    )}
+                                                </span>
+                                            </div>
+                                        )}
+
+                                        {/* Sections */}
+                                        {expandedChapters[index] && chapter.sections.length > 0 && (
+                                            <ul className="mt-4 border-l-2 border-gray-300 pl-5 space-y-3">
+                                                {chapter.sections.map((section, sIndex) => {
+                                                    const sectionKey = `section-${index}-${sIndex}`;
+                                                    const sectionCompletedAt =
+                                                        completedAtDates[sectionKey] || section.completedAt;
+
+                                                    return (
+                                                        <li key={sIndex} className="flex justify-between items-start">
+                                                            <div className={`flex items-start gap-2 text-base ${section.status ? "text-green-800" : "text-gray-700"}`}>
+                                                                {sIndex + 1} - {section.title || `Section ${sIndex + 1}`}{" "}
+                                                                {section.status ? (
+                                                                    <FaCheck className="text-green-500 ml-1" />
+                                                                ) : (
+                                                                    <FaTimes className="text-red-500 ml-1" />
+                                                                )}
+                                                                {isCompleted && (
+                                                                    <div className="flex items-center mt-2 text-sm text-gray-600 gap-2">
+                                                                        <FaCalendarAlt />
+                                                                        <span>
+                                                                            Completed At:{" "}
+                                                                            {section.completedAt ? (
+                                                                                <span className="font-medium">{humanizeDate(section.completedAt)}</span>
+                                                                            ) : (
+                                                                                <span className="text-gray-400">Not yet updated</span>
+                                                                            )}
+                                                                        </span>
+                                                                    </div>)}
+
+                                                            </div>
+
+
+                                                            <div className="flex flex-col items-end gap-1">
+                                                                {(userRole === RoleEnum.ADMIN || userId === formData?.teacherId) && (
+                                                                    <input
+                                                                        type="checkbox"
+                                                                        checked={section.status}
+                                                                        onChange={() => toggleSectionStatus(index, sIndex)}
+                                                                        className="w-5 h-5 text-green-600 border-gray-300 focus:ring-green-500 rounded"
+                                                                        aria-label={`Mark Section ${sIndex + 1} as complete`}
+                                                                    />
+                                                                )}
+                                                                {section.status && sectionCompletedAt && (
+                                                                    <div className="flex items-center gap-2 text-sm text-gray-600 mt-1">
+                                                                        <FaCalendarAlt />
+                                                                        <span className="font-medium">{humanizeDate(sectionCompletedAt)}</span>
+                                                                    </div>
+                                                                )}
+                                                            </div>
+
+                                                        </li>
+                                                    );
+                                                })}
+                                            </ul>
                                         )}
                                     </div>
-                                    {/* Chapter Status Checkbox */}
-                                    <div className="flex items-center mt-2">
-                                        <input
-                                            type="checkbox"
-                                            checked={chapter.status}
-                                            onChange={() => toggleChapterStatus(index)}
-                                            className="mr-2 w-4 h-4 text-green-500 focus:ring-green-400 rounded"
-                                        />
-                                        <label className="text-sm text-gray-700">Mark as complete</label>
-                                    </div>
-                                    {/* Sections (if expanded) */}
-                                    {expandedChapters[index] && chapter.sections.length > 0 && (
-                                        <ul className="mt-3 pl-4 border-l-2 border-gray-300 space-y-2">
-                                            {chapter.sections.map((section, sIndex) => (
-                                                <li
-                                                    key={sIndex}
-                                                    className="flex justify-between items-center text-gray-700 text-sm"
-                                                >
-                                                    <div className="flex items-center gap-2">
-                                                        <span>
-                                                            🔹 {section.title || `Section ${sIndex + 1}`}{" "}
-                                                            {section.status ? (
-                                                                <FaCheck className="text-green-500" />
-                                                            ) : (
-                                                                <FaTimes className="text-red-500" />
-                                                            )}
-                                                        </span>
-                                                    </div>
-                                                    <input
-                                                        type="checkbox"
-                                                        checked={section.status}
-                                                        onChange={() => toggleSectionStatus(index, sIndex)}
-                                                        className="ml-2 w-4 h-4 text-green-500 focus:ring-green-400 rounded"
-                                                    />
-                                                </li>
-                                            ))}
-                                        </ul>
-                                    )}
-                                </div>
-                            ))}
+                                );
+                            })}
                         </div>
                     ) : (
                         <EmptyState message="No chapters available." />
                     )}
-                </Section>
 
+                    {/* Submit Button */}
+                    {(userRole === RoleEnum.ADMIN || userId === formData?.teacherId) && (
+                        <div className="flex justify-end mt-8">
+                            <button
+                                onClick={handleSubmit}
+                                className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl shadow-md transition-all"
+                            >
+                                Update Status
+                            </button>
+                        </div>
+                    )}
+                </Section>
                 {/* Skills */}
                 <Section title="Skills">
                     {formData.subject.skillsId.length > 0 ? (
@@ -357,8 +516,9 @@ const Section = ({ title, icon, children }) => (
 const InfoCard = ({ label, value }) => (
     <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
         <p className="text-sm font-semibold text-gray-700">{label}</p>
-        <p className="text-gray-600">{value}</p>
+        <p className="text-gray-600 truncate overflow-hidden whitespace-nowrap">{value}</p>
     </div>
+
 );
 
 const SkillCard = ({ title, families }) => (

@@ -8,10 +8,12 @@ import {
     FaTrashAlt,
 } from "react-icons/fa";
 import { FiAlertTriangle, FiArchive, FiCheck, FiCheckCircle, FiX, } from "react-icons/fi";
+import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { ClipLoader } from "react-spinners";
 import { toast } from "react-toastify";
 import matieresServices from "../../services/matieresServices/matieres.service";
+import { RoleEnum } from "../../utils/userRoles";
 import NotFound404 from "../skillsComponents/NotFound404";
 import Pagination from "../skillsComponents/Pagination";
 import Popup from "../skillsComponents/Popup";
@@ -19,6 +21,8 @@ import SearchBar from "../skillsComponents/SearchBar";
 import Tooltip from "../skillsComponents/Tooltip";
 
 const SubjectList = ({ onEdit, refresh = false, }) => {
+    const role = useSelector((status) => status.auth.role);
+    const userId = useSelector((status) => status.auth.user.id);
     const [subjects, setSubjects] = useState([]);
     const [subjectToDelete, setSubjectToDelete] = useState(null);
     const [loading, setLoading] = useState(false);
@@ -169,7 +173,7 @@ const SubjectList = ({ onEdit, refresh = false, }) => {
                     {sortedSubjects.map((subject) => (
                         <div
                             key={subject._id}
-                            className="bg-white border border-gray-200 p-6 rounded-lg shadow-md hover:shadow-xl transition-all duration-300 hover:bg-gradient-to-r from-blue-50 to-purple-100 overflow-hidden"
+                            className="bg-white border border-gray-300 p-6 rounded-lg shadow-md hover:shadow-xl transition-all duration-300 hover:bg-gradient-to-r from-blue-50 to-purple-100 overflow-hidden"
                         >
                             {/* Subject Title (Clickable Link) */}
                             <div
@@ -195,26 +199,30 @@ const SubjectList = ({ onEdit, refresh = false, }) => {
                             </ul>
 
                             {/* Actions */}
-                            <div className="flex justify-between mt-6">
-                                {/* Edit Button */}
-                                <button
-                                    onClick={() => onEdit(subject)}
-                                    className="flex items-center bg-gray-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-gray-700 transition duration-200 w-full mr-2"
-                                >
-                                    <FaEdit className="mr-2" /> Edit
-                                </button>
+                            {(RoleEnum.ADMIN === role || userId === subject.curriculum?.teacherId) && (
+                                <div className="flex flex-col sm:flex-row sm:justify-center items-center mt-6">
+                                    {/* Edit Button */}
+                                    <button
+                                        onClick={() => onEdit(subject)}
+                                        className="flex justify-center items-center bg-gray-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-gray-700 transition duration-200 sm:w-auto w-full mb-2 sm:mb-0 sm:mr-2"
+                                    >
+                                        <FaEdit className="mr-2" /> Edit
+                                    </button>
 
-                                {/* Delete Button */}
-                                <button
-                                    onClick={() => {
-                                        setIsDeletePopupOpen(true);
-                                        setSubjectToDelete(subject);
-                                    }}
-                                    className="flex items-center bg-red-500 text-white px-4 py-2 rounded-lg font-semibold hover:bg-red-600 transition duration-200 w-full ml-2"
-                                >
-                                    <FaTrashAlt className="mr-2" /> Delete
-                                </button>
-                            </div>
+                                    {/* Delete Button */}
+                                    <button
+                                        onClick={() => {
+                                            setIsDeletePopupOpen(true);
+                                            setSubjectToDelete(subject);
+                                        }}
+                                        className="flex justify-center items-center bg-red-500 text-white px-4 py-2 rounded-lg font-semibold hover:bg-red-600 transition duration-200 sm:w-auto w-full sm:ml-2"
+                                    >
+                                        <FaTrashAlt className="mr-2" /> Delete
+                                    </button>
+                                </div>
+                            )}
+
+
                         </div>
                     ))}
                 </div>
