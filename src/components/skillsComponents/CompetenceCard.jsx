@@ -41,17 +41,24 @@ const SkillCard = ({ skill, setEditSkill, setIsEditPopupOpen, handleDeleteSkill,
 
             {/* Skill Details */}
             <div className="relative" onClick={() => setIsDetailsPopupOpen(true)}>
+
                 {/* <h2 className="text-xl text-center mb-3 font-semibold text-blue-600  hover:cursor-pointer">{skill?.title || 'No Title'}</h2> */}
                 <h2 className="text-xl sm:text-xl md:text-xl lg:text-2xl text-center mb-3 font-semibold text-blue-600 hover:cursor-pointer break-words">
                     {skill?.title || 'No Title'}
                 </h2>
+                {/* {role === RoleEnum.ADMIN && (
+                    <p className="text-sm font-light break-words line-clamp-2">ID: {skill?._id || 'No ID'}</p>
+                )} */}
 
-                {/* <p className="text-sm font-bold">ID: {skill?._id || 'No ID'}</p> */}
                 <p className="text-sm sm:text-base font-bold">Description (FR):</p>
-                <p className="text-gray-700 mt-1 break-words">{skill?.frDescription || 'No Description'}</p>
+                <p className="text-gray-700 mt-1 break-words line-clamp-2">
+                    {skill?.frDescription || 'No Description'}
+                </p>
 
                 <p className="text-sm sm:text-base font-bold mt-2">Description (EN):</p>
-                <p className="text-gray-700 mt-1 break-words">{skill?.enDescription || 'No Description'}</p>
+                <p className="text-gray-700 mt-1 break-words line-clamp-2">
+                    {skill?.enDescription || 'No Description'}
+                </p>
 
             </div>
 
@@ -165,26 +172,40 @@ const SkillCard = ({ skill, setEditSkill, setIsEditPopupOpen, handleDeleteSkill,
             <Popup showCloseButton isOpen={isDetailsPopupOpen} onClose={() => setIsDetailsPopupOpen(false)} position="center">
 
                 <div className="p-6">
-                    <h2 className="text-xl font-semibold text-blue-600">{skill?.title || 'No Title'}
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-4">
+  {/* Title on the left */}
+  <h2 className="text-xl font-semibold text-blue-600">
+    {skill?.title || 'No Title'}
+  </h2>
 
-                        {role === RoleEnum.ADMIN &&
-                            <div>
+  {/* Badges on the right */}
+  {role === RoleEnum.ADMIN && (
+    <div className="flex flex-wrap items-center gap-2">
+      <span
+        className={`text-sm font-semibold px-3 py-1 rounded-full ${
+          skill.isPublish
+            ? "bg-green-200 text-green-800"
+            : "bg-red-200 text-red-800"
+        }`}
+      >
+        {skill.isPublish ? "Published" : "Hidden"}
+      </span>
+      <span
+        className={`text-sm font-semibold px-3 py-1 rounded-full ${
+          skill.archive
+            ? "bg-orange-200 text-orange-800"
+            : "bg-gray-200 text-gray-800"
+        }`}
+      >
+        {skill.archive ? "Archived" : "Not Archived"}
+      </span>
+    </div>
+  )}
+</div>
 
-                                <span
-                                    className={`ml-5 text-sm font-semibold px-2 py-1 rounded-full ${skill.isPublish ? "bg-green-200 text-green-800" : "bg-red-200 text-red-800"
-                                        }`}
-                                >
-                                    {skill.isPublish ? "Published" : "Hidden"}
-                                </span>
-                                <span
-                                    className={`ml-5 text-sm font-semibold px-2 py-1 rounded-full ${skill.archive ? "bg-orange-200 text-orange-800" : "bg-gray-200 text-gray-800"
-                                        }`}
-                                >
-                                    {skill.archive ? "Archived" : "Not Archived"}
-                                </span>
-                            </div>
-                        }
-                    </h2>
+                    {role === RoleEnum.ADMIN && (
+                        <p className="text-sm font-light break-words line-clamp-2">ID: {skill?._id || 'No ID'}</p>
+                    )}
                     <p className="text-gray-700 mt-4">
                         <span className="text-sm font-bold">Description (FR): </span>{skill?.frDescription || 'No Description'}
                     </p>

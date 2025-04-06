@@ -60,7 +60,7 @@ const CompetenceList = ({
                         <ClipLoader color="#4A90E2" size={50} />
                         <p>Loading...</p>
                     </div>
-                ) : skills.length === 0 && hasSearched ? (
+                ) : skills.length === 0 ? (
                     <div className="col-span-full text-center py-6">
                         <NotFound404 iconSize={250} />
                     </div>
