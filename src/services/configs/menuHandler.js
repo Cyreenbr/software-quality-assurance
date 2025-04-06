@@ -41,6 +41,7 @@ import StudentsManagPage from "../../pages/UsersManagementPage/StudentsManagPage
 import TeachersManagPage from "../../pages/UsersManagementPage/TeachersManagPage";
 import { RoleEnum } from "../../utils/userRoles";
 import TeacherPFEList from "../../pages/pfePage/ens";
+import PlanningPage from "../../pages/pfePage/planning";
 
 const user = JSON.parse(localStorage.getItem("user"));
 export const menuConfig = [
@@ -232,6 +233,19 @@ export const menuConfig = [
     eligibleRoles: [RoleEnum.ADMIN],
     active: true,
     dontShow: false,
+    hideSideBar: false,
+    hideHeader: false,
+  },
+  {
+    order: 27,
+    label: "PFE",
+    icon: FaGraduationCap,
+    path: "/pfeplanning",
+    tooltip: "pfe",
+    component: PlanningPage,
+    eligibleRoles: [RoleEnum.ADMIN, RoleEnum.STUDENT, RoleEnum.TEACHER],
+    active: true,
+    dontShow: true,
     hideSideBar: false,
     hideHeader: false,
   },
