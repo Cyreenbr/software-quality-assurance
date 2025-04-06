@@ -211,3 +211,30 @@ export const fetchTeachers = async (token) => {
     throw error;
   }
 };
+
+// Assuming authHeader and API_URL are declared elsewhere, like in an environment file or constants.
+export const getPlanning = async () => {
+  try {
+    console.log("Authorization Header:", authHeader);
+    console.log("API URL:", API_URL);
+
+    const response = await axios.get(`${API_URL}/planning`, {
+      headers: authHeader,
+    });
+
+    console.log("✅ Fetched PFE:", response.data);
+    return response.data; // Return the fetched data
+  } catch (error) {
+    console.error("🔴 Error fetching PFE:", error);
+
+    if (error.response) {
+      console.error("Server Error:", error.response.data);
+    } else if (error.request) {
+      console.error("No response from server:", error.request);
+    } else {
+      console.error("Request setup error:", error.message);
+    }
+
+    throw error; // Rethrow the error for further handling in the component
+  }
+};
