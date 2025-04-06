@@ -25,20 +25,18 @@ const AdminPfeManagement = () => {
   const [selectedPfe, setSelectedPfe] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
 
-  const token = localStorage.getItem("token");
-
   useEffect(() => {
     loadData();
   }, []);
 
   const loadData = async () => {
     try {
-      const pfeData = await fetchPFEChoices(token);
+      const pfeData = await fetchPFEChoices();
       setPfeChoices(pfeData);
       if (pfeData[0]?.isAssignmentVisible !== undefined) {
         setIsPublished(pfeData[0].isAssignmentVisible);
       }
-      const teacherData = await fetchTeachers(token);
+      const teacherData = await fetchTeachers();
       setTeachers(teacherData);
     } catch (error) {
       alert("Failed to load data.");

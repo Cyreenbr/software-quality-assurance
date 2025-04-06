@@ -13,7 +13,7 @@ export const createPFE = async (formData) => {
         "Content-Type": "multipart/form-data",
       },
     });
-    toast.success("added sucsess");
+    toast.success("PFE created successfully");
     return response.data;
   } catch (error) {
     console.error(
@@ -38,8 +38,7 @@ export const updatePFE = async (id, formData) => {
         "Content-Type": "multipart/form-data",
       },
     });
-    toast.success("added sucsess");
-    console.log("✅ PFE updated successfully:", response.data);
+    toast.success("PFE updated successfully");
     return response.data;
   } catch (error) {
     console.error(
@@ -53,9 +52,7 @@ export const updatePFE = async (id, formData) => {
 // 🟢 Function to get PFE by user
 export const getPFEByUser = async (userId) => {
   try {
-    console.log("✅ Fetched PFE:" + userId);
     const response = await axiosAPI.get(`${API_URL}/user/${userId}`);
-    console.log("✅ Fetched PFE:", response.data);
     return response.data;
   } catch (error) {
     console.error(
@@ -69,11 +66,7 @@ export const getPFEByUser = async (userId) => {
 // ✅ Function to get PFE list
 export const getPfeList = async () => {
   try {
-    const response = await axios.get(`${API_URL}/listforteacher`, {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("token")}`,
-      },
-    });
+    const response = await axiosAPI.get(`${API_URL}/listforteacher`);
     console.log("PFE List Response Data:", response.data);
     return response.data;
   } catch (error) {
@@ -88,15 +81,7 @@ export const getPfeList = async () => {
 // ✅ Function to choose a PFE
 export const choosePfe = async (id) => {
   try {
-    const response = await axios.patch(
-      `${API_URL}/${id}/choice`,
-      {},
-      {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      }
-    );
+    const response = await axiosAPI.patch(`${API_URL}/${id}/choice`);
     return response.data;
   } catch (error) {
     console.error(
@@ -110,15 +95,10 @@ export const choosePfe = async (id) => {
 // 🟢 Function to approve or reject a PFE
 export const handleAction = async (id, action) => {
   try {
-    const response = await axios.patch(
-      `${API_URL}/planning/assign`,
-      { pfeIds: [id], action },
-      {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      }
-    );
+    const response = await axiosAPI.patch(`${API_URL}/planning/assign`, {
+      pfeIds: [id],
+      action,
+    });
     console.log(
       `✅ Action ${action} on PFE with ID ${id} executed successfully.`
     );
@@ -135,14 +115,9 @@ export const handleAction = async (id, action) => {
 // 🟢 Function to assign a PFE manually to a teacher
 export const assignPFEManually = async (id, teacherId) => {
   try {
-    const response = await axios.patch(
+    const response = await axiosAPI.patch(
       `${API_URL}/${id}/planning/assign`, // ID is part of the URL
-      { teacherId, force: true },
-      {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      }
+      { teacherId, force: true }
     );
     console.log("✅ PFE manually assigned to teacher:", response.data);
     return response.data;
@@ -158,14 +133,8 @@ export const assignPFEManually = async (id, teacherId) => {
 // 🟢 Function to toggle the publication status (Publish/Hide PFE)
 export const togglePublication = async (isPublished) => {
   try {
-    const response = await axios.post(
-      `${API_URL}/planning/publish/${isPublished ? "hide" : "publish"}`,
-      {},
-      {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      }
+    const response = await axiosAPI.post(
+      `${API_URL}/planning/publish/${isPublished ? "hide" : "publish"}`
     );
     console.log(`✅ Planning ${isPublished ? "hidden" : "published"}`);
     return response.data;
@@ -181,15 +150,9 @@ export const togglePublication = async (isPublished) => {
 // 🟢 Function to send an email (First or Modified)
 export const sendEmail = async (type) => {
   try {
-    const response = await axios.post(
-      `${API_URL}/planning/send`,
-      { sendType: type },
-      {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      }
-    );
+    const response = await axiosAPI.post(`${API_URL}/planning/send`, {
+      sendType: type,
+    });
     console.log(`✅ ${type === "first" ? "First" : "Modified"} email sent.`);
     return response.data;
   } catch (error) {
@@ -201,11 +164,9 @@ export const sendEmail = async (type) => {
   }
 };
 
-export const fetchPFEChoices = async (token) => {
+export const fetchPFEChoices = async () => {
   try {
-    const response = await axios.get("http://localhost:3000/api/pfe/list", {
-      headers: { Authorization: `Bearer ${token}` },
-    });
+    const response = await axiosAPI.get(`${API_URL}/list`);
 
     return response.data;
   } catch (error) {
@@ -215,11 +176,9 @@ export const fetchPFEChoices = async (token) => {
 };
 
 // Fetch teachers
-export const fetchTeachers = async (token) => {
+export const fetchTeachers = async () => {
   try {
-    const response = await axios.get("http://localhost:3000/api/teachers", {
-      headers: { Authorization: `Bearer ${token}` },
-    });
+    const response = await axiosAPI.get("http://localhost:3000/api/teachers");
     return response.data.model || [];
   } catch (error) {
     console.error("Error fetching teachers:", error);
@@ -230,11 +189,7 @@ export const fetchTeachers = async (token) => {
 // Assuming API_URL is declared elsewhere, like in an environment file or constants.
 export const getPlanning = async () => {
   try {
-    const response = await axios.get(`${API_URL}/planning`, {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("token")}`,
-      },
-    });
+    const response = await axiosAPI.get(`${API_URL}/planning`);
 
     return response.data; // Return the fetched data
   } catch (error) {
@@ -245,7 +200,6 @@ export const getPlanning = async () => {
     } else {
       console.error("Request setup error:", error.message);
     }
-
-    throw error; // Rethrow the error for further handling in the component
+    throw error;
   }
 };
