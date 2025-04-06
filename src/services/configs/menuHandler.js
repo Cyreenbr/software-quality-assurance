@@ -235,19 +235,7 @@ export const menuConfig = [
     hideSideBar: false,
     hideHeader: false,
   },
-  {
-    order: 15,
-    label: "PFE",
-    icon: FaGraduationCap,
-    path: "/pfestudet",
-    tooltip: "pfe",
-    component: PFEStudent,
-    eligibleRoles: [RoleEnum.STUDENT],
-    active: true,
-    dontShow: false,
-    hideSideBar: false,
-    hideHeader: false,
-  },
+
   /*{
     order: 16,
     label: "PFE",
@@ -262,6 +250,20 @@ export const menuConfig = [
     hideSideBar: false,
     hideHeader: false,
   },*/
+  {
+    order: 16,
+    label: "PFE",
+    icon: FaGraduationCap,
+    path: "/pfestudet",
+    tooltip: "pfe",
+    component: PFEStudent,
+    eligibleRoles: [RoleEnum.STUDENT],
+    eligibleLevels: [RoleEnum.ISPFE],
+    active: true,
+    dontShow: false,
+    hideSideBar: false,
+    hideHeader: false,
+  },
   {
     order: 17,
     label: "Assign Internships",
@@ -345,16 +347,27 @@ export const menuConfig = [
   //     hideHeader: false,
   // },
 ];
-export const getMenuItems = (role) => {
-  console.log(menuConfig);
-
-  return menuConfig
+export const getMenuItems = (role, level = null) => {
+  return (menuConfig || [])
     .filter((item) => item?.dontShow !== true)
-    .filter(
-      (item) =>
-        !Array.isArray(item.eligibleRoles) ||
-        item.eligibleRoles.length === 0 ||
-        item.eligibleRoles.includes(role)
-    )
+    .filter((item) => {
+      const eligibleRoles = Array.isArray(item.eligibleRoles)
+        ? item.eligibleRoles
+        : [];
+      const eligibleLevels = Array.isArray(item.eligibleLevels)
+        ? item.eligibleLevels
+        : [];
+
+      // For STUDENTS: must match both role and level
+      if (role === RoleEnum.STUDENT) {
+        return (
+          (eligibleRoles.length === 0 || eligibleRoles.includes(role)) &&
+          (eligibleLevels.length === 0 || eligibleLevels.includes(level))
+        );
+      }
+
+      // For other roles: just check eligibleRoles
+      return eligibleRoles.length === 0 || eligibleRoles.includes(role);
+    })
     .sort((a, b) => (a.order ?? Infinity) - (b.order ?? Infinity));
 };
