@@ -7,6 +7,7 @@ import ErrorPage from "./pages/ErrorPage";
 import SignIn from "./pages/signinPage/SignIn";
 import SignUp from "./pages/signupPage/SignUp";
 import { menuConfig } from "./services/configs/menuHandler";
+
 // Higher-order component to wrap pages with Layout
 const withLayout = (Component, hideSideBar = false, hideHeader = false) => (
   <Layout hideHeader={hideHeader} hideSideBar={hideSideBar}>

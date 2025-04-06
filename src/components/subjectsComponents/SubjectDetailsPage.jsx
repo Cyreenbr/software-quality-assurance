@@ -79,7 +79,7 @@ const SubjectDetailsPage = () => {
     const toggleChapterStatus = (index) => {
         setFormData((prevData) => {
             const updatedChapters = prevData.subject.curriculum.chapitres.map((chapter, i) =>
-                i === index ? { ...chapter, status: !chapter.status } : chapter
+                i === index ? { ...chapter, status: !chapter.status, modifiedAt: new Date() } : chapter
             );
             return {
                 ...prevData,
@@ -99,7 +99,7 @@ const SubjectDetailsPage = () => {
             const updatedChapters = prevData.subject.curriculum.chapitres.map((chapter, cIndex) => {
                 if (cIndex === chapterIndex) {
                     const updatedSections = chapter.sections.map((section, sIndex) =>
-                        sIndex === sectionIndex ? { ...section, status: !section.status } : section
+                        sIndex === sectionIndex ? { ...section, status: !section.status, modifiedAt: new Date() } : section
                     );
                     return { ...chapter, sections: updatedSections };
                 }
@@ -116,6 +116,18 @@ const SubjectDetailsPage = () => {
                 },
             };
         });
+    };
+
+    const handleSubmit = async () => {
+        try {
+            setLoading(true);
+            await matieresServices.updateSubject(id, formData.subject);  // Assume this method exists in the service
+            toast.success("Subject updated successfully!");
+        } catch (err) {
+            toast.error("Failed to update subject.");
+        } finally {
+            setLoading(false);
+        }
     };
 
     if (loading)
@@ -313,78 +325,30 @@ const SubjectDetailsPage = () => {
                                 value={
                                     selectedHistory.teacherId.length > 0 ? (
                                         selectedHistory.teacherId
-                                            .map((t) => `${t.firstName} ${t.lastName} (${t.email})`)
+                                            .map((t) => `${t.firstName} ${t.lastName}`)
                                             .join(", ")
                                     ) : (
-                                        "None"
+                                        "N/A"
                                     )
                                 }
                             />
-                            {/* Skills Row */}
-                            <DetailRow
-                                label="Skills"
-                                value={
-                                    selectedHistory.skillsId.length > 0 ? (
-                                        selectedHistory.skillsId
-                                            .map((s) =>
-                                                `${s.title} (${s.familyId.map((f) => f.title).join(", ")})`
-                                            )
-                                            .join(", ")
-                                    ) : (
-                                        "None"
-                                    )
-                                }
-                            />
+                            {/* Other info... */}
                         </div>
                     </Popup>
                 )}
+
+                {/* Save Changes Button */}
+                <div className="flex justify-center mt-8">
+                    <button
+                        onClick={handleSubmit}
+                        className="px-6 py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition"
+                    >
+                        Save Changes
+                    </button>
+                </div>
             </div>
         </div>
     );
 };
-
-// Helper Components
-const Section = ({ title, icon, children }) => (
-    <section className="p-6 border-b border-gray-200 last:border-none">
-        <h2 className="text-2xl font-semibold text-gray-800 flex items-center mb-4 gap-2">
-            {icon && <span>{icon}</span>}
-            {title}
-        </h2>
-        {children}
-    </section>
-);
-
-const InfoCard = ({ label, value }) => (
-    <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
-        <p className="text-sm font-semibold text-gray-700">{label}</p>
-        <p className="text-gray-600">{value}</p>
-    </div>
-);
-
-const SkillCard = ({ title, families }) => (
-    <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
-        <p className="text-sm font-semibold text-gray-700">{title}</p>
-        <ul className="text-gray-600 text-xs mt-2 space-y-1">
-            {families.map((family, index) => (
-                <li key={index}>• {family}</li>
-            ))}
-        </ul>
-    </div>
-);
-
-const EmptyState = ({ message }) => (
-    <p className="text-sm text-gray-500 text-center py-4">{message}</p>
-);
-
-const ErrorState = ({ message }) => (
-    <p className="text-red-600 text-center py-4">{message}</p>
-);
-
-const DetailRow = ({ label, value }) => (
-    <div className="flex flex-col space-y-1 transition-all duration-200 hover:bg-gray-100 rounded-lg p-3">
-        <span className="text-sm font-medium text-gray-600">{label}</span>
-        <span className="text-base font-semibold text-gray-900">{value}</span>
-    </div>
-);
 
 export default SubjectDetailsPage;
