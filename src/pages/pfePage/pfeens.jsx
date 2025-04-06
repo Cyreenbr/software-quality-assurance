@@ -19,7 +19,6 @@ const TeacherPFEList = () => {
       const data = await getPfeList();
       setPfeList(data);
     } catch (error) {
-      console.error("Erreur lors du chargement des PFEs:", error);
       alert("Erreur lors du chargement des PFEs.");
     } finally {
       setLoading(false);
@@ -32,7 +31,6 @@ const TeacherPFEList = () => {
       alert("Sujet choisi avec succès !");
       fetchPFEs();
     } catch (error) {
-      console.error("Erreur lors du choix du PFE:", error);
       alert(error.response?.data?.message || "Erreur lors du choix.");
     }
   };

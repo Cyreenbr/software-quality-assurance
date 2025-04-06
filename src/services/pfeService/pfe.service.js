@@ -1,26 +1,21 @@
 import axios from "axios";
+import axiosAPI from "../axiosAPI/axiosInstance";
+import { toast } from "react-toastify";
 
 // Base API URL
 const API_URL = "http://localhost:3000/api/PFE"; // Ensure this URL is correct
 
-// Auth header with token from localStorage
-const authHeader = {
-  Authorization: `Bearer ${localStorage.getItem("token")}`,
-};
-
 // 🟢 Function to create a PFE
 export const createPFE = async (formData) => {
   try {
-    const response = await axios.post(`${API_URL}/post`, formData, {
+    const response = await axiosAPI.post(`${API_URL}/post`, formData, {
       headers: {
-        ...authHeader,
         "Content-Type": "multipart/form-data",
       },
     });
-    console.log("✅ PFE created successfully:", response.data);
+    toast.success("added sucsess");
     return response.data;
   } catch (error) {
-    s;
     console.error(
       "🔴 Error creating PFE:",
       error.response?.data || error.message
@@ -39,11 +34,11 @@ export const updatePFE = async (id, formData) => {
 
     const response = await axios.patch(`${API_URL}/${id}`, formData, {
       headers: {
-        ...authHeader,
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
         "Content-Type": "multipart/form-data",
       },
     });
-
+    toast.success("added sucsess");
     console.log("✅ PFE updated successfully:", response.data);
     return response.data;
   } catch (error) {
@@ -58,9 +53,8 @@ export const updatePFE = async (id, formData) => {
 // 🟢 Function to get PFE by user
 export const getPFEByUser = async (userId) => {
   try {
-    const response = await axios.get(`${API_URL}/user/${userId}`, {
-      headers: authHeader,
-    });
+    console.log("✅ Fetched PFE:" + userId);
+    const response = await axiosAPI.get(`${API_URL}/user/${userId}`);
     console.log("✅ Fetched PFE:", response.data);
     return response.data;
   } catch (error) {
@@ -76,7 +70,9 @@ export const getPFEByUser = async (userId) => {
 export const getPfeList = async () => {
   try {
     const response = await axios.get(`${API_URL}/listforteacher`, {
-      headers: authHeader,
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
     });
     console.log("PFE List Response Data:", response.data);
     return response.data;
@@ -96,7 +92,9 @@ export const choosePfe = async (id) => {
       `${API_URL}/${id}/choice`,
       {},
       {
-        headers: authHeader,
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
       }
     );
     return response.data;
@@ -115,7 +113,11 @@ export const handleAction = async (id, action) => {
     const response = await axios.patch(
       `${API_URL}/planning/assign`,
       { pfeIds: [id], action },
-      { headers: authHeader }
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      }
     );
     console.log(
       `✅ Action ${action} on PFE with ID ${id} executed successfully.`
@@ -136,7 +138,11 @@ export const assignPFEManually = async (id, teacherId) => {
     const response = await axios.patch(
       `${API_URL}/${id}/planning/assign`, // ID is part of the URL
       { teacherId, force: true },
-      { headers: authHeader }
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      }
     );
     console.log("✅ PFE manually assigned to teacher:", response.data);
     return response.data;
@@ -155,7 +161,11 @@ export const togglePublication = async (isPublished) => {
     const response = await axios.post(
       `${API_URL}/planning/publish/${isPublished ? "hide" : "publish"}`,
       {},
-      { headers: authHeader }
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      }
     );
     console.log(`✅ Planning ${isPublished ? "hidden" : "published"}`);
     return response.data;
@@ -174,7 +184,11 @@ export const sendEmail = async (type) => {
     const response = await axios.post(
       `${API_URL}/planning/send`,
       { sendType: type },
-      { headers: authHeader }
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      }
     );
     console.log(`✅ ${type === "first" ? "First" : "Modified"} email sent.`);
     return response.data;
@@ -186,12 +200,13 @@ export const sendEmail = async (type) => {
     throw error;
   }
 };
+
 export const fetchPFEChoices = async (token) => {
   try {
     const response = await axios.get("http://localhost:3000/api/pfe/list", {
       headers: { Authorization: `Bearer ${token}` },
     });
-    console.log(response.data);
+
     return response.data;
   } catch (error) {
     console.error("Error fetching PFE data:", error);
@@ -212,21 +227,17 @@ export const fetchTeachers = async (token) => {
   }
 };
 
-// Assuming authHeader and API_URL are declared elsewhere, like in an environment file or constants.
+// Assuming API_URL is declared elsewhere, like in an environment file or constants.
 export const getPlanning = async () => {
   try {
-    console.log("Authorization Header:", authHeader);
-    console.log("API URL:", API_URL);
-
     const response = await axios.get(`${API_URL}/planning`, {
-      headers: authHeader,
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
     });
 
-    console.log("✅ Fetched PFE:", response.data);
     return response.data; // Return the fetched data
   } catch (error) {
-    console.error("🔴 Error fetching PFE:", error);
-
     if (error.response) {
       console.error("Server Error:", error.response.data);
     } else if (error.request) {
