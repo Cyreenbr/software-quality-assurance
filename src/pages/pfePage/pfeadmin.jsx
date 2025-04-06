@@ -81,7 +81,6 @@ const AdminPfeManagement = () => {
   const handleSendEmail = async (type) => {
     try {
       await sendEmail(type);
-      alert(`Email sent: ${type}`);
     } catch (err) {
       console.error("Failed to send email:", err);
     }

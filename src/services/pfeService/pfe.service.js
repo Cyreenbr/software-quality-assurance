@@ -103,8 +103,11 @@ export const handleAction = async (id, action) => {
     console.log(
       `✅ Action ${action} on PFE with ID ${id} executed successfully.`
     );
+    toast.success(`PFE ${action}`);
+
     return response.data;
   } catch (error) {
+    toast.error(`🔴 ${error.response?.data?.message || error.message}`);
     console.error(
       `🔴 Error handling ${action} on PFE:`,
       error.response?.data || error.message
@@ -154,7 +157,7 @@ export const sendEmail = async (type) => {
     const response = await axiosAPI.post(`${API_URL}/planning/send`, {
       sendType: type,
     });
-    console.log(`✅ ${type === "first" ? "First" : "Modified"} email sent.`);
+    toast.success(` ${type === "first" ? "First" : "Modified"} email sent.`);
     return response.data;
   } catch (error) {
     console.error(
