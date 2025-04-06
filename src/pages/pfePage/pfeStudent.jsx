@@ -1,8 +1,8 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import {
   createPFE,
-  updatePFE,
   getPFEByUser,
+  updatePFE,
 } from "../../services/pfeService/pfe.service";
 
 const PFEStudent = ({ userId }) => {
@@ -140,6 +140,7 @@ const PFEStudent = ({ userId }) => {
 
   return (
     <div className="min-h-screen bg-gradient-to-r from-blue-50 to-purple-100 py-10 rounded-lg">
+      <div className="max-w-4xl mx-auto bg-white rounded-xl shadow-lg p-8">
       <h2 className="text-2xl font-bold text-black-700 mb-6 text-start">
         {pfeId ? "Update Your PFE" : "Submit a PFE"}
       </h2>
@@ -268,6 +269,7 @@ const PFEStudent = ({ userId }) => {
           {error && <p className="text-red-600 text-center mt-4">{error}</p>}
         </form>
       </div>
+    </div>
     </div>
   );
 };
