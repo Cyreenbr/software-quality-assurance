@@ -235,14 +235,29 @@ export const menuConfig = [
     hideSideBar: false,
     hideHeader: false,
   },
-  {
+
+  /*{
     order: 16,
-    label: "ahmed",
+    label: "PFE",
     icon: FaGraduationCap,
     path: "/pfeStudent",
     tooltip: "pfe",
     component: PFEStudent,
     eligbleRoles: [RoleEnum.STUDENT],
+    //eligibleLevels: [RoleEnum.ISPFE],
+    active: true,
+    dontShow: false,
+    hideSideBar: false,
+    hideHeader: false,
+  },*/
+  {
+    order: 16,
+    label: "PFE",
+    icon: FaGraduationCap,
+    path: "/pfestudet",
+    tooltip: "pfe",
+    component: PFEStudent,
+    eligibleRoles: [RoleEnum.STUDENT],
     eligibleLevels: [RoleEnum.ISPFE],
     active: true,
     dontShow: false,
@@ -332,39 +347,27 @@ export const menuConfig = [
   //     hideHeader: false,
   // },
 ];
-
-
 export const getMenuItems = (role, level = null) => {
-  return menuConfig
+  return (menuConfig || [])
     .filter((item) => item?.dontShow !== true)
     .filter((item) => {
-      const hasEligibleRoles = item.eligibleRoles?.length > 0;
-      const hasEligibleLevels = item.eligibleLevels?.length > 0;
+      const eligibleRoles = Array.isArray(item.eligibleRoles)
+        ? item.eligibleRoles
+        : [];
+      const eligibleLevels = Array.isArray(item.eligibleLevels)
+        ? item.eligibleLevels
+        : [];
 
-      // Handle role eligibility
-      const roleEligible = !hasEligibleRoles || item.eligibleRoles.includes(role);
-
-      let levelEligible = true;
-
+      // For STUDENTS: must match both role and level
       if (role === RoleEnum.STUDENT) {
-        // For students, check both eligibleRoles and eligibleLevels
-        if (hasEligibleRoles && hasEligibleLevels) {
-          levelEligible = item.eligibleLevels.includes(level) && item.eligibleRoles.includes(role);
-        } else if (hasEligibleRoles) {
-          // If only eligibleRoles exist, check only that
-          levelEligible = item.eligibleRoles.includes(role);
-        } else if (hasEligibleLevels) {
-          // If only eligibleLevels exist, check only that
-          levelEligible = item.eligibleLevels.includes(level);
-        }
-      } else {
-        // For non-students, ignore the eligibleLevels check if not needed
-        if (hasEligibleLevels) {
-          levelEligible = true; // Ignoring eligibleLevels for non-student roles
-        }
+        return (
+          (eligibleRoles.length === 0 || eligibleRoles.includes(role)) &&
+          (eligibleLevels.length === 0 || eligibleLevels.includes(level))
+        );
       }
 
-      return roleEligible && levelEligible;
+      // For other roles: just check eligibleRoles
+      return eligibleRoles.length === 0 || eligibleRoles.includes(role);
     })
     .sort((a, b) => (a.order ?? Infinity) - (b.order ?? Infinity));
 };
