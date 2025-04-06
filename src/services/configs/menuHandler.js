@@ -2,7 +2,7 @@ import {
   FaBook,
   FaGraduationCap,
   FaLightbulb,
-  FaWindowRestore,
+  FaWindowRestore
 } from "react-icons/fa";
 import { GiTeacher } from "react-icons/gi";
 import {
@@ -29,6 +29,7 @@ import OptionPage from "../../pages/optionPage/OptionPage";
 import TeacherPFEList from "../../pages/pfePage/ens";
 import AdminPfeManagement from "../../pages/pfePage/pfe";
 import PFEStudent from "../../pages/pfePage/pfeStudent";
+import PlanningPage from "../../pages/pfePage/planning";
 import InternshipPlanning from "../../pages/PlanningUpdate/InternshipPlanningUpdate";
 import InternshipList from "../../pages/studentInternshipPage/studentInternship";
 import Subjects from "../../pages/subjectsPage/Subjects";
@@ -37,8 +38,6 @@ import StudentsListTeachers from "../../pages/usersListPage/StudentsListTeachers
 import StudentsManagPage from "../../pages/UsersManagementPage/StudentsManagPage";
 import TeachersManagPage from "../../pages/UsersManagementPage/TeachersManagPage";
 import { RoleEnum } from "../../utils/userRoles";
-import TeacherPFEList from "../../pages/pfePage/ens";
-import PlanningPage from "../../pages/pfePage/planning";
 
 export const menuConfig = [
   {
@@ -71,7 +70,7 @@ export const menuConfig = [
     eligibleRoles: [],
     active: true,
     dontShow: true,
-    hideSideBar: true,
+    hideSideBar: false,
     hideHeader: false,
   },
   // {
@@ -92,7 +91,7 @@ export const menuConfig = [
     path: "/competences",
     tooltip: "Competences",
     component: Competences,
-    eligibleRoles: [RoleEnum.ADMIN, RoleEnum.TEACHER, RoleEnum.STUDENT],
+    eligibleRoles: [RoleEnum.ADMIN, RoleEnum.TEACHER,],
     active: true,
     hideSideBar: false,
     hideHeader: false,
@@ -141,7 +140,7 @@ export const menuConfig = [
     path: "/PFA",
     component: Pfa,
     eligibleRoles: [RoleEnum.ADMIN, RoleEnum.TEACHER, RoleEnum.STUDENT],
-    eligibleLevels: [RoleEnum.ISPFA],
+    // eligibleLevels: [RoleEnum.ISPFA],
     active: true,
     hideSideBar: false,
     hideHeader: false,

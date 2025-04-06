@@ -199,12 +199,12 @@ const SubjectList = ({ onEdit, refresh = false, }) => {
                             </ul>
 
                             {/* Actions */}
-                            {(RoleEnum.ADMIN === role || userId === subject.curriculum?.teacherId) &&
-                                <div className="flex justify-between mt-6">
+                            {(RoleEnum.ADMIN === role || userId === subject.curriculum?.teacherId) && (
+                                <div className="flex flex-col sm:flex-row sm:justify-center items-center mt-6">
                                     {/* Edit Button */}
                                     <button
                                         onClick={() => onEdit(subject)}
-                                        className="flex items-center bg-gray-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-gray-700 transition duration-200 w-full mr-2"
+                                        className="flex justify-center items-center bg-gray-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-gray-700 transition duration-200 sm:w-auto w-full mb-2 sm:mb-0 sm:mr-2"
                                     >
                                         <FaEdit className="mr-2" /> Edit
                                     </button>
@@ -215,11 +215,14 @@ const SubjectList = ({ onEdit, refresh = false, }) => {
                                             setIsDeletePopupOpen(true);
                                             setSubjectToDelete(subject);
                                         }}
-                                        className="flex items-center bg-red-500 text-white px-4 py-2 rounded-lg font-semibold hover:bg-red-600 transition duration-200 w-full ml-2"
+                                        className="flex justify-center items-center bg-red-500 text-white px-4 py-2 rounded-lg font-semibold hover:bg-red-600 transition duration-200 sm:w-auto w-full sm:ml-2"
                                     >
                                         <FaTrashAlt className="mr-2" /> Delete
                                     </button>
-                                </div>}
+                                </div>
+                            )}
+
+
                         </div>
                     ))}
                 </div>

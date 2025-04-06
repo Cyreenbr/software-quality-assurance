@@ -15,11 +15,11 @@ const Pagination = ({ currentPage,
     const debouncedPageChange = useMemo(
         () =>
             debounce((page) => {
-                if (page >= 1 && page <= totalPages) {
-                    onPageChange(page);
+                if (page >= 1 && page <= totalPages && page !== currentPage) {
+                    onPageChange(page); // Trigger page change only if page is different
                 }
             }, 700),
-        [onPageChange, totalPages] // Dependencies, changes if `onPageChange` or `totalPages` change
+        [onPageChange, totalPages, currentPage] // Dependencies, changes if `onPageChange`, `totalPages`, or `currentPage` change
     );
 
     const handlePageInputChange = (e) => {
@@ -40,12 +40,16 @@ const Pagination = ({ currentPage,
 
     const handlePreviousClick = () => {
         const newPage = Math.max(1, currentPage - 1); // Prevent going below 1
-        onPageChange(newPage);
+        if (newPage !== currentPage) {
+            onPageChange(newPage); // Trigger page change only if newPage is different
+        }
     };
 
     const handleNextClick = () => {
         const newPage = Math.min(totalPages, currentPage + 1); // Prevent going above totalPages
-        onPageChange(newPage);
+        if (newPage !== currentPage) {
+            onPageChange(newPage); // Trigger page change only if newPage is different
+        }
     };
 
     // Ensure that the component does not render when the totalPages is zero or invalid

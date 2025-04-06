@@ -5,6 +5,7 @@ import { useSelector } from "react-redux";
 import { toast } from 'react-toastify';
 import SkillForm from "../../components/skillsComponents/CompetenceForm";
 import CompetenceList from "../../components/skillsComponents/CompetenceList";
+import PageLayout from "../../components/skillsComponents/PageLayout";
 import Pagination from "../../components/skillsComponents/Pagination";
 import SearchBar from "../../components/skillsComponents/SearchBar";
 import Tooltip from "../../components/skillsComponents/Tooltip";
@@ -213,9 +214,9 @@ const Competences = () => {
         // <div className="min-h-screen bg-gray-100 p-4">
         //     <div className=" mx-auto bg-white shadow-lg rounded-xl overflow-hidden border border-gray-200">
 
-        <div className="  mx-auto p-8 bg-white shadow-lg rounded-xl min-h-screen overflow-hidden border border-gray-200">
-            <h1 className="text-4xl font-bold text-center mb-8 text-indigo-700">List of Competences</h1>
-
+        // <div className="  mx-auto p-8 bg-white shadow-lg rounded-xl min-h-screen overflow-hidden border border-gray-200">
+        // <h1 className="text-4xl font-bold text-center mb-8 text-indigo-700">List of Competences</h1>
+        <PageLayout title={"Competences"}>
             <div className="flex flex-col md:flex-row md:justify-between items-center mb-8 space-y-4 md:space-y-0 md:space-x-6">
                 <SearchBar handleSearch={handleSearch} className="w-full md:max-w-xs" />
                 <div className="pl-4 pr-4 flex space-x-4 w-full md:w-auto justify-center">
@@ -308,7 +309,8 @@ const Competences = () => {
                     handleUpdateSkill={handleUpdateSkill}
                 />
             }
-        </div >
+        </PageLayout>
+        // </div >
 
     );
 };
