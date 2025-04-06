@@ -2,10 +2,8 @@ import axios from "axios";
 import axiosAPI from "../axiosAPI/axiosInstance";
 import { toast } from "react-toastify";
 
-// Base API URL
-const API_URL = "http://localhost:3000/api/PFE"; // Ensure this URL is correct
+const API_URL = "http://localhost:3000/api/PFE";
 
-// 🟢 Function to create a PFE
 export const createPFE = async (formData) => {
   try {
     const response = await axiosAPI.post(`${API_URL}/post`, formData, {
@@ -17,17 +15,16 @@ export const createPFE = async (formData) => {
     return response.data;
   } catch (error) {
     console.error(
-      "🔴 Error creating PFE:",
+      " Error creating PFE:",
       error.response?.data || error.message
     );
     throw error;
   }
 };
 
-// 🟢 Function to update a PFE
 export const updatePFE = async (id, formData) => {
   try {
-    console.log("📦 FormData before sending:");
+    console.log(" FormData before sending:");
     for (let [key, value] of formData.entries()) {
       console.log(`${key}:`, value);
     }
@@ -42,14 +39,13 @@ export const updatePFE = async (id, formData) => {
     return response.data;
   } catch (error) {
     console.error(
-      "🔴 Error updating PFE:",
+      " Error updating PFE:",
       error.response?.data || error.message
     );
     throw error;
   }
 };
 
-// 🟢 Function to get PFE by user
 export const getPFEByUser = async (userId) => {
   try {
     const response = await axiosAPI.get(`${API_URL}/user/${userId}`);
@@ -57,14 +53,13 @@ export const getPFEByUser = async (userId) => {
     return response.data;
   } catch (error) {
     console.error(
-      "🔴 Error fetching PFE:",
+      " Error fetching PFE:",
       error.response?.data || error.message
     );
     throw error;
   }
 };
 
-// ✅ Function to get PFE list
 export const getPfeList = async () => {
   try {
     const response = await axiosAPI.get(`${API_URL}/listforteacher`);
@@ -72,28 +67,26 @@ export const getPfeList = async () => {
     return response.data;
   } catch (error) {
     console.error(
-      "🔴 Error loading PFE list:",
+      " Error loading PFE list:",
       error.response?.data || error.message
     );
     throw error;
   }
 };
 
-// ✅ Function to choose a PFE
 export const choosePfe = async (id) => {
   try {
     const response = await axiosAPI.patch(`${API_URL}/${id}/choice`);
     return response.data;
   } catch (error) {
     console.error(
-      "🔴 Error choosing PFE:",
+      " Error choosing PFE:",
       error.response?.data || error.message
     );
     throw error;
   }
 };
 
-// 🟢 Function to approve or reject a PFE
 export const handleAction = async (id, action) => {
   try {
     const response = await axiosAPI.patch(`${API_URL}/planning/assign`, {
@@ -101,7 +94,7 @@ export const handleAction = async (id, action) => {
       action,
     });
     console.log(
-      `✅ Action ${action} on PFE with ID ${id} executed successfully.`
+      ` Action ${action} on PFE with ID ${id} executed successfully.`
     );
     toast.success(`PFE ${action}`);
 
@@ -109,49 +102,46 @@ export const handleAction = async (id, action) => {
   } catch (error) {
     toast.error(` ${error.response?.data?.message || error.message}`);
     console.error(
-      `🔴 Error handling ${action} on PFE:`,
+      ` Error handling ${action} on PFE:`,
       error.response?.data || error.message
     );
     throw error;
   }
 };
 
-// 🟢 Function to assign a PFE manually to a teacher
 export const assignPFEManually = async (id, teacherId) => {
   try {
-    const response = await axiosAPI.patch(
-      `${API_URL}/${id}/planning/assign`, // ID is part of the URL
-      { teacherId, force: true }
-    );
-    console.log("✅ PFE manually assigned to teacher:", response.data);
+    const response = await axiosAPI.patch(`${API_URL}/${id}/planning/assign`, {
+      teacherId,
+      force: true,
+    });
+    console.log(" PFE manually assigned to teacher:", response.data);
     return response.data;
   } catch (error) {
     console.error(
-      "🔴 Error assigning PFE manually:",
+      " Error assigning PFE manually:",
       error.response?.data || error.message
     );
     throw error;
   }
 };
 
-// 🟢 Function to toggle the publication status (Publish/Hide PFE)
 export const togglePublication = async (isPublished) => {
   try {
     const response = await axiosAPI.post(
       `${API_URL}/planning/publish/${isPublished ? "hide" : "publish"}`
     );
-    console.log(`✅ Planning ${isPublished ? "hidden" : "published"}`);
+    toast.success(`Planning ${isPublished ? "hidden" : "published"}`);
     return response.data;
   } catch (error) {
     console.error(
-      "🔴 Error toggling publication status:",
+      " Error toggling publication status:",
       error.response?.data || error.message
     );
     throw error;
   }
 };
 
-// 🟢 Function to send an email (First or Modified)
 export const sendEmail = async (type) => {
   try {
     const response = await axiosAPI.post(`${API_URL}/planning/send`, {
@@ -161,7 +151,7 @@ export const sendEmail = async (type) => {
     return response.data;
   } catch (error) {
     console.error(
-      "🔴 Error sending email:",
+      " Error sending email:",
       error.response?.data || error.message
     );
     throw error;
@@ -179,7 +169,6 @@ export const fetchPFEChoices = async () => {
   }
 };
 
-// Fetch teachers
 export const fetchTeachers = async () => {
   try {
     const response = await axiosAPI.get("http://localhost:3000/api/teachers");
@@ -190,12 +179,11 @@ export const fetchTeachers = async () => {
   }
 };
 
-// Assuming API_URL is declared elsewhere, like in an environment file or constants.
 export const getPlanning = async () => {
   try {
     const response = await axiosAPI.get(`${API_URL}/planning`);
 
-    return response.data; // Return the fetched data
+    return response.data;
   } catch (error) {
     if (error.response) {
       console.error("Server Error:", error.response.data);
