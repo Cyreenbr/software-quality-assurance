@@ -7,7 +7,7 @@ const InternshipCard = ({ internship }) => {
         <tbody>
           <tr className="mb-4">
             <td className="px-4 py-3 font-semibold text-gray-800 flex items-center gap-3">
-              <FaUserTie className="text-blue-600" /> 
+              <FaUserTie className="text-blue-600" />
               <span className="text-lg font-bold">{internship.student.name}</span>
             </td>
             <td className="px-4 py-3 text-gray-600 flex items-center gap-3">
