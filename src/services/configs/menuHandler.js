@@ -30,6 +30,7 @@ import AdminPfeManagement from "../../pages/pfePage/pfeadmin";
 import TeacherPFEList from "../../pages/pfePage/pfeens";
 import PFEStudent from "../../pages/pfePage/pfeStudent";
 import PlanningPage from "../../pages/pfePage/planning";
+import PlanninginternshipPage from "../../pages/planningPage/PlanningPage";
 import InternshipPlanning from "../../pages/PlanningUpdate/InternshipPlanningUpdate";
 import InternshipList from "../../pages/studentInternshipPage/studentInternship";
 import Subjects from "../../pages/subjectsPage/Subjects";
@@ -341,6 +342,19 @@ export const menuConfig = [
     eligibleRoles: [RoleEnum.TEACHER],
     active: true,
     dontShow: false,
+    hideSideBar: false,
+    hideHeader: false,
+  },
+  {
+    order: 27,
+    label: "Planning",
+    icon: MdList,
+    path: "/planning",
+    tooltip: "planning",
+    component: PlanninginternshipPage,
+    eligibleRoles: [RoleEnum.ADMIN, RoleEnum.STUDENT, RoleEnum.TEACHER],
+    active: true,
+    dontShow: true,
     hideSideBar: false,
     hideHeader: false,
   },
