@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { getPfeList, choosePfe } from "../../services/pfeService/pfe.service";
 import { useSelector } from "react-redux";
+import { toast } from "react-toastify";
 
 const TeacherPFEList = () => {
   const [pfeList, setPfeList] = useState([]);
@@ -14,7 +15,7 @@ const TeacherPFEList = () => {
       const data = await getPfeList();
       setPfeList(data);
     } catch (error) {
-      alert("Erreur lors du chargement des PFEs.");
+      toast.error(` ${error.response?.data?.message || error.message}`);
     } finally {
       setLoading(false);
     }
@@ -23,10 +24,10 @@ const TeacherPFEList = () => {
   const handleChoosePFE = async (id) => {
     try {
       await choosePfe(id);
-      alert("Sujet choisi avec succès !");
+      toast.success("Sujet choisi avec succès !");
       fetchPFEs();
     } catch (error) {
-      alert(error.response?.data?.message || "Erreur lors du choix.");
+      toast.error(` ${error.response?.data?.message || error.message}`);
     }
   };
 
