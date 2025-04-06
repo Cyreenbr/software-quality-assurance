@@ -107,7 +107,7 @@ export const handleAction = async (id, action) => {
 
     return response.data;
   } catch (error) {
-    toast.error(`🔴 ${error.response?.data?.message || error.message}`);
+    toast.error(` ${error.response?.data?.message || error.message}`);
     console.error(
       `🔴 Error handling ${action} on PFE:`,
       error.response?.data || error.message
