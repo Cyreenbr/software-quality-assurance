@@ -4,9 +4,11 @@ import {
   getPFEByUser,
   updatePFE,
 } from "../../services/pfeService/pfe.service";
+import { useSelector } from "react-redux";
 
 const PFEStudent = ({ userId }) => {
-  const storedUser = JSON.parse(localStorage.getItem("user"));
+  const storedUser = useSelector((status) => status.auth.user);
+
   const userLevel = storedUser?.level;
   /*
   if (userLevel !== RoleEnum.ISPFE) {
@@ -37,7 +39,6 @@ const PFEStudent = ({ userId }) => {
     const fetchUserPFE = async () => {
       try {
         setIsFetching(true); // Set fetching to true before starting request
-        const storedUser = JSON.parse(localStorage.getItem("user"));
         const userId = storedUser ? storedUser._id || storedUser.id : null;
 
         if (!userId) return;
