@@ -286,9 +286,6 @@ const PFEStudent = ({ userId }) => {
               </button>
             )}
 
-            {message && (
-              <p className="text-green-600 text-center mt-4">{message}</p>
-            )}
             {error && (
               <p className="text-red-600 text-center mt-4">{error.message}</p>
             )}
