@@ -21,12 +21,14 @@ function ProtectedRoute({ element, roles = [], levels = [] }) {
   if (roles.length > 0 && !roles.includes(role)) {
     return <Navigate to="/error" replace />;
   }
-
+  console.log(role === RoleEnum.STUDEN);
   // Level check — only if levels are required
-  if (levels.length > 0 && !levels.includes(levelUser)) {
-    return <Navigate to="/error" replace />;
-  }
-  if (levels.length > 0 && !levels.includes(levelUser)) {
+  if (
+    levels.length > 0 &&
+    !levels.includes(levelUser) &&
+    role === RoleEnum.STUDENT
+  ) {
+    console.log("1");
     return <Navigate to="/error" replace />;
   }
 

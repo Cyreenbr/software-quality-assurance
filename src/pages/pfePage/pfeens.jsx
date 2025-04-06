@@ -1,17 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { getPfeList, choosePfe } from "../../services/pfeService/pfe.service";
+import { useSelector } from "react-redux";
 
 const TeacherPFEList = () => {
   const [pfeList, setPfeList] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [loggedInUser, setLoggedInUser] = useState(null);
-
-  useEffect(() => {
-    const storedUser = JSON.parse(localStorage.getItem("user"));
-    if (storedUser) {
-      setLoggedInUser(storedUser._id || storedUser.id);
-    }
-  }, []);
+  const storedUser = useSelector((state) => state.auth.user);
+  const loggedInUser = storedUser?._id || storedUser?.id;
 
   const fetchPFEs = async () => {
     setLoading(true);
@@ -19,7 +14,6 @@ const TeacherPFEList = () => {
       const data = await getPfeList();
       setPfeList(data);
     } catch (error) {
-      console.error("Erreur lors du chargement des PFEs:", error);
       alert("Erreur lors du chargement des PFEs.");
     } finally {
       setLoading(false);
@@ -32,7 +26,6 @@ const TeacherPFEList = () => {
       alert("Sujet choisi avec succès !");
       fetchPFEs();
     } catch (error) {
-      console.error("Erreur lors du choix du PFE:", error);
       alert(error.response?.data?.message || "Erreur lors du choix.");
     }
   };

@@ -26,8 +26,7 @@ import Home from "../../pages/homePage/Home";
 import Notifications from "../../pages/Notifications";
 import OptionListPage from "../../pages/optionPage/OptionListPage";
 import OptionPage from "../../pages/optionPage/OptionPage";
-import TeacherPFEList from "../../pages/pfePage/ens";
-import AdminPfeManagement from "../../pages/pfePage/pfe";
+import AdminPfeManagement from "../../pages/pfePage/pfeadmin";
 import PFEStudent from "../../pages/pfePage/pfeStudent";
 import PlanningPage from "../../pages/pfePage/planning";
 import InternshipPlanning from "../../pages/PlanningUpdate/InternshipPlanningUpdate";
@@ -38,6 +37,8 @@ import StudentsListTeachers from "../../pages/usersListPage/StudentsListTeachers
 import StudentsManagPage from "../../pages/UsersManagementPage/StudentsManagPage";
 import TeachersManagPage from "../../pages/UsersManagementPage/TeachersManagPage";
 import { RoleEnum } from "../../utils/userRoles";
+import TeacherPFEList from "../../pages/pfePage/pfeens";
+import PlanningPage from "../../pages/pfePage/planning";
 
 export const menuConfig = [
   {
@@ -239,6 +240,7 @@ export const menuConfig = [
     tooltip: "pfe",
     component: PlanningPage,
     eligibleRoles: [RoleEnum.ADMIN, RoleEnum.STUDENT, RoleEnum.TEACHER],
+    eligibleLevels: [RoleEnum.ISPFE],
     active: true,
     dontShow: true,
     hideSideBar: false,
@@ -263,7 +265,7 @@ export const menuConfig = [
     order: 16,
     label: "PFE",
     icon: FaGraduationCap,
-    path: "/pfestudet",
+    path: "/pfestudent",
     tooltip: "pfe",
     component: PFEStudent,
     eligibleRoles: [RoleEnum.STUDENT],
@@ -356,6 +358,7 @@ export const menuConfig = [
   //     hideHeader: false,
   // },
 ];
+
 export const getMenuItems = (role, level = null) => {
   return (menuConfig || [])
     .filter((item) => item?.dontShow !== true)
