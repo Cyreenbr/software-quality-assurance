@@ -1,18 +1,10 @@
-import axios from "axios";
+import axiosAPI from "../axiosAPI/axiosInstance";
 
-const API_BASE_URL = "http://localhost:3000/api/internship"; 
-
-const getAuthHeader = () => {
-  const token = localStorage.getItem("token"); 
-  return token ? { Authorization: `Bearer ${token}` } : {};
-};
 
 const internshipService = {
   getInternships: async () => {
     try {
-      const response = await axios.get(`${API_BASE_URL}/stage/getList`, {
-        headers: { ...getAuthHeader() },
-      });
+      const response = await axiosAPI.get(`/internship/stage/getList`);
       return response.data;
     } catch (error) {
       console.error("Erreur API (GET internships) :", error);
@@ -22,9 +14,7 @@ const internshipService = {
 
   getTeachers: async () => {
     try {
-      const response = await axios.get(`${API_BASE_URL}/teachers`, {
-        headers: { ...getAuthHeader() },
-      });
+      const response = await axiosAPI.get(`/internship/teachers`);
       return response.data; 
     } catch (error) {
       console.error("Erreur API (GET teachers) :", error);
@@ -35,17 +25,11 @@ const internshipService = {
 
   updateInternshipTeacher: async (internshipId, teacherId) => {
     try {
-      const response = await axios.patch(
-        `${API_BASE_URL}/stage/planning/update`,
+      const response = await axiosAPI.patch(
+        `internship/stage/planning/update`,
         {
           internshipId,
           idTeacher: teacherId,
-        },
-        {
-          headers: {
-            "Content-Type": "application/json",
-            ...getAuthHeader(),
-          },
         }
       );
       return response.data;  

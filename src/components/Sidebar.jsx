@@ -12,7 +12,6 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
   const menuItems = getMenuItems(role, level);
   const location = useLocation();
 
-
   // State for collapsed sidebar
   const [isCollapsed, setIsCollapsed] = useState(() => {
     return JSON.parse(localStorage.getItem("isSidebarCollapsed")) || false;

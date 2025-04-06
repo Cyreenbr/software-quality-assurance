@@ -2,7 +2,9 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { registerUser } from "../../services/AccountServices/account.service";
 import backgroundImage from "/src/assets/ISAMMBackground.jpg";
+import Swal from "sweetalert2";
 
+import { toast } from "react-toastify";
 const AddStudent = ({ onBackClick }) => {
   const navigate = useNavigate();
 
@@ -26,7 +28,7 @@ const AddStudent = ({ onBackClick }) => {
     e.preventDefault();
     console.log("submit");
     if (!firstName || !lastName || !email || !level || !password) {
-      alert("Please fill in all fields.");
+      toast.error("Please fill in all fields.");
       return;
     }
 
@@ -40,26 +42,35 @@ const AddStudent = ({ onBackClick }) => {
 
     console.log(userData);
     console.log(registerUser);
-    
+
     try {
       const response = await registerUser(userData);
       console.log("User registered:", response);
-      
+
       // Afficher un message de succès
-      setSuccessMessage(`Student ${firstName} ${lastName} registered successfully!`);
-      
+      setSuccessMessage(
+        `Student ${firstName} ${lastName} registered successfully!`
+      );
+
       // Réinitialiser le formulaire pour un nouvel enregistrement
       resetForm();
-      
+
       // Effacer le message de succès après 5 secondes
       setTimeout(() => {
         setSuccessMessage("");
       }, 5000);
-      
+
       // Ne pas naviguer - rester sur cette page
     } catch (error) {
       console.error("Error registering user:", error);
-      alert(`Registration error: ${error.response?.data?.message || error.message}`);
+
+      Swal.fire({
+        title: "Error",
+        text: `Registration error: ${
+          error.response?.data?.message || error.message
+        }`,
+        icon: "error",
+      });
     }
   };
 
@@ -81,22 +92,22 @@ const AddStudent = ({ onBackClick }) => {
   return (
     <div className="fixed inset-0 flex items-center justify-center overflow-hidden">
       {/* Image de fond fixe */}
-      <div 
+      <div
         className="fixed inset-0 z-0 bg-cover bg-center bg-no-repeat"
-        style={{ 
+        style={{
           backgroundImage: `url(${backgroundImage})`,
-          backgroundAttachment: "fixed"
+          backgroundAttachment: "fixed",
         }}
       ></div>
-      
+
       {/* Overlay avec léger flou */}
       <div className="fixed inset-0 z-0 bg-black/30 backdrop-blur-sm"></div>
-      
+
       {/* Conteneur du formulaire - centré sans overflow */}
       <div className="relative z-10 w-full max-w-md p-8 bg-white/95 shadow-lg rounded-lg m-4 mt-20">
         <div className="flex justify-between items-center mb-4">
           <h1 className="text-2xl font-bold">Add New Student</h1>
-          <button 
+          <button
             onClick={handleBackClick}
             className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
           >

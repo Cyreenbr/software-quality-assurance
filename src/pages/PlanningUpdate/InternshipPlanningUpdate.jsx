@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from "react";
 import { FaEdit, FaEnvelope, FaSearch, FaTimes, FaUserTie } from "react-icons/fa";
 import internshipService from "../../services/updateplanninginternship/UpdateInternshipPlanning.service";
@@ -11,6 +10,8 @@ const InternshipPlanning = () => {
   const [selectedInternship, setSelectedInternship] = useState(null);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
+  const [message, setMessage] = useState("");
+  const [messageType, setMessageType] = useState("");
 
   useEffect(() => {
     const fetchData = async () => {
@@ -26,7 +27,8 @@ const InternshipPlanning = () => {
           setTeachers(teachersData);
         }
       } catch (error) {
-        alert("Error fetching data. Please try again later.");
+        setMessage("Error fetching data. Please try again later.");
+        setMessageType("error");
       } finally {
         setLoading(false);
       }
@@ -46,59 +48,68 @@ const InternshipPlanning = () => {
 
   const handleAssignTeacher = async () => {
     if (!selectedTeacher || !selectedInternship?._id) {
-      alert("Please select both an internship and a teacher.");
+      setMessage("Please select both an internship and a teacher.");
+      setMessageType("error");
+      setTimeout(() => {
+        setMessage("");
+        setMessageType("");
+      }, 3000);
       return;
     }
+
     try {
       const response = await internshipService.updateInternshipTeacher(
         selectedInternship._id,
         selectedTeacher
       );
-  
+
       if (response) {
-        alert("Internship updated successfully!");
-        
-        // Find the complete teacher object
+        setMessage("Internship updated successfully!");
+        setMessageType("success");
+        setTimeout(() => {
+          setMessage("");
+          setMessageType("");
+        }, 3000);
         const selectedTeacherObj = teachers.find(t => t._id === selectedTeacher);
-        
         const updatedInternships = internships.map((internship) =>
           internship._id === selectedInternship._id
-            ? {
-                ...internship,
-                teacher: selectedTeacherObj, // Use the complete teacher object
-              }
+            ? { ...internship, teacher: selectedTeacherObj }
             : internship
         );
-      
+
         setInternships(updatedInternships);
         setFilteredInternships(updatedInternships);
-      
         setSelectedTeacher("");
         setSelectedInternship(null);
       } else {
-        alert("Error updating internship.");
+        setMessage("Error updating internship.");
+        setMessageType("error");
+        setTimeout(() => {
+          setMessage("");
+          setMessageType("");
+        }, 3000);
       }
     } catch (error) {
-      console.error("Erreur lors de l'affectation du superviseur :", error);
-      alert("Error updating internship. Please try again.");
+      setMessage("Error updating internship. Please try again.");
+      setMessageType("error");
+      setTimeout(() => {
+        setMessage("");
+        setMessageType("");
+      }, 3000);
     }
   };
-  
-  // get teacher name to change it in tab
+
   const getTeacherName = (teacher) => {
     if (!teacher) return "Not Assigned";
-    
-    // If teacher is an object with firstName and lastName
+
     if (teacher.firstName && teacher.lastName) {
       return `${teacher.firstName} ${teacher.lastName}`;
     }
-    
-    // If teacher is an object with name property
+
     if (teacher.name) {
       return teacher.name;
     }
-    
-    // If teacher is just an ID or other value
+
     return "Not Assigned";
   };
 
@@ -106,23 +117,30 @@ const InternshipPlanning = () => {
     <div className="min-h-screen bg-gradient-to-r from-blue-50 to-purple-100 py-10">
       <div className="max-w-7xl bg-white rounded-lg shadow-lg mx-auto p-8">
         <h1 className="text-3xl font-semibold text-start text-gray-700 mb-6">Internship Assignments</h1>
-        <div className="relative w-full max-w-md ml-auto mb-6">
-          
-  <input
-    type="text"
-    value={searchTerm}
-    onChange={handleSearch}
-    placeholder="Search by Student Name"
-    className="pl-10 pr-4 py-3 border border-gray-300 rounded-xl w-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-300 ease-in-out"
-  />
-  <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">
-    <FaSearch />
-  </span>
-</div>
 
+        {message && (
+          <div
+            className={`p-3 rounded-lg mb-4 ${messageType === "error" ? "bg-red-400 text-white" : "bg-green-400 text-white"}`}
+          >
+            {message}
+          </div>
+        )}
+
+        <div className="relative w-full max-w-md ml-auto mb-6">
+          <input
+            type="text"
+            value={searchTerm}
+            onChange={handleSearch}
+            placeholder="Search by Student Name"
+            className="pl-10 pr-4 py-3 border border-gray-300 rounded-xl w-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-300 ease-in-out"
+          />
+          <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">
+            <FaSearch />
+          </span>
+        </div>
 
         {loading ? (
-          <p className="text-center text-gray-500">Chargement des données...</p>
+          <p className="text-center text-gray-500">Loading data...</p>
         ) : (
           <div className="overflow-x-auto rounded-lg shadow">
             <table className="w-full divide-y divide-gray-200">
@@ -136,7 +154,7 @@ const InternshipPlanning = () => {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {filteredInternships.length > 0 ? ( 
+                {filteredInternships.length > 0 ? (
                   filteredInternships.map((internship) => (
                     <tr key={internship._id} className="hover:bg-gray-50 transition">
                       <td className="p-4 flex items-center space-x-2">
@@ -148,16 +166,12 @@ const InternshipPlanning = () => {
                         <FaEnvelope className="text-gray-500" />
                         <span>{internship.student?.email || "No Email Available"}</span>
                       </td>
-                      <td className="p-4">
-                        {getTeacherName(internship.teacher)}
-                      </td>
+                      <td className="p-4">{getTeacherName(internship.teacher)}</td>
                       <td className="p-4 text-center">
                         <button
                           onClick={() => {
                             setSelectedInternship(internship);
-                            setSelectedTeacher(
-                              internship.teacher?._id || ""
-                            );
+                            setSelectedTeacher(internship.teacher?._id || "");
                           }}
                           className="bg-blue-500 text-white px-3 py-2 rounded-lg hover:scale-105 transition"
                         >
@@ -169,7 +183,7 @@ const InternshipPlanning = () => {
                 ) : (
                   <tr>
                     <td colSpan="5" className="text-center p-4 text-gray-500">
-                      Aucun stage correspondant à votre recherche
+                      No internships match your search
                     </td>
                   </tr>
                 )}
@@ -209,6 +223,15 @@ const InternshipPlanning = () => {
                 </option>
               )}
             </select>
+
+            {message && (
+              <div
+                className={`p-3 rounded-lg mb-4 ${messageType === "error" ? "bg-red-400 text-white" : "bg-green-400 text-white"}`}
+              >
+                {message}
+              </div>
+            )}
+
             <div className="flex justify-end">
               <button
                 onClick={handleAssignTeacher}
