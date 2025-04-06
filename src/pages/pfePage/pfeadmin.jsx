@@ -15,6 +15,7 @@ import {
   togglePublication,
   sendEmail,
 } from "../../services/pfeService/pfe.service";
+import { toast } from "react-toastify";
 
 const AdminPfeManagement = () => {
   const [pfeChoices, setPfeChoices] = useState([]);
@@ -39,7 +40,7 @@ const AdminPfeManagement = () => {
       const teacherData = await fetchTeachers();
       setTeachers(teacherData);
     } catch (error) {
-      alert("Failed to load data.");
+      toast.error(` ${error.response?.data?.message || error.message}`);
     }
   };
 
@@ -81,7 +82,6 @@ const AdminPfeManagement = () => {
   const handleSendEmail = async (type) => {
     try {
       await sendEmail(type);
-      alert(`Email sent: ${type}`);
     } catch (err) {
       console.error("Failed to send email:", err);
     }
