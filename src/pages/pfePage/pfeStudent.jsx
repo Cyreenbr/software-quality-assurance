@@ -1,11 +1,19 @@
 import { useState, useEffect } from "react";
+import { Navigate } from "react-router-dom";
 import {
   createPFE,
   updatePFE,
   getPFEByUser,
 } from "../../services/pfeService/pfe.service";
+import { RoleEnum } from "../../utils/userRoles";
 
 const PFEStudent = ({ userId }) => {
+  const storedUser = JSON.parse(localStorage.getItem("user"));
+  const userLevel = storedUser?.level;
+  /*
+  if (userLevel !== RoleEnum.ISPFE) {
+    return <Navigate to="/error" replace />;
+  }*/
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -22,6 +30,7 @@ const PFEStudent = ({ userId }) => {
   const [error, setError] = useState(null);
   const [pfeId, setPfeId] = useState(null);
   const [refreshKey, setRefreshKey] = useState(0);
+  const [isFetching, setIsFetching] = useState(true); // State to track if data is being fetched
 
   const isReadOnly =
     formData.status === "approved" || formData.supervisor !== null;
@@ -29,6 +38,7 @@ const PFEStudent = ({ userId }) => {
   useEffect(() => {
     const fetchUserPFE = async () => {
       try {
+        setIsFetching(true); // Set fetching to true before starting request
         const storedUser = JSON.parse(localStorage.getItem("user"));
         const userId = storedUser ? storedUser._id || storedUser.id : null;
 
@@ -62,6 +72,8 @@ const PFEStudent = ({ userId }) => {
         }
       } catch (err) {
         console.error("Error fetching PFE data:", err);
+      } finally {
+        setIsFetching(false); // Set fetching to false after request completes
       }
     };
 
@@ -137,6 +149,10 @@ const PFEStudent = ({ userId }) => {
       setLoading(false);
     }
   };
+
+  if (isFetching) {
+    return <div>Loading...</div>; // Show loading message while fetching data
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-r from-blue-50 to-purple-100 py-10 rounded-lg">
@@ -265,7 +281,9 @@ const PFEStudent = ({ userId }) => {
           {message && (
             <p className="text-green-600 text-center mt-4">{message}</p>
           )}
-          {error && <p className="text-red-600 text-center mt-4">{error}</p>}
+          {error && (
+            <p className="text-red-600 text-center mt-4">{error.message}</p>
+          )}
         </form>
       </div>
     </div>
