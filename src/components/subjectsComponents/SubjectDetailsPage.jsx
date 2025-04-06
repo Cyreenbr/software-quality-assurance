@@ -17,6 +17,7 @@ import matieresServices from "../../services/matieresServices/matieres.service";
 import humanizeDate from "../../utils/humanizeDate";
 import { RoleEnum } from "../../utils/userRoles";
 import Popup from "../skillsComponents/Popup";
+import Tooltip from "../skillsComponents/Tooltip";
 
 const SubjectDetailsPage = () => {
     const { id } = useParams();
@@ -288,10 +289,12 @@ const SubjectDetailsPage = () => {
                                                 )}
                                             </h3>
                                             {expandedChapters[index] ? (
-                                                <FaChevronUp className="text-gray-500" />
-                                            ) : (
+                                                <Tooltip text={"close"} position="top">
+                                                    <FaChevronUp className="text-gray-500" />
+                                                </Tooltip>
+                                            ) : (<Tooltip text={"open"} position="top" alwaysOn>
                                                 <FaChevronDown className="text-gray-500" />
-                                            )}
+                                            </Tooltip>)}
                                         </div>
 
                                         {/* Chapter Status Checkbox */}
@@ -334,7 +337,7 @@ const SubjectDetailsPage = () => {
                                                     return (
                                                         <li key={sIndex} className="flex justify-between items-start">
                                                             <div className={`flex items-start gap-2 text-base ${section.status ? "text-green-800" : "text-gray-700"}`}>
-                                                                🔹 {section.title || `Section ${sIndex + 1}`}{" "}
+                                                                {sIndex + 1} - {section.title || `Section ${sIndex + 1}`}{" "}
                                                                 {section.status ? (
                                                                     <FaCheck className="text-green-500 ml-1" />
                                                                 ) : (

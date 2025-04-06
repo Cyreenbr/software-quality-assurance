@@ -173,7 +173,7 @@ const SubjectList = ({ onEdit, refresh = false, }) => {
                     {sortedSubjects.map((subject) => (
                         <div
                             key={subject._id}
-                            className="bg-white border border-gray-200 p-6 rounded-lg shadow-md hover:shadow-xl transition-all duration-300 hover:bg-gradient-to-r from-blue-50 to-purple-100 overflow-hidden"
+                            className="bg-white border border-gray-300 p-6 rounded-lg shadow-md hover:shadow-xl transition-all duration-300 hover:bg-gradient-to-r from-blue-50 to-purple-100 overflow-hidden"
                         >
                             {/* Subject Title (Clickable Link) */}
                             <div
