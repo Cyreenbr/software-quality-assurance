@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
+import { CgEye } from "react-icons/cg";
 import {
     FaCalendarAlt,
     FaCheck,
@@ -8,6 +9,7 @@ import {
     FaHistory,
     FaTimes
 } from "react-icons/fa";
+import { FiEyeOff } from "react-icons/fi";
 import { MdTitle } from "react-icons/md";
 import { useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
@@ -270,12 +272,24 @@ const SubjectDetailsPage = () => {
                     {/* <div className="w-full max-w-6xl mx-auto bg-white rounded-lg shadow-lg p-8 space-y-8"> */}
                     <div className="w-full max-w-6xl mx-auto bg-white  ">
                         {/* Header */}
-                        {/* <header header className="text-center mb-8" >
-                        <h1 className="text-4xl font-bold text-blue-800 flex items-center justify-center gap-2">
-                            <FaBook className="text-3xl text-blue-600" /> {formData.subject.title}
-                        </h1>
-                        <p className="text-sm text-gray-600">{humanizeDate(formData.subject.createdAt)}</p>
-                    </header > */}
+                        {userRole === RoleEnum.ADMIN && (<header className="text-center mb-8">
+                            <div className="flex items-center justify-center space-x-2">
+                                {formData.subject.isPublish ? (
+                                    <>
+                                        <CgEye className="text-gray-700 text-lg" />
+                                        <span>Published</span>
+                                    </>
+                                ) : (
+                                    <>
+                                        <FiEyeOff className="text-gray-700 text-lg" />
+                                        <span>Hidden</span>
+                                    </>
+                                )}
+                            </div>
+                            <p className="text-sm text-gray-600">Last update at :{humanizeDate(formData.subject.updatedAt)}</p>
+                            <p className="text-sm text-gray-600">Created at :{humanizeDate(formData.subject.createdAt)}</p>
+                        </header>)}
+
 
                         {/* Subject Overview */}
                         <Section title="Overview">
