@@ -37,7 +37,7 @@ const SubjectList = ({ onEdit, refresh = false, }) => {
     const firstFetchDone = useRef(false);
     const [forced, setForced] = useState(false);
     const [archive, setArchive] = useState(false);
-    const [itemsOnPage, setItemsOnPage] = useState(0);
+    const [itemsOnPage,] = useState(0);
     const confirmDeleteMessage = `Are you sure you want to delete this subject?`;
     let hide = false
 
