@@ -1,5 +1,4 @@
 import axios from "axios";
-import { useSelector } from "react-redux";
 
 
 
@@ -17,11 +16,7 @@ const axiosAPI = axios.create({
 
 // Add Authorization header if token exists
 axiosAPI.interceptors.request.use((config) => {
-    // const token = localStorage.getItem("token");
-
-    const token = useSelector((state) => state.auth.token) || null;
-    console.log(token);
-
+    const token = localStorage.getItem("token");
     if (token) {
         config.headers.Authorization = `Bearer ${token}`;
     }
