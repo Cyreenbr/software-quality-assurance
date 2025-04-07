@@ -6,7 +6,7 @@ import {
 } from "../../services/pfeService/pfe.service";
 import { useSelector } from "react-redux";
 
-const PFEStudent = ({ userId }) => {
+const PFEStudent = () => {
   const storedUser = useSelector((status) => status.auth.user);
   /*const userLevel = storedUser?.level;
   
@@ -77,7 +77,7 @@ const PFEStudent = ({ userId }) => {
     };
 
     fetchUserPFE();
-  }, [userId, refreshKey]);
+  }, [refreshKey]);
 
   const handleChange = (e) => {
     if (isReadOnly) return;

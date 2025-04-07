@@ -6,7 +6,6 @@ import { toast } from 'react-toastify';
 import SkillForm from "../../components/skillsComponents/CompetenceForm";
 import CompetenceList from "../../components/skillsComponents/CompetenceList";
 import PageLayout from "../../components/skillsComponents/PageLayout";
-import Pagination from "../../components/skillsComponents/Pagination";
 import SearchBar from "../../components/skillsComponents/SearchBar";
 import Tooltip from "../../components/skillsComponents/Tooltip";
 import competenceServices from "../../services/CompetencesServices/competences.service";
@@ -84,31 +83,6 @@ const Competences = () => {
         setHasSearched(true);
     }, 500);
 
-    // const handleAddSkill = useCallback(async (event) => {
-    //     event.preventDefault();
-
-    //     try {
-    //         const data = await competenceServices.addCompetence(newSkill);
-    //         setIsAddPopupOpen(false);
-    //         setSearchQuery('');
-    //         setSkills(prevSkills => [...prevSkills, data.skill]);
-    //         setSortedSkills(prevSkills => [...prevSkills, data.skill]);
-    //         setNewSkill({
-    //             title: '',
-    //             frDescription: '',
-    //             enDescription: '',
-    //             isPublish: false,
-    //             familyId: [],
-    //             forced: false,
-    //         });
-
-    //         await fetchCompetences(currentPage, searchQuery);
-    //         toast.success(data.message || "Skill added successfully!");
-    //     } catch (error) {
-    //         setError(error);
-    //         toast.error("Failed to add skill: " + error);
-    //     }
-    // }, [newSkill, fetchCompetences, currentPage, searchQuery]);
     const handleAddSkill = useCallback(async () => {
         try {
             const data = await competenceServices.addCompetence(newSkill);
@@ -133,24 +107,6 @@ const Competences = () => {
         }
     }, [newSkill, fetchCompetences, currentPage, searchQuery]);
 
-    // const handleUpdateSkill = useCallback(async (event) => {
-    //     event.preventDefault();
-    //     try {
-    //         const data = await competenceServices.updateCompetence(editSkill);
-    //         const updatedSkillsList = skills.map(skill =>
-    //             skill._id === editSkill._id ? data.skill : skill
-    //         );
-    //         setSkills(updatedSkillsList);
-    //         setSortedSkills(updatedSkillsList);
-    //         setIsEditPopupOpen(false);
-
-    //         await fetchCompetences(currentPage);
-    //         toast.success(data.message || "Skill updated successfully!");
-    //     } catch (error) {
-    //         setError(error);
-    //         toast.error("Failed to update skill: " + error);
-    //     }
-    // }, [editSkill, skills, currentPage, fetchCompetences]);
     const handleUpdateSkill = useCallback(async () => {
         try {
             const data = await competenceServices.updateCompetence(editSkill);
@@ -209,6 +165,18 @@ const Competences = () => {
         setIsEditPopupOpen(false);
         setEditSkill(null);
     };
+    const headerActions = (role === RoleEnum.ADMIN) && (
+        /* Bouton visible uniquement sur desktop */
+        // <Tooltip text="Add Competence" position="top" bgColor="bg-black">
+        <button
+            onClick={handleOpenAddPopup}
+            className="hidden md:flex items-center bg-indigo-400 text-white px-4 py-2 rounded-md hover:bg-indigo-500 transition duration-300 focus:outline-none focus:ring-2 focus:ring-indigo-400"
+        >
+            <FaPlusCircle className="text-2xl" />
+            <span className="ml-2">Add</span>
+        </button>
+        // </Tooltip>
+    )
 
     return (
         // <div className="min-h-screen bg-gray-100 p-4">
@@ -216,22 +184,11 @@ const Competences = () => {
 
         // <div className="  mx-auto p-8 bg-white shadow-lg rounded-xl min-h-screen overflow-hidden border border-gray-200">
         // <h1 className="text-4xl font-bold text-center mb-8 text-indigo-700">List of Competences</h1>
-        <PageLayout title={"Competences"}>
+        <PageLayout title={"Competences"} headerActions={headerActions}>
             <div className="flex flex-col md:flex-row md:justify-between items-center mb-8 space-y-4 md:space-y-0 md:space-x-6">
                 <SearchBar handleSearch={handleSearch} className="w-full md:max-w-xs" />
                 <div className="pl-4 pr-4 flex space-x-4 w-full md:w-auto justify-center">
-                    {(role === RoleEnum.ADMIN) &&
-                        /* Bouton visible uniquement sur desktop */
-                        <Tooltip text="Add Competence" position="top" bgColor="bg-black">
-                            <button
-                                onClick={handleOpenAddPopup}
-                                className="hidden md:flex items-center bg-indigo-500 text-white px-4 py-2 rounded-md hover:bg-indigo-700 transition duration-300 focus:outline-none focus:ring-2 focus:ring-indigo-400"
-                            >
-                                <FaPlusCircle className="text-2xl" />
-                                <span className="ml-2">Add</span>
-                            </button>
-                        </Tooltip>
-                    }
+
 
                     <Tooltip text={`${titleSortOrder.toUpperCase()} : Sort by Title`} position="top" bgColor="bg-black">
                         <button
@@ -273,27 +230,27 @@ const Competences = () => {
                 families={families}
                 setEditSkill={setEditSkill}
                 setIsEditPopupOpen={setIsEditPopupOpen}
-                enableSortingBtns={false}
+                enableSortingBtns={true}
             />
-            <Pagination
+            {/* <Pagination
                 currentPage={currentPage}
                 totalPages={totalPages}
                 onPageChange={handlePageChange}
                 styles={" bg-blue-600 text-white"}
                 hoverColor="bg-blue-500"
-            />
+            /> */}
 
             {(role === RoleEnum.ADMIN) &&
                 <div className="md:hidden">
-                    <Tooltip text="Add Competence" position="top" bgColor="bg-black">
-                        <button
-                            onClick={handleOpenAddPopup}
-                            className=" fixed bottom-6 right-6 bg-indigo-500 text-white p-4 rounded-full shadow-lg 
+                    {/* <Tooltip text="Add Competence" position="top" bgColor="bg-black"> */}
+                    <button
+                        onClick={handleOpenAddPopup}
+                        className=" fixed bottom-6 right-6 bg-indigo-500 text-white p-4 rounded-full shadow-lg 
                        hover:bg-indigo-700 transition duration-300 focus:outline-none focus:ring-2 focus:ring-indigo-400 flex items-center"
-                        >
-                            <FaPlusCircle className="text-2xl" />
-                        </button>
-                    </Tooltip>
+                    >
+                        <FaPlusCircle className="text-2xl" />
+                    </button>
+                    {/* </Tooltip> */}
                 </div>
             }
             {(isAddPopupOpen || isEditPopupOpen) && (role == RoleEnum.ADMIN || role === RoleEnum.TEACHER) &&

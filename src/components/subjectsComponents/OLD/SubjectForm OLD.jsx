@@ -2,9 +2,9 @@ import { DragDropContext, Draggable, Droppable } from "@hello-pangea/dnd";
 import React, { useEffect, useMemo, useState } from "react";
 import { FaTimesCircle } from "react-icons/fa";
 import { toast } from "react-toastify";
-import competenceServices from "../../services/CompetencesServices/competences.service";
-import matieresServices from "../../services/matieresServices/matieres.service";
-import SearchDropdown from "./SearchDropdown";
+import competenceServices from "../../../services/CompetencesServices/competences.service";
+import matieresServices from "../../../services/matieresServices/matieres.service";
+import SearchDropdown from "../SearchDropdown";
 
 const capitalizeFirstLetter = (str) => str.charAt(0).toUpperCase() + str.slice(1);
 

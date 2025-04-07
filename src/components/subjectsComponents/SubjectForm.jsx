@@ -3,17 +3,87 @@ import React, { useEffect, useMemo, useState } from "react";
 import { toast } from "react-toastify";
 import competenceServices from "../../services/CompetencesServices/competences.service";
 import matieresServices from "../../services/matieresServices/matieres.service";
+import MSDropdown from "../skillsComponents/MSDropDown";
 import SearchDropdown from "./SearchDropdown";
 
 const capitalizeFirstLetter = (str) => str.charAt(0).toUpperCase() + str.slice(1);
 
 const SubjectForm = ({ initialData = null, onSubmit }) => {
-    const [competences, setCompetences] = useState([]);
+
+
+    const [formData, setFormData] = useState({
+        _id: "",
+        title: "",
+        isPublish: false,
+        isArchive: false,
+        skillsId: [],
+        teacherId: [],
+        curriculum: {
+            module: "",
+            level: "",
+            code: "",
+            semestre: "",
+            responsable: "",
+            langue: "",
+            relation: "",
+            type_enseignement: "",
+            volume_horaire_total: "",
+            credit: "",
+            prerequis_recommandes: [],
+            chapitres: [],
+        },
+    });
+
+    const [errorMessages, setErrorMessages] = useState({});
+
+    // const [competences, setCompetences] = useState([]);
     const [limit, setLimit] = useState(100);
-    const [totalItems, setTotalItems] = useState(Infinity);
+    // const [totalItems, setTotalItems] = useState(Infinity);
     const increment = 1;
     const [selectedTeacher, setSelectedTeacher] = useState(null);
+    const [searchTerm, setSearchTerm] = useState('');  // État pour le terme de recherche
+    const [competences, setCompetences] = useState([]);  // État pour les compétences récupérées
+    const [totalItems, setTotalItems] = useState(0);  // Nombre total de compétences
+    const [loading, setLoading] = useState(false);  // Indicateur de chargement
+    //  
+    const [competencesFiltered, setCompetencesFiltered] = useState([]); // Compétences filtrées par recherche
+    const [selectedSkills, setSelectedSkills] = useState(formData.skillsId || []);
+    const fetchCompetencesOptions = async (newLimit, searchTerm2 = '') => {
+        try {
+            setLoading(true);
+            // Remplacez par votre propre service pour récupérer les compétences
+            const data = await competenceServices.fetchCompetencesForForm({ searchTerm: searchTerm2, limit: newLimit });
+            setCompetences((prev) => [
+                ...prev,
+                ...data.skills.filter((skill) => !prev.some((s) => s._id === skill._id)),
+            ]);
+            setTotalItems(data.pagination?.totalSkills || data.skills.length);
+            setCompetencesFiltered(data.skills);
+        } catch (error) {
+            toast.error("Failed to load competences: " + error);
+        } finally {
+            setLoading(false);
+        }
+    };
 
+    useEffect(() => {
+        if (searchTerm.trim() === '') {
+            setCompetencesFiltered(competences);  // Si aucun terme de recherche, afficher toutes les compétences
+        } else {
+            fetchCompetencesOptions(10, searchTerm);  // Appeler la fonction pour charger les compétences filtrées
+        }
+    }, [searchTerm, competences]);  // Effect se déclenche lorsque searchTerm change
+
+    const handleSearchChange = (e) => {
+        setSearchTerm(e.target.value);  // Mettre à jour le terme de recherche
+    };
+
+    const handleLoadMore = () => {
+        fetchCompetencesOptions(competences.length + 10, searchTerm);  // Charger plus de compétences
+    };
+
+
+    // 
     const [preselectedCompetences, setPreselectedCompetences] = useState([]);
     const handleSelectCompetence = (selectedCompetences) => {
         setPreselectedCompetences(selectedCompetences); // Store selected competences
@@ -46,18 +116,20 @@ const SubjectForm = ({ initialData = null, onSubmit }) => {
             return [];
         }
     };
-    const fetchCompetencesOptions = async (newLimit) => {
-        try {
-            const data = await competenceServices.fetchCompetencesForForm({ limit: newLimit });
-            setCompetences((prev) => [
-                ...prev,
-                ...data.skills.filter((skill) => !prev.some((s) => s._id === skill._id)),
-            ]);
-            setTotalItems(data.pagination?.totalSkills || data.skills.length);
-        } catch (error) {
-            toast.error("Failed to load competences: " + error);
+
+
+
+    // Utilisation de useEffect pour charger les compétences au changement de terme de recherche
+    useEffect(() => {
+        if (searchTerm.trim() !== '') {
+            fetchCompetencesOptions(10, searchTerm);  // Récupérer les compétences en fonction de la recherche avec une limite
+        } else {
+            setCompetences([]);  // Réinitialiser la liste si le champ est vide
+            setTotalItems(0);
         }
-    };
+    }, [searchTerm]);  // Se déclenche chaque fois que searchTerm change
+
+
     const fetchCompetences = async (searchTerm2) => {
         try {
             const data = await competenceServices.fetchCompetencesForForm({ searchTerm: searchTerm2 });
@@ -169,36 +241,6 @@ const SubjectForm = ({ initialData = null, onSubmit }) => {
         fetchCompetencesOptions(limit);
     }, [limit]);
 
-    const handleLoadMore = () => {
-        const newLimit = limit + increment;
-        setLimit(newLimit);
-        fetchCompetencesOptions(newLimit);
-    };
-
-    const [formData, setFormData] = useState({
-        _id: "",
-        title: "",
-        isPublish: false,
-        isArchive: false,
-        skillsId: [],
-        teacherId: [],
-        curriculum: {
-            module: "",
-            level: "",
-            code: "",
-            semestre: "",
-            responsable: "",
-            langue: "",
-            relation: "",
-            type_enseignement: "",
-            volume_horaire_total: "",
-            credit: "",
-            prerequis_recommandes: [],
-            chapitres: [],
-        },
-    });
-
-    const [errorMessages, setErrorMessages] = useState({});
 
     useEffect(() => {
         if (initialData) {
@@ -616,12 +658,17 @@ const SubjectForm = ({ initialData = null, onSubmit }) => {
                 </div>
 
                 {/* Skills Selection */}
-                <div className="relative">
+                {/* <div className="relative">
+
                     <label className="block text-gray-700 font-semibold">
                         Skills <span className="text-red-500">*</span>
                     </label>
-                    {/* <MultiSelectDropdownOLD
-                        options={competences}
+
+
+
+
+                    <MultiSelectDropdownOLD
+                        options={competencesFiltered}
                         selectedOptions={formData.skillsId}
                         setSelectedOptions={(selectedSkills) =>
                             setFormData({ ...formData, skillsId: selectedSkills })
@@ -633,27 +680,42 @@ const SubjectForm = ({ initialData = null, onSubmit }) => {
                         showClearAll={true}
                         styling="flex justify-between items-center cursor-pointer hover:outline-1 transform transition-all duration-300 ease-in-out"
                     />
-                    {competences.length < totalItems && (
+
+
+                    {competencesFiltered.length < totalItems && (
                         <button
                             type="button"
                             onClick={handleLoadMore}
                             className="mt-2 bg-blue-500 text-white p-2 rounded"
                         >
-                            Load More
+                            {loading ? 'Loading...' : 'Load More'}
                         </button>
-                    )} */}
+                    )}
 
-                    <SearchDropdown
-                        fetchData={fetchCompetences}
-                        onSelectItem={handleSelectCompetence}
-                        preselectedItem={initialData?.skillIds || null}
-                        itemLabel="title"
-                        itemValue="_id"
-                        placeholder="Search for competences..."
-                        multiple
+                 
+                    {errorMessages.skillsId && (
+                        <p className="text-red-500 text-sm mt-1">{errorMessages.skillsId}</p>
+                    )}
+                </div> */}
+
+                <div className="relative">
+                    <label className="block text-gray-700 font-semibold">
+                        Skills <span className="text-red-500">*</span>
+                    </label>
+                    <MSDropdown
+                        options={competences}
+                        preSelectedOptions={formData?.skillsId}
+                        selectedOptions={selectedSkills}
+                        setSelectedOptions={(newSkills) => {
+                            setSelectedSkills(newSkills);
+                            setFormData({ ...formData, skillsId: newSkills });
+                        }}
+                        label="Select Skills"
+                        placeholder="Search for skills..."
+                        loadMore={handleLoadMore}
+                        totalItems={totalItems}
+                        loading={loading}
                     />
-
-
                     {errorMessages.skillsId && (
                         <p className="text-red-500 text-sm mt-1">{errorMessages.skillsId}</p>
                     )}
@@ -674,7 +736,8 @@ const SubjectForm = ({ initialData = null, onSubmit }) => {
                         fetchData={fetchTeachers}
                         onSelectItem={handleSelectTeacher}
                         preselectedItem={selectedTeacher}
-                        itemLabel={selectedTeacher?.firstName ? "firstName" : selectedTeacher?.lastName ? "lastName" : "_id"}
+                        // itemLabel={selectedTeacher?.firstName ? "firstName" : selectedTeacher?.lastName ? "lastName" : "_id"}
+                        itemLabels={["firstName", "lastName"]}
                         selectedItem={`${selectedTeacher?.firstName && selectedTeacher?.lastName ?
                             `${selectedTeacher.firstName} ${selectedTeacher.lastName}` :
                             selectedTeacher?.firstName || selectedTeacher?.lastName || ''}`.trim()}
@@ -842,8 +905,8 @@ const SubjectForm = ({ initialData = null, onSubmit }) => {
                         Submit
                     </button>
                 </div>
-            </form>
-        </div>
+            </form >
+        </div >
     );
 };
 

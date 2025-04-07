@@ -7,7 +7,7 @@ const SearchDropdown = ({
     fetchData,
     onSelectItem,
     preselectedItem, // Receive preselectedItem from parent
-    itemLabel,
+    itemLabels, // Accept an array of itemLabels
     itemValue,
     placeholder = "Search...",
     multiple = false,
@@ -159,7 +159,13 @@ const SearchDropdown = ({
                                     onClick={() => handleSelectItem(item)} // Pass the full object
                                     className="cursor-pointer px-4 py-2 hover:bg-blue-100 flex justify-between"
                                 >
-                                    <span>{item[itemLabel] ?? `No ${itemLabel}`}</span>
+                                    <span>
+                                        {itemLabels.map((label, idx) => (
+                                            <span key={idx}>
+                                                {item[label]}{idx < itemLabels.length - 1 && " "}
+                                            </span>
+                                        ))}
+                                    </span>
                                     {selectedItems === item || (multiple && selectedItems.some((i) => i[itemValue] === itemId)) ? (
                                         <FaCheckCircle className="text-blue-600" />
                                     ) : null}
@@ -184,7 +190,13 @@ const SearchDropdown = ({
                     {multiple ? (
                         selectedItems.map((item) => (
                             <div key={item[itemValue]} className="flex items-center space-x-2 bg-blue-100 p-1 rounded-md">
-                                <span>{item[itemLabel]}</span>
+                                <span>
+                                    {itemLabels.map((label, idx) => (
+                                        <span key={idx}>
+                                            {item[label]}{idx < itemLabels.length - 1 && " "}
+                                        </span>
+                                    ))}
+                                </span>
                                 <button
                                     onClick={() => handleSelectItem(item)} // Pass the full object
                                     className="text-red-500 hover:text-red-700"
@@ -195,7 +207,13 @@ const SearchDropdown = ({
                         ))
                     ) : (
                         <div className="flex items-center space-x-2 bg-blue-100 p-1 rounded-md">
-                            <span>{selectedItems?.[itemLabel] ?? `No ${itemLabel}`}</span>
+                            <span>
+                                {itemLabels.map((label, idx) => (
+                                    <span key={idx}>
+                                        {selectedItems[label]}{idx < itemLabels.length - 1 && " "}
+                                    </span>
+                                ))}
+                            </span>
                             <button
                                 onClick={handleClearSelection}
                                 className="text-red-500 hover:text-red-700"

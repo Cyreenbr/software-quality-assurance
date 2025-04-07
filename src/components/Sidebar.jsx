@@ -4,7 +4,6 @@ import { useSelector } from "react-redux";
 import { Link, useLocation } from "react-router-dom";
 import { getMenuItems } from "../services/configs/menuHandler";
 import useDeviceType from "../utils/useDeviceType";
-import Tooltip from "./skillsComponents/Tooltip";
 
 const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
   const role = useSelector((state) => state.auth.role);
@@ -46,8 +45,7 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
 
       <div
         className={`bg-white fixed top-16 left-0 h-full shadow-lg transition-transform duration-300 ease-in-out z-40 
-          ${
-            isSidebarOpen ? "translate-x-0" : "-translate-x-full"
+          ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"
           } lg:translate-x-0 lg:relative`}
         style={{
           width: isCollapsed ? "85px" : "250px",
@@ -64,9 +62,8 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
         >
           {!isMobileOrTablet && (
             <svg
-              className={`text-indigo-600 transition-transform duration-300 ${
-                isCollapsed ? "rotate-180" : ""
-              }`}
+              className={`text-indigo-600 transition-transform duration-300 ${isCollapsed ? "rotate-180" : ""
+                }`}
               height="24"
               width="24"
               viewBox="0 0 24 24"
@@ -79,25 +76,32 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
         </div>
 
         {/* Navigation Menu */}
-        <nav className="p-4">
+        <nav className="p-4 max-h-screen overflow-y-auto">
           <ul className="space-y-2">
             {menuItems
               .filter((item) => item.active)
-              .map(({ label, icon: Icon, path, tooltip, order }) => {
+              // .map(({ label, icon: Icon, path, tooltip, order }) => {
+              .map(({ label, icon: Icon, path, order }) => {
                 // Resolve dynamic paths (e.g., `/subjects/:id`)
                 const resolvedPath =
                   typeof path === "function" ? path(":id") : path;
 
                 return (
-                  <li key={order} className="relative group">
+                  <li
+                    key={order}
+                    className={`relative group ${isCollapsed ? "w-6" : "w-auto"}`} // Set width to 25px (w-6) when collapsed
+                  >
                     <Link
                       to={resolvedPath}
-                      className={`flex items-center p-3 rounded-lg transition ${
-                        location.pathname === resolvedPath
+                      className={`flex  p-3 rounded-lg transition ${isCollapsed
+                        ? "w-11 h-12 items-center justify-center" // Fixed size (25px x 25px) when collapsed
+                        : "w-auto"
+                        } ${location.pathname === resolvedPath
                           ? "bg-indigo-600 text-white"
                           : "hover:bg-indigo-100 text-gray-700"
-                      }`}
+                        }`}
                       onClick={handleLinkClick}
+                      title={isCollapsed ? label || "Unnamed Item" : undefined} // Tooltip for collapsed state
                     >
                       <span className="text-2xl">
                         {Icon ? <Icon /> : <FaQuestion />}
@@ -106,13 +110,6 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
                         <span className="ml-4">{label || "Unnamed Item"}</span>
                       )}
                     </Link>
-                    {isCollapsed && (
-                      <Tooltip
-                        text={tooltip || label || "Unnamed Item"}
-                        position="right"
-                        styles=""
-                      />
-                    )}
                   </li>
                 );
               })}
