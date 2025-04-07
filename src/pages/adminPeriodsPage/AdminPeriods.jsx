@@ -42,7 +42,7 @@ const AdminPeriods = () => {
       // make it close late so I can see the message
       setTimeout(() => {
         resetForm();
-      }, 3000);  //close after 3s  
+      }, 3000);  //close after 3s
     } catch (error) {
       console.error("Error adding period:", error);
       setErrorMessage("An error occurred.");

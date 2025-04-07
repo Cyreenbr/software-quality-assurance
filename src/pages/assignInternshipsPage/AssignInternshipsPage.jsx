@@ -39,8 +39,8 @@ const AssignInternships = () => {
     }
   };
 
-  const handleSelectTeacher = (teacherId) => {
-    setSelectedTeachers((prev) =>
+  const handleSelectTeacher = (teacherId) => { //prend en paramètre l'id d’un enseignant  en le cochant
+    setSelectedTeachers((prev) => //prev est la valeur actuelle du tableau selectedTeachers.
       prev.includes(teacherId) ? prev.filter((id) => id !== teacherId) : [...prev, teacherId]
     );
   };

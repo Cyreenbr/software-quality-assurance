@@ -70,10 +70,10 @@ const InternshipPlanning = () => {
           setMessage("");
           setMessageType("");
         }, 3000);
-        const selectedTeacherObj = teachers.find(t => t._id === selectedTeacher);
+        const selectedTeacherObj = teachers.find(t => t._id === selectedTeacher); // njib l'objet teacher mel objet selectionné
         const updatedInternships = internships.map((internship) =>
           internship._id === selectedInternship._id
-            ? { ...internship, teacher: selectedTeacherObj }
+            ? { ...internship, teacher: selectedTeacherObj } //lista avec l'updated internships
             : internship
         );
 

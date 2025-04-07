@@ -18,10 +18,10 @@ const DepotSujet = () => {
   };
 
   const handleFileChange = (e) => {
-    const newFiles = Array.from(e.target.files);
+    const newFiles = Array.from(e.target.files); //Array.from transforme les fichiers sélectionnés en tableau.
     setFormData((prevFormData) => ({
       ...prevFormData,
-      documents: [...prevFormData.documents, ...newFiles],
+      documents: [...prevFormData.documents, ...newFiles], // ajout du doc
     }));
   };
 
