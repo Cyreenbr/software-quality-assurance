@@ -24,29 +24,6 @@ const SkillForm = ({
 
     const [selectedFamilies, setSelectedFamilies] = useState(editSkill ? editSkill.familyId : []);
 
-    // useEffect(() => {
-    //     if (editSkill && editSkill.familyId) {
-    //         // Ensure familyId is in the correct format (array of IDs)
-    //         setSelectedFamilies(editSkill.familyId.map(family => family._id || family)); // Assuming familyId is an array of family objects
-    //     } else {
-    //         setSelectedFamilies([]); // Reset to empty array if no editSkill or familyId is empty
-    //     }
-    // }, [editSkill]);
-    // useEffect(() => {
-    //     if (editSkill) {
-    //         setEditSkill(prev => ({
-    //             ...prev,
-    //             familyId: selectedFamilies
-    //         }));
-    //     } else {
-    //         setNewSkill(prev => ({
-    //             ...prev,
-    //             familyId: selectedFamilies
-    //         }));
-    //     }
-    // }, [selectedFamilies]);
-
-
     const renderInputField = ({ id, label, value, onChange, type = "text", placeholder, classNames }) => (
         <div className="mb-3">
             <label htmlFor={id} className="block text-sm font-medium text-gray-700">{label}</label>
@@ -130,7 +107,7 @@ const SkillForm = ({
                 {/* Title Input */}
                 {renderInputField({
                     id: editSkill ? "editTitle" : "title",
-                    label: "Title",
+                    label: "Title *",
                     placeholder: "Title",
                     value: editSkill ? editSkill.title : newSkill.title,
                     onChange: (e) => {
