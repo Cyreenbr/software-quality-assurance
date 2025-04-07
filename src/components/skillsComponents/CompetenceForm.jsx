@@ -3,8 +3,8 @@ import { FaEdit, FaPlusCircle } from 'react-icons/fa';
 import { ImPower } from "react-icons/im";
 import { TiWarning } from "react-icons/ti";
 import useDeviceType from '../../utils/useDeviceType';
-import MultiSelectDropdownFamily from './MultiSelectDropdownFamily';
 import Popup from './Popup';
+import MultiSelectDropdownFamily from './REComponents/MultiSelectDropdownFamily';
 import Tooltip from './Tooltip';
 
 const SkillForm = ({
