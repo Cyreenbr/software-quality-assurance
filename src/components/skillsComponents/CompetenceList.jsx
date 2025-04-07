@@ -62,7 +62,7 @@ const CompetenceList = ({
                     </div>
                 ) : skills.length === 0 ? (
                     <div className="col-span-full text-center py-6">
-                        <NotFound404 iconSize={250} />
+                        <NotFound404 iconSize={250} title='No skills found' />
                     </div>
                 ) : (
                     skills.map((skill, index) => (

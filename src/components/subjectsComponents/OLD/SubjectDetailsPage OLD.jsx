@@ -13,11 +13,11 @@ import { useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 import { ClipLoader } from "react-spinners";
 import { toast } from "react-toastify";
-import matieresServices from "../../services/matieresServices/matieres.service";
-import humanizeDate from "../../utils/humanizeDate";
-import { RoleEnum } from "../../utils/userRoles";
-import Popup from "../skillsComponents/Popup";
-import Tooltip from "../skillsComponents/Tooltip";
+import matieresServices from "../../../services/matieresServices/matieres.service";
+import humanizeDate from "../../../utils/humanizeDate";
+import { RoleEnum } from "../../../utils/userRoles";
+import Popup from "../../skillsComponents/Popup";
+import Tooltip from "../../skillsComponents/Tooltip";
 
 const SubjectDetailsPage = () => {
     const { id } = useParams();

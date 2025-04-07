@@ -1,7 +1,7 @@
 import { Listbox, ListboxButton, ListboxOption, ListboxOptions } from '@headlessui/react';
 import { Fragment } from 'react';
 import { FaCheckCircle, FaTimesCircle } from 'react-icons/fa';
-import Tooltip from './Tooltip';
+import Tooltip from '../Tooltip';
 
 const MultiSelectDropdownOLD = ({
     options,

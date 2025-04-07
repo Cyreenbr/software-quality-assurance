@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from "react";
-import { FaPlus } from "react-icons/fa";
+import { FaArrowLeft, FaPlus } from "react-icons/fa";
 import { FiEye, FiEyeOff } from "react-icons/fi";
 import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
@@ -7,34 +7,34 @@ import PageLayout from "../../components/skillsComponents/PageLayout";
 import SubjectForm from "../../components/subjectsComponents/SubjectForm";
 import SubjectList from "../../components/subjectsComponents/SubjectsList";
 import matieresServices from "../../services/matieresServices/matieres.service";
+import useDeviceType from "../../utils/useDeviceType";
 import { RoleEnum } from "../../utils/userRoles";
 
 const Subject = () => {
-    const [showForm, setShowForm] = useState(false); // Controls whether to show the form or the list
-    const [refresh, setRefresh] = useState(false); // Triggers a refresh for the subject list
-    const [initialData, setInitialData] = useState(null); // For editing existing subjects
-    const [responseValue, setResponseValue] = useState('publish'); // For editing existing subjects
+    const [showForm, setShowForm] = useState(false);
+    const [refresh, setRefresh] = useState(false);
+    const [initialData, setInitialData] = useState(null);
+    const [responseValue, setResponseValue] = useState('publish');
     const [isMenuOpen, setIsMenuOpen] = useState(false);
-    // Toggle between the list and the form
+
+    const deviceType = useDeviceType(); // Get the device type using the custom hook
+    const isMobileOrTablet = deviceType === "mobile" || deviceType === "tablet"; // Check if the device is mobile or tablet
+
     const toggleForm = () => setShowForm((prev) => !prev);
     const role = useSelector((status) => status.auth.role);
-    // Handle edit action from the list
+
     const handleEdit = (subject) => {
-        // Deep clone the subject to avoid mutation issues
         setInitialData(JSON.parse(JSON.stringify(subject)));
-        setShowForm(true); // Show the form for editing
+        setShowForm(true);
     };
 
-    // Handle form submission (after adding/editing a subject)
     const handleFormSubmit = async (updatedData) => {
         if (initialData) {
             try {
                 const data = await matieresServices.updateMatieres(updatedData);
-                // Trigger a refresh of the subject list
                 setRefresh(!refresh);
-                // Reset form state
                 setInitialData(null);
-                setShowForm(false); // Hide the form after submission
+                setShowForm(false);
                 toast.success(data.message || "Subject updated successfully!");
             } catch (error) {
                 toast.error("Failed to update subject: " + error);
@@ -42,11 +42,9 @@ const Subject = () => {
         } else {
             try {
                 const data = await matieresServices.addMatieres(updatedData);
-                console.log(data);
                 setRefresh(!refresh);
-                // Reset form state
                 setInitialData(null);
-                setShowForm(false); // Hide the form after submission
+                setShowForm(false);
                 toast.success(data.message || "Subject Added successfully!");
             } catch (error) {
                 toast.error("Failed to add subject: " + error);
@@ -54,13 +52,10 @@ const Subject = () => {
         }
     };
 
-
     const handlePublishSubjects = useCallback(async (res = null) => {
         try {
             const response = await matieresServices.publishMatieres(res ? res : responseValue);
-
             toast.success(response?.message || response?.data?.message || `Subjects ${responseValue} successfully!`);
-            // Ensure refresh triggers after the request
             setRefresh(prev => !prev);
             return true;
         } catch (error) {
@@ -70,16 +65,15 @@ const Subject = () => {
         }
     }, [responseValue]);
 
-
-    // Header Actions (Add Subject Button)
-    const headerActions = !showForm && (
+    const headerActions = (
         <div className="flex flex-wrap gap-4 justify-center sm:justify-start">
             {role === RoleEnum.ADMIN &&
                 <>
-                    <div className="flex gap-4">
+
+                    {!showForm && <div className="flex gap-4">
                         <div className="relative">
                             <button
-                                onClick={() => setIsMenuOpen(!isMenuOpen)} // Toggle dropdown visibility
+                                onClick={() => setIsMenuOpen(!isMenuOpen)}
                                 className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gray-200 text-gray-700 hover:bg-gray-400 focus:outline-none"
                             >
                                 <FiEye className="text-lg" />
@@ -107,30 +101,68 @@ const Subject = () => {
                                 </div>
                             )}
                         </div>
-                    </div>
-                    <button
-                        onClick={toggleForm}
-                        className="flex items-center bg-green-500 px-4 py-2 rounded-lg hover:bg-green-600 transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-green-400 text-sm sm:text-base"
-                    >
-                        <FaPlus className="text-lg mr-2" />
-                        Add Subject
-                    </button>
+                    </div>}
+
+                    {/* Button for large screens */}
+                    {!isMobileOrTablet && (
+                        <button
+                            onClick={toggleForm}
+                            className={`hidden sm:flex items-center px-4 py-2 rounded-lg transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-green-400 text-sm sm:text-base ${showForm
+                                ? "bg-red-500 hover:bg-red-600 text-white"
+                                : "bg-green-500 hover:bg-green-600 text-white"
+                                }`}
+                        >
+                            {showForm ? (
+                                <>
+                                    <FaArrowLeft className="text-lg mr-2" />
+                                    Go Back
+                                </>
+                            ) : (
+                                <>
+                                    <FaPlus className="text-lg mr-2" />
+                                    Add Subject
+                                </>
+                            )}
+                        </button>
+                    )}
                 </>
+
             }
-        </div >
+        </div>
     );
 
     return (
-        <PageLayout title="Subjects" headerActions={headerActions}>
-            {/* Render either the list or the form */}
+        <PageLayout title={showForm ? "Add a new subject" : "Subjects"} headerActions={headerActions}>
             {showForm ? (
                 <SubjectForm
                     initialData={initialData}
-                    onSubmit={handleFormSubmit} // Pass the updated handleFormSubmit
-                    onCancel={toggleForm} // Allow canceling the form
+                    onSubmit={handleFormSubmit}
+                    onCancel={toggleForm}
                 />
             ) : (
                 <SubjectList onEdit={handleEdit} refresh={refresh} />
+            )}
+
+            {/* Button for mobile and tablet screens */}
+            {role === RoleEnum.ADMIN && isMobileOrTablet && (
+                <div className="fixed bottom-4 right-4">
+                    <button
+                        onClick={toggleForm}
+                        className="bg-green-500 p-4 rounded-full shadow-lg hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-400"
+                    >
+                        {showForm ? (
+                            <>
+                                <FaArrowLeft className="text-white text-xl" />
+                                <span className="sr-only">Go Back</span>
+                            </>
+                        ) : (
+                            <>
+                                <FaPlus className="text-white text-xl" />
+                                <span className="sr-only">Add Subject</span>
+                            </>
+                        )}
+                    </button>
+                </div>
             )}
         </PageLayout>
     );
