@@ -18,7 +18,7 @@ const CompetenceList = ({
     currentPage,
     totalPages,
     fetchCompetences,
-    hasSearched,
+    // hasSearched,
     families,
     setEditSkill,
     setIsEditPopupOpen,

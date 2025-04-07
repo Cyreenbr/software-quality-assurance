@@ -172,36 +172,34 @@ const SkillCard = ({ skill, setEditSkill, setIsEditPopupOpen, handleDeleteSkill,
             <Popup showCloseButton isOpen={isDetailsPopupOpen} onClose={() => setIsDetailsPopupOpen(false)} position="center">
 
                 <div className="p-6">
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-4">
-  {/* Title on the left */}
-  <h2 className="text-xl font-semibold text-blue-600">
-    {skill?.title || 'No Title'}
-  </h2>
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-4">
+                        {/* Title on the left */}
+                        <h2 className="text-xl font-semibold text-blue-600">
+                            {skill?.title || 'No Title'}
+                        </h2>
 
-  {/* Badges on the right */}
-  {role === RoleEnum.ADMIN && (
-    <div className="flex flex-wrap items-center gap-2">
-      <span
-        className={`text-sm font-semibold px-3 py-1 rounded-full ${
-          skill.isPublish
-            ? "bg-green-200 text-green-800"
-            : "bg-red-200 text-red-800"
-        }`}
-      >
-        {skill.isPublish ? "Published" : "Hidden"}
-      </span>
-      <span
-        className={`text-sm font-semibold px-3 py-1 rounded-full ${
-          skill.archive
-            ? "bg-orange-200 text-orange-800"
-            : "bg-gray-200 text-gray-800"
-        }`}
-      >
-        {skill.archive ? "Archived" : "Not Archived"}
-      </span>
-    </div>
-  )}
-</div>
+                        {/* Badges on the right */}
+                        {role === RoleEnum.ADMIN && (
+                            <div className="flex flex-wrap items-center gap-2">
+                                <span
+                                    className={`text-sm font-semibold px-3 py-1 rounded-full ${skill.isPublish
+                                            ? "bg-green-200 text-green-800"
+                                            : "bg-red-200 text-red-800"
+                                        }`}
+                                >
+                                    {skill.isPublish ? "Published" : "Hidden"}
+                                </span>
+                                <span
+                                    className={`text-sm font-semibold px-3 py-1 rounded-full ${skill.archive
+                                            ? "bg-orange-200 text-orange-800"
+                                            : "bg-gray-200 text-gray-800"
+                                        }`}
+                                >
+                                    {skill.archive ? "Archived" : "Not Archived"}
+                                </span>
+                            </div>
+                        )}
+                    </div>
 
                     {role === RoleEnum.ADMIN && (
                         <p className="text-sm font-light break-words line-clamp-2">ID: {skill?._id || 'No ID'}</p>

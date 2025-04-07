@@ -3,7 +3,7 @@ import { FaEdit, FaPlusCircle } from 'react-icons/fa';
 import { ImPower } from "react-icons/im";
 import { TiWarning } from "react-icons/ti";
 import useDeviceType from '../../utils/useDeviceType';
-import MultiSelectDropdown from './MultiSelectDropdown';
+import MultiSelectDropdownFamily from './MultiSelectDropdownFamily';
 import Popup from './Popup';
 import Tooltip from './Tooltip';
 
@@ -102,7 +102,19 @@ const SkillForm = ({
     );
     useEffect(() => {
         console.log("Selected Families from MultiSelectDropdown:", selectedFamilies);
+        editSkill ?
+            setEditSkill({ ...editSkill, familyId: selectedFamilies })
+            : setNewSkill({ ...newSkill, familyId: selectedFamilies });
     }, [selectedFamilies]);
+
+    useEffect(() => {
+        if (editSkill && editSkill.familyId) {
+            const familyIds = editSkill.familyId.map(f => typeof f === "object" ? f._id : f);
+            setSelectedFamilies(familyIds);
+        } else {
+            setSelectedFamilies([]);
+        }
+    }, []);
 
 
     return (
@@ -176,11 +188,11 @@ const SkillForm = ({
                         ) */}
                     </label>
 
-                    {/* <MultiSelectDropdownFamily
+                    <MultiSelectDropdownFamily
                         families={families}
                         selectedFamilies={selectedFamilies}
                         setSelectedFamilies={setSelectedFamilies}
-                    /> */}
+                    />
 
                     {/* <MultiSelectDropdown
                         items={families}
@@ -191,13 +203,13 @@ const SkillForm = ({
                         placeholder="Select Skill Families"
                         clearTooltip="Clear All"
                     /> */}
-                    <MultiSelectDropdown
+                    {/* <MultiSelectDropdown
                         items={families}
                         selectedItems={selectedFamilies}
                         setSelectedItems={setSelectedFamilies}
                         getItemId={item => item._id}
                         getItemLabel={item => item.title}
-                    />
+                    /> */}
 
 
                 </div>
