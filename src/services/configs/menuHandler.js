@@ -132,6 +132,7 @@ export const menuConfig = [
     eligibleRoles: [RoleEnum.ADMIN, RoleEnum.TEACHER, RoleEnum.STUDENT],
     active: true,
     hideSideBar: false,
+    dontShow: true,
     hideHeader: false,
   },
   {
