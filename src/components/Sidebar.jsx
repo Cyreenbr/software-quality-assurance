@@ -80,7 +80,8 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
           <ul className="space-y-2">
             {menuItems
               .filter((item) => item.active)
-              .map(({ label, icon: Icon, path, tooltip, order }) => {
+              // .map(({ label, icon: Icon, path, tooltip, order }) => {
+              .map(({ label, icon: Icon, path, order }) => {
                 // Resolve dynamic paths (e.g., `/subjects/:id`)
                 const resolvedPath =
                   typeof path === "function" ? path(":id") : path;

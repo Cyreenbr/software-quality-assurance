@@ -4,6 +4,7 @@ import {
     FaCheck,
     FaChevronDown,
     FaChevronUp,
+    FaEdit,
     FaHistory,
     FaTimes
 } from "react-icons/fa";
@@ -18,10 +19,13 @@ import { RoleEnum } from "../../utils/userRoles";
 import PageLayout from "../skillsComponents/PageLayout";
 import Popup from "../skillsComponents/Popup";
 import Tooltip from "../skillsComponents/Tooltip";
+import SubjectForm from "./SubjectForm";
 
 const SubjectDetailsPage = () => {
     const { id } = useParams();
     const [formData, setFormData] = useState(null);
+    const [fetchData, setFetchData] = useState(null);
+    const [showForm, setShowForm] = useState(false);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [selectedHistory, setSelectedHistory] = useState(null);
@@ -29,53 +33,68 @@ const SubjectDetailsPage = () => {
     const [expandedChapters, setExpandedChapters] = useState({});
     const userRole = useSelector((state) => state.auth.role);
     const userId = useSelector((state) => state.auth.user.id);
+    const canEdit = userRole === RoleEnum.ADMIN || userId === formData?.teacherId;
 
 
     const [completedAtDates, setCompletedAtDates] = useState({}); // Store completedAt dates
     const fetchRef = useRef(false);
+    const toggleForm = () => setShowForm((prev) => !prev);
+    const fetchSubject = async () => {
+        try {
+            setLoading(true);
+            setError(null);
+
+            if (fetchRef.current && formData?.subject?._id === id) return;
+
+            const response = await matieresServices.fetchMatiereById(id);
+            const { subject, history, historyPagination } = response;
+
+            if (!subject || !subject.curriculum || !Array.isArray(subject.curriculum.chapitres)) {
+                throw new Error("Invalid subject data received from the server.");
+            }
+            setFetchData(subject);
+            setFormData({
+                subject: {
+                    ...subject,
+                    curriculum: {
+                        ...subject.curriculum,
+                        chapitres: subject.curriculum.chapitres.map((chapter) => ({
+                            ...chapter,
+                            sections: Array.isArray(chapter.sections) ? chapter.sections : [],
+                        })),
+                    },
+                },
+                history: Array.isArray(history) ? history : [],
+                historyPagination: historyPagination || null,
+            });
+
+            fetchRef.current = true;
+            console.log(response.message);
+        } catch (err) {
+            toast.error(err.response?.message || "Failed to load subject data.");
+            setError(err.message || "Failed to load subject data.");
+        } finally {
+            setLoading(false);
+        }
+    };
 
     useEffect(() => {
-        const fetchSubject = async () => {
-            try {
-                setLoading(true);
-                setError(null);
-
-                if (fetchRef.current && formData?.subject?._id === id) return;
-
-                const response = await matieresServices.fetchMatiereById(id);
-                const { subject, history, historyPagination } = response;
-
-                if (!subject || !subject.curriculum || !Array.isArray(subject.curriculum.chapitres)) {
-                    throw new Error("Invalid subject data received from the server.");
-                }
-
-                setFormData({
-                    subject: {
-                        ...subject,
-                        curriculum: {
-                            ...subject.curriculum,
-                            chapitres: subject.curriculum.chapitres.map((chapter) => ({
-                                ...chapter,
-                                sections: Array.isArray(chapter.sections) ? chapter.sections : [],
-                            })),
-                        },
-                    },
-                    history: Array.isArray(history) ? history : [],
-                    historyPagination: historyPagination || null,
-                });
-
-                fetchRef.current = true;
-                console.log(response.message);
-            } catch (err) {
-                toast.error(err.response?.message || "Failed to load subject data.");
-                setError(err.message || "Failed to load subject data.");
-            } finally {
-                setLoading(false);
-            }
-        };
-
         fetchSubject();
     }, [formData?.subject?._id, id]);
+
+    // Handle form submission (after adding/editing a subject)
+    const handleFormSubmit = async (updatedData) => {
+        try {
+            const data = await matieresServices.updateMatieres(updatedData);
+            // Reset form state
+            fetchRef.current = false;
+            fetchSubject();
+            setShowForm(false); // Hide the form after submission
+            toast.success(data.message || "Subject updated successfully!");
+        } catch (error) {
+            toast.error("Failed to update subject: " + error);
+        }
+    };
 
     const toggleChapterExpand = (index) => {
         setExpandedChapters((prev) => ({ ...prev, [index]: !prev[index] }));
@@ -133,18 +152,17 @@ const SubjectDetailsPage = () => {
             </div>
         );
 
-    if (error) return <ErrorState message={error} />;
-    if (!formData) return <ErrorState message="Invalid subject data." />;
-    const handleDateChange = (type, index, sectionIndex = null, date) => {
-        setCompletedAtDates((prev) => {
-            if (type === "chapter") {
-                return { ...prev, [`chapter-${index}`]: date };
-            } else if (type === "section") {
-                return { ...prev, [`section-${index}-${sectionIndex}`]: date };
-            }
-            return prev;
-        });
-    };
+
+    // const handleDateChange = (type, index, sectionIndex = null, date) => {
+    //     setCompletedAtDates((prev) => {
+    //         if (type === "chapter") {
+    //             return { ...prev, [`chapter-${index}`]: date };
+    //         } else if (type === "section") {
+    //             return { ...prev, [`section-${index}-${sectionIndex}`]: date };
+    //         }
+    //         return prev;
+    //     });
+    // };
 
     const handleSubmit = async () => {
         try {
@@ -160,8 +178,6 @@ const SubjectDetailsPage = () => {
                         : completedAtDates[chapterKey] || chapter.completedAt,
                     sections: chapter.sections.map((section, sIndex) => {
                         const sectionKey = `section-${cIndex}-${sIndex}`;
-
-                        // Si la section est marquée comme sélectionnée, et qu'elle n'a pas de date, mettre à jour avec la date actuelle
                         return {
                             ...section,
                             completedAt: section.status && !completedAtDates[sectionKey]
@@ -172,40 +188,41 @@ const SubjectDetailsPage = () => {
                 };
                 return updatedChapter;
             });
-
-            // Étape 2 : Construction du payload complet
             const payload = {
                 curriculum: {
                     ...formData.subject.curriculum,
                     chapitres: updatedChapters,
                 },
             };
-
             console.log("Payload envoyé au backend :", payload);
             payload._id = id;
-
-            // Étape 3 : Appel au service avec l’ID de la matière
             await matieresServices.updateMatiereAvancement(payload);
-
-            toast.success("Subject details updated successfully!");
-
-            // Facultatif : mettre à jour l’état local
-            setFormData({
-                ...formData,
-                subject: {
-                    ...formData.subject,
-                    curriculum: {
-                        ...formData.subject.curriculum,
-                        chapitres: updatedChapters,
-                    },
-                },
-            });
+            toast.success("Subject Advancements updated successfully!");
+            fetchRef.current = false;
+            fetchSubject();
+            // setFormData({
+            //     ...formData,
+            //     subject: {
+            //         ...formData.subject,
+            //         curriculum: {
+            //             ...formData.subject.curriculum,
+            //             chapitres: updatedChapters,
+            //         },
+            //     },
+            // });
 
         } catch (err) {
             console.error("Erreur lors de la mise à jour :", err);
             toast.error("Échec de la mise à jour de la matière.");
             toast.error(err.message || err);
         }
+    };
+
+    const handleDateChange = (key, date) => {
+        setCompletedAtDates((prev) => ({
+            ...prev,
+            [key]: date,
+        }));
     };
 
     if (loading)
@@ -219,290 +236,345 @@ const SubjectDetailsPage = () => {
         );
     if (error) return <ErrorState message={error} />;
     if (!formData) return <ErrorState message="Invalid subject data." />;
+    const actionHeaders = userRole === RoleEnum.ADMIN ? (
+        <button
+            onClick={toggleForm}
+            className="flex justify-center items-center bg-blue-400 text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-200 hover:text-blue-900  transition duration-200 sm:w-auto w-full mb-2 sm:mb-0 sm:mr-2"
+        >
+            <FaEdit className="mr-2" /> Edit
+        </button>
+    ) : null;
 
     return (
-        <PageLayout title={formData.subject.title}  >
+        <PageLayout title={formData.subject.title} headerActions={actionHeaders} a >
             {/* <div className="min-h-screen bg-gray-100 p-6"> */}
-            <div className=" ">
-                {/* <div className="w-full max-w-6xl mx-auto bg-white rounded-lg shadow-lg p-8 space-y-8"> */}
-                <div className="w-full max-w-6xl mx-auto bg-white  ">
-                    {/* Header */}
-                    {/* <header header className="text-center mb-8" >
+            {showForm ? (
+                <SubjectForm
+                    initialData={fetchData}
+                    onSubmit={handleFormSubmit} // Pass the updated handleFormSubmit
+                    onCancel={toggleForm} // Allow canceling the form
+                />
+            ) :
+                (<div className=" ">
+                    {/* <div className="w-full max-w-6xl mx-auto bg-white rounded-lg shadow-lg p-8 space-y-8"> */}
+                    <div className="w-full max-w-6xl mx-auto bg-white  ">
+                        {/* Header */}
+                        {/* <header header className="text-center mb-8" >
                         <h1 className="text-4xl font-bold text-blue-800 flex items-center justify-center gap-2">
                             <FaBook className="text-3xl text-blue-600" /> {formData.subject.title}
                         </h1>
                         <p className="text-sm text-gray-600">{humanizeDate(formData.subject.createdAt)}</p>
                     </header > */}
 
-                    {/* Subject Overview */}
-                    <Section title="Overview">
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                            <InfoCard label="Module" value={formData.subject.curriculum?.module || "N/A"} />
-                            <InfoCard label="Level" value={formData.subject.curriculum?.level || "N/A"} />
-                            <InfoCard
-                                label="Teacher"
-                                value={
-                                    formData.subject.teacherId
-                                        ? formData.subject.teacherId
-                                            .map((teacher) => `${teacher.firstName} ${teacher.lastName} (${teacher.email})`)
-                                            .join(", ")
-                                        : "N/A"
-                                }
-                            />
-                            <InfoCard label="Semester" value={formData.subject.curriculum?.semestre || "N/A"} />
-                            <InfoCard label="Responsible" value={formData.subject.curriculum?.responsable || "N/A"} />
-                            <InfoCard label="Language" value={formData.subject.curriculum?.langue || "N/A"} />
-                            <InfoCard label="Total Hours" value={formData.subject.curriculum?.volume_horaire_total || "N/A"} />
-                            <InfoCard label="Credits" value={formData.subject.curriculum?.credit || "N/A"} />
-                            <InfoCard label="Code" value={formData.subject.curriculum?.code || "N/A"} />
-                            <InfoCard label="Relation" value={formData.subject.curriculum?.relation || "N/A"} />
-                            <InfoCard label="Teaching Type" value={formData.subject.curriculum?.type_enseignement || "N/A"} />
-                            <InfoCard
-                                label="Prerequisites"
-                                value={formData.subject.curriculum?.prerequis_recommandes?.join(", ") || "None"}
-                            />
-                        </div>
-                    </Section>
-
-
-                    <Section title="Chapters & Sections">
-                        {formData.subject.curriculum.chapitres.length > 0 ? (
-                            <div className="space-y-6">
-                                {formData.subject.curriculum.chapitres.map((chapter, index) => {
-                                    const chapterKey = `chapter-${index}`;
-                                    const isCompleted = chapter.status;
-                                    const completedAt = completedAtDates[chapterKey] || chapter.completedAt;
-
-                                    return (
-                                        <div
-                                            key={index}
-                                            className={`border rounded-2xl p-5 shadow-md transition-colors duration-200 ${isCompleted ? "bg-green-50 border-green-300" : "bg-white"
-                                                }`}
-                                        >
-                                            {/* Chapter Header */}
-                                            <div
-                                                className="flex justify-between items-center cursor-pointer"
-                                                onClick={() => toggleChapterExpand(index)}
-                                            >
-                                                <h3 className={`text-xl font-semibold flex items-center gap-2 ${isCompleted ? "text-green-800" : "text-gray-800"}`}>
-                                                    {chapter.title || `Chapter ${index + 1}`}
-                                                    {isCompleted ? (
-                                                        <FaCheck className="text-green-500" />
-                                                    ) : (
-                                                        <FaTimes className="text-red-500" />
-                                                    )}
-                                                </h3>
-                                                {expandedChapters[index] ? (
-                                                    <Tooltip text={"close"} position="top">
-                                                        <FaChevronUp className="text-gray-500" />
-                                                    </Tooltip>
-                                                ) : (<Tooltip text={"open"} position="top" alwaysOn>
-                                                    <FaChevronDown className="text-gray-500" />
-                                                </Tooltip>)}
-                                            </div>
-
-                                            {/* Chapter Status Checkbox */}
-                                            {(userRole === RoleEnum.ADMIN || userId === formData?.teacherId) && (
-                                                <div className="flex items-center mt-3 gap-3">
-                                                    <input
-                                                        type="checkbox"
-                                                        checked={chapter.status}
-                                                        onChange={() => toggleChapterStatus(index)}
-                                                        className="w-5 h-5 text-green-600 border-gray-300 focus:ring-green-500 rounded"
-                                                        aria-label={`Mark Chapter ${index + 1} as complete`}
-                                                    />
-                                                    <label className="text-sm text-gray-700">Mark as complete</label>
-                                                </div>
-                                            )}
-
-                                            {/* Completed At Date */}
-                                            {isCompleted && (
-                                                <div className="flex items-center mt-2 text-sm text-gray-600 gap-2">
-                                                    <FaCalendarAlt />
-                                                    <span>
-                                                        Completed At:{" "}
-                                                        {completedAt ? (
-                                                            <span className="font-medium">{humanizeDate(completedAt)}</span>
-                                                        ) : (
-                                                            <span className="text-gray-400">Not yet updated</span>
-                                                        )}
-                                                    </span>
-                                                </div>
-                                            )}
-
-                                            {/* Sections */}
-                                            {expandedChapters[index] && chapter.sections.length > 0 && (
-                                                <ul className="mt-4 border-l-2 border-gray-300 pl-5 space-y-3">
-                                                    {chapter.sections.map((section, sIndex) => {
-                                                        const sectionKey = `section-${index}-${sIndex}`;
-                                                        const sectionCompletedAt =
-                                                            completedAtDates[sectionKey] || section.completedAt;
-
-                                                        return (
-                                                            <li key={sIndex} className="flex justify-between items-start">
-                                                                <div className={`flex items-start gap-2 text-base ${section.status ? "text-green-800" : "text-gray-700"}`}>
-                                                                    {sIndex + 1} - {section.title || `Section ${sIndex + 1}`}{" "}
-                                                                    {section.status ? (
-                                                                        <FaCheck className="text-green-500 ml-1" />
-                                                                    ) : (
-                                                                        <FaTimes className="text-red-500 ml-1" />
-                                                                    )}
-                                                                    {isCompleted && (
-                                                                        <div className="flex items-center mt-2 text-sm text-gray-600 gap-2">
-                                                                            <FaCalendarAlt />
-                                                                            <span>
-                                                                                Completed At:{" "}
-                                                                                {section.completedAt ? (
-                                                                                    <span className="font-medium">{humanizeDate(section.completedAt)}</span>
-                                                                                ) : (
-                                                                                    <span className="text-gray-400">Not yet updated</span>
-                                                                                )}
-                                                                            </span>
-                                                                        </div>)}
-
-                                                                </div>
-
-
-                                                                <div className="flex flex-col items-end gap-1">
-                                                                    {(userRole === RoleEnum.ADMIN || userId === formData?.teacherId) && (
-                                                                        <input
-                                                                            type="checkbox"
-                                                                            checked={section.status}
-                                                                            onChange={() => toggleSectionStatus(index, sIndex)}
-                                                                            className="w-5 h-5 text-green-600 border-gray-300 focus:ring-green-500 rounded"
-                                                                            aria-label={`Mark Section ${sIndex + 1} as complete`}
-                                                                        />
-                                                                    )}
-                                                                    {section.status && sectionCompletedAt && (
-                                                                        <div className="flex items-center gap-2 text-sm text-gray-600 mt-1">
-                                                                            <FaCalendarAlt />
-                                                                            <span className="font-medium">{humanizeDate(sectionCompletedAt)}</span>
-                                                                        </div>
-                                                                    )}
-                                                                </div>
-
-                                                            </li>
-                                                        );
-                                                    })}
-                                                </ul>
-                                            )}
-                                        </div>
-                                    );
-                                })}
-                            </div>
-                        ) : (
-                            <EmptyState message="No chapters available." />
-                        )}
-
-                        {/* Submit Button */}
-                        {formData.subject.curriculum.chapitres.length > 0 && (userRole === RoleEnum.ADMIN || userId === formData?.teacherId) && (
-                            <div className="flex justify-end mt-8">
-                                <button
-                                    onClick={handleSubmit}
-                                    className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl shadow-md transition-all"
-                                >
-                                    Update Status
-                                </button>
-                            </div>
-                        )}
-                    </Section>
-                    {/* Skills */}
-                    <Section title="Skills">
-                        {formData.subject.skillsId.length > 0 ? (
+                        {/* Subject Overview */}
+                        <Section title="Overview">
                             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                                {formData.subject.skillsId.map((skill, index) => (
-                                    <SkillCard
-                                        key={index}
-                                        title={skill.title}
-                                        families={skill.familyId.map((family) => family.title)}
-                                    />
-                                ))}
+                                <InfoCard label="Module" value={formData.subject.curriculum?.module || "N/A"} />
+                                <InfoCard label="Level" value={formData.subject.curriculum?.level || "N/A"} />
+                                <InfoCard
+                                    label="Teacher"
+                                    value={
+                                        formData.subject.teacherId
+                                            ? formData.subject.teacherId
+                                                .map((teacher) => `${teacher.firstName} ${teacher.lastName} (${teacher.email})`)
+                                                .join(", ")
+                                            : "N/A"
+                                    }
+                                />
+                                <InfoCard label="Semester" value={formData.subject.curriculum?.semestre || "N/A"} />
+                                <InfoCard label="Responsible" value={formData.subject.curriculum?.responsable || "N/A"} />
+                                <InfoCard label="Language" value={formData.subject.curriculum?.langue || "N/A"} />
+                                <InfoCard label="Total Hours" value={formData.subject.curriculum?.volume_horaire_total || "N/A"} />
+                                <InfoCard label="Credits" value={formData.subject.curriculum?.credit || "N/A"} />
+                                <InfoCard label="Code" value={formData.subject.curriculum?.code || "N/A"} />
+                                <InfoCard label="Relation" value={formData.subject.curriculum?.relation || "N/A"} />
+                                <InfoCard label="Teaching Type" value={formData.subject.curriculum?.type_enseignement || "N/A"} />
+                                <InfoCard
+                                    label="Prerequisites"
+                                    value={formData.subject.curriculum?.prerequis_recommandes?.join(", ") || "None"}
+                                />
                             </div>
-                        ) : (
-                            <EmptyState message="No skills available." />
-                        )}
-                    </Section>
+                        </Section>
 
-                    {/* History (Only for non-students) */}
-                    {userRole !== RoleEnum.STUDENT && (
-                        <Section title="History" icon={<FaHistory className="text-gray-500" />}>
-                            {formData.history.length > 0 ? (
-                                <ul className="list-none text-gray-700 space-y-2">
-                                    {formData.history.map((historyItem, index) => (
-                                        <li
-                                            key={index}
-                                            onClick={() => {
-                                                setSelectedHistory(historyItem);
-                                                setIsModalOpen(true);
-                                            }}
-                                            className="cursor-pointer hover:bg-gray-200 p-2 rounded-md transition-colors flex justify-between items-center"
-                                        >
-                                            <span className="flex items-center gap-2">
-                                                <strong>{historyItem.title}</strong> -{" "}
-                                                {new Date(historyItem.modifiedAt).toLocaleString()}
-                                            </span>
-                                        </li>
-                                    ))}
-                                </ul>
+
+                        <Section title="Chapters & Sections">
+                            {formData.subject.curriculum.chapitres.length > 0 ? (
+                                <div className="space-y-6">
+                                    {formData.subject.curriculum.chapitres.map((chapter, index) => {
+                                        const chapterKey = `chapter-${index}`;
+                                        const isCompleted = chapter.status;
+                                        const completedAt = chapter.completedAt || completedAtDates[chapterKey];
+                                        const canEdit = userRole === RoleEnum.ADMIN || userId === formData?.teacherId;
+
+                                        return (
+                                            <div
+                                                key={index}
+                                                className={`border rounded-2xl p-5 shadow-md transition-colors duration-200 ${isCompleted ? "bg-green-50 border-green-300" : "bg-white"
+                                                    }`}
+                                            >
+                                                {/* Chapter Header */}
+                                                <div
+                                                    className="flex justify-between items-center cursor-pointer"
+                                                    onClick={() => toggleChapterExpand(index)}
+                                                >
+                                                    <h3
+                                                        className={`text-xl font-semibold flex items-center gap-2 ${isCompleted ? "text-green-800" : "text-gray-800"
+                                                            }`}
+                                                    >
+                                                        {chapter.title || `Chapter ${index + 1}`}
+                                                        {isCompleted ? (
+                                                            <FaCheck className="text-green-500" />
+                                                        ) : (
+                                                            <FaTimes className="text-red-500" />
+                                                        )}
+                                                    </h3>
+                                                    {expandedChapters[index] ? (
+                                                        <Tooltip text={"close"} position="top">
+                                                            <FaChevronUp className="text-gray-500" />
+                                                        </Tooltip>
+                                                    ) : (
+                                                        <Tooltip text={"open"} position="top" alwaysOn>
+                                                            <FaChevronDown className="text-gray-500" />
+                                                        </Tooltip>
+                                                    )}
+                                                </div>
+
+                                                {/* Chapter Checkbox */}
+                                                {canEdit && (
+                                                    <div className="flex items-center mt-3 gap-3">
+                                                        <input
+                                                            type="checkbox"
+                                                            checked={chapter.status}
+                                                            onChange={() => toggleChapterStatus(index)}
+                                                            className="w-5 h-5 text-green-600 border-gray-300 focus:ring-green-500 rounded"
+                                                            aria-label={`Mark Chapter ${index + 1} as complete`}
+                                                        />
+                                                        <label className="text-sm text-gray-700">Mark as complete</label>
+                                                    </div>
+                                                )}
+
+                                                {/* Completed At + Input */}
+                                                {isCompleted && (
+                                                    <div className="mt-2 text-sm text-gray-600">
+                                                        <div className="flex items-center gap-2">
+                                                            <FaCalendarAlt />
+                                                            <span>
+                                                                Completed At:{" "}
+                                                                {completedAt ? (
+                                                                    <span className="font-medium">{humanizeDate(completedAt)}</span>
+                                                                ) : (
+                                                                    <span className="text-gray-400">Not yet updated</span>
+                                                                )}
+                                                            </span>
+                                                        </div>
+
+                                                        {canEdit && (
+                                                            <div className="mt-2">
+                                                                <label className="block text-sm text-gray-600 mb-1">Completion Date:</label>
+                                                                <input
+                                                                    type="date"
+                                                                    value={completedAtDates[chapterKey]?.split("T")[0] || ""}
+                                                                    onChange={(e) => handleDateChange(chapterKey, e.target.value)}
+                                                                    className="border rounded px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                                                />
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                )}
+
+                                                {/* Sections */}
+                                                {expandedChapters[index] && chapter.sections.length > 0 && (
+                                                    <ul className="mt-4 border-l-2 border-gray-300 pl-5 space-y-3">
+                                                        {chapter.sections.map((section, sIndex) => {
+                                                            const sectionKey = `section-${index}-${sIndex}`;
+                                                            const sectionCompletedAt = completedAtDates[sectionKey] || section.completedAt;
+
+                                                            return (
+                                                                <li key={sIndex} className="flex justify-between items-start">
+                                                                    <div
+                                                                        className={`flex flex-col items-start gap-1 text-base ${section.status ? "text-green-800" : "text-gray-700"
+                                                                            }`}
+                                                                    >
+                                                                        <div className="flex items-center gap-2">
+                                                                            {sIndex + 1} - {section.title || `Section ${sIndex + 1}`}{" "}
+                                                                            {section.status ? (
+                                                                                <FaCheck className="text-green-500 ml-1" />
+                                                                            ) : (
+                                                                                <FaTimes className="text-red-500 ml-1" />
+                                                                            )}
+                                                                        </div>
+
+                                                                        {section.status && (
+                                                                            <>
+                                                                                <div className="flex items-center text-sm text-gray-600 gap-2">
+                                                                                    <FaCalendarAlt />
+                                                                                    <span>
+                                                                                        Completed At:{" "}
+                                                                                        {sectionCompletedAt ? (
+                                                                                            <span className="font-medium">
+                                                                                                {humanizeDate(sectionCompletedAt)}
+                                                                                            </span>
+                                                                                        ) : (
+                                                                                            <span className="text-gray-400">Not yet updated</span>
+                                                                                        )}
+                                                                                    </span>
+                                                                                </div>
+
+                                                                                {canEdit && (
+                                                                                    <div className="mt-1">
+                                                                                        <label className="block text-sm text-gray-600 mb-1">
+                                                                                            Completion Date:
+                                                                                        </label>
+                                                                                        <input
+                                                                                            type="date"
+                                                                                            value={completedAtDates[sectionKey]?.split("T")[0] || ""}
+                                                                                            onChange={(e) =>
+                                                                                                handleDateChange(sectionKey, e.target.value)
+                                                                                            }
+                                                                                            className="border rounded px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                                                                        />
+                                                                                    </div>
+                                                                                )}
+                                                                            </>
+                                                                        )}
+                                                                    </div>
+
+                                                                    <div className="flex flex-col items-end gap-1">
+                                                                        {canEdit && (
+                                                                            <input
+                                                                                type="checkbox"
+                                                                                checked={section.status}
+                                                                                onChange={() => toggleSectionStatus(index, sIndex)}
+                                                                                className="w-5 h-5 text-green-600 border-gray-300 focus:ring-green-500 rounded"
+                                                                                aria-label={`Mark Section ${sIndex + 1} as complete`}
+                                                                            />
+                                                                        )}
+                                                                    </div>
+                                                                </li>
+                                                            );
+                                                        })}
+                                                    </ul>
+                                                )}
+                                            </div>
+                                        );
+                                    })}
+                                </div>
                             ) : (
-                                <EmptyState message="No history available" />
+                                <EmptyState message="No chapters available." />
+                            )}
+
+                            {/* Submit Button */}
+                            {formData.subject.curriculum.chapitres.length > 0 && canEdit && (
+                                <div className="flex justify-end mt-8">
+                                    <button
+                                        onClick={handleSubmit}
+                                        className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl shadow-md transition-all"
+                                    >
+                                        Update Status
+                                    </button>
+                                </div>
                             )}
                         </Section>
-                    )}
 
-                    {/* History Popup */}
-                    {isModalOpen && selectedHistory && (
-                        <Popup
-                            isOpen={isModalOpen}
-                            onClose={() => setIsModalOpen(false)}
-                            title="History Details"
-                            position="center"
-                            showCloseButton={true}
-                            zindex="z-50"
-                        >
-                            <div className="space-y-6">
-                                {/* Header Section */}
-                                <div className="flex items-center space-x-3">
-                                    <MdTitle className="text-2xl text-primary-600" />
-                                    <h2 className="text-lg font-bold text-gray-900">History Details</h2>
+
+                        {/* Skills */}
+                        <Section title="Skills">
+                            {formData.subject.skillsId.length > 0 ? (
+                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                                    {formData.subject.skillsId.map((skill, index) => (
+                                        <SkillCard
+                                            key={index}
+                                            title={skill.title}
+                                            families={skill.familyId.map((family) => family.title)}
+                                        />
+                                    ))}
                                 </div>
-                                {/* Title Row */}
-                                <DetailRow label="Title" value={selectedHistory.title} />
-                                {/* Modified At Row */}
-                                <DetailRow label="Modified At" value={humanizeDate(selectedHistory.modifiedAt)} />
-                                {/* Teachers Row */}
-                                <DetailRow
-                                    label="Teachers"
-                                    value={
-                                        selectedHistory.teacherId.length > 0 ? (
-                                            selectedHistory.teacherId
-                                                .map((t) => `${t.firstName} ${t.lastName} (${t.email})`)
-                                                .join(", ")
-                                        ) : (
-                                            "None"
-                                        )
-                                    }
-                                />
-                                {/* Skills Row */}
-                                <DetailRow
-                                    label="Skills"
-                                    value={
-                                        selectedHistory.skillsId.length > 0 ? (
-                                            selectedHistory.skillsId
-                                                .map((s) =>
-                                                    `${s.title} (${s.familyId.map((f) => f.title).join(", ")})`
-                                                )
-                                                .join(", ")
-                                        ) : (
-                                            "None"
-                                        )
-                                    }
-                                />
-                            </div>
-                        </Popup>
-                    )}
-                </div>
-            </div>
+                            ) : (
+                                <EmptyState message="No skills available." />
+                            )}
+                        </Section>
+
+                        {/* History (Only for non-students) */}
+                        {userRole !== RoleEnum.STUDENT && (
+                            <Section title="History" icon={<FaHistory className="text-gray-500" />}>
+                                {formData.history.length > 0 ? (
+                                    <ul className="list-none text-gray-700 space-y-2">
+                                        {formData.history.map((historyItem, index) => (
+                                            <li
+                                                key={index}
+                                                onClick={() => {
+                                                    setSelectedHistory(historyItem);
+                                                    setIsModalOpen(true);
+                                                }}
+                                                className="cursor-pointer hover:bg-gray-200 p-2 rounded-md transition-colors flex justify-between items-center"
+                                            >
+                                                <span className="flex items-center gap-2">
+                                                    <strong>{historyItem.title}</strong> -{" "}
+                                                    {new Date(historyItem.modifiedAt).toLocaleString()}
+                                                </span>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                ) : (
+                                    <EmptyState message="No history available" />
+                                )}
+                            </Section>
+                        )}
+
+                        {/* History Popup */}
+                        {isModalOpen && selectedHistory && (
+                            <Popup
+                                isOpen={isModalOpen}
+                                onClose={() => setIsModalOpen(false)}
+                                title="History Details"
+                                position="center"
+                                showCloseButton={true}
+                                zindex="z-50"
+                            >
+                                <div className="space-y-6">
+                                    {/* Header Section */}
+                                    <div className="flex items-center space-x-3">
+                                        <MdTitle className="text-2xl text-primary-600" />
+                                        <h2 className="text-lg font-bold text-gray-900">History Details</h2>
+                                    </div>
+                                    {/* Title Row */}
+                                    <DetailRow label="Title" value={selectedHistory.title} />
+                                    {/* Modified At Row */}
+                                    <DetailRow label="Modified At" value={humanizeDate(selectedHistory.modifiedAt)} />
+                                    {/* Teachers Row */}
+                                    <DetailRow
+                                        label="Teachers"
+                                        value={
+                                            selectedHistory.teacherId.length > 0 ? (
+                                                selectedHistory.teacherId
+                                                    .map((t) => `${t.firstName} ${t.lastName} (${t.email})`)
+                                                    .join(", ")
+                                            ) : (
+                                                "None"
+                                            )
+                                        }
+                                    />
+                                    {/* Skills Row */}
+                                    <DetailRow
+                                        label="Skills"
+                                        value={
+                                            selectedHistory.skillsId.length > 0 ? (
+                                                selectedHistory.skillsId
+                                                    .map((s) =>
+                                                        `${s.title} (${s.familyId.map((f) => f.title).join(", ")})`
+                                                    )
+                                                    .join(", ")
+                                            ) : (
+                                                "None"
+                                            )
+                                        }
+                                    />
+                                </div>
+                            </Popup>
+                        )}
+                    </div>
+                </div>)
+            }
         </PageLayout>
     );
 };
