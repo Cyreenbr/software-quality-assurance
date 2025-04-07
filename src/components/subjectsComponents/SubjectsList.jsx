@@ -39,7 +39,7 @@ const SubjectList = ({ onEdit, refresh = false, }) => {
     const [archive, setArchive] = useState(false);
     const [itemsOnPage, setItemsOnPage] = useState(0);
     const confirmDeleteMessage = `Are you sure you want to delete this subject?`;
-
+    let hide = false
 
     const handleConfirmDelete = async () => {
         const deleteSuccess = await handleDeleteSubject(subjectToDelete._id, { forced, archive });
@@ -53,6 +53,7 @@ const SubjectList = ({ onEdit, refresh = false, }) => {
     // Fetch subjects
     const fetchSubjects = useCallback(async (page, searchTerm, sortBy, order) => {
         setLoading(true);
+
         try {
             const response = await matieresServices.fetchMatieres(page, searchTerm, sortBy, order);
             const fetchedSubjects = response.subjects || [];
@@ -61,10 +62,10 @@ const SubjectList = ({ onEdit, refresh = false, }) => {
             setTotalPages(response.pagination?.totalPages || 1);
             setError(null);
         } catch (err) {
-
-
+            if (!hide)
+                toast.error(`Failed to load subjects: ${err}`);
+            hide = true
             setError(err || "An error occurred while fetching subjects.");
-            toast.error(`Failed to load subjects: ${err}`);
         } finally {
             setLoading(false);
         }
