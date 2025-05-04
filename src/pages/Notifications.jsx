@@ -15,7 +15,7 @@ const Notifications = () => {
                     <span className="text-xs text-gray-500">3 hours ago</span>
                 </li>
                 <li className="flex items-center justify-between p-2 bg-white shadow rounded mb-2">
-                    <span className="text-gray-700">3ICHA KA7LA</span>
+                    <span className="text-gray-700">byee</span>
                     <span className="text-xs text-gray-500">1 day ago</span>
                 </li>
             </ul>

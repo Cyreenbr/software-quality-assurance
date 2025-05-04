@@ -7,6 +7,7 @@ const Tooltip = ({
     bgColor = "bg-gray-900",
     textColor = "text-white",
     styles = "relative group", // Ensure this class is added to the parent element
+    alwaysOn = false
 }) => {
     const positionClasses = {
         top: "bottom-full left-1/2 transform -translate-x-1/2 mb-1",
@@ -21,7 +22,7 @@ const Tooltip = ({
             <span
                 className={`absolute ${positionClasses[position]}
                             ${bgColor} ${textColor} text-xs font-semibold py-1 px-2 rounded shadow-md
-                            opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap`}
+                            ${alwaysOn ? '' : 'opacity-0'}  group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap`}
             >
                 {text}
             </span>

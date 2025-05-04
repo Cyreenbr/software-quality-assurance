@@ -55,9 +55,9 @@ const Subject = () => {
     };
 
 
-    const handlePublishSubjects = useCallback(async () => {
+    const handlePublishSubjects = useCallback(async (res = null) => {
         try {
-            const response = await matieresServices.publishMatieres(responseValue);
+            const response = await matieresServices.publishMatieres(res ? res : responseValue);
 
             toast.success(response?.message || response?.data?.message || `Subjects ${responseValue} successfully!`);
             // Ensure refresh triggers after the request
@@ -88,7 +88,7 @@ const Subject = () => {
                             {isMenuOpen && (
                                 <div className="absolute right-0 mt-2 w-32 bg-white shadow-lg rounded-md z-10">
                                     <button
-                                        onClick={() => { setResponseValue('publish'); handlePublishSubjects(); setIsMenuOpen(false); }}
+                                        onClick={() => { setResponseValue('publish'); handlePublishSubjects('publish'); setIsMenuOpen(false); }}
                                         className="w-full text-left mb-1 px-4 py-2 text-sm text-blue-800 hover:bg-blue-100 focus:outline-none"
                                     >
                                         <span className="inline-flex items-center">
@@ -97,7 +97,7 @@ const Subject = () => {
                                         </span>
                                     </button>
                                     <button
-                                        onClick={() => { setResponseValue('masque'); handlePublishSubjects(); setIsMenuOpen(false); }}
+                                        onClick={() => { setResponseValue('masque'); handlePublishSubjects('masque'); setIsMenuOpen(false); }}
                                         className="w-full text-left px-4 py-2 text-sm text-gray-800 hover:bg-red-100 focus:outline-none"
                                     >
                                         <span className="inline-flex items-center">

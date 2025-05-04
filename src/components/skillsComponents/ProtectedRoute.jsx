@@ -4,27 +4,35 @@ import { Navigate } from "react-router-dom";
 import { RoleEnum } from "../../utils/userRoles";
 
 function ProtectedRoute({ element, roles = [], levels = [] }) {
-    let role = useSelector((state) => state.auth.role);
-    const levelUser = useSelector((state) => state.auth.user?.level || "BARRAWA7");
+  const role = useSelector((state) => state.auth.role);
+  const levelUser = useSelector((state) => state.auth.user?.level || "UNKNOWN");
 
-    console.log(levels);
-    console.log(levelUser);
+  console.log("Expected levels:", levels);
+  console.log("User level:", levelUser);
+  console.log("Expected roles:", roles);
+  console.log("User role:", role);
 
-    if (!role) {
-        return <Navigate to="/signin" replace />;
-    }
+  // Not logged in → redirect to signin
+  if (!role) {
+    return <Navigate to="/signin" replace />;
+  }
 
-    if (role === RoleEnum.STUDENT) {
-        if (levels.length > 0 && !levels.includes(levelUser)) {
-            return <Navigate to="/error" replace />;
-        }
-    }
+  // Role check
+  if (roles.length > 0 && !roles.includes(role)) {
+    return <Navigate to="/error" replace />;
+  }
+  console.log(role === RoleEnum.STUDEN);
+  // Level check — only if levels are required
+  if (
+    levels.length > 0 &&
+    !levels.includes(levelUser) &&
+    role === RoleEnum.STUDENT
+  ) {
+    console.log("1");
+    return <Navigate to="/error" replace />;
+  }
 
-    if (roles.length > 0 && !roles.includes(role)) {
-        return <Navigate to="/error" replace />;
-    }
-
-    return element;
+  return element;
 }
 
 export default ProtectedRoute;

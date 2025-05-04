@@ -2,12 +2,10 @@ import React, { useEffect, useRef, useState } from "react";
 import {
   MdAccountCircle,
   MdExitToApp,
-  MdLogin,
   MdMenu,
   MdMoreVert,
   MdNotifications,
-  MdPersonAdd,
-  MdSettings,
+  MdSettings
 } from "react-icons/md";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";

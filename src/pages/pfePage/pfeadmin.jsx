@@ -15,6 +15,7 @@ import {
   togglePublication,
   sendEmail,
 } from "../../services/pfeService/pfe.service";
+import { toast } from "react-toastify";
 
 const AdminPfeManagement = () => {
   const [pfeChoices, setPfeChoices] = useState([]);
@@ -25,23 +26,21 @@ const AdminPfeManagement = () => {
   const [selectedPfe, setSelectedPfe] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
 
-  const token = localStorage.getItem("token");
-
   useEffect(() => {
     loadData();
   }, []);
 
   const loadData = async () => {
     try {
-      const pfeData = await fetchPFEChoices(token);
+      const pfeData = await fetchPFEChoices();
       setPfeChoices(pfeData);
       if (pfeData[0]?.isAssignmentVisible !== undefined) {
         setIsPublished(pfeData[0].isAssignmentVisible);
       }
-      const teacherData = await fetchTeachers(token);
+      const teacherData = await fetchTeachers();
       setTeachers(teacherData);
     } catch (error) {
-      alert("Failed to load data.");
+      toast.error(` ${error.response?.data?.message || error.message}`);
     }
   };
 
@@ -83,9 +82,17 @@ const AdminPfeManagement = () => {
   const handleSendEmail = async (type) => {
     try {
       await sendEmail(type);
-      alert(`Email sent: ${type}`);
     } catch (err) {
       console.error("Failed to send email:", err);
+    }
+  };
+
+  const handleOpenDocument = (document) => {
+    if (document) {
+      const url = `http://localhost:3000/uploads/${document}`;
+      window.open(url, "_blank"); // Open the document in a new tab
+    } else {
+      console.log("No document found");
     }
   };
 
@@ -106,6 +113,7 @@ const AdminPfeManagement = () => {
             <tr className="bg-gray-200 text-gray-600 uppercase text-sm">
               <th className="py-3 px-6">Student</th>
               <th className="py-3 px-6">Project</th>
+              <th className="py-3 px-6">Documents</th>
               <th className="py-3 px-6">Status</th>
               <th className="py-3 px-6">Supervisor</th>
               <th className="py-3 px-6">Actions</th>
@@ -119,6 +127,22 @@ const AdminPfeManagement = () => {
                     "Unknown"}
                 </td>
                 <td className="py-3 px-6">{choice.title || "No Title"}</td>
+                <td>
+                  {/* Display clickable documents */}
+                  {choice.documents && choice.documents.length > 0 && (
+                    <div className="space-y-2">
+                      {choice.documents.map((document, index) => (
+                        <button
+                          key={index}
+                          onClick={() => handleOpenDocument(document)}
+                          className="text-blue-500 hover:underline"
+                        >
+                          {`Doc ${index + 1}`}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </td>
                 <td className="py-3 px-6 font-semibold">{choice.status}</td>
                 <td className="py-3 px-6">
                   <button

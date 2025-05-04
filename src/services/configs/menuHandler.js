@@ -2,19 +2,17 @@ import {
   FaBook,
   FaGraduationCap,
   FaLightbulb,
-  FaWindowRestore,
+  FaWindowRestore
 } from "react-icons/fa";
 import { GiTeacher } from "react-icons/gi";
 import {
-  MdAccountCircle,
   MdAssignmentAdd,
   MdAutoStories,
   MdCalendarMonth,
-  MdDashboard,
   MdDownload,
   MdHome,
   MdList,
-  MdNotifications,
+  MdNotifications
 } from "react-icons/md";
 import { PiStudentBold, PiStudentFill } from "react-icons/pi";
 import Pfa from "../../../src/pages/pfaPage/Pfa";
@@ -22,17 +20,18 @@ import SubjectDetailsPage from "../../components/subjectsComponents/SubjectDetai
 import AdminPeriods from "../../pages/adminPeriodsPage/AdminPeriods";
 import AssignInternships from "../../pages/assignInternshipsPage/AssignInternshipsPage";
 import Competences from "../../pages/competenecesPage/Competences";
-import Dashboard from "../../pages/dashboardPage/Dashboard";
 import DepotSujet from "../../pages/depotSujetStagePage/DepotSujetStage";
 import ErrorPage from "../../pages/ErrorPage";
 import Home from "../../pages/homePage/Home";
 import Notifications from "../../pages/Notifications";
 import OptionListPage from "../../pages/optionPage/OptionListPage";
 import OptionPage from "../../pages/optionPage/OptionPage";
-import AdminPfeManagement from "../../pages/pfePage/pfe";
+import AdminPfeManagement from "../../pages/pfePage/pfeadmin";
+import TeacherPFEList from "../../pages/pfePage/pfeens";
 import PFEStudent from "../../pages/pfePage/pfeStudent";
+import PlanningPage from "../../pages/pfePage/planning";
+import PlanninginternshipPage from "../../pages/planningPage/PlanningPage";
 import InternshipPlanning from "../../pages/PlanningUpdate/InternshipPlanningUpdate";
-import Profile from "../../pages/profilePage/Profile";
 import InternshipList from "../../pages/studentInternshipPage/studentInternship";
 import Subjects from "../../pages/subjectsPage/Subjects";
 import TeacherInternshipList from "../../pages/teacherInternshipPage/TeacherInternshipPage";
@@ -40,9 +39,7 @@ import StudentsListTeachers from "../../pages/usersListPage/StudentsListTeachers
 import StudentsManagPage from "../../pages/UsersManagementPage/StudentsManagPage";
 import TeachersManagPage from "../../pages/UsersManagementPage/TeachersManagPage";
 import { RoleEnum } from "../../utils/userRoles";
-import TeacherPFEList from "../../pages/pfePage/ens";
 
-const user = JSON.parse(localStorage.getItem("user"));
 export const menuConfig = [
   {
     order: 1,
@@ -55,17 +52,17 @@ export const menuConfig = [
     hideSideBar: false,
     hideHeader: false,
   },
-  {
-    order: 2,
-    label: "Dashboard",
-    icon: MdDashboard,
-    path: "/dashboard",
-    component: Dashboard,
-    eligibleRoles: [RoleEnum.ADMIN, RoleEnum.TEACHER, RoleEnum.STUDENT],
-    active: true,
-    hideSideBar: false,
-    hideHeader: false,
-  },
+  // {
+  //   order: 2,
+  //   label: "Dashboard",
+  //   icon: MdDashboard,
+  //   path: "/dashboard",
+  //   component: Dashboard,
+  //   eligibleRoles: [RoleEnum.ADMIN, RoleEnum.TEACHER, RoleEnum.STUDENT],
+  //   active: true,
+  //   hideSideBar: false,
+  //   hideHeader: false,
+  // },
   {
     label: "Error",
     icon: undefined,
@@ -74,20 +71,20 @@ export const menuConfig = [
     eligibleRoles: [],
     active: true,
     dontShow: true,
-    hideSideBar: true,
-    hideHeader: false,
-  },
-  {
-    order: 3,
-    label: "Profile",
-    icon: MdAccountCircle,
-    path: "/profile",
-    component: Profile,
-    eligibleRoles: [RoleEnum.ADMIN, RoleEnum.TEACHER, RoleEnum.STUDENT],
-    active: true,
     hideSideBar: false,
     hideHeader: false,
   },
+  // {
+  //   order: 3,
+  //   label: "Profile",
+  //   icon: MdAccountCircle,
+  //   path: "/profile",
+  //   component: Profile,
+  //   eligibleRoles: [RoleEnum.ADMIN, RoleEnum.TEACHER, RoleEnum.STUDENT],
+  //   active: true,
+  //   hideSideBar: false,
+  //   hideHeader: false,
+  // },
   {
     order: 4,
     label: "Competences",
@@ -95,7 +92,7 @@ export const menuConfig = [
     path: "/competences",
     tooltip: "Competences",
     component: Competences,
-    eligibleRoles: [RoleEnum.ADMIN, RoleEnum.TEACHER],
+    eligibleRoles: [RoleEnum.ADMIN, RoleEnum.TEACHER,],
     active: true,
     hideSideBar: false,
     hideHeader: false,
@@ -112,7 +109,7 @@ export const menuConfig = [
     active: true,
     hideSideBar: false,
     hideHeader: false,
-    dontShow: true,
+    // dontShow: true,
   },
   {
     order: 6,
@@ -144,7 +141,7 @@ export const menuConfig = [
     path: "/PFA",
     component: Pfa,
     eligibleRoles: [RoleEnum.ADMIN, RoleEnum.TEACHER, RoleEnum.STUDENT],
-    eligibleLevels: [RoleEnum.ISPFA],
+    // eligibleLevels: [RoleEnum.ISPFA],
     active: true,
     hideSideBar: false,
     hideHeader: false,
@@ -236,13 +233,42 @@ export const menuConfig = [
     hideHeader: false,
   },
   {
+    order: 27,
+    label: "PFE",
+    icon: FaGraduationCap,
+    path: "/pfeplanning",
+    tooltip: "pfe",
+    component: PlanningPage,
+    eligibleRoles: [RoleEnum.ADMIN, RoleEnum.STUDENT, RoleEnum.TEACHER],
+    eligibleLevels: [RoleEnum.ISPFE],
+    active: true,
+    dontShow: true,
+    hideSideBar: false,
+    hideHeader: false,
+  },
+
+  /*{
     order: 16,
-    label: "ahmed",
+    label: "PFE",
     icon: FaGraduationCap,
     path: "/pfeStudent",
     tooltip: "pfe",
     component: PFEStudent,
     eligbleRoles: [RoleEnum.STUDENT],
+    //eligibleLevels: [RoleEnum.ISPFE],
+    active: true,
+    dontShow: false,
+    hideSideBar: false,
+    hideHeader: false,
+  },*/
+  {
+    order: 16,
+    label: "PFE",
+    icon: FaGraduationCap,
+    path: "/pfestudent",
+    tooltip: "pfe",
+    component: PFEStudent,
+    eligibleRoles: [RoleEnum.STUDENT],
     eligibleLevels: [RoleEnum.ISPFE],
     active: true,
     dontShow: false,
@@ -319,6 +345,19 @@ export const menuConfig = [
     hideSideBar: false,
     hideHeader: false,
   },
+  {
+    order: 27,
+    label: "Planning",
+    icon: MdList,
+    path: "/planning",
+    tooltip: "planning",
+    component: PlanninginternshipPage,
+    eligibleRoles: [RoleEnum.ADMIN, RoleEnum.STUDENT, RoleEnum.TEACHER],
+    active: true,
+    dontShow: true,
+    hideSideBar: false,
+    hideHeader: false,
+  },
   // kifeh tzid route jdid ??
   // {
   //     order: 7,
@@ -333,38 +372,27 @@ export const menuConfig = [
   // },
 ];
 
-
 export const getMenuItems = (role, level = null) => {
-  return menuConfig
+  return (menuConfig || [])
     .filter((item) => item?.dontShow !== true)
     .filter((item) => {
-      const hasEligibleRoles = item.eligibleRoles?.length > 0;
-      const hasEligibleLevels = item.eligibleLevels?.length > 0;
+      const eligibleRoles = Array.isArray(item.eligibleRoles)
+        ? item.eligibleRoles
+        : [];
+      const eligibleLevels = Array.isArray(item.eligibleLevels)
+        ? item.eligibleLevels
+        : [];
 
-      // Handle role eligibility
-      const roleEligible = !hasEligibleRoles || item.eligibleRoles.includes(role);
-
-      let levelEligible = true;
-
+      // For STUDENTS: must match both role and level
       if (role === RoleEnum.STUDENT) {
-        // For students, check both eligibleRoles and eligibleLevels
-        if (hasEligibleRoles && hasEligibleLevels) {
-          levelEligible = item.eligibleLevels.includes(level) && item.eligibleRoles.includes(role);
-        } else if (hasEligibleRoles) {
-          // If only eligibleRoles exist, check only that
-          levelEligible = item.eligibleRoles.includes(role);
-        } else if (hasEligibleLevels) {
-          // If only eligibleLevels exist, check only that
-          levelEligible = item.eligibleLevels.includes(level);
-        }
-      } else {
-        // For non-students, ignore the eligibleLevels check if not needed
-        if (hasEligibleLevels) {
-          levelEligible = true; // Ignoring eligibleLevels for non-student roles
-        }
+        return (
+          (eligibleRoles.length === 0 || eligibleRoles.includes(role)) &&
+          (eligibleLevels.length === 0 || eligibleLevels.includes(level))
+        );
       }
 
-      return roleEligible && levelEligible;
+      // For other roles: just check eligibleRoles
+      return eligibleRoles.length === 0 || eligibleRoles.includes(role);
     })
     .sort((a, b) => (a.order ?? Infinity) - (b.order ?? Infinity));
 };

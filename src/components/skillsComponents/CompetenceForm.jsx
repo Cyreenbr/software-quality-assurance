@@ -211,7 +211,7 @@ const SkillForm = ({
                                     e.preventDefault();
                                     // setEditSkill({ ...editSkill, forced: !editSkill?.forced });
                                     setForced(prev => !prev);
-                                    // setEditSkill(prev => ({ ...prev, forced: !prev?.forced }));
+                                    setEditSkill(prev => ({ ...prev, forced: !prev?.forced }));
                                 }}
                                 className={`flex items-center space-x-2 px-4 py-2 rounded-full font-medium transition duration-300 shadow-md
                             ${forced ? "bg-indigo-600 text-white hover:bg-indigo-700" : "bg-gray-300 text-gray-700 hover:bg-gray-400"}`}
