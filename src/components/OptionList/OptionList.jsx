@@ -2,7 +2,9 @@ import React, { useState, useEffect } from "react";
 import {
   getOptions,
   computeOption,
+  editOption,
 } from "../../services/OptionServices/option.service";
+import { FaEdit } from "react-icons/fa";
 
 export default function OptionList() {
   const [optionsList, setOptionsList] = useState([]);
@@ -13,7 +15,12 @@ export default function OptionList() {
   const [isComputing, setIsComputing] = useState(false);
   const [hasClassements, setHasClassements] = useState(false);
   const [uniqueClassements, setUniqueClassements] = useState([]);
-
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [selectedStudentOption, setSelectedStudentOption] = useState(null);
+  const [editedData, setEditedData] = useState({
+    raison: "",
+    option: "",
+  });
   useEffect(() => {
     fetchOptions();
   }, []);
@@ -21,15 +28,10 @@ export default function OptionList() {
   useEffect(() => {
     if (optionsList.length > 0) {
       applyFilters();
-
-      // Check if any options have classement values
       const classements = optionsList
         .map((option) => option.classement)
         .filter((classement) => classement && classement.trim() !== "");
-
       setHasClassements(classements.length > 0);
-
-      // Get unique classement values
       const uniqueValues = [...new Set(classements)].sort();
       setUniqueClassements(uniqueValues);
     }
@@ -63,41 +65,68 @@ export default function OptionList() {
 
   const applyFilters = () => {
     let filtered = [...optionsList];
-
-    // Apply status filter
     if (selectedStatus === "valid") {
       filtered = filtered.filter((o) => o.valide === true);
     } else if (selectedStatus === "invalid") {
       filtered = filtered.filter((o) => o.valide === false);
     }
-
-    // Apply option type filter
     if (selectedOption === "INREV") {
       filtered = filtered.filter((o) => o.firstchoice === "INREV");
     } else if (selectedOption === "INLOG") {
       filtered = filtered.filter((o) => o.firstchoice === "INLOG");
     }
-
-    // Apply classement filter
     if (selectedClassement) {
       filtered = filtered.filter((o) => o.classement === selectedClassement);
     }
-
     setFilteredOptions(filtered);
   };
 
   const handleStatusFilter = (e) => {
     setSelectedStatus(e.target.value);
   };
-
   const handleOptionFilter = (e) => {
     setSelectedOption(e.target.value);
   };
-
   const handleClassementFilter = (e) => {
     setSelectedClassement(e.target.value);
   };
+  const handleEdit = (option) => {
+    setSelectedStudentOption(option);
+    setEditedData({
+      raison: option.raison || "",
+      option: option.classement || "",
+    });
+    setIsDialogOpen(true);
+  };
+  const handleCloseDialog = () => {
+    setIsDialogOpen(false);
+    setSelectedStudentOption(null);
+    setEditedData({ raison: "", option: "" });
+  };
+  const handleEditInputChange = (e) => {
+    const { name, value } = e.target;
+    setEditedData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+  const handleSubmitEdit = async (e) => {
+    e.preventDefault();
 
+    if (!selectedStudentOption) return;
+
+    try {
+      const userId = selectedStudentOption.user;
+      await editOption(userId, {
+        raison: editedData.raison,
+        option: editedData.option,
+      });
+      fetchOptions(); // Refresh the list
+      handleCloseDialog();
+    } catch (error) {
+      console.error("Error updating option:", error);
+    }
+  };
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString("en-US", {
       weekday: "short",
@@ -151,7 +180,7 @@ export default function OptionList() {
                 <option value="valid">Validated</option>
                 <option value="invalid">Not Validated</option>
               </select>
-            </div>{" "}
+            </div>
             {/* Classement Filter - Only displayed if there are classement values */}
             {hasClassements && (
               <div>
@@ -199,6 +228,9 @@ export default function OptionList() {
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
                   Created At
                 </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+                  Actions
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -232,6 +264,14 @@ export default function OptionList() {
                     <td className="py-3 px-6 text-left">
                       {option.createdAt ? formatDate(option.createdAt) : "N/A"}
                     </td>
+                    <td className="py-3 px-6 text-center flex justify-center space-x-2">
+                      <button
+                        onClick={() => handleEdit(option)}
+                        className="bg-blue-500 text-white p-2 rounded-full hover:bg-blue-600"
+                      >
+                        <FaEdit size={18} />
+                      </button>
+                    </td>
                   </tr>
                 ))
               ) : (
@@ -248,6 +288,69 @@ export default function OptionList() {
           </table>
         </div>
       </div>
+      {/* Edit Dialog */}
+      {isDialogOpen && (
+        <div className="pointer-events-auto fixed inset-0 z-[999] grid h-screen w-screen place-items-center bg-transparent backdrop-blur-sm transition-opacity duration-500 opacity-100">
+          <div className="relative mx-auto w-full max-w-[24rem] rounded-lg overflow-hidden shadow-sm">
+            <div className="relative flex flex-col bg-white max-h-[80vh] overflow-y-auto">
+              <div className="sticky top-0 z-10 bg-indigo-600 p-4 flex justify-center items-center text-white h-12 rounded-md">
+                <h2 className="text-xl font-semibold mb-4">Edit Option</h2>
+              </div>
+              <form onSubmit={handleSubmitEdit}>
+                {/* Option Selection */}
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Option
+                  </label>
+                  <select
+                    name="option"
+                    value={editedData.option}
+                    onChange={handleEditInputChange}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                    required
+                  >
+                    <option value="">Select Option</option>
+                    <option value="INREV">INREV</option>
+                    <option value="INLOG">INLOG</option>
+                  </select>
+                </div>
+
+                {/* Reason Input */}
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Reason
+                  </label>
+                  <textarea
+                    name="raison"
+                    value={editedData.raison}
+                    onChange={handleEditInputChange}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                    rows="3"
+                    required
+                  ></textarea>
+                </div>
+
+                {/* Action Buttons */}
+                <div className="flex justify-end gap-3 mt-6">
+                  <button
+                    type="button"
+                    onClick={handleCloseDialog}
+                    className="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700"
+                  >
+                    Save Changes
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
