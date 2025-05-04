@@ -35,15 +35,14 @@ export const deleteOption = async () => {
         throw error;
     }
 };
-export const editOption = async () => {
+export const editOption = async (userId, data) => {
     try {
-        console.log("Fetching options list data...");
-        const response = await axiosAPI.get('/options/students');
-
-        console.log("Options retrieved successfully:", response.data);
+        console.log("Updating option data...", data);
+        const response = await axiosAPI.patch(`/options/${userId}/update`, data);
+        console.log("Option updated successfully:", response.data);
         return response.data;
     } catch (error) {
-        console.error("Error fetching option list:", error.response?.data || error.message);
+        console.error("Error updating option:", error.response?.data || error.message);
         throw error;
     }
 };
