@@ -1,11 +1,15 @@
 import React, { useState, useEffect } from "react";
-import { getOptions } from "../../services/OptionServices/option.service";
+import {
+  getOptions,
+  computeOption,
+} from "../../services/OptionServices/option.service";
 
 export default function OptionList() {
   const [optionsList, setOptionsList] = useState([]);
   const [filteredOptions, setFilteredOptions] = useState([]);
   const [selectedStatus, setSelectedStatus] = useState("");
   const [selectedOption, setSelectedOption] = useState(null);
+  const [isComputing, setIsComputing] = useState(false);
 
   useEffect(() => {
     fetchOptions();
@@ -23,6 +27,20 @@ export default function OptionList() {
       }
     } catch (error) {
       console.error("Error fetching options:", error);
+    }
+  };
+  const handleComputeOption = async () => {
+    setIsComputing(true);
+    try {
+      const response = await computeOption();
+      console.log("Computation result:", response);
+      // Rafraîchir la liste après calcul
+      alert("Scores calculated Successfully !");
+      await fetchOptions();
+    } catch (error) {
+      alert("Error in calculation !");
+    } finally {
+      setIsComputing(false);
     }
   };
 
@@ -49,7 +67,22 @@ export default function OptionList() {
 
   return (
     <div className="p-6 bg-gray-100 min-h-screen relative">
-      <h1 className="text-2xl font-bold mb-4">Manage Options</h1>
+      <div className="flex justify-between items-center mb-4">
+        <h1 className="text-2xl font-bold mb-4">Manage Options</h1>
+        <button
+          onClick={handleComputeOption}
+          disabled={isComputing}
+          className={`px-4 py-2 rounded-md text-white font-semibold ${
+            isComputing
+              ? "bg-gray-400 cursor-not-allowed"
+              : "bg-indigo-600 hover:bg-indigo-700"
+          }`}
+        >
+          {isComputing
+            ? "Calculation in progress..."
+            : "Start Scores Calculation"}
+        </button>
+      </div>
 
       {/* Options List */}
       <div className="bg-white p-6 rounded-lg shadow-lg mb-6">
