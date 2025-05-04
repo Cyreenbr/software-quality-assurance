@@ -72,7 +72,20 @@ export const checkOptionstudent = async (userId) => {
         return response.data;
     } catch (error) {
         console.error(
-            "Error checking option::",
+            "Error checking option:",
+            error.response?.data || error.message
+        );
+        throw error;
+    }
+};
+export const computeOption = async () => {
+    try {
+        const response = await axiosAPI.patch(`/options/compute`);
+        console.log("Option calculation commputed successfully:", response.data);
+        return response.data;
+    } catch (error) {
+        console.error(
+            "Error computing options:",
             error.response?.data || error.message
         );
         throw error;
