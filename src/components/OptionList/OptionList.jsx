@@ -8,52 +8,94 @@ export default function OptionList() {
   const [optionsList, setOptionsList] = useState([]);
   const [filteredOptions, setFilteredOptions] = useState([]);
   const [selectedStatus, setSelectedStatus] = useState("");
-  const [selectedOption, setSelectedOption] = useState(null);
+  const [selectedOption, setSelectedOption] = useState("");
+  const [selectedClassement, setSelectedClassement] = useState("");
   const [isComputing, setIsComputing] = useState(false);
+  const [hasClassements, setHasClassements] = useState(false);
+  const [uniqueClassements, setUniqueClassements] = useState([]);
 
   useEffect(() => {
     fetchOptions();
   }, []);
 
   useEffect(() => {
-    setFilteredOptions(optionsList);
-  }, [optionsList]);
+    if (optionsList.length > 0) {
+      applyFilters();
+
+      // Check if any options have classement values
+      const classements = optionsList
+        .map((option) => option.classement)
+        .filter((classement) => classement && classement.trim() !== "");
+
+      setHasClassements(classements.length > 0);
+
+      // Get unique classement values
+      const uniqueValues = [...new Set(classements)].sort();
+      setUniqueClassements(uniqueValues);
+    }
+  }, [optionsList, selectedStatus, selectedOption, selectedClassement]);
 
   const fetchOptions = async () => {
     try {
       const response = await getOptions();
       if (response && response.model) {
         setOptionsList(response.model);
+        setFilteredOptions(response.model);
       }
     } catch (error) {
       console.error("Error fetching options:", error);
     }
   };
+
   const handleComputeOption = async () => {
     setIsComputing(true);
     try {
       const response = await computeOption();
       console.log("Computation result:", response);
-      // Rafraîchir la liste après calcul
-      alert("Scores calculated Successfully !");
+      alert("Scores calculated Successfully!");
       await fetchOptions();
     } catch (error) {
-      alert("Error in calculation !");
+      alert("Error in calculation!");
     } finally {
       setIsComputing(false);
     }
   };
 
-  const handleStatusFilter = (e) => {
-    const status = e.target.value;
-    setSelectedStatus(status);
-    if (status === "") {
-      setFilteredOptions(optionsList);
-    } else if (status === "valid") {
-      setFilteredOptions(optionsList.filter((o) => o.valide === true));
-    } else if (status === "invalid") {
-      setFilteredOptions(optionsList.filter((o) => o.valide === false));
+  const applyFilters = () => {
+    let filtered = [...optionsList];
+
+    // Apply status filter
+    if (selectedStatus === "valid") {
+      filtered = filtered.filter((o) => o.valide === true);
+    } else if (selectedStatus === "invalid") {
+      filtered = filtered.filter((o) => o.valide === false);
     }
+
+    // Apply option type filter
+    if (selectedOption === "INREV") {
+      filtered = filtered.filter((o) => o.firstchoice === "INREV");
+    } else if (selectedOption === "INLOG") {
+      filtered = filtered.filter((o) => o.firstchoice === "INLOG");
+    }
+
+    // Apply classement filter
+    if (selectedClassement) {
+      filtered = filtered.filter((o) => o.classement === selectedClassement);
+    }
+
+    setFilteredOptions(filtered);
+  };
+
+  const handleStatusFilter = (e) => {
+    setSelectedStatus(e.target.value);
+  };
+
+  const handleOptionFilter = (e) => {
+    setSelectedOption(e.target.value);
+  };
+
+  const handleClassementFilter = (e) => {
+    setSelectedClassement(e.target.value);
   };
 
   const formatDate = (dateString) => {
@@ -90,24 +132,52 @@ export default function OptionList() {
           <h2 className="text-xl font-semibold">List of Options</h2>
         </div>
         <div className="overflow-x-auto">
-          <div className="mb-4">
-            <label
-              htmlFor="statusFilter"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Filter by Status:
-            </label>
-            <select
-              id="statusFilter"
-              value={selectedStatus}
-              onChange={handleStatusFilter}
-              className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-            >
-              <option value="">All Options</option>
-              <option value="valid">Validated</option>
-              <option value="invalid">Not Validated</option>
-            </select>
+          <div className="mb-4 grid grid-cols-1 md:grid-cols-3 gap-4">
+            {/* Status Filter */}
+            <div>
+              <label
+                htmlFor="statusFilter"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Filter by Status:
+              </label>
+              <select
+                id="statusFilter"
+                value={selectedStatus}
+                onChange={handleStatusFilter}
+                className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+              >
+                <option value="">All Statuses</option>
+                <option value="valid">Validated</option>
+                <option value="invalid">Not Validated</option>
+              </select>
+            </div>{" "}
+            {/* Classement Filter - Only displayed if there are classement values */}
+            {hasClassements && (
+              <div>
+                <label
+                  htmlFor="classementFilter"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Filter by Classement:
+                </label>
+                <select
+                  id="classementFilter"
+                  value={selectedClassement}
+                  onChange={handleClassementFilter}
+                  className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                >
+                  <option value="">All Classements</option>
+                  {uniqueClassements.map((classement) => (
+                    <option key={classement} value={classement}>
+                      {classement}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
           </div>
+
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-100">
               <tr>
