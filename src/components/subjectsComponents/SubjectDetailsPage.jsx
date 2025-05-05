@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
+import { CgEye } from "react-icons/cg";
 import {
     FaCalendarAlt,
     FaCheck,
@@ -8,6 +9,7 @@ import {
     FaHistory,
     FaTimes
 } from "react-icons/fa";
+import { FiEyeOff } from "react-icons/fi";
 import { MdTitle } from "react-icons/md";
 import { useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
@@ -33,9 +35,20 @@ const SubjectDetailsPage = () => {
     const [expandedChapters, setExpandedChapters] = useState({});
     const userRole = useSelector((state) => state.auth.role);
     const userId = useSelector((state) => state.auth.user.id);
-    const canEdit = userRole === RoleEnum.ADMIN || userId === formData?.teacherId;
+    const canEdit = userId === formData?.subject?.teacherId[0]?._id;
+    // console.log(formData.subject.teacherId[0]._id);
 
 
+    // State to manage visibility of sections for each chapter
+    const [visibleChapters, setVisibleChapters] = useState({});
+
+    // Function to toggle the visibility of sections for a specific chapter
+    const toggleSectionVisibility = (chapterId) => {
+        setVisibleChapters((prevState) => ({
+            ...prevState,
+            [chapterId]: !prevState[chapterId], // Toggle visibility
+        }));
+    };
     const [completedAtDates, setCompletedAtDates] = useState({}); // Store completedAt dates
     const fetchRef = useRef(false);
     const toggleForm = () => setShowForm((prev) => !prev);
@@ -259,12 +272,24 @@ const SubjectDetailsPage = () => {
                     {/* <div className="w-full max-w-6xl mx-auto bg-white rounded-lg shadow-lg p-8 space-y-8"> */}
                     <div className="w-full max-w-6xl mx-auto bg-white  ">
                         {/* Header */}
-                        {/* <header header className="text-center mb-8" >
-                        <h1 className="text-4xl font-bold text-blue-800 flex items-center justify-center gap-2">
-                            <FaBook className="text-3xl text-blue-600" /> {formData.subject.title}
-                        </h1>
-                        <p className="text-sm text-gray-600">{humanizeDate(formData.subject.createdAt)}</p>
-                    </header > */}
+                        {userRole === RoleEnum.ADMIN && (<header className="text-center mb-8">
+                            <div className="flex items-center justify-center space-x-2">
+                                {formData.subject.isPublish ? (
+                                    <>
+                                        <CgEye className="text-gray-700 text-lg" />
+                                        <span>Published</span>
+                                    </>
+                                ) : (
+                                    <>
+                                        <FiEyeOff className="text-gray-700 text-lg" />
+                                        <span>Hidden</span>
+                                    </>
+                                )}
+                            </div>
+                            <p className="text-sm text-gray-600">Last update at :{humanizeDate(formData.subject.updatedAt)}</p>
+                            <p className="text-sm text-gray-600">Created at :{humanizeDate(formData.subject.createdAt)}</p>
+                        </header>)}
+
 
                         {/* Subject Overview */}
                         <Section title="Overview">
@@ -304,7 +329,8 @@ const SubjectDetailsPage = () => {
                                         const chapterKey = `chapter-${index}`;
                                         const isCompleted = chapter.status;
                                         const completedAt = chapter.completedAt || completedAtDates[chapterKey];
-                                        const canEdit = userRole === RoleEnum.ADMIN || userId === formData?.teacherId;
+                                        // const canEdit = userId === formData?.subject.teacherId._id;
+                                        const sectionCount = chapter.sections.length;
 
                                         return (
                                             <div
@@ -337,6 +363,11 @@ const SubjectDetailsPage = () => {
                                                             <FaChevronDown className="text-gray-500" />
                                                         </Tooltip>
                                                     )}
+                                                </div>
+
+                                                {/* Number of Sections */}
+                                                <div className="text-sm text-gray-500 mt-1">
+                                                    {sectionCount} {sectionCount === 1 ? 'Section' : 'Sections'}
                                                 </div>
 
                                                 {/* Chapter Checkbox */}
@@ -554,6 +585,59 @@ const SubjectDetailsPage = () => {
                                             )
                                         }
                                     />
+                                    {/* chapter */}
+                                    <DetailRow
+                                        label="Chapters"
+                                        value={
+                                            selectedHistory.curriculum.chapitres.length > 0 ? (
+                                                selectedHistory.curriculum.chapitres
+                                                    .map((chapter) => {
+                                                        const sectionsVisible = visibleChapters[chapter._id];
+                                                        const sectionCount = chapter.sections.length;
+
+                                                        return (
+                                                            <div
+                                                                key={chapter._id}
+                                                                className="p-2 hover:bg-gray-100 cursor-pointer"
+                                                                onClick={() => toggleSectionVisibility(chapter._id)} // Toggle on chapter div click
+                                                            >
+                                                                {/* Display chapter title with section count on the right */}
+                                                                <div className="flex justify-between items-center">
+                                                                    <strong className="hover:text-blue-600">
+                                                                        {chapter.title}
+                                                                    </strong>
+                                                                    <span className="text-gray-500">
+                                                                        ({sectionCount} {sectionCount === 1 ? 'Section' : 'Sections'})
+                                                                    </span>
+                                                                </div>
+
+                                                                {/* Display sections under the chapter */}
+                                                                {sectionsVisible && chapter.sections.length > 0 ? (
+                                                                    <div className="ml-4">
+                                                                        {chapter.sections.map((section) => (
+                                                                            <div
+                                                                                key={section._id}
+                                                                                className="p-1 hover:bg-gray-100 cursor-pointer"
+                                                                            >
+                                                                                {section.title}{" "}
+                                                                                {section.completedAt ? (
+                                                                                    `( Completed at ${humanizeDate(section.completedAt)})`
+                                                                                ) : ''}
+                                                                            </div>
+                                                                        ))}
+                                                                    </div>
+                                                                ) : sectionsVisible && chapter.sections.length === 0 ? (
+                                                                    <div className="ml-4 text-gray-500">No sections</div>
+                                                                ) : null}
+                                                            </div>
+                                                        );
+                                                    })
+                                                    .reduce((acc, curr) => [acc, <br key={curr.key} />, curr]) // Add <br> between chapters
+                                            ) : (
+                                                "None"
+                                            )
+                                        }
+                                    />
                                     {/* Skills Row */}
                                     <DetailRow
                                         label="Skills"
@@ -569,6 +653,8 @@ const SubjectDetailsPage = () => {
                                             )
                                         }
                                     />
+
+
                                 </div>
                             </Popup>
                         )}
@@ -618,7 +704,7 @@ const ErrorState = ({ message }) => (
 );
 
 const DetailRow = ({ label, value }) => (
-    <div className="flex flex-col space-y-1 transition-all duration-200 hover:bg-gray-100 rounded-lg p-3">
+    <div className="flex flex-col space-y-1 transition-all duration-200 rounded-lg ">
         <span className="text-sm font-medium text-gray-600">{label}</span>
         <span className="text-base font-semibold text-gray-900">{value}</span>
     </div>
