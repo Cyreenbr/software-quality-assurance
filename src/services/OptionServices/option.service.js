@@ -90,3 +90,18 @@ export const computeOption = async () => {
         throw error;
     }
 };
+
+export const publishStudentsOptions = async (response) => {
+    try {
+        console.log(`Publishing students options with response: ${response}`);
+        const res = await axiosAPI.post(`/options/publish/${response}`);
+        console.log("Option list updated successfully:", res.data);
+        return res.data;
+    } catch (error) {
+        console.error(
+            "Error publishing students options:",
+            error.response?.data || error.message
+        );
+        throw error;
+    }
+};

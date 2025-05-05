@@ -3,6 +3,7 @@ import {
   getOptions,
   computeOption,
   editOption,
+  publishStudentsOptions,
 } from "../../services/OptionServices/option.service";
 import { FaEdit } from "react-icons/fa";
 
@@ -17,10 +18,11 @@ export default function OptionList() {
   const [uniqueClassements, setUniqueClassements] = useState([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedStudentOption, setSelectedStudentOption] = useState(null);
-  const [editedData, setEditedData] = useState({
-    raison: "",
-    option: "",
-  });
+  const [editedData, setEditedData] = useState({ raison: "", option: "" });
+
+  // Nouvel état pour gérer la publication/masquage de la liste
+  const [isPublished, setIsPublished] = useState(false);
+
   useEffect(() => {
     fetchOptions();
   }, []);
@@ -90,6 +92,7 @@ export default function OptionList() {
   const handleClassementFilter = (e) => {
     setSelectedClassement(e.target.value);
   };
+
   const handleEdit = (option) => {
     setSelectedStudentOption(option);
     setEditedData({
@@ -98,35 +101,47 @@ export default function OptionList() {
     });
     setIsDialogOpen(true);
   };
+
   const handleCloseDialog = () => {
     setIsDialogOpen(false);
     setSelectedStudentOption(null);
     setEditedData({ raison: "", option: "" });
   };
+
   const handleEditInputChange = (e) => {
     const { name, value } = e.target;
-    setEditedData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    setEditedData((prev) => ({ ...prev, [name]: value }));
   };
+
   const handleSubmitEdit = async (e) => {
     e.preventDefault();
-
     if (!selectedStudentOption) return;
-
     try {
       const userId = selectedStudentOption.user;
       await editOption(userId, {
         raison: editedData.raison,
         option: editedData.option,
       });
-      fetchOptions(); // Refresh the list
+      fetchOptions();
       handleCloseDialog();
     } catch (error) {
       console.error("Error updating option:", error);
     }
   };
+
+  // Placeholder pour le traitement du clic publier/masquer
+  const handlePublish = async () => {
+    try {
+      const newStatus = isPublished ? "masquer" : "publier";
+      const result = await publishStudentsOptions(newStatus);
+      if (result && result.list) {
+        setIsPublished(result.list.published);
+      }
+    } catch (error) {
+      console.error("Error updating publish status:", error);
+    }
+  };
+
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString("en-US", {
       weekday: "short",
@@ -140,19 +155,27 @@ export default function OptionList() {
     <div className="p-6 bg-gray-100 min-h-screen relative">
       <div className="flex justify-between items-center mb-4">
         <h1 className="text-2xl font-bold mb-4">Manage Options</h1>
-        <button
-          onClick={handleComputeOption}
-          disabled={isComputing}
-          className={`px-4 py-2 rounded-md text-white font-semibold ${
-            isComputing
-              ? "bg-gray-400 cursor-not-allowed"
-              : "bg-indigo-600 hover:bg-indigo-700"
-          }`}
-        >
-          {isComputing
-            ? "Calculation in progress..."
-            : "Start Scores Calculation"}
-        </button>
+        <div className="flex space-x-2">
+          <button
+            onClick={handlePublish}
+            className="px-4 py-2 rounded-md bg-yellow-500 text-white hover:bg-yellow-600"
+          >
+            {isPublished ? "Masquer la liste" : "Publier la liste"}
+          </button>
+          <button
+            onClick={handleComputeOption}
+            disabled={isComputing}
+            className={`px-4 py-2 rounded-md text-white font-semibold ${
+              isComputing
+                ? "bg-gray-400 cursor-not-allowed"
+                : "bg-indigo-600 hover:bg-indigo-700"
+            }`}
+          >
+            {isComputing
+              ? "Calculation in progress..."
+              : "Start Scores Calculation"}
+          </button>
+        </div>
       </div>
 
       {/* Options List */}
@@ -181,7 +204,7 @@ export default function OptionList() {
                 <option value="invalid">Not Validated</option>
               </select>
             </div>
-            {/* Classement Filter - Only displayed if there are classement values */}
+            {/* Classement Filter */}
             {hasClassements && (
               <div>
                 <label
@@ -228,9 +251,11 @@ export default function OptionList() {
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
                   Created At
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
-                  Actions
-                </th>
+                {!isPublished && (
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+                    Actions
+                  </th>
+                )}
               </tr>
             </thead>
             <tbody>
@@ -264,20 +289,22 @@ export default function OptionList() {
                     <td className="py-3 px-6 text-left">
                       {option.createdAt ? formatDate(option.createdAt) : "N/A"}
                     </td>
-                    <td className="py-3 px-6 text-center flex justify-center space-x-2">
-                      <button
-                        onClick={() => handleEdit(option)}
-                        className="bg-blue-500 text-white p-2 rounded-full hover:bg-blue-600"
-                      >
-                        <FaEdit size={18} />
-                      </button>
-                    </td>
+                    {!isPublished && (
+                      <td className="py-3 px-6 text-center flex justify-center space-x-2">
+                        <button
+                          onClick={() => handleEdit(option)}
+                          className="bg-blue-500 text-white p-2 rounded-full hover:bg-blue-600"
+                        >
+                          <FaEdit size={18} />
+                        </button>
+                      </td>
+                    )}
                   </tr>
                 ))
               ) : (
                 <tr>
                   <td
-                    colSpan="6"
+                    colSpan={isPublished ? 6 : 7}
                     className="py-4 px-6 text-center text-gray-500"
                   >
                     No options available
@@ -288,6 +315,7 @@ export default function OptionList() {
           </table>
         </div>
       </div>
+
       {/* Edit Dialog */}
       {isDialogOpen && (
         <div className="pointer-events-auto fixed inset-0 z-[999] grid h-screen w-screen place-items-center bg-transparent backdrop-blur-sm transition-opacity duration-500 opacity-100">
@@ -314,7 +342,6 @@ export default function OptionList() {
                     <option value="INLOG">INLOG</option>
                   </select>
                 </div>
-
                 {/* Reason Input */}
                 <div className="mb-4">
                   <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -329,7 +356,6 @@ export default function OptionList() {
                     required
                   ></textarea>
                 </div>
-
                 {/* Action Buttons */}
                 <div className="flex justify-end gap-3 mt-6">
                   <button
