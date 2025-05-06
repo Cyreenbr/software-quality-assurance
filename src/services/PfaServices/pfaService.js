@@ -306,6 +306,20 @@ const pfaService = {
   //       return null;
   //     }
   //   },
+
+
+
+  getChoicesByStudent: async () => {
+    try {
+      const response = await axiosAPI.get(`${API_BASE_URL}/admin/choices`, {
+        headers: { ...getAuthHeader() },
+      });
+      return response.data;
+    } catch (error) {
+      console.error("Error API (GET PFA) :", error);
+      return null;
+    }
+  },
 };
 
 export default pfaService;
