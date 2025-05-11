@@ -8,7 +8,7 @@ import {
   FaSearch,
   FaBolt,
   FaTools,
-    FaPaperPlane,
+  FaPaperPlane,
 } from "react-icons/fa";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { Toaster, toast } from "react-hot-toast";
@@ -17,7 +17,7 @@ const PfaAssignmentPage = () => {
   const [pfaList, setPfaList] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [showManual, setShowManual] = useState(false);
-   const [isEmailPopupOpen, setIsEmailPopupOpen] = useState(false); // pour gérer l'affichage du popup
+  const [isEmailPopupOpen, setIsEmailPopupOpen] = useState(false); // pour gérer l'affichage du popup
 
   const openEmailPopup = () => setIsEmailPopupOpen(true);
   const closeEmailPopup = () => setIsEmailPopupOpen(false);
@@ -94,14 +94,13 @@ const PfaAssignmentPage = () => {
       pfa.description?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-
   const handleMailSending = async () => {
     try {
       await pfaService.sendEmailAssignation(); // Logique pour envoyer l'email
       toast.success("Email sent successfully!"); // Affiche un toast de succès
       closeEmailPopup(); // Ferme le popup après l'envoi
     } catch (error) {
-      toast.error("Failed to send email!",error); // Affiche un toast d'erreur en cas de problème
+      toast.error("Failed to send email!", error); // Affiche un toast d'erreur en cas de problème
     }
   };
 
@@ -170,12 +169,14 @@ const PfaAssignmentPage = () => {
                 <h2 className="text-xl font-semibold">{pfa.projectTitle}</h2>
                 <span
                   className={`text-xs font-semibold px-2 py-1 rounded-full ${
-                    pfa.assigned
+                    pfa.affectedStudents && pfa.affectedStudents.length > 0
                       ? "bg-green-200 text-green-800"
                       : "bg-red-200 text-red-800"
                   }`}
                 >
-                  {pfa.assigned ? "Assigned" : "Not Assigned"}
+                  {pfa.affectedStudents && pfa.affectedStudents.length > 0
+                    ? "Assigned"
+                    : "Not Assigned"}
                 </span>
               </div>
 
@@ -256,45 +257,45 @@ const PfaAssignmentPage = () => {
         )}
       </div>
       {/* Bouton pour envoyer l'email des PFAs publiés */}
-        <button
-          onClick={openEmailPopup}
-          className="hover:scale-105 bg-blue-500 text-white py-2 px-4 mt-10 rounded flex items-center space-x-2 hover:bg-blue-700 shadow-md transition-all duration-300"
-        >
-          <FaPaperPlane className="text-white animate-[spin_5s_linear_infinite]" />
-          <span>Send Mail of the  Published Assignation PFAs</span>
-        </button>
-      
-        {/* Popup de confirmation pour l'envoi de l'email */}
-        {isEmailPopupOpen && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-transparent bg-opacity-40 backdrop-blur-sm">
-            <div className="w-full max-w-sm rounded-xl shadow-lg overflow-hidden">
-              <div className="bg-gradient-to-r from-indigo-600 to-purple-300 px-6 py-4">
-                <h3 className="text-lg font-bold text-white">
-                  Confirm Email Sending
-                </h3>
-              </div>
-              <div className="bg-white px-6 py-4">
-                <p className="text-gray-700 mb-4">
-                  Are you sure you want to send this email?
-                </p>
-                <div className="flex justify-end space-x-3">
-                  <button
-                    onClick={closeEmailPopup}
-                    className="px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    onClick={handleMailSending}
-                    className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition"
-                  >
-                    Confirm
-                  </button>
-                </div>
+      <button
+        onClick={openEmailPopup}
+        className="hover:scale-105 bg-blue-500 text-white py-2 px-4 mt-10 rounded flex items-center space-x-2 hover:bg-blue-700 shadow-md transition-all duration-300"
+      >
+        <FaPaperPlane className="text-white animate-[spin_5s_linear_infinite]" />
+        <span>Send Mail of the Published Assignation PFAs</span>
+      </button>
+
+      {/* Popup de confirmation pour l'envoi de l'email */}
+      {isEmailPopupOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-transparent bg-opacity-40 backdrop-blur-sm">
+          <div className="w-full max-w-sm rounded-xl shadow-lg overflow-hidden">
+            <div className="bg-gradient-to-r from-indigo-600 to-purple-300 px-6 py-4">
+              <h3 className="text-lg font-bold text-white">
+                Confirm Email Sending
+              </h3>
+            </div>
+            <div className="bg-white px-6 py-4">
+              <p className="text-gray-700 mb-4">
+                Are you sure you want to send this email?
+              </p>
+              <div className="flex justify-end space-x-3">
+                <button
+                  onClick={closeEmailPopup}
+                  className="px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleMailSending}
+                  className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition"
+                >
+                  Confirm
+                </button>
               </div>
             </div>
           </div>
-        )}
+        </div>
+      )}
 
       {/* Animation keyframes inline */}
       <style>

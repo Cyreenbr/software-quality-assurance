@@ -26,7 +26,7 @@ const pfaService = {
 
   getPublishedPfas: async () => {
     try {
-      console.log("i trigred the publish pfas");
+      
       const response = await axiosAPI.get(`${API_BASE_URL}/open`, {
         headers: { ...getAuthHeader() },
       });
@@ -35,8 +35,8 @@ const pfaService = {
       console.error("Error API (GET PFA) :", error);
       return null;
     }
-  },
-
+  },      
+  
   rejectPfa: async (pfaId) => {
     try {
       const response = await axiosAPI.patch(
@@ -147,7 +147,6 @@ const pfaService = {
         }
       );
 
-     
       return response.data;
     } catch (error) {
       console.error("Error API (POST PFA) :", error);
@@ -353,32 +352,28 @@ const pfaService = {
   ///7.4
 
   // pfaService.js
-publishOrHide : async (pfaId, response) => {
-  try {
-    const res = await axiosAPI.patch(
-      `${API_BASE_URL}/publish/${pfaId}/${response}`,
-      {},
-      {
-        headers: getAuthHeader(),
-      }
-    );
-  
-    
-    return res.data;
+  publishOrHide: async (pfaId, response) => {
+    try {
+      const res = await axiosAPI.patch(
+        `${API_BASE_URL}/publish/${pfaId}/${response}`,
+        {},
+        {
+          headers: getAuthHeader(),
+        }
+      );
 
-  } catch (error) {
-   
-    console.error("❌ Erreur API (PATCH publish/hide PFA):", {
-      status: error.response?.status,
-      data: error.response?.data,
-      message: error.message,
-    });
-    return null;
-  }
-},
+      return res.data;
+    } catch (error) {
+      console.error("❌ Erreur API (PATCH publish/hide PFA):", {
+        status: error.response?.status,
+        data: error.response?.data,
+        message: error.message,
+      });
+      return null;
+    }
+  },
 
- sendEmailAssignation: async () => {
-    
+  sendEmailAssignation: async () => {
     try {
       const response = await axiosAPI.post(
         `${API_BASE_URL}/PFA/list/send`,
@@ -387,8 +382,6 @@ publishOrHide : async (pfaId, response) => {
           headers: { ...getAuthHeader() },
         }
       );
-
-    
 
       return response.data;
     } catch (error) {
