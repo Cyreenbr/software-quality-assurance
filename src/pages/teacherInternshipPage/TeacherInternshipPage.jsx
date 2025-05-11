@@ -1,4 +1,3 @@
-import { Spin } from "antd";
 import { useEffect, useState } from "react";
 import { FaSearch } from "react-icons/fa";
 import { toast, ToastContainer } from "react-toastify";
@@ -80,9 +79,10 @@ const TeacherInternshipList = () => {
           </div>
 
           {loading ? (
-            <div className="flex justify-center items-center h-64">
-              <Spin size="large" tip="Loading internships..." />
-            </div>
+  <div className="flex flex-col justify-center items-center h-64 space-y-4">
+    <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-blue-500 border-solid"></div>
+    <p className="text-gray-600 text-sm">Loading internships...</p>
+  </div>
           ) : (
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {filteredInternships.length === 0 ? (
