@@ -147,9 +147,7 @@ const pfaService = {
         }
       );
 
-      console.log("i netred the send mail fnct");
-      alert("email has been sent");
-
+     
       return response.data;
     } catch (error) {
       console.error("Error API (POST PFA) :", error);
@@ -157,23 +155,21 @@ const pfaService = {
     }
   },
 
-  
-
-//   // get les PFAs par ID de teacher
-//  getPfasByTeacherName = async (teacherName) => {
-//     try {
-//       const response = await axios.get(
-//         `${API_BASE_URL}/teacher/${teacherName}/subjects`, // Assurez-vous que l'URL est correcte
-//         {
-//           headers: { ...getAuthHeader() }
-//         }
-//       );
-//       return response.data;
-//     } catch (error) {
-//       console.error("Error fetching PFAs by teacher:", error);
-//       return null;
-//     }
-//   },
+  //   // get les PFAs par ID de teacher
+  //  getPfasByTeacherName = async (teacherName) => {
+  //     try {
+  //       const response = await axios.get(
+  //         `${API_BASE_URL}/teacher/${teacherName}/subjects`, // Assurez-vous que l'URL est correcte
+  //         {
+  //           headers: { ...getAuthHeader() }
+  //         }
+  //       );
+  //       return response.data;
+  //     } catch (error) {
+  //       console.error("Error fetching PFAs by teacher:", error);
+  //       return null;
+  //     }
+  //   },
 
   // getTeachers = async () => {
   //   try {
@@ -184,7 +180,6 @@ const pfaService = {
   //     return [];
   //   }
   // };
-  
 
   // getPfasByTeacherName: async (teacherName) => {
   //   try {
@@ -260,8 +255,6 @@ const pfaService = {
 
   acceptTeacher: async (pfaId, acceptTeacher) => {
     try {
-      console.log('Data:', { acceptTeacher });
-      console.log(pfaId, acceptTeacher);
       const response = await axiosAPI.patch(
         `${API_BASE_URL}/${pfaId}/acceptance`,
         { acceptTeacher },
@@ -269,7 +262,7 @@ const pfaService = {
           headers: { ...getAuthHeader() },
         }
       );
-      console.log('Data:', { acceptTeacher });
+      console.log("Data:", { acceptTeacher });
       return response.data;
     } catch (error) {
       console.error("Error API (POST PFA) :", error);
@@ -306,6 +299,103 @@ const pfaService = {
   //       return null;
   //     }
   //   },
+
+  /////////  7.1
+  getChoicesByStudent: async () => {
+    try {
+      const response = await axiosAPI.get(`${API_BASE_URL}/admin/choices`, {
+        headers: { ...getAuthHeader() },
+      });
+      return response.data;
+    } catch (error) {
+      console.error("Error API (GET PFA) :", error);
+      return null;
+    }
+  },
+
+  /////////   7.2
+  assignProjectsAutomatically: async () => {
+    try {
+      const token = localStorage.getItem("token"); // Assure-toi que le token est stocké ici
+
+      const response = await axiosAPI.post(
+        `${API_BASE_URL}/PFA/assign`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      return response.data;
+    } catch (error) {
+      console.error("Erreur lors de l'affectation automatique :", error);
+      throw error;
+    }
+  },
+
+  //7.3
+  assignPfaToStudent: async (pfaId, studentId, force = false) => {
+    try {
+      const response = await axiosAPI.patch(
+        `${API_BASE_URL}/PFA/${pfaId}/assign/student/${studentId}`,
+        {
+          force,
+        }
+      );
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || { error: "Assignment failed." };
+    }
+  },
+
+  ///7.4
+
+  // pfaService.js
+publishOrHide : async (pfaId, response) => {
+  try {
+    const res = await axiosAPI.patch(
+      `${API_BASE_URL}/publish/${pfaId}/${response}`,
+      {},
+      {
+        headers: getAuthHeader(),
+      }
+    );
+  
+    
+    return res.data;
+
+  } catch (error) {
+   
+    console.error("❌ Erreur API (PATCH publish/hide PFA):", {
+      status: error.response?.status,
+      data: error.response?.data,
+      message: error.message,
+    });
+    return null;
+  }
+},
+
+ sendEmailAssignation: async () => {
+    
+    try {
+      const response = await axiosAPI.post(
+        `${API_BASE_URL}/PFA/list/send`,
+        {},
+        {
+          headers: { ...getAuthHeader() },
+        }
+      );
+
+    
+
+      return response.data;
+    } catch (error) {
+      console.error("Error API (POST PFA) :", error);
+      return null;
+    }
+  },
 };
 
 export default pfaService;
