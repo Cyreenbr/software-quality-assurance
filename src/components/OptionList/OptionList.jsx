@@ -4,6 +4,7 @@ import {
   computeOption,
   editOption,
   publishStudentsOptions,
+  ListIsPublished, // Import the function to check publication status
 } from "../../services/OptionServices/option.service";
 import { FaEdit } from "react-icons/fa";
 
@@ -20,10 +21,14 @@ export default function OptionList() {
   const [selectedStudentOption, setSelectedStudentOption] = useState(null);
   const [editedData, setEditedData] = useState({ raison: "", option: "" });
 
-  // Nouvel état pour gérer la publication/masquage de la liste
+  // State to manage publication/hiding of the list
   const [isPublished, setIsPublished] = useState(false);
+  // State to track if we're loading the publication status
+  const [isLoadingPublishStatus, setIsLoadingPublishStatus] = useState(true);
 
   useEffect(() => {
+    // Check if the list is published when component mounts
+    checkPublicationStatus();
     fetchOptions();
   }, []);
 
@@ -38,6 +43,21 @@ export default function OptionList() {
       setUniqueClassements(uniqueValues);
     }
   }, [optionsList, selectedStatus, selectedOption, selectedClassement]);
+
+  // Function to check if the list is published
+  const checkPublicationStatus = async () => {
+    try {
+      setIsLoadingPublishStatus(true);
+      const response = await ListIsPublished();
+      if (response && response.published !== undefined) {
+        setIsPublished(response.published);
+      }
+    } catch (error) {
+      console.error("Error checking publication status:", error);
+    } finally {
+      setIsLoadingPublishStatus(false);
+    }
+  };
 
   const fetchOptions = async () => {
     try {
@@ -129,7 +149,7 @@ export default function OptionList() {
     }
   };
 
-  // Placeholder pour le traitement du clic publier/masquer
+  // Function to handle publish/hide button click
   const handlePublish = async () => {
     try {
       const newStatus = isPublished ? "masquer" : "publier";
@@ -137,6 +157,8 @@ export default function OptionList() {
       if (result && result.list) {
         setIsPublished(result.list.published);
       }
+      // After toggling publication status, fetch the options again
+      await fetchOptions();
     } catch (error) {
       console.error("Error updating publish status:", error);
     }
@@ -156,12 +178,25 @@ export default function OptionList() {
       <div className="flex justify-between items-center mb-4">
         <h1 className="text-2xl font-bold mb-4">Manage Options</h1>
         <div className="flex space-x-2">
-          <button
-            onClick={handlePublish}
-            className="px-4 py-2 rounded-md bg-yellow-500 text-white hover:bg-yellow-600"
-          >
-            {isPublished ? "Masquer la liste" : "Publier la liste"}
-          </button>
+          {isLoadingPublishStatus ? (
+            <button
+              disabled
+              className="px-4 py-2 rounded-md bg-gray-400 text-white"
+            >
+              Loading status...
+            </button>
+          ) : (
+            <button
+              onClick={handlePublish}
+              className={`px-4 py-2 rounded-md text-white hover:opacity-90 ${
+                isPublished
+                  ? "bg-orange-500 hover:bg-orange-600"
+                  : "bg-yellow-500 hover:bg-yellow-600"
+              }`}
+            >
+              {isPublished ? "Masquer la liste" : "Publier la liste"}
+            </button>
+          )}
           <button
             onClick={handleComputeOption}
             disabled={isComputing}
@@ -176,6 +211,21 @@ export default function OptionList() {
               : "Start Scores Calculation"}
           </button>
         </div>
+      </div>
+
+      {/* Publication Status Indicator */}
+      <div
+        className={`mb-4 p-3 rounded-md ${
+          isPublished
+            ? "bg-green-100 text-green-800"
+            : "bg-amber-100 text-amber-800"
+        }`}
+      >
+        <p className="font-medium">
+          {isPublished
+            ? "The option list is currently published. Students can see their assigned options."
+            : "The option list is not published. Students cannot see their assigned options."}
+        </p>
       </div>
 
       {/* Options List */}
@@ -202,6 +252,25 @@ export default function OptionList() {
                 <option value="">All Statuses</option>
                 <option value="valid">Validated</option>
                 <option value="invalid">Not Validated</option>
+              </select>
+            </div>
+            {/* Option Filter */}
+            <div>
+              <label
+                htmlFor="optionFilter"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Filter by Option:
+              </label>
+              <select
+                id="optionFilter"
+                value={selectedOption}
+                onChange={handleOptionFilter}
+                className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+              >
+                <option value="">All Options</option>
+                <option value="INREV">INREV</option>
+                <option value="INLOG">INLOG</option>
               </select>
             </div>
             {/* Classement Filter */}
@@ -324,7 +393,7 @@ export default function OptionList() {
               <div className="sticky top-0 z-10 bg-indigo-600 p-4 flex justify-center items-center text-white h-12 rounded-md">
                 <h2 className="text-xl font-semibold mb-4">Edit Option</h2>
               </div>
-              <form onSubmit={handleSubmitEdit}>
+              <form onSubmit={handleSubmitEdit} className="p-4">
                 {/* Option Selection */}
                 <div className="mb-4">
                   <label className="block text-sm font-medium text-gray-700 mb-1">

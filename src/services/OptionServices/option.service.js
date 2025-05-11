@@ -105,3 +105,17 @@ export const publishStudentsOptions = async (response) => {
         throw error;
     }
 };
+export const ListIsPublished = async () => {
+    try {
+        // Use GET request since we're retrieving data, not creating/updating
+        const response = await axiosAPI.get(`/options/listoption`);
+        console.log("Option list publication status:", response.data);
+        return response.data;
+    } catch (error) {
+        console.error(
+            "Error checking publication status:",
+            error.response?.data || error.message
+        );
+        throw error;
+    }
+};
