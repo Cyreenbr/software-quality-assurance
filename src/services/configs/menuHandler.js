@@ -196,7 +196,7 @@ export const menuConfig = [
   },
   {
     order: 13,
-    label: "Internship Deposit",
+    label: "My internships",
     icon: MdDownload,
     path: "/deposit",
     tooltip: "deposit",
