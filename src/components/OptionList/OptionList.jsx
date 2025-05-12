@@ -4,7 +4,9 @@ import {
   computeOption,
   editOption,
   publishStudentsOptions,
-  ListIsPublished, // Import the function to check publication status
+  ListIsPublished,
+  getQuota,
+  editquota,
 } from "../../services/OptionServices/option.service";
 import { FaEdit } from "react-icons/fa";
 
@@ -26,10 +28,25 @@ export default function OptionList() {
   // State to track if we're loading the publication status
   const [isLoadingPublishStatus, setIsLoadingPublishStatus] = useState(true);
 
+  // State for quota dialog
+  const [isQuotaDialogOpen, setIsQuotaDialogOpen] = useState(false);
+  const [quotaData, setQuotaData] = useState({
+    percentage1ING: 50,
+    percentageMaster: 50,
+    totalStudents: 0,
+    calculatedQuota: {
+      INREV: { total: 0, for1ING: 0, forNew: 0 },
+      INLOG: { total: 0, for1ING: 0, forNew: 0 },
+    },
+  });
+  // State to track if we're loading the quota data
+  const [isLoadingQuota, setIsLoadingQuota] = useState(false);
+
   useEffect(() => {
     // Check if the list is published when component mounts
     checkPublicationStatus();
     fetchOptions();
+    fetchQuota();
   }, []);
 
   useEffect(() => {
@@ -65,16 +82,129 @@ export default function OptionList() {
       if (response && response.model) {
         setOptionsList(response.model);
         setFilteredOptions(response.model);
+
+        // Update total students count for quota calculation
+        if (response.model.length > 0) {
+          setQuotaData((prev) => ({
+            ...prev,
+            totalStudents: response.model.length,
+          }));
+        }
       }
     } catch (error) {
       console.error("Error fetching options:", error);
     }
   };
 
+  const fetchQuota = async () => {
+    try {
+      setIsLoadingQuota(true);
+      const response = await getQuota();
+
+      if (
+        response &&
+        response.percentage1ING !== undefined &&
+        response.percentageMaster !== undefined
+      ) {
+        setQuotaData((prev) => ({
+          ...prev,
+          percentage1ING: response.percentage1ING,
+          percentageMaster: response.percentageMaster,
+          totalStudents: response.totalStudents, // ← ajoute ceci
+        }));
+      }
+    } catch (error) {
+      console.error("Error fetching quota data:", error);
+    } finally {
+      setIsLoadingQuota(false);
+    }
+  };
+
+  const calculateQuota = () => {
+    const { percentage1ING, percentageMaster, totalStudents } = quotaData;
+
+    // Default capacities
+    const inrevCapacity = Math.round(totalStudents * 0.25);
+    const inlogCapacity = Math.round(totalStudents * 0.75);
+
+    // Calculate quotas
+    const inrevTotal = inrevCapacity;
+    const inlogTotal = inlogCapacity;
+
+    const inrev1ING = Math.round((inrevTotal * percentage1ING) / 100);
+    const inrevNew = Math.round((inrevTotal * percentageMaster) / 100);
+
+    const inlog1ING = Math.round((inlogTotal * percentage1ING) / 100);
+    const inlogNew = Math.round((inlogTotal * percentageMaster) / 100);
+
+    return {
+      INREV: { total: inrevTotal, for1ING: inrev1ING, forNew: inrevNew },
+      INLOG: { total: inlogTotal, for1ING: inlog1ING, forNew: inlogNew },
+    };
+  };
+
+  const handleOpenQuotaDialog = () => {
+    // Calculate the quota before opening dialog
+    const calculatedQuota = calculateQuota();
+    setQuotaData((prev) => ({
+      ...prev,
+      calculatedQuota,
+    }));
+    setIsQuotaDialogOpen(true);
+  };
+
+  const handleCloseQuotaDialog = () => {
+    setIsQuotaDialogOpen(false);
+  };
+
+  const handleQuotaInputChange = (e) => {
+    const { name, value } = e.target;
+    const numValue = parseInt(value, 10);
+
+    if (name === "percentage1ING") {
+      setQuotaData((prev) => ({
+        ...prev,
+        percentage1ING: numValue,
+        percentageMaster: 100 - numValue,
+      }));
+    } else if (name === "percentageMaster") {
+      setQuotaData((prev) => ({
+        ...prev,
+        percentageMaster: numValue,
+        percentage1ING: 100 - numValue,
+      }));
+    }
+  };
+
+  const updateQuotaCalculation = () => {
+    const calculatedQuota = calculateQuota();
+    setQuotaData((prev) => ({
+      ...prev,
+      calculatedQuota,
+    }));
+  };
+
+  useEffect(() => {
+    updateQuotaCalculation();
+  }, [
+    quotaData.percentage1ING,
+    quotaData.percentageMaster,
+    quotaData.totalStudents,
+  ]);
+
   const handleComputeOption = async () => {
+    handleCloseQuotaDialog();
     setIsComputing(true);
     try {
-      const response = await computeOption();
+      await editquota({
+        percentage1ING: quotaData.percentage1ING,
+        percentageMaster: quotaData.percentageMaster,
+      });
+      // Pass the quota parameters to your API
+      const response = await computeOption({
+        percentage1ING: quotaData.percentage1ING,
+        percentageMaster: quotaData.percentageMaster,
+      });
       console.log("Computation result:", response);
       alert("Scores calculated Successfully!");
       await fetchOptions();
@@ -190,24 +320,26 @@ export default function OptionList() {
               onClick={handlePublish}
               className={`px-4 py-2 rounded-md text-white hover:opacity-90 ${
                 isPublished
-                  ? "bg-orange-500 hover:bg-orange-600"
-                  : "bg-yellow-500 hover:bg-yellow-600"
+                  ? "bg-red-500 hover:bg-red-600"
+                  : "bg-green-500 hover:bg-green-600"
               }`}
             >
               {isPublished ? "Masquer la liste" : "Publier la liste"}
             </button>
           )}
           <button
-            onClick={handleComputeOption}
-            disabled={isComputing}
+            onClick={handleOpenQuotaDialog}
+            disabled={isComputing || isLoadingQuota}
             className={`px-4 py-2 rounded-md text-white font-semibold ${
-              isComputing
+              isComputing || isLoadingQuota
                 ? "bg-gray-400 cursor-not-allowed"
                 : "bg-indigo-600 hover:bg-indigo-700"
             }`}
           >
             {isComputing
               ? "Calculation in progress..."
+              : isLoadingQuota
+              ? "Loading quota data..."
               : "Start Scores Calculation"}
           </button>
         </div>
@@ -385,7 +517,7 @@ export default function OptionList() {
         </div>
       </div>
 
-      {/* Edit Dialog */}
+      {/* Edit Option Dialog */}
       {isDialogOpen && (
         <div className="pointer-events-auto fixed inset-0 z-[999] grid h-screen w-screen place-items-center bg-transparent backdrop-blur-sm transition-opacity duration-500 opacity-100">
           <div className="relative mx-auto w-full max-w-[24rem] rounded-lg overflow-hidden shadow-sm">
@@ -442,6 +574,95 @@ export default function OptionList() {
                   </button>
                 </div>
               </form>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Quota Dialog */}
+      {isQuotaDialogOpen && (
+        <div className="pointer-events-auto fixed inset-0 z-[999] grid h-screen w-screen place-items-center bg-transparent backdrop-blur-sm transition-opacity duration-500 opacity-100">
+          <div className="relative mx-auto w-full max-w-[36rem] rounded-lg overflow-hidden shadow-sm">
+            <div className="relative flex flex-col bg-white max-h-[80vh] overflow-y-auto">
+              <div className="sticky top-0 z-10 bg-indigo-600 p-4 flex justify-center items-center text-white h-12 rounded-md">
+                <h2 className="text-xl font-semibold mb-4">
+                  Configure Quota for Calculation
+                </h2>
+              </div>
+              <div className="p-4">
+                <p className="text-gray-700 mb-4">
+                  Please configure the quota percentages for 2nd year
+                  engineering students. These values will be used to calculate
+                  the distribution of students between INREV and INLOG options.
+                </p>
+
+                {/* Percentage Inputs */}
+                <div className="mb-4 grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      1st Year Engineering (%)
+                    </label>
+                    <input
+                      type="number"
+                      name="percentage1ING"
+                      value={quotaData.percentage1ING}
+                      onChange={handleQuotaInputChange}
+                      min="0"
+                      max="100"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Master Students (%)
+                    </label>
+                    <input
+                      type="number"
+                      name="percentageMaster"
+                      value={quotaData.percentageMaster}
+                      onChange={handleQuotaInputChange}
+                      min="0"
+                      max="100"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                    />
+                  </div>
+                </div>
+
+                {/* Validation Message */}
+                {quotaData.percentage1ING + quotaData.percentageMaster !==
+                  100 && (
+                  <div className="bg-red-100 text-red-700 p-2 rounded-md mb-4">
+                    Total percentage must equal 100%. Current total:{" "}
+                    {quotaData.percentage1ING + quotaData.percentageMaster}%
+                  </div>
+                )}
+                {/* Action Buttons */}
+                <div className="flex justify-end gap-3 mt-6">
+                  <button
+                    type="button"
+                    onClick={handleCloseQuotaDialog}
+                    className="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleComputeOption}
+                    disabled={
+                      quotaData.percentage1ING + quotaData.percentageMaster !==
+                      100
+                    }
+                    className={`px-4 py-2 rounded-md text-white ${
+                      quotaData.percentage1ING + quotaData.percentageMaster !==
+                      100
+                        ? "bg-gray-400 cursor-not-allowed"
+                        : "bg-indigo-600 hover:bg-indigo-700"
+                    }`}
+                  >
+                    Start Calculation
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         </div>

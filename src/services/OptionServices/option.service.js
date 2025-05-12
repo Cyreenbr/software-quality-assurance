@@ -11,6 +11,32 @@ export const chooseOption = async (optionData) => {
         throw error;
     }
 };
+export const getQuota = async (response) => {
+    try {
+        const res = await axiosAPI.get(`/options/quota`);
+        console.log("Option quota retrieved successfully:", res.data);
+        return res.data;
+    } catch (error) {
+        console.error(
+            "Error getting quota options:",
+            error.response?.data || error.message
+        );
+        throw error;
+    }
+};
+export const editquota = async (response) => {
+    try {
+        const res = await axiosAPI.post(`/options/quota`,response);
+        console.log("Quota updated successfully:", res.data);
+        return res.data;
+    } catch (error) {
+        console.error(
+            "Error updating quota:",
+            error.response?.data || error.message
+        );
+        throw error;
+    }
+};
 export const getOptions = async () => {
     try {
         console.log("Fetching options list data...");
@@ -119,3 +145,4 @@ export const ListIsPublished = async () => {
         throw error;
     }
 };
+
