@@ -35,15 +35,14 @@ export const deleteOption = async () => {
         throw error;
     }
 };
-export const editOption = async () => {
+export const editOption = async (userId, data) => {
     try {
-        console.log("Fetching options list data...");
-        const response = await axiosAPI.get('/options/students');
-
-        console.log("Options retrieved successfully:", response.data);
+        console.log("Updating option data...", data);
+        const response = await axiosAPI.patch(`/options/${userId}/update`, data);
+        console.log("Option updated successfully:", response.data);
         return response.data;
     } catch (error) {
-        console.error("Error fetching option list:", error.response?.data || error.message);
+        console.error("Error updating option:", error.response?.data || error.message);
         throw error;
     }
 };
@@ -72,7 +71,49 @@ export const checkOptionstudent = async (userId) => {
         return response.data;
     } catch (error) {
         console.error(
-            "Error checking option::",
+            "Error checking option:",
+            error.response?.data || error.message
+        );
+        throw error;
+    }
+};
+export const computeOption = async () => {
+    try {
+        const response = await axiosAPI.patch(`/options/compute`);
+        console.log("Option calculation commputed successfully:", response.data);
+        return response.data;
+    } catch (error) {
+        console.error(
+            "Error computing options:",
+            error.response?.data || error.message
+        );
+        throw error;
+    }
+};
+
+export const publishStudentsOptions = async (response) => {
+    try {
+        console.log(`Publishing students options with response: ${response}`);
+        const res = await axiosAPI.post(`/options/publish/${response}`);
+        console.log("Option list updated successfully:", res.data);
+        return res.data;
+    } catch (error) {
+        console.error(
+            "Error publishing students options:",
+            error.response?.data || error.message
+        );
+        throw error;
+    }
+};
+export const ListIsPublished = async () => {
+    try {
+        // Use GET request since we're retrieving data, not creating/updating
+        const response = await axiosAPI.get(`/options/listoption`);
+        console.log("Option list publication status:", response.data);
+        return response.data;
+    } catch (error) {
+        console.error(
+            "Error checking publication status:",
             error.response?.data || error.message
         );
         throw error;
