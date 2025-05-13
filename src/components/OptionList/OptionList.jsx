@@ -8,6 +8,7 @@ import {
   getQuota,
   editquota,
   notifyStudentsOfOptions,
+  validatestudentsOptions,
 } from "../../services/OptionServices/option.service";
 import { FaEdit } from "react-icons/fa";
 
@@ -42,7 +43,7 @@ export default function OptionList() {
   });
   // State to track if we're loading the quota data
   const [isLoadingQuota, setIsLoadingQuota] = useState(false);
-
+  const [isValidating, setIsValidating] = useState(false);
   useEffect(() => {
     // Check if the list is published when component mounts
     checkPublicationStatus();
@@ -320,7 +321,22 @@ export default function OptionList() {
       day: "numeric",
     });
   };
-
+  const handleValidateOptions = async () => {
+    try {
+      setIsValidating(true);
+      const data = await validatestudentsOptions();
+      alert(data.message || "Options validated successfully!");
+      await fetchOptions();
+    } catch (error) {
+      console.error("Error validating options:", error);
+      alert(
+        "Failed to validate options: " +
+          (error.response?.data?.message || error.message)
+      );
+    } finally {
+      setIsValidating(false);
+    }
+  };
   return (
     <div className="p-6 bg-gray-100 min-h-screen relative">
       <div className="flex justify-between items-center mb-4">
@@ -347,21 +363,34 @@ export default function OptionList() {
           )}
           {/* Only show the calculate scores button if the list is NOT published */}
           {!isPublished && (
-            <button
-              onClick={handleOpenQuotaDialog}
-              disabled={isComputing || isLoadingQuota}
-              className={`px-4 py-2 rounded-md text-white font-semibold ${
-                isComputing || isLoadingQuota
-                  ? "bg-gray-400 cursor-not-allowed"
-                  : "bg-indigo-600 hover:bg-indigo-700"
-              }`}
-            >
-              {isComputing
-                ? "Calculation in progress..."
-                : isLoadingQuota
-                ? "Loading quota data..."
-                : "Start Scores Calculation"}
-            </button>
+            <>
+              <button
+                onClick={handleOpenQuotaDialog}
+                disabled={isComputing || isLoadingQuota}
+                className={`px-4 py-2 rounded-md text-white font-semibold ${
+                  isComputing || isLoadingQuota
+                    ? "bg-gray-400 cursor-not-allowed"
+                    : "bg-indigo-600 hover:bg-indigo-700"
+                }`}
+              >
+                {isComputing
+                  ? "Calculation in progress..."
+                  : isLoadingQuota
+                  ? "Loading quota data..."
+                  : "Start Scores Calculation"}
+              </button>
+              <button
+                onClick={handleValidateOptions}
+                disabled={isValidating}
+                className={`px-4 py-2 rounded-md text-white font-semibold ${
+                  isValidating
+                    ? "bg-gray-400 cursor-not-allowed"
+                    : "bg-yellow-600 hover:bg-yellow-700"
+                }`}
+              >
+                {isValidating ? "Validating..." : "Validate Options"}
+              </button>
+            </>
           )}
           {isPublished && (
             <button
