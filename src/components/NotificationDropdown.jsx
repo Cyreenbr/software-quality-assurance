@@ -1,8 +1,12 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { MdNotifications } from "react-icons/md";
 import { useSelector } from "react-redux";
+import { Link } from "react-router-dom";
 import notifServices from "../services/notifServices/notif.service";
+import humanizeDate from "../utils/humanizeDate";
+import { SocketNames } from "../utils/socketNames";
 import useNotificationSocket from "../utils/useNotificationSocket";
+
 
 const NotificationDropdown = () => {
     const userId = useSelector((state) => state.auth?.user?.id);
@@ -36,10 +40,16 @@ const NotificationDropdown = () => {
     };
 
     useNotificationSocket({
+        socketEvents: [
+            SocketNames.newNotification,
+            SocketNames.sendNotificationToUser,
+            SocketNames.notificationError,
+        ],
         onNotification: (data) => {
             setNotifications((prev) => [data, ...prev]);
             setUnreadCount((prev) => prev + 1);
-        }
+        },
+        activateToast: false,
     });
 
     useEffect(() => {
@@ -95,6 +105,19 @@ const NotificationDropdown = () => {
         }
     };
 
+    const handleMarkAsClicked = useCallback(async (notifId) => {
+        try {
+            await notifServices.markNotificationAsClicked(notifId);
+            setNotifications((prev) =>
+                prev.map((n) =>
+                    n._id === notifId ? { ...n, isClicked: true } : n
+                )
+            );
+        } catch (err) {
+            console.error("Erreur lors du marquage du clic :", err);
+        }
+    }, []);
+
     return (
         <div className="relative" ref={dropdownRef}>
             <button
@@ -120,29 +143,15 @@ const NotificationDropdown = () => {
                         ) : (
                             <ul className="divide-y divide-gray-100">
                                 {notifications.map((notif, idx) => {
-                                    const handleClick = async () => {
-                                        try {
-                                            if (!notif.isClicked) {
-                                                await notifServices.markNotificationAsClicked(notif._id);
-                                                setNotifications((prev) =>
-                                                    prev.map((n) =>
-                                                        n._id === notif._id ? { ...n, isClicked: true } : n
-                                                    )
-                                                );
-                                            }
-                                            if (notif.url) {
-                                                window.location.href = `${import.meta.env.VITE_FRONTEND_SERVER_URL}${notif.url}`;
-                                            }
-                                        } catch (err) {
-                                            console.error("Erreur lors du marquage du clic :", err);
-                                        }
-                                    };
-
-                                    return (
-                                        <li
-                                            key={idx}
-                                            className={`p-4 hover:bg-gray-50 transition duration-150 cursor-pointer border-l-4 ${notif.isRead ? 'border-transparent' : 'border-indigo-500'} ${getNotificationBgColor(notif.type)}`}
-                                            onClick={notif.url ? handleClick : undefined}
+                                    const bgColor = getNotificationBgColor(notif.type);
+                                    const content = (
+                                        <div
+                                            className={`p-4 hover:bg-gray-50 transition duration-150 cursor-pointer border-l-4 ${notif.isRead ? 'border-transparent' : 'border-indigo-500'} ${bgColor}`}
+                                            onClick={() => {
+                                                if (!notif.isClicked) {
+                                                    handleMarkAsClicked(notif._id);
+                                                }
+                                            }}
                                         >
                                             <div className="flex items-start justify-between gap-2">
                                                 <div className="flex-1">
@@ -150,6 +159,12 @@ const NotificationDropdown = () => {
                                                         {notif.title}
                                                     </p>
                                                     <p className="text-sm text-gray-600">{notif.message}</p>
+                                                    {notif?.from &&
+                                                        <p className="text-[10px] text-gray-600">
+                                                            By Mr/Ms <b>{`${notif?.from?.firstName} ${notif?.from?.lastName}`}</b>
+                                                        </p>
+                                                    }
+
                                                 </div>
                                                 <div className="flex flex-col items-end space-y-1">
                                                     {!notif.isRead && (
@@ -162,8 +177,21 @@ const NotificationDropdown = () => {
                                                             <span className="text-[10px] text-gray-400">Non cliqué</span>
                                                         )
                                                     )}
+                                                    <p className="text-[10px] text-gray-600">{humanizeDate(notif.createdAt)}</p>
                                                 </div>
                                             </div>
+                                        </div>
+                                    );
+
+                                    return (
+                                        <li key={idx}>
+                                            {notif.url ? (
+                                                <Link to={notif.url}>
+                                                    {content}
+                                                </Link>
+                                            ) : (
+                                                content
+                                            )}
                                         </li>
                                     );
                                 })}

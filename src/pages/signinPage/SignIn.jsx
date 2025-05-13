@@ -1,11 +1,9 @@
-import { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useState } from "react";
+import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { ClipLoader } from "react-spinners";
 import Swal from "sweetalert2";
 import { loginUser } from "../../redux/authSlice";
-import socket from "../../utils/socket";
-import { SocketNames } from "../../utils/socketNames";
 import backgroundImage from "/src/assets/ISAMMBackground.jpg";
 
 const SignIn = () => {
@@ -19,17 +17,7 @@ const SignIn = () => {
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const user = useSelector((state) => state.auth.user);
 
-  useEffect(() => {
-    if (user && user.id && !socket.hasRegistered) {
-      socket.emit(SocketNames.registerSocketUser, {
-        userId: user.id,
-        role: user.role,
-      });
-      socket.hasRegistered = true; // évite double enregistrement
-    }
-  }, [user]);
 
 
   const validateForm = (values) => {
@@ -73,14 +61,6 @@ const SignIn = () => {
         const result = await dispatch(loginUser(formData));
 
         if (result.meta.requestStatus === "fulfilled") {
-          const { user } = result.payload;
-
-          socket.emit("registerSocketUser", {
-            userId: user.id,
-            role: user.role,
-          });
-
-
           navigate("/");
         } else if (result.payload) {
           const errorMessage =

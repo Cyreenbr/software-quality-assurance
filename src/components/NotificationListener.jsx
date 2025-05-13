@@ -1,9 +1,16 @@
+import { SocketNames } from "../utils/socketNames";
 import useNotificationSocket from "../utils/useNotificationSocket";
 
 const NotificationListener = () => {
-    // Pas de gestion locale du state ici, uniquement les toasts
-    useNotificationSocket({});
-    return null;
+    useNotificationSocket({
+        socketEvents: [
+            SocketNames.newNotification,
+            SocketNames.sendNotificationToUser,
+            SocketNames.notificationError,
+        ],
+    });
+
+    return null; // Composant invisible, uniquement à effet secondaire
 };
 
 export default NotificationListener;

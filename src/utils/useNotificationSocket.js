@@ -1,42 +1,53 @@
-import { useEffect } from "react";
+import { useCallback, useEffect, useMemo } from "react";
 import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import socket from "./socket";
 import { SocketNames } from "./socketNames";
 
-export default function useNotificationSocket({ onNotification }) {
+export default function useNotificationSocket({
+    onNotification,
+    socketEvents = [],
+    registerEvent = SocketNames.registerSocketUser,
+    activateToast = true,
+}) {
     const role = useSelector((state) => state.auth?.role);
     const userId = useSelector((state) => state.auth?.user?.id);
+
+    // Toast types mapping memoized once
+    const toastTypeMap = useMemo(() => ({
+        reminder: toast.info,
+        warning: toast.warn,
+        success: toast.success,
+        urgent: toast.error,
+        info: toast.info,
+    }), []);
+
+    // Memoized handler to ensure stable reference
+    const handleNotification = useCallback((data) => {
+        if (onNotification) onNotification(data);
+
+        if (activateToast && data?.message) {
+            const toastFn = toastTypeMap[data?.type] || toast.info;
+            toastFn(data.message);
+        }
+    }, [onNotification, activateToast, toastTypeMap]);
 
     useEffect(() => {
         if (!userId || !role) return;
 
-        socket.emit(SocketNames.registerSocketUser, { userId, role });
+        // Register user to socket server
+        socket.emit(registerEvent, { userId, role });
 
-        const handleNotification = (data) => {
-            if (onNotification) onNotification(data);
+        // Register socket listeners
+        socketEvents.forEach((eventName) => {
+            socket.on(eventName, handleNotification);
+        });
 
-            const toastType = {
-                reminder: toast.info,
-                warning: toast.warn,
-                success: toast.success,
-                urgent: toast.error,
-                info: toast.info,
-            }[data.type] || toast.info;
-
-            if (data.message) {
-                toastType(data.message);
-            }
-        };
-
-        socket.on(SocketNames.newNotification, handleNotification);
-        socket.on(SocketNames.sendNotificationToUser, handleNotification);
-        socket.on(SocketNames.notificationError, handleNotification);
-
+        // Clean up on unmount
         return () => {
-            socket.off(SocketNames.newNotification, handleNotification);
-            socket.off(SocketNames.sendNotificationToUser, handleNotification);
-            socket.off(SocketNames.notificationError, handleNotification);
+            socketEvents.forEach((eventName) => {
+                socket.off(eventName, handleNotification);
+            });
         };
-    }, [userId, role, onNotification]);
+    }, [userId, role, socketEvents, registerEvent, handleNotification]);
 }
