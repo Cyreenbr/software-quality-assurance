@@ -1,10 +1,9 @@
-import React, { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   MdAccountCircle,
   MdExitToApp,
   MdMenu,
   MdMoreVert,
-  MdNotifications,
   MdSettings
 } from "react-icons/md";
 import { useDispatch, useSelector } from "react-redux";
@@ -13,6 +12,7 @@ import { ClipLoader } from "react-spinners";
 import isammLogo from "../assets/logo_isamm.png";
 import { logoutUser } from "../redux/authSlice";
 import Breadcrumb from "./Breadcrumb";
+import NotificationDropdown from "./NotificationDropdown";
 import Tooltip from "./skillsComponents/Tooltip";
 
 const Header = ({ isSidebarOpen, setIsSidebarOpen }) => {
@@ -81,12 +81,13 @@ const Header = ({ isSidebarOpen, setIsSidebarOpen }) => {
             {/* Notifications */}
             <div className="relative">
               <Tooltip text="Notifications" position="bottom">
-                <button
+                {/* <button
                   className="text-gray-600 hover:text-indigo-600 p-2 rounded-full hover:bg-gray-100 transition-all"
                   onClick={() => toggleMenu("notifications")}
                 >
                   <MdNotifications size={24} />
-                </button>
+                </button> */}
+                <NotificationDropdown />
               </Tooltip>
 
               {openMenu === "notifications" && (

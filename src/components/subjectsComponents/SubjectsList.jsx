@@ -184,12 +184,12 @@ const SubjectList = ({ onEdit, refresh = false, }) => {
                                 <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
                                     <FaBook className="text-blue-600" /> {subject.title}
                                 </h2>
-                                <span
+                                {role === RoleEnum.ADMIN && <span
                                     className={`text-xs font-semibold px-2 py-1 rounded-full ${subject.isPublish ? "bg-green-200 text-green-800" : "bg-red-200 text-red-800"
                                         }`}
                                 >
                                     {subject.isPublish ? "Published" : "Hidden"}
-                                </span>
+                                </span>}
                             </div>
 
                             {/* Subject Details */}
