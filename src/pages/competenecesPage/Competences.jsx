@@ -1,11 +1,12 @@
 import debounce from "lodash.debounce";
-import React, { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { FaPlusCircle, FaSortAlphaDown, FaSortAlphaUp } from 'react-icons/fa';
 import { useSelector } from "react-redux";
 import { toast } from 'react-toastify';
 import SkillForm from "../../components/skillsComponents/CompetenceForm";
 import CompetenceList from "../../components/skillsComponents/CompetenceList";
 import PageLayout from "../../components/skillsComponents/PageLayout";
+import Pagination from "../../components/skillsComponents/Pagination";
 import SearchBar from "../../components/skillsComponents/SearchBar";
 import Tooltip from "../../components/skillsComponents/Tooltip";
 import competenceServices from "../../services/CompetencesServices/competences.service";
@@ -231,14 +232,15 @@ const Competences = () => {
                 setEditSkill={setEditSkill}
                 setIsEditPopupOpen={setIsEditPopupOpen}
                 enableSortingBtns={false}
+            //enableDefaultPaginationbtns
             />
-            {/* <Pagination
+            <Pagination
                 currentPage={currentPage}
                 totalPages={totalPages}
                 onPageChange={handlePageChange}
                 styles={" bg-blue-600 text-white"}
                 hoverColor="bg-blue-500"
-            /> */}
+            />
 
             {(role === RoleEnum.ADMIN) &&
                 <div className="md:hidden">
