@@ -160,4 +160,16 @@ export const notifyStudentsOfOptions = async (params) => {
         throw error;
     }
 };
-
+export const validatestudentsOptions = async () => {
+    try {
+        const response = await axiosAPI.patch(`/options/validate`);
+        console.log("Option list publication status:", response.data.message);
+        return response.data;
+    } catch (error) {
+        console.error(
+            "Error checking publication status:",
+            error.response?.data || error.message
+        );
+        throw error;
+    }
+}
