@@ -7,6 +7,7 @@ import {
   ListIsPublished,
   getQuota,
   editquota,
+  notifyStudentsOfOptions,
 } from "../../services/OptionServices/option.service";
 import { FaEdit } from "react-icons/fa";
 
@@ -110,7 +111,7 @@ export default function OptionList() {
           ...prev,
           percentage1ING: response.percentage1ING,
           percentageMaster: response.percentageMaster,
-          totalStudents: response.totalStudents, // ← ajoute ceci
+          totalStudents: response.totalStudents,
         }));
       }
     } catch (error) {
@@ -242,7 +243,24 @@ export default function OptionList() {
   const handleClassementFilter = (e) => {
     setSelectedClassement(e.target.value);
   };
+  const handleNotifyStudents = async () => {
+    try {
+      // Call your API endpoint that triggers the sendstudentsOptions function
+      const response = await notifyStudentsOfOptions({
+        emailType: "final",
+        link: "https://localhost:5173/options-list",
+      });
 
+      if (response.success) {
+        alert(`Success: ${response.message}`);
+      } else {
+        alert(`Error: ${response.message}`);
+      }
+    } catch (error) {
+      console.error("Error notifying students:", error);
+      alert("Failed to send notifications to students");
+    }
+  };
   const handleEdit = (option) => {
     setSelectedStudentOption(option);
     setEditedData({
@@ -324,24 +342,35 @@ export default function OptionList() {
                   : "bg-green-500 hover:bg-green-600"
               }`}
             >
-              {isPublished ? "Masquer la liste" : "Publier la liste"}
+              {isPublished ? "Hide list" : "Publish list"}
             </button>
           )}
-          <button
-            onClick={handleOpenQuotaDialog}
-            disabled={isComputing || isLoadingQuota}
-            className={`px-4 py-2 rounded-md text-white font-semibold ${
-              isComputing || isLoadingQuota
-                ? "bg-gray-400 cursor-not-allowed"
-                : "bg-indigo-600 hover:bg-indigo-700"
-            }`}
-          >
-            {isComputing
-              ? "Calculation in progress..."
-              : isLoadingQuota
-              ? "Loading quota data..."
-              : "Start Scores Calculation"}
-          </button>
+          {/* Only show the calculate scores button if the list is NOT published */}
+          {!isPublished && (
+            <button
+              onClick={handleOpenQuotaDialog}
+              disabled={isComputing || isLoadingQuota}
+              className={`px-4 py-2 rounded-md text-white font-semibold ${
+                isComputing || isLoadingQuota
+                  ? "bg-gray-400 cursor-not-allowed"
+                  : "bg-indigo-600 hover:bg-indigo-700"
+              }`}
+            >
+              {isComputing
+                ? "Calculation in progress..."
+                : isLoadingQuota
+                ? "Loading quota data..."
+                : "Start Scores Calculation"}
+            </button>
+          )}
+          {isPublished && (
+            <button
+              onClick={handleNotifyStudents}
+              className="px-4 py-2 rounded-md bg-blue-500 text-white hover:bg-blue-600"
+            >
+              Notify Students
+            </button>
+          )}
         </div>
       </div>
 
