@@ -26,7 +26,7 @@ export const getQuota = async (response) => {
 };
 export const editquota = async (response) => {
     try {
-        const res = await axiosAPI.post(`/options/quota`,response);
+        const res = await axiosAPI.post(`/options/quota`, response);
         console.log("Quota updated successfully:", res.data);
         return res.data;
     } catch (error) {
@@ -135,6 +135,21 @@ export const ListIsPublished = async () => {
     try {
         // Use GET request since we're retrieving data, not creating/updating
         const response = await axiosAPI.get(`/options/listoption`);
+        console.log("Option list publication status:", response.data);
+        return response.data;
+    } catch (error) {
+        console.error(
+            "Error checking publication status:",
+            error.response?.data || error.message
+        );
+        throw error;
+    }
+};
+
+export const notifyStudentsOfOptions = async (params) => {
+    try {
+        // Change to POST and pass the parameters
+        const response = await axiosAPI.post(`/options/send`, params);
         console.log("Option list publication status:", response.data);
         return response.data;
     } catch (error) {
