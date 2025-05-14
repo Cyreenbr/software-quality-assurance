@@ -3,13 +3,13 @@ import React, { useCallback, useEffect, useState } from "react";
 import { FaPlusCircle, FaSortAlphaDown, FaSortAlphaUp } from 'react-icons/fa';
 import { ClipLoader } from "react-spinners";
 import { toast } from 'react-toastify';
-import SkillCard from "../../components/skillsComponents/CompetenceCard";
-import SkillForm from "../../components/skillsComponents/CompetenceForm";
-import NotFound404 from "../../components/skillsComponents/NotFound404";
-import Pagination from "../../components/skillsComponents/Pagination";
-import SearchBar from "../../components/skillsComponents/SearchBar";
-//import Tooltip from "../../components/skillsComponents/tooltip";
-import competenceServices from "../../services/CompetencesServices/competences.service";
+import SkillCard from "../../../components/skillsComponents/CompetenceCard";
+import SkillForm from "../../../components/skillsComponents/CompetenceForm";
+import NotFound404 from "../../../components/skillsComponents/NotFound404";
+import Pagination from "../../../components/skillsComponents/Pagination";
+import SearchBar from "../../../components/skillsComponents/SearchBar";
+//import Tooltip from "../../../components/skillsComponents/tooltip";
+import competenceServices from "../../../services/CompetencesServices/competences.service";
 
 const Competences = () => {
     const [skills, setSkills] = useState([]);

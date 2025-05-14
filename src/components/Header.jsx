@@ -49,150 +49,165 @@ const Header = ({ isSidebarOpen, setIsSidebarOpen }) => {
     }, 100);
   };
 
+  // Fonction pour naviguer vers la page de profil
+  const navigateToProfile = () => {
+    setOpenMenu(null); // Fermer les menus ouverts
+    navigate("/profile"); // Naviguer vers la route du profil
+  };
+
   return (
-    <div className="fixed top-0 left-0 w-full bg-white shadow-lg p-4 flex justify-between items-center z-50 rounded-b-xl transition-all">
-      {/* Left - ISAMM Logo & Sidebar Toggle */}
-      <div className="flex items-center space-x-3 text-gray-700">
-        <button
-          className="lg:hidden text-gray-600 hover:text-indigo-600 p-2 rounded-full hover:bg-gray-100 transition-all focus:ring-2 focus:ring-indigo-500 cursor-pointer"
-          onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-          aria-label="Toggle Sidebar"
-        >
-          <MdMenu size={24} />
-        </button>
+    <>
+      <div className="fixed top-0 left-0 w-full bg-white shadow-lg p-4 flex justify-between items-center z-50 rounded-b-xl transition-all">
+        {/* Left - ISAMM Logo & Sidebar Toggle */}
+        <div className="flex items-center space-x-3 text-gray-700">
+          <button
+            className="lg:hidden text-gray-600 hover:text-indigo-600 p-2 rounded-full hover:bg-gray-100 transition-all focus:ring-2 focus:ring-indigo-500 cursor-pointer"
+            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+            aria-label="Toggle Sidebar"
+          >
+            <MdMenu size={24} />
+          </button>
 
-        <Link to="/" className="flex items-center space-x-2">
-          <img
-            src={isammLogo}
-            alt="ISAMM Logo"
-            className="w-10 sm:w-12 sm:h-12"
-          />
-          <span className="font-bold text-sm text-gray-800 hidden sm:block">
-            ING Parcours
-          </span>
-        </Link>
-        <Breadcrumb />
-      </div>
+          <Link to="/" className="flex items-center space-x-2">
+            <img
+              src={isammLogo}
+              alt="ISAMM Logo"
+              className="w-10 sm:w-12 sm:h-12"
+            />
+            <span className="font-bold text-sm text-gray-800 hidden sm:block">
+              ING Parcours
+            </span>
+          </Link>
+          <Breadcrumb />
+        </div>
 
-      {/* Right - Actions */}
-      <div className="flex items-center space-x-4" ref={menuRef}>
-        {token ? (
-          <>
-            {/* Notifications */}
-            <div className="relative">
-              <Tooltip text="Notifications" position="bottom">
-                <button
-                  className="text-gray-600 hover:text-indigo-600 p-2 rounded-full hover:bg-gray-100 transition-all"
-                  onClick={() => toggleMenu("notifications")}
-                >
-                  <MdNotifications size={24} />
-                </button>
-              </Tooltip>
-
-              {openMenu === "notifications" && (
-                <div className="absolute right-0 mt-2 bg-white shadow-lg rounded-lg w-48 p-2 z-50">
-                  <ul className="space-y-2">
-                    <li className="text-gray-700 hover:text-indigo-600 cursor-pointer p-2">
-                      Notification 1
-                    </li>
-                    <li className="text-gray-700 hover:text-indigo-600 cursor-pointer p-2">
-                      Notification 2
-                    </li>
-                  </ul>
-                </div>
-              )}
-            </div>
-
-            <div className="hidden md:flex items-center space-x-4">
-              {/* Profile */}
-              <Tooltip text="Profile" position="bottom">
-                <Link to="/profile">
-                  <button className="text-gray-600 hover:text-indigo-600 p-2 rounded-full hover:bg-gray-100 transition-all">
-                    <MdAccountCircle size={24} />
-                  </button>
-                </Link>
-              </Tooltip>
-
-              {/* Settings */}
+        {/* Right - Actions */}
+        <div className="flex items-center space-x-4" ref={menuRef}>
+          {token ? (
+            <>
+              {/* Notifications */}
               <div className="relative">
-                <Tooltip text="Settings" position="bottom">
+                <Tooltip text="Notifications" position="bottom">
                   <button
                     className="text-gray-600 hover:text-indigo-600 p-2 rounded-full hover:bg-gray-100 transition-all"
-                    onClick={() => toggleMenu("settings")}
+                    onClick={() => toggleMenu("notifications")}
                   >
-                    <MdSettings size={24} />
+                    <MdNotifications size={24} />
                   </button>
                 </Tooltip>
 
-                {openMenu === "settings" && (
+                {openMenu === "notifications" && (
                   <div className="absolute right-0 mt-2 bg-white shadow-lg rounded-lg w-48 p-2 z-50">
                     <ul className="space-y-2">
                       <li className="text-gray-700 hover:text-indigo-600 cursor-pointer p-2">
-                        Profile Settings
+                        Notification 1
                       </li>
                       <li className="text-gray-700 hover:text-indigo-600 cursor-pointer p-2">
-                        Account Settings
+                        Notification 2
                       </li>
                     </ul>
                   </div>
                 )}
               </div>
 
-              {/* Logout */}
-              <Tooltip text="Logout" position="bottom">
-                <button
-                  className="text-gray-600 hover:text-red-600 p-2 rounded-full hover:bg-gray-100 transition-all"
-                  onClick={handleLogout}
-                >
-                  {!loading ? (
-                    <MdExitToApp size={24} />
-                  ) : (
-                    <ClipLoader color="#3B82F6" size={24} />
-                  )}
-                </button>
-              </Tooltip>
-            </div>
-          </>
-        ) : (
-          <>
-            <Link to="/signin">
-              <Tooltip text="Login" position="bottom">
-                <button className="text-gray-600 hover:text-indigo-600 p-2 rounded-full hover:bg-blue-100 transition-all">
-                  Sign In
-                </button>
-              </Tooltip>
-            </Link>
-          </>
-        )}
+              <div className="hidden md:flex items-center space-x-4">
+                {/* Profile - Modifié pour utiliser la navigation */}
+                <Tooltip text="Profile" position="bottom">
+                  <button 
+                    className="text-gray-600 hover:text-indigo-600 p-2 rounded-full hover:bg-gray-100 transition-all"
+                    onClick={navigateToProfile}
+                  >
+                    <MdAccountCircle size={24} />
+                  </button>
+                </Tooltip>
 
-        {/* More Options for Small Screens */}
-        {token && (
-          <div className="md:hidden relative">
-            <button
-              className="text-gray-600 hover:text-indigo-600 p-2 rounded-full hover:bg-gray-100"
-              onClick={() => toggleMenu("more")}
-            >
-              <MdMoreVert size={24} />
-            </button>
-            {openMenu === "more" && (
-              <div className="absolute right-0 mt-2 bg-white shadow-lg rounded-lg w-48 p-2 z-50">
-                <Link to="/profile">
-                  <button className="w-full text-left text-gray-700 hover:text-gray-500 p-2">
+                {/* Settings */}
+                <div className="relative">
+                  <Tooltip text="Settings" position="bottom">
+                    <button
+                      className="text-gray-600 hover:text-indigo-600 p-2 rounded-full hover:bg-gray-100 transition-all"
+                      onClick={() => toggleMenu("settings")}
+                    >
+                      <MdSettings size={24} />
+                    </button>
+                  </Tooltip>
+
+                  {openMenu === "settings" && (
+                    <div className="absolute right-0 mt-2 bg-white shadow-lg rounded-lg w-48 p-2 z-50">
+                      <ul className="space-y-2">
+                        <li 
+                          className="text-gray-700 hover:text-indigo-600 cursor-pointer p-2"
+                          onClick={navigateToProfile}
+                        >
+                          Profile Settings
+                        </li>
+                        <li className="text-gray-700 hover:text-indigo-600 cursor-pointer p-2">
+                          Account Settings
+                        </li>
+                      </ul>
+                    </div>
+                  )}
+                </div>
+
+                {/* Logout */}
+                <Tooltip text="Logout" position="bottom">
+                  <button
+                    className="text-gray-600 hover:text-red-600 p-2 rounded-full hover:bg-gray-100 transition-all"
+                    onClick={handleLogout}
+                  >
+                    {!loading ? (
+                      <MdExitToApp size={24} />
+                    ) : (
+                      <ClipLoader color="#3B82F6" size={24} />
+                    )}
+                  </button>
+                </Tooltip>
+              </div>
+            </>
+          ) : (
+            <>
+              <Link to="/signin">
+                <Tooltip text="Login" position="bottom">
+                  <button className="text-gray-600 hover:text-indigo-600 p-2 rounded-full hover:bg-blue-100 transition-all">
+                    Sign In
+                  </button>
+                </Tooltip>
+              </Link>
+            </>
+          )}
+
+          {/* More Options for Small Screens */}
+          {token && (
+            <div className="md:hidden relative">
+              <button
+                className="text-gray-600 hover:text-indigo-600 p-2 rounded-full hover:bg-gray-100"
+                onClick={() => toggleMenu("more")}
+              >
+                <MdMoreVert size={24} />
+              </button>
+              {openMenu === "more" && (
+                <div className="absolute right-0 mt-2 bg-white shadow-lg rounded-lg w-48 p-2 z-50">
+                  <button 
+                    className="w-full text-left text-gray-700 hover:text-gray-500 p-2 flex items-center"
+                    onClick={navigateToProfile}
+                  >
                     <MdAccountCircle size={20} className="mr-2" /> Profile
                   </button>
-                </Link>
-                <button
-                  className="w-full text-left text-gray-700 hover:text-red-600 p-2"
-                  onClick={handleLogout}
-                >
-                  <MdExitToApp size={20} className="mr-2" /> Logout
-                </button>
-              </div>
-            )}
-          </div>
-        )}
+                  <button
+                    className="w-full text-left text-gray-700 hover:text-red-600 p-2 flex items-center"
+                    onClick={handleLogout}
+                  >
+                    <MdExitToApp size={20} className="mr-2" /> Logout
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
       </div>
-    </div>
+
+      {/* Suppression du ProfileModal qui n'est plus utilisé */}
+    </>
   );
 };
 

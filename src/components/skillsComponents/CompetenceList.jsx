@@ -18,7 +18,7 @@ const CompetenceList = ({
     currentPage,
     totalPages,
     fetchCompetences,
-    hasSearched,
+    // hasSearched,
     families,
     setEditSkill,
     setIsEditPopupOpen,
@@ -60,9 +60,9 @@ const CompetenceList = ({
                         <ClipLoader color="#4A90E2" size={50} />
                         <p>Loading...</p>
                     </div>
-                ) : skills.length === 0 && hasSearched ? (
+                ) : skills.length === 0 ? (
                     <div className="col-span-full text-center py-6">
-                        <NotFound404 iconSize={250} />
+                        <NotFound404 iconSize={250} title='No skills found' />
                     </div>
                 ) : (
                     skills.map((skill, index) => (

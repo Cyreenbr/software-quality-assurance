@@ -3,8 +3,8 @@ import { FaEdit, FaPlusCircle } from 'react-icons/fa';
 import { ImPower } from "react-icons/im";
 import { TiWarning } from "react-icons/ti";
 import useDeviceType from '../../utils/useDeviceType';
-import MultiSelectDropdown from './MultiSelectDropdown';
 import Popup from './Popup';
+import MultiSelectDropdownFamily from './REComponents/MultiSelectDropdownFamily';
 import Tooltip from './Tooltip';
 
 const SkillForm = ({
@@ -23,29 +23,6 @@ const SkillForm = ({
     const [forced, setForced] = useState(false);
 
     const [selectedFamilies, setSelectedFamilies] = useState(editSkill ? editSkill.familyId : []);
-
-    // useEffect(() => {
-    //     if (editSkill && editSkill.familyId) {
-    //         // Ensure familyId is in the correct format (array of IDs)
-    //         setSelectedFamilies(editSkill.familyId.map(family => family._id || family)); // Assuming familyId is an array of family objects
-    //     } else {
-    //         setSelectedFamilies([]); // Reset to empty array if no editSkill or familyId is empty
-    //     }
-    // }, [editSkill]);
-    // useEffect(() => {
-    //     if (editSkill) {
-    //         setEditSkill(prev => ({
-    //             ...prev,
-    //             familyId: selectedFamilies
-    //         }));
-    //     } else {
-    //         setNewSkill(prev => ({
-    //             ...prev,
-    //             familyId: selectedFamilies
-    //         }));
-    //     }
-    // }, [selectedFamilies]);
-
 
     const renderInputField = ({ id, label, value, onChange, type = "text", placeholder, classNames }) => (
         <div className="mb-3">
@@ -102,7 +79,19 @@ const SkillForm = ({
     );
     useEffect(() => {
         console.log("Selected Families from MultiSelectDropdown:", selectedFamilies);
+        editSkill ?
+            setEditSkill({ ...editSkill, familyId: selectedFamilies })
+            : setNewSkill({ ...newSkill, familyId: selectedFamilies });
     }, [selectedFamilies]);
+
+    useEffect(() => {
+        if (editSkill && editSkill.familyId) {
+            const familyIds = editSkill.familyId.map(f => typeof f === "object" ? f._id : f);
+            setSelectedFamilies(familyIds);
+        } else {
+            setSelectedFamilies([]);
+        }
+    }, []);
 
 
     return (
@@ -118,7 +107,7 @@ const SkillForm = ({
                 {/* Title Input */}
                 {renderInputField({
                     id: editSkill ? "editTitle" : "title",
-                    label: "Title",
+                    label: "Title *",
                     placeholder: "Title",
                     value: editSkill ? editSkill.title : newSkill.title,
                     onChange: (e) => {
@@ -176,11 +165,11 @@ const SkillForm = ({
                         ) */}
                     </label>
 
-                    {/* <MultiSelectDropdownFamily
+                    <MultiSelectDropdownFamily
                         families={families}
                         selectedFamilies={selectedFamilies}
                         setSelectedFamilies={setSelectedFamilies}
-                    /> */}
+                    />
 
                     {/* <MultiSelectDropdown
                         items={families}
@@ -191,13 +180,13 @@ const SkillForm = ({
                         placeholder="Select Skill Families"
                         clearTooltip="Clear All"
                     /> */}
-                    <MultiSelectDropdown
+                    {/* <MultiSelectDropdown
                         items={families}
                         selectedItems={selectedFamilies}
                         setSelectedItems={setSelectedFamilies}
                         getItemId={item => item._id}
                         getItemLabel={item => item.title}
-                    />
+                    /> */}
 
 
                 </div>

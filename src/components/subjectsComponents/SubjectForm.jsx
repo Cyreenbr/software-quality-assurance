@@ -1,179 +1,18 @@
 import { DragDropContext, Draggable, Droppable } from "@hello-pangea/dnd";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
+import { CgEye } from "react-icons/cg";
+import { FiEyeOff } from "react-icons/fi";
 import { toast } from "react-toastify";
 import competenceServices from "../../services/CompetencesServices/competences.service";
 import matieresServices from "../../services/matieresServices/matieres.service";
+import MSDropdown from "../skillsComponents/REComponents/MSDropdown";
+import Tooltip from "../skillsComponents/Tooltip";
 import SearchDropdown from "./SearchDropdown";
 
 const capitalizeFirstLetter = (str) => str.charAt(0).toUpperCase() + str.slice(1);
 
 const SubjectForm = ({ initialData = null, onSubmit }) => {
-    const [competences, setCompetences] = useState([]);
-    const [limit, setLimit] = useState(100);
-    const [totalItems, setTotalItems] = useState(Infinity);
-    const increment = 1;
-    const [selectedTeacher, setSelectedTeacher] = useState(null);
 
-    const [preselectedCompetences, setPreselectedCompetences] = useState([]);
-    const handleSelectCompetence = (selectedCompetences) => {
-        setPreselectedCompetences(selectedCompetences); // Store selected competences
-        setCompetences(selectedCompetences);
-        setFormData((prev) => ({
-            ...prev,
-            skillsId: competences ? competences : [], // Update teacherId with the teacher's _id
-        }));
-    };
-    const handleSelectTeacher = (teacher) => {
-        // Prevent setting the same teacher again to avoid re-rendering
-        if (selectedTeacher?._id === teacher?._id) return;
-
-        setSelectedTeacher(teacher); // Update selectedTeacher with the full teacher object
-        setFormData((prev) => ({
-            ...prev,
-            teacherId: teacher ? [teacher._id] : [], // Update teacherId with the teacher's _id
-        }));
-
-        console.log('Selected Teacher:', teacher);
-    };
-
-
-    const fetchTeachers = async (searchTerm) => {
-        try {
-            const data = await matieresServices.fetchTeachers({ page: 1, searchTerm: searchTerm, limit: 5 });
-            return data.teachers; // Ensure the response has the list of teachers
-        } catch (error) {
-            console.error("Error fetching teachers:", error);
-            return [];
-        }
-    };
-    const fetchCompetencesOptions = async (newLimit) => {
-        try {
-            const data = await competenceServices.fetchCompetencesForForm({ limit: newLimit });
-            setCompetences((prev) => [
-                ...prev,
-                ...data.skills.filter((skill) => !prev.some((s) => s._id === skill._id)),
-            ]);
-            setTotalItems(data.pagination?.totalSkills || data.skills.length);
-        } catch (error) {
-            toast.error("Failed to load competences: " + error);
-        }
-    };
-    const fetchCompetences = async (searchTerm2) => {
-        try {
-            const data = await competenceServices.fetchCompetencesForForm({ searchTerm: searchTerm2 });
-            setCompetences((prev) => [
-                ...prev,
-                ...data.skills.filter((skill) => !prev.some((s) => s._id === skill._id)),
-            ]);
-            setTotalItems(data.pagination?.totalSkills || data.skills.length);
-            return competences
-        } catch (error) {
-            toast.error("Failed to load competences: " + error);
-        }
-    };
-
-    const stablePreselectedCompetences = useMemo(() => {
-        return Array.isArray(initialData?.skillIds)
-            ? initialData.skillIds.map((idOrObj) =>
-                typeof idOrObj === "object"
-                    ? { _id: idOrObj._id, title: idOrObj.title } // Si l'élément est déjà un objet
-                    : { _id: idOrObj, title: `Title for ${idOrObj}` } // Si l'élément est un ID, assigner un titre par défaut
-            )
-            : [];
-    }, [initialData?.skillIds]);
-
-
-
-    // Update formData when initialData changes
-    useEffect(() => {
-        if (initialData) {
-            // Extract skill IDs from initialData.skillIds
-            const initialSkillIds =
-                Array.isArray(initialData.skillIds) &&
-                    initialData.skillIds.every((skill) => typeof skill === "object" && skill._id)
-                    ? initialData.skillIds.map((skill) => skill._id) // Extract _id from each skill object
-                    : [];
-
-            setFormData((prev) => ({
-                ...prev,
-                _id: initialData._id,
-                title: initialData.title,
-                isPublish: initialData.isPublish,
-                isArchive: initialData.isArchive,
-                skillsId: initialSkillIds, // Populate skillsId with valid _id values
-                teacherId: initialData.teacherId || [],
-                curriculum: {
-                    ...prev.curriculum,
-                    ...initialData.curriculum,
-                    chapitres: initialData.curriculum?.chapitres?.map((chapter) => ({
-                        ...chapter,
-                        sections: Array.isArray(chapter.sections) ? chapter.sections : [],
-                    })),
-                },
-            }));
-        }
-    }, [initialData]);
-
-    // Handle fetching teacher if initialData contains teacherId
-    useEffect(() => {
-        if (initialData?.teacherId) {
-            const fetchTeacher = async () => {
-                try {
-                    let teacherId;
-
-                    // Validate structure of teacherId
-                    if (Array.isArray(initialData.teacherId) && initialData.teacherId.length > 0) {
-                        teacherId = initialData.teacherId[0]._id; // Extract _id from array
-                    } else if (typeof initialData.teacherId === "object" && initialData.teacherId?._id) {
-                        teacherId = initialData.teacherId._id; // Use _id if teacherId is an object
-                    } else if (typeof initialData.teacherId === "string") {
-                        teacherId = initialData.teacherId; // Use directly if it's a string
-                    } else {
-                        console.warn("Invalid or missing teacherId:", initialData.teacherId);
-                        return;
-                    }
-
-                    if (!teacherId || teacherId.trim() === "") {
-                        console.warn("Teacher ID is missing or invalid.");
-                        return;
-                    }
-
-                    // Fetch teacher by _id
-                    const teacherResponse = await matieresServices.fetchTeacherById(teacherId);
-
-                    // Ensure the response contains the expected structure
-                    const teacher = teacherResponse?.teacher;
-                    if (!teacher) {
-                        throw new Error("Teacher not found.");
-                    }
-
-                    // Log success message
-                    // toast.success(`${teacher.firstName} ${teacher.lastName} has been selected.`);
-
-                    // Update state with fetched teacher data
-                    setSelectedTeacher(teacher); // Store the full teacher object
-                    setFormData((prev) => ({
-                        ...prev,
-                        teacherId: [teacher._id], // Store the teacher's _id in an array
-                    }));
-                } catch (error) {
-                    console.error("Failed to fetch teacher:", error);
-                    toast.error(`Failed to fetch teacher: ${error.message || "Unknown error"}`);
-                }
-            };
-            fetchTeacher();
-        }
-    }, [initialData]);
-
-    useEffect(() => {
-        fetchCompetencesOptions(limit);
-    }, [limit]);
-
-    const handleLoadMore = () => {
-        const newLimit = limit + increment;
-        setLimit(newLimit);
-        fetchCompetencesOptions(newLimit);
-    };
 
     const [formData, setFormData] = useState({
         _id: "",
@@ -199,6 +38,156 @@ const SubjectForm = ({ initialData = null, onSubmit }) => {
     });
 
     const [errorMessages, setErrorMessages] = useState({});
+
+    // const [competences, setCompetences] = useState([]);
+    const [limit] = useState(100);
+    // const [totalItems, setTotalItems] = useState(Infinity);
+    const [selectedTeacher, setSelectedTeacher] = useState(null);
+    const [searchTerm, setSearchTerm] = useState('');
+    const [competences, setCompetences] = useState([]);
+    const [totalItems, setTotalItems] = useState(0);
+    const [loading, setLoading] = useState(false);
+    //
+    const [competencesFiltered, setCompetencesFiltered] = useState([]);
+    const [selectedSkills, setSelectedSkills] = useState(formData.skillsId || []);
+    const fetchCompetencesOptions = async (newLimit, searchTerm2 = '') => {
+        try {
+            setLoading(true);
+            // Remplacez par votre propre service pour récupérer les compétences
+            const data = await competenceServices.fetchCompetencesForForm({ searchTerm: searchTerm2, limit: newLimit });
+            setCompetences((prev) => [
+                ...prev,
+                ...data.skills.filter((skill) => !prev.some((s) => s._id === skill._id)),
+            ]);
+            setTotalItems(data.pagination?.totalSkills || data.skills.length);
+            setCompetencesFiltered(data.skills);
+        } catch (error) {
+            toast.error("Failed to load competences: " + error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        if (searchTerm.trim() === '') {
+            setCompetencesFiltered(competences);
+        } else {
+            fetchCompetencesOptions(10, searchTerm);
+        }
+    }, [searchTerm, competences]);
+
+    const handleLoadMore = () => {
+        fetchCompetencesOptions(competences.length + 10, searchTerm);
+    };
+
+    const handleSelectTeacher = (teacher) => {
+        // Prevent setting the same teacher again to avoid re-rendering
+        if (selectedTeacher?._id === teacher?._id)
+            return;
+        setSelectedTeacher(teacher);
+        setFormData((prev) => ({
+            ...prev,
+            teacherId: teacher ? [teacher._id] : [],
+        }));
+        console.log('Selected Teacher:', teacher);
+    };
+
+    const fetchTeachers = async (searchTerm) => {
+        try {
+            const data = await matieresServices.fetchTeachers({ page: 1, searchTerm: searchTerm, limit: 5 });
+            return data.teachers;
+        } catch (error) {
+            console.error("Error fetching teachers:", error);
+            return [];
+        }
+    };
+
+    // Utilisation de useEffect pour charger les compétences au changement de terme de recherche
+    useEffect(() => {
+        if (searchTerm.trim() !== '') {
+            fetchCompetencesOptions(10, searchTerm);
+        } else {
+            setCompetences([]);
+            setTotalItems(0);
+        }
+    }, [searchTerm]);
+
+    // Update formData when initialData changes
+    useEffect(() => {
+        if (initialData) {
+            // Extract skill IDs from initialData.skillIds
+            const initialSkillIds =
+                Array.isArray(initialData.skillIds) &&
+                    initialData.skillIds.every((skill) => typeof skill === "object" && skill._id)
+                    ? initialData.skillIds.map((skill) => skill._id) // Extract _id from each skill object
+                    : [];
+
+            setFormData((prev) => ({
+                ...prev,
+                _id: initialData._id,
+                title: initialData.title,
+                isPublish: initialData.isPublish,
+                isArchive: initialData.isArchive,
+                skillsId: initialSkillIds,
+                teacherId: initialData.teacherId || [],
+                curriculum: {
+                    ...prev.curriculum,
+                    ...initialData.curriculum,
+                    chapitres: initialData.curriculum?.chapitres?.map((chapter) => ({
+                        ...chapter,
+                        sections: Array.isArray(chapter.sections) ? chapter.sections : [],
+                    })),
+                },
+            }));
+        }
+    }, [initialData]);
+
+    // Handle fetching teacher if initialData contains teacherId
+    useEffect(() => {
+        if (initialData?.teacherId) {
+            const fetchTeacher = async () => {
+                try {
+                    let teacherId;
+                    // Validate structure of teacherId
+                    if (Array.isArray(initialData.teacherId) && initialData.teacherId.length > 0) {
+                        teacherId = initialData.teacherId[0]._id; // Extract _id from array
+                    } else if (typeof initialData.teacherId === "object" && initialData.teacherId?._id) {
+                        teacherId = initialData.teacherId._id; // Use _id if teacherId is an object
+                    } else if (typeof initialData.teacherId === "string") {
+                        teacherId = initialData.teacherId; // Use directly if it's a string
+                    } else {
+                        console.warn("Invalid or missing teacherId:", initialData.teacherId);
+                        return;
+                    }
+
+                    if (!teacherId || teacherId.trim() === "") {
+                        console.warn("Teacher ID is missing or invalid.");
+                        return;
+                    }
+                    const teacherResponse = await matieresServices.fetchTeacherById(teacherId);
+
+                    const teacher = teacherResponse?.teacher;
+                    if (!teacher) {
+                        throw new Error("Teacher not found.");
+                    }
+                    setSelectedTeacher(teacher);
+                    setFormData((prev) => ({
+                        ...prev,
+                        teacherId: [teacher._id],
+                    }));
+                } catch (error) {
+                    console.error("Failed to fetch teacher:", error);
+                    toast.error(`Failed to fetch teacher: ${error.message || "Unknown error"}`);
+                }
+            };
+            fetchTeacher();
+        }
+    }, [initialData]);
+
+    useEffect(() => {
+        fetchCompetencesOptions(limit);
+    }, [limit]);
+
 
     useEffect(() => {
         if (initialData) {
@@ -445,7 +434,34 @@ const SubjectForm = ({ initialData = null, onSubmit }) => {
                         required
                     />
                 </div>
+                <button
+                    onClick={(e) => {
+                        e.preventDefault();
+                        setFormData(prev => ({ ...prev, isPublish: !prev?.isPublish }));
+                    }}
+                    className={`flex items-center space-x-2 px-4 py-2 rounded-full font-medium transition duration-300 shadow-md
+                            ${formData.isPublish ? "bg-indigo-600 text-white hover:bg-indigo-700" : "bg-gray-300 text-gray-700 hover:bg-gray-400"}`}
+                >
+                    <Tooltip
+                        text={formData.isPublish ? "This subject will be visible" : "This subject will be hidden"}
+                        position="right"
+                    >
+                        <div className="flex items-center gap-1">
+                            {formData.isPublish ? (
+                                <>
+                                    <CgEye className="text-white text-lg" />
+                                    <span>Published</span>
+                                </>
+                            ) : (
+                                <>
+                                    <FiEyeOff className="text-gray-700 text-lg" />
+                                    <span>Hidden</span>
+                                </>
+                            )}
+                        </div>
+                    </Tooltip>
 
+                </button>
                 {/* Curriculum Fields */}
                 <div className="grid grid-cols-2 gap-4">
                     {[
@@ -594,8 +610,6 @@ const SubjectForm = ({ initialData = null, onSubmit }) => {
                                     title={`Valid Format : AAAA-AAAA (ex: ${getCurrentAcademicYear()})`}
                                 // required={required}
                                 />
-
-
                                 :
                                 (
                                     <input
@@ -616,12 +630,13 @@ const SubjectForm = ({ initialData = null, onSubmit }) => {
                 </div>
 
                 {/* Skills Selection */}
-                <div className="relative">
+                {/* <div className="relative">
+
                     <label className="block text-gray-700 font-semibold">
                         Skills <span className="text-red-500">*</span>
                     </label>
-                    {/* <MultiSelectDropdownOLD
-                        options={competences}
+                    <MultiSelectDropdownOLD
+                        options={competencesFiltered}
                         selectedOptions={formData.skillsId}
                         setSelectedOptions={(selectedSkills) =>
                             setFormData({ ...formData, skillsId: selectedSkills })
@@ -633,27 +648,40 @@ const SubjectForm = ({ initialData = null, onSubmit }) => {
                         showClearAll={true}
                         styling="flex justify-between items-center cursor-pointer hover:outline-1 transform transition-all duration-300 ease-in-out"
                     />
-                    {competences.length < totalItems && (
+
+
+                    {competencesFiltered.length < totalItems && (
                         <button
                             type="button"
                             onClick={handleLoadMore}
                             className="mt-2 bg-blue-500 text-white p-2 rounded"
                         >
-                            Load More
+                            {loading ? 'Loading...' : 'Load More'}
                         </button>
-                    )} */}
+                    )}
+                    {errorMessages.skillsId && (
+                        <p className="text-red-500 text-sm mt-1">{errorMessages.skillsId}</p>
+                    )}
+                </div> */}
 
-                    <SearchDropdown
-                        fetchData={fetchCompetences}
-                        onSelectItem={handleSelectCompetence}
-                        preselectedItem={initialData?.skillIds || null}
-                        itemLabel="title"
-                        itemValue="_id"
-                        placeholder="Search for competences..."
-                        multiple
+                <div className="relative">
+                    <label className="block text-gray-700 font-semibold">
+                        Skills <span className="text-red-500">*</span>
+                    </label>
+                    <MSDropdown
+                        options={competences}
+                        preSelectedOptions={formData?.skillsId}
+                        selectedOptions={selectedSkills}
+                        setSelectedOptions={(newSkills) => {
+                            setSelectedSkills(newSkills);
+                            setFormData({ ...formData, skillsId: newSkills });
+                        }}
+                        label=""
+                        placeholder="Search for skills..."
+                        loadMore={handleLoadMore}
+                        totalItems={totalItems}
+                        loading={loading}
                     />
-
-
                     {errorMessages.skillsId && (
                         <p className="text-red-500 text-sm mt-1">{errorMessages.skillsId}</p>
                     )}
@@ -674,7 +702,8 @@ const SubjectForm = ({ initialData = null, onSubmit }) => {
                         fetchData={fetchTeachers}
                         onSelectItem={handleSelectTeacher}
                         preselectedItem={selectedTeacher}
-                        itemLabel={selectedTeacher?.firstName ? "firstName" : selectedTeacher?.lastName ? "lastName" : "_id"}
+                        // itemLabel={selectedTeacher?.firstName ? "firstName" : selectedTeacher?.lastName ? "lastName" : "_id"}
+                        itemLabels={["firstName", "lastName"]}
                         selectedItem={`${selectedTeacher?.firstName && selectedTeacher?.lastName ?
                             `${selectedTeacher.firstName} ${selectedTeacher.lastName}` :
                             selectedTeacher?.firstName || selectedTeacher?.lastName || ''}`.trim()}
@@ -833,7 +862,6 @@ const SubjectForm = ({ initialData = null, onSubmit }) => {
                         </Droppable>
                     </DragDropContext>
                 </div>
-
                 <div className="text-center mt-6">
                     <button
                         type="submit"
@@ -842,8 +870,8 @@ const SubjectForm = ({ initialData = null, onSubmit }) => {
                         Submit
                     </button>
                 </div>
-            </form>
-        </div>
+            </form >
+        </div >
     );
 };
 
