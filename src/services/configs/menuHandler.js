@@ -40,8 +40,11 @@ import StudentsListTeachers from "../../pages/usersListPage/StudentsListTeachers
 import StudentsManagPage from "../../pages/UsersManagementPage/StudentsManagPage";
 import TeachersManagPage from "../../pages/UsersManagementPage/TeachersManagPage";
 import { RoleEnum } from "../../utils/userRoles";
+
 import StudentCVPage from "../../pages/StudentCVPage";
 import Profile from "../../pages/profilePage/Profile"
+
+import OptionsListForStudentPage from "../../pages/optionsListForStudentsPage/OptionsListForStudentsPage.jsx";
 
 export const menuConfig = [
   {
@@ -199,7 +202,7 @@ export const menuConfig = [
   },
   {
     order: 13,
-    label: "Internship Deposit",
+    label: "My internships",
     icon: MdDownload,
     path: "/deposit",
     tooltip: "deposit",
@@ -351,6 +354,7 @@ export const menuConfig = [
   },
   {
     order: 28,
+
     label: "CVAcademic",
     icon: MdList,
     path: "/cv/generate/:id",
@@ -374,6 +378,17 @@ export const menuConfig = [
      hideHeader: false,
    },
    
+ {
+   order: 30,
+    label: "List Options",
+    icon: MdAutoStories,
+    path: "/list-options",
+    component: OptionsListForStudentPage,
+    eligibleRoles: [RoleEnum.STUDENT],
+    active: true,
+    hideSideBar: false,
+    hideHeader: false,
+  },
   // kifeh tzid route jdid ??
   // {
   //     order: 7,

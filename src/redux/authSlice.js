@@ -1,5 +1,7 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axiosAPI from "../services/axiosAPI/axiosInstance";
+import socket from "../utils/socket";
+import { SocketNames } from "../utils/socketNames";
 
 // Async action for login
 export const loginUser = createAsyncThunk(
@@ -9,6 +11,14 @@ export const loginUser = createAsyncThunk(
             const response = await axiosAPI.post("/users/login", { email, password });
 
             if (response.status === 201) {
+                const { user } = response.data;
+
+                socket.emit(SocketNames.registerSocketUser, {
+                    userId: user.id,
+                    role: user.role,
+                });
+                console.log("User info Sent for Socket");
+
                 // Store token and user in localStorage
                 localStorage.setItem("token", response.data.token);
                 localStorage.setItem("user", JSON.stringify(response.data.user)); // Store user with role
