@@ -6,14 +6,14 @@ import {
 } from "react-icons/fa";
 import { GiTeacher } from "react-icons/gi";
 import {
+  MdAccountCircle,
   MdAssignmentAdd,
   MdAutoStories,
   MdCalendarMonth,
   MdDownload,
   MdHome,
   MdList,
-  MdNotifications,
-   MdAccountCircle
+  MdNotifications
 } from "react-icons/md";
 import { PiStudentBold, PiStudentFill } from "react-icons/pi";
 import Pfa from "../../../src/pages/pfaPage/Pfa";
@@ -43,10 +43,8 @@ import StudentsManagPage from "../../pages/UsersManagementPage/StudentsManagPage
 import TeachersManagPage from "../../pages/UsersManagementPage/TeachersManagPage";
 import { RoleEnum } from "../../utils/userRoles";
 
+import Profile from "../../pages/profilePage/Profile";
 import StudentCVPage from "../../pages/StudentCVPage";
-import Profile from "../../pages/profilePage/Profile"
-
-import OptionsListForStudentPage from "../../pages/optionsListForStudentsPage/OptionsListForStudentsPage.jsx";
 
 export const menuConfig = [
   {
@@ -379,20 +377,20 @@ export const menuConfig = [
     hideSideBar: false,
     hideHeader: false,
   },
-   {
-   order: 29,
+  {
+    order: 29,
     label: "Profile",
     icon: MdAccountCircle,
     path: "/profile",
-     component: Profile,
+    component: Profile,
     eligibleRoles: [RoleEnum.ADMIN, RoleEnum.TEACHER, RoleEnum.STUDENT],
     active: true,
     hideSideBar: false,
-     hideHeader: false,
-   },
-   
- {
-   order: 30,
+    hideHeader: false,
+  },
+
+  {
+    order: 30,
     label: "List Options",
     icon: MdAutoStories,
     path: "/list-options",
