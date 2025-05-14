@@ -1,4 +1,4 @@
-import { FaCalendarAlt, FaCheckCircle, FaClock, FaEnvelope, FaFileAlt, FaUserTie, FaVideo } from "react-icons/fa";
+import { FaBuilding, FaCalendarAlt, FaCheckCircle, FaClock, FaEnvelope, FaFileAlt, FaUserTie, FaVideo } from "react-icons/fa";
 
 const InternshipCard = ({ internship }) => {
   return (
@@ -19,6 +19,10 @@ const InternshipCard = ({ internship }) => {
             <td className="px-4 py-3 text-gray-600 flex items-center gap-3">
               <FaFileAlt className="text-blue-500" />
               <span className="font-bold">Title:</span> {internship.titre || "No Title"}
+            </td>
+                        <td className="px-4 py-3 text-gray-600 flex items-center gap-3">
+              <FaBuilding className="text-gray-500" />
+              <span className="font-bold">Company:</span> {internship.company|| "Not Provided"}
             </td>
             <td className="px-4 py-3 text-gray-600 flex items-center gap-3">
               <FaClock className="text-red-500" />
