@@ -11,7 +11,7 @@ import {
     FaHistory,
     FaTimes
 } from "react-icons/fa";
-import { FiBook, FiCalendar, FiCheckCircle, FiChevronDown, FiChevronRight, FiClock, FiEyeOff, FiFileText, FiLayers, FiUser, FiXCircle } from "react-icons/fi";
+import { FiBell, FiBook, FiCalendar, FiCheckCircle, FiChevronDown, FiChevronRight, FiClock, FiEyeOff, FiFileText, FiLayers, FiUser, FiXCircle } from "react-icons/fi";
 import { MdTitle } from "react-icons/md";
 import { useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
@@ -78,7 +78,6 @@ const SubjectDetailsPage = () => {
         fetchPropositions();
     }, [formData?.subject?._id, id]);
 
-    // 
     // State to manage visibility of sections for each chapter
     const [visibleChapters, setVisibleChapters] = useState({});
 
@@ -341,151 +340,196 @@ const SubjectDetailsPage = () => {
     if (error) return <ErrorState message={error} />;
     if (!formData) return <ErrorState message="Invalid subject data." />;
 
+    const handleSendNotif = async (id) => {
+        try {
+            const result = await matieresServices.sendEvaluationNotif(id);
+            toast.success(result.message);
+        } catch (error) {
+            toast.error(error.toString());
+        }
+    };
+
     const actionHeaders = (userRole === RoleEnum.ADMIN || canEdit) && (
-        <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-2">
-            {/* Bouton réservé aux Admins pour voir les propositions */}
-            {userRole === RoleEnum.ADMIN && (
-                <>
+        <>
+            <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-2">
+                {/* Bouton réservé aux Admins pour voir les propositions */}
+                {userRole === RoleEnum.ADMIN && (
+                    <>
+
+                        <div className="pb-2 flex flex-col sm:flex-row gap-3">
+                            <button
+                                onClick={() => {
+                                    handleSendNotif(id);
+                                }}
+                                className="flex items-center justify-center gap-2 bg-gray-600 text-white px-5 py-2.5 rounded-xl font-medium shadow hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-400 transition-all duration-200 sm:w-auto w-full"
+                            >
+                                <FiBell className="text-lg" />
+                                Evaluation Notif
+                            </button>
+                            <button
+                                onClick={() => {
+                                    setIsPropositionPopupOpen(true);
+                                    fetchPropositions();
+                                }}
+                                className="flex items-center justify-center gap-2 bg-green-600 text-white px-5 py-2.5 rounded-xl font-medium shadow hover:bg-green-500 focus:outline-none focus:ring-2 focus:ring-green-400 transition-all duration-200 sm:w-auto w-full"
+                            >
+                                <FaEye className="text-lg" />
+                                Proposed Modifications
+                            </button>
+                        </div>
+
+                    </>
+                )}
+                {/* Bouton pour Proposer une modification ou Go Back */}
+                {showForm ? (
                     <button
-                        onClick={() => {
-                            setIsPropositionPopupOpen(true);
-                            fetchPropositions();
-                        }}
-                        className="flex justify-center items-center bg-green-500 text-white px-4 py-2 rounded-lg font-semibold hover:bg-green-400 transition duration-200 sm:w-auto w-full"
+                        onClick={toggleForm}
+                        className="flex justify-center items-center bg-gray-300 text-gray-800 px-4 py-2 rounded-lg font-semibold hover:bg-gray-400 transition duration-200 sm:w-auto w-full mb-2 sm:mb-0"
                     >
-                        <FaEye className="mr-2" />
-                        View Proposed Modifications
+                        <FaArrowLeft className="mr-2" />
+                        Go Back
                     </button>
-                    <Popup
-                        isOpen={isPropositionPopupOpen}
-                        onClose={() => setIsPropositionPopupOpen(false)}
-                        position="center"
-                        size="lg"
-                        showCloseButton
+                ) : (
+                    <button
+                        onClick={toggleForm}
+                        className="flex justify-center items-center bg-blue-400 text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-200 hover:text-blue-900 transition duration-200 sm:w-auto w-full mb-2 sm:mb-0"
                     >
-                        <div className="max-w-3xl mx-auto text-left">
-                            <h2 className="text-2xl font-bold text-blue-800 mb-8 text-center flex items-center justify-center gap-2">
-                                <FiFileText className="text-2xl" /> Curriculum Change Proposals
-                            </h2>
+                        <FaEdit className="mr-2" />
+                        {userRole === RoleEnum.ADMIN ? 'Edit' : 'Propose an Edit'}
+                    </button>
+                )}
+            </div>
+            {/*  */}
+            <Popup
+                isOpen={isPropositionPopupOpen}
+                onClose={() => setIsPropositionPopupOpen(false)}
+                position="center"
+                size="lg"
+                showCloseButton
+            >
+                <div className="max-w-3xl mx-auto text-left">
+                    <h2 className="text-2xl font-bold text-blue-800 mb-8 text-center flex items-center justify-center gap-2">
+                        <FiFileText className="text-2xl" /> Curriculum Change Proposals
+                    </h2>
 
-                            {propositions === null ? (
-                                <p className="text-gray-500 text-center">Loading...</p>
-                            ) : Array.isArray(propositions) && propositions.length === 0 ? (
-                                <p className="text-gray-500 text-center">No proposals available.</p>
-                            ) : (
-                                <div className="space-y-5 max-h-[65vh] overflow-y-auto pr-2">
-                                    {propositions.map((p) => (
-                                        <div
-                                            key={p._id}
-                                            className="border border-gray-200 rounded-xl p-5 bg-white shadow-sm relative"
-                                        >
-                                            {/* Status */}
-                                            <div className="absolute top-4 right-4 text-sm space-y-1 text-right">
-                                                {p.isApproved === true ? (
-                                                    <div className="text-green-600 space-y-1">
-                                                        <div className="flex items-center justify-end gap-1 font-semibold">
-                                                            <FiCheckCircle />
-                                                            <span>Approved</span>
-                                                        </div>
-                                                        <div className="flex items-center justify-end gap-1 text-xs text-gray-600">
-                                                            <FiUser /> <span><b>{`${p.reviewer?.firstName} ${p.reviewer?.lastName}`}</b></span>
-                                                        </div>
-                                                        {p.reviewDate && (
-                                                            <div className="flex items-center justify-end gap-1 text-xs text-gray-500">
-                                                                <FiCalendar />
-                                                                <span>on <b>{humanizeDate(p.reviewDate, true)}</b></span>
-                                                            </div>
-                                                        )}
-                                                    </div>
-                                                ) : p.isApproved === false ? (
-                                                    <div className="text-red-600 space-y-1">
-                                                        <div className="flex items-center justify-end gap-1 font-semibold">
-                                                            <FiXCircle />
-                                                            <span>Declined</span>
-                                                        </div>
-                                                        <div className="flex items-center justify-end gap-1 text-xs text-gray-600">
-                                                            <FiUser /> <span><b>{`${p.reviewer?.firstName} ${p.reviewer?.lastName}`}</b></span>
-                                                        </div>
-                                                        {p.reviewDate && (
-                                                            <div className="flex items-center justify-end gap-1 text-xs text-gray-500">
-                                                                <FiCalendar />
-                                                                <span>on <b>{humanizeDate(p.reviewDate, true)}</b></span>
-                                                            </div>
-                                                        )}
-                                                    </div>
-                                                ) : (
-                                                    <div className="text-yellow-600">
-                                                        <div className="flex items-center justify-end gap-1 font-semibold">
-                                                            <FiClock />
-                                                            <span>Pending</span>
-                                                        </div>
+                    {propositions === null ? (
+                        <p className="text-gray-500 text-center">Loading...</p>
+                    ) : Array.isArray(propositions) && propositions.length === 0 ? (
+                        <p className="text-gray-500 text-center">No proposals available.</p>
+                    ) : (
+                        <div className="space-y-5 max-h-[65vh] overflow-y-auto pr-2">
+                            {propositions.map((p) => (
+                                <div
+                                    key={p._id}
+                                    className="border border-gray-200 rounded-xl p-5 bg-white shadow-sm relative"
+                                >
+                                    {/* Status */}
+                                    <div className="absolute top-4 right-4 text-sm space-y-1 text-right">
+                                        {p.isApproved === true ? (
+                                            <div className="text-green-600 space-y-1">
+                                                <div className="flex items-center justify-end gap-1 font-semibold">
+                                                    <FiCheckCircle />
+                                                    <span>Approved</span>
+                                                </div>
+                                                <div className="flex items-center justify-end gap-1 text-xs text-gray-600">
+                                                    <FiUser /> <span><b>{`${p.reviewer?.firstName} ${p.reviewer?.lastName}`}</b></span>
+                                                </div>
+                                                {p.reviewDate && (
+                                                    <div className="flex items-center justify-end gap-1 text-xs text-gray-500">
+                                                        <FiCalendar />
+                                                        <span>on <b>{humanizeDate(p.reviewDate, true)}</b></span>
                                                     </div>
                                                 )}
                                             </div>
-
-                                            {/* Header */}
-                                            <div className="mb-2">
-                                                <p className="text-base font-semibold text-gray-700">
-                                                    📚 Proposed by <span className="text-blue-600">{`${p.teacherId[0].firstName} ${p.teacherId[0].lastName}`}</span>
-                                                </p>
-                                                <p className="text-xs text-gray-400 mt-1 flex items-center gap-1">
-                                                    <FiCalendar className="text-sm" />
-                                                    {humanizeDate(p.createdAt, true)}
-                                                </p>
-                                            </div>
-
-                                            {/* Reason */}
-                                            <div className="mb-1 mt-5 bg-gray-50 border rounded-md p-2">
-                                                <p className="text-sm text-gray-700">
-                                                    <strong>📝 Reason:</strong> {p.reason}
-                                                </p>
-                                            </div>
-
-                                            {/* Curriculum details */}
-                                            <div className="bg-gray-50 border rounded-lg p-4 text-sm space-y-2">
-                                                <p className="text-center"><strong>Proposed Curriculum </strong>  </p>
-                                                <p><strong>🗓️ Semester:</strong> {p.curriculum?.semestre}</p>
-                                                <p><strong>🌐 Language:</strong> {p.curriculum?.langue}</p>
-                                                <p><strong>⏱️ Total Hours:</strong> {p.curriculum?.volume_horaire_total}</p>
-                                                <p><strong>📖 Teaching Type:</strong> {p.curriculum?.type_enseignement}</p>
-
-                                                {Array.isArray(p.curriculum?.prerequis_recommandes) && p.curriculum.prerequis_recommandes.length > 0 && (
-                                                    <p><strong>✅ Prerequisites:</strong> {p.curriculum.prerequis_recommandes.join(", ")}</p>
+                                        ) : p.isApproved === false ? (
+                                            <div className="text-red-600 space-y-1">
+                                                <div className="flex items-center justify-end gap-1 font-semibold">
+                                                    <FiXCircle />
+                                                    <span>Declined</span>
+                                                </div>
+                                                <div className="flex items-center justify-end gap-1 text-xs text-gray-600">
+                                                    <FiUser /> <span><b>{`${p.reviewer?.firstName} ${p.reviewer?.lastName}`}</b></span>
+                                                </div>
+                                                {p.reviewDate && (
+                                                    <div className="flex items-center justify-end gap-1 text-xs text-gray-500">
+                                                        <FiCalendar />
+                                                        <span>on <b>{humanizeDate(p.reviewDate, true)}</b></span>
+                                                    </div>
                                                 )}
-
-                                                {Array.isArray(p.curriculum?.chapitres) && p.curriculum.chapitres.length > 0 && (
-                                                    <CurriculumChapters curriculum={p.curriculum} />
-                                                )}
-
-                                                <div>
-                                                    <strong>💡 Skills:</strong>
-                                                    <SkillList skills={p.skillsId} />
+                                            </div>
+                                        ) : (
+                                            <div className="text-yellow-600">
+                                                <div className="flex items-center justify-end gap-1 font-semibold">
+                                                    <FiClock />
+                                                    <span>Pending</span>
                                                 </div>
                                             </div>
+                                        )}
+                                    </div>
 
-                                            {/* Buttons */}
-                                            {p.isApproved === null && (
-                                                <div className="flex justify-end gap-3 mt-5">
-                                                    <button
-                                                        className="flex items-center gap-2 px-4 py-2 bg-teal-600 text-white rounded-md hover:bg-teal-800 text-sm transition"
-                                                        onClick={() => handleUpdateStatus(p._id, true)}
-                                                    >
-                                                        <FiCheckCircle /> Approve
-                                                    </button>
-                                                    <button
-                                                        className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-800 text-sm transition"
-                                                        onClick={() => handleUpdateStatus(p._id, false)}
-                                                    >
-                                                        <FiXCircle /> Decline
-                                                    </button>
-                                                </div>
-                                            )}
+                                    {/* Header */}
+                                    <div className="mb-2">
+                                        <p className="text-base font-semibold text-gray-700">
+                                            📚 Proposed by <span className="text-blue-600">{`${p.teacherId[0].firstName} ${p.teacherId[0].lastName}`}</span>
+                                        </p>
+                                        <p className="text-xs text-gray-400 mt-1 flex items-center gap-1">
+                                            <FiCalendar className="text-sm" />
+                                            {humanizeDate(p.createdAt, true)}
+                                        </p>
+                                    </div>
+
+                                    {/* Reason */}
+                                    <div className="mb-1 mt-5 bg-gray-50 border rounded-md p-2">
+                                        <p className="text-sm text-gray-700">
+                                            <strong>📝 Reason:</strong> {p.reason}
+                                        </p>
+                                    </div>
+
+                                    {/* Curriculum details */}
+                                    <div className="bg-gray-50 border rounded-lg p-4 text-sm space-y-2">
+                                        <p className="text-center"><strong>Proposed Curriculum </strong>  </p>
+                                        <p><strong>🗓️ Semester:</strong> {p.curriculum?.semestre}</p>
+                                        <p><strong>🌐 Language:</strong> {p.curriculum?.langue}</p>
+                                        <p><strong>⏱️ Total Hours:</strong> {p.curriculum?.volume_horaire_total}</p>
+                                        <p><strong>📖 Teaching Type:</strong> {p.curriculum?.type_enseignement}</p>
+
+                                        {Array.isArray(p.curriculum?.prerequis_recommandes) && p.curriculum.prerequis_recommandes.length > 0 && (
+                                            <p><strong>✅ Prerequisites:</strong> {p.curriculum.prerequis_recommandes.join(", ")}</p>
+                                        )}
+
+                                        {Array.isArray(p.curriculum?.chapitres) && p.curriculum.chapitres.length > 0 && (
+                                            <CurriculumChapters curriculum={p.curriculum} />
+                                        )}
+
+                                        <div>
+                                            <strong>💡 Skills:</strong>
+                                            <SkillList skills={p.skillsId} />
                                         </div>
-                                    ))}
-                                </div>
-                            )}
+                                    </div>
 
-                            {/* <div className="mt-6 flex justify-center">
+                                    {/* Buttons */}
+                                    {p.isApproved === null && (
+                                        <div className="flex justify-end gap-3 mt-5">
+                                            <button
+                                                className="flex items-center gap-2 px-4 py-2 bg-teal-600 text-white rounded-md hover:bg-teal-800 text-sm transition"
+                                                onClick={() => handleUpdateStatus(p._id, true)}
+                                            >
+                                                <FiCheckCircle /> Approve
+                                            </button>
+                                            <button
+                                                className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-800 text-sm transition"
+                                                onClick={() => handleUpdateStatus(p._id, false)}
+                                            >
+                                                <FiXCircle /> Decline
+                                            </button>
+                                        </div>
+                                    )}
+                                </div>
+                            ))}
+                        </div>
+                    )}
+
+                    {/* <div className="mt-6 flex justify-center">
                                 <button
                                     onClick={() => setIsPropositionPopupOpen(false)}
                                     className="flex items-center gap-2 bg-gray-600 text-white px-5 py-2 rounded-md hover:bg-gray-700 transition"
@@ -493,30 +537,9 @@ const SubjectDetailsPage = () => {
                                     <FiX /> Close
                                 </button>
                             </div> */}
-                        </div>
-                    </Popup>
-
-                </>
-            )}
-            {/* Bouton pour Proposer une modification ou Go Back */}
-            {showForm ? (
-                <button
-                    onClick={toggleForm}
-                    className="flex justify-center items-center bg-gray-300 text-gray-800 px-4 py-2 rounded-lg font-semibold hover:bg-gray-400 transition duration-200 sm:w-auto w-full mb-2 sm:mb-0"
-                >
-                    <FaArrowLeft className="mr-2" />
-                    Go Back
-                </button>
-            ) : (
-                <button
-                    onClick={toggleForm}
-                    className="flex justify-center items-center bg-blue-400 text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-200 hover:text-blue-900 transition duration-200 sm:w-auto w-full mb-2 sm:mb-0"
-                >
-                    <FaEdit className="mr-2" />
-                    {userRole === RoleEnum.ADMIN ? 'Edit' : 'Propose an Edit'}
-                </button>
-            )}
-        </div>
+                </div>
+            </Popup>
+        </>
     );
 
 

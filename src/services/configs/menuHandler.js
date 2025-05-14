@@ -26,6 +26,7 @@ import Home from "../../pages/homePage/Home";
 import Notifications from "../../pages/Notifications";
 import OptionListPage from "../../pages/optionPage/OptionListPage";
 import OptionPage from "../../pages/optionPage/OptionPage";
+import OptionsListForStudentPage from "../../pages/optionsListForStudentsPage/OptionsListForStudentsPage.jsx";
 import AdminPfeManagement from "../../pages/pfePage/pfeadmin";
 import TeacherPFEList from "../../pages/pfePage/pfeens";
 import PFEStudent from "../../pages/pfePage/pfeStudent";
@@ -33,13 +34,13 @@ import PlanningPage from "../../pages/pfePage/planning";
 import PlanninginternshipPage from "../../pages/planningPage/PlanningPage";
 import InternshipPlanning from "../../pages/PlanningUpdate/InternshipPlanningUpdate";
 import InternshipList from "../../pages/studentInternshipPage/studentInternship";
+import EvaluationFormPage from "../../pages/subjectsPage/EvaluationPage.jsx";
 import Subjects from "../../pages/subjectsPage/Subjects";
 import TeacherInternshipList from "../../pages/teacherInternshipPage/TeacherInternshipPage";
 import StudentsListTeachers from "../../pages/usersListPage/StudentsListTeachers";
 import StudentsManagPage from "../../pages/UsersManagementPage/StudentsManagPage";
 import TeachersManagPage from "../../pages/UsersManagementPage/TeachersManagPage";
 import { RoleEnum } from "../../utils/userRoles";
-import OptionsListForStudentPage from "../../pages/optionsListForStudentsPage/OptionsListForStudentsPage.jsx";
 export const menuConfig = [
   {
     order: 1,
@@ -118,6 +119,17 @@ export const menuConfig = [
     path: (id) => `/subjects/${id}`, // Dynamic path
     component: SubjectDetailsPage,
     eligibleRoles: [RoleEnum.ADMIN, RoleEnum.TEACHER, RoleEnum.STUDENT],
+    active: true,
+    hideSideBar: false,
+    hideHeader: false,
+    dontShow: true,
+  }, {
+    order: 77,
+    // label: 'Subject Details',
+    icon: undefined,
+    path: (id) => `/subjects/${id}/evaluation`, // Dynamic path
+    component: EvaluationFormPage,
+    eligibleRoles: [RoleEnum.STUDENT],
     active: true,
     hideSideBar: false,
     hideHeader: false,
