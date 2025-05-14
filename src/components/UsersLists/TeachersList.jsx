@@ -83,7 +83,6 @@ export function TeachersList({ onAddClick }) {
 
   // Directly attempt to delete without confirmation popup
   const handleDeleteClick = async (teacher) => {
-    setIsDeleting(true);
     setTeacherToDelete(teacher);
 
     try {
@@ -106,40 +105,43 @@ export function TeachersList({ onAddClick }) {
       }
     } catch (error) {
       console.error("Error deleting teacher:", error);
-      toast.error("Failed to delete teacher. Please try again.");
-    } finally {
-      if (!showForceDeleteModal) {
+      
+      // Check if error contains dependency information
+      if (error.response?.data?.hasDependencies || 
+          error.response?.data?.courses || 
+          error.response?.data?.supervising) {
+        
+        setDeleteDetails({
+          courses: error.response.data.courses || 0,
+          supervising: error.response.data.supervising || 0,
+          ...(error.response.data.details || {})
+        });
+        setShowForceDeleteModal(true);
+      } else {
+        toast.error("Failed to delete teacher. Please try again.");
         setIsDeleting(false);
         setTeacherToDelete(null);
       }
     }
   };
-
-  const handleCancelDelete = () => {
-    setShowForceDeleteModal(false);
-    setTeacherToDelete(null);
-    setDeleteDetails(null);
-    setIsDeleting(false);
-  };
-
   const handleForceDelete = async () => {
     if (!teacherToDelete) return;
-
+    
     try {
-      // Call delete with force=true
+      // Second API call with force: true when user confirms
       const response = await deleteTeacher(teacherToDelete._id, true);
 
       if (response.success) {
-        // Remove the deleted teacher from the list
+        // Update teacher lists after successful force deletion
         const updatedTeachersList = teachersList.filter(
-          (teacher) => teacher._id !== teacherToDelete._id
+          teacher => teacher._id !== teacherToDelete._id
         );
         setTeachersList(updatedTeachersList);
         toast.success(
           `${teacherToDelete.firstName} ${teacherToDelete.lastName} has been deleted successfully (force delete)`
         );
       } else {
-        toast.error(`Error: ${response.message}`);
+        toast.error(response.message || "Force deletion failed");
       }
     } catch (error) {
       console.error("Error force deleting teacher:", error);
@@ -151,6 +153,14 @@ export function TeachersList({ onAddClick }) {
       setIsDeleting(false);
     }
   };
+  const handleCancelDelete = () => {
+    setShowForceDeleteModal(false);
+    setTeacherToDelete(null);
+    setDeleteDetails(null);
+    setIsDeleting(false);
+  };
+
+ 
 
   const watch = async (teacherId) => {
     try {
