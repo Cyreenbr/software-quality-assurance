@@ -10,6 +10,8 @@ import { CgEyeAlt } from "react-icons/cg";
 import { RiLockPasswordFill } from "react-icons/ri";
 import { FaPlus } from "react-icons/fa";
 import Swal from "sweetalert2";
+
+import { useNavigate } from "react-router-dom";
 export default function StudentList({ onAddClick }) {
   const [studentsList, setStudentsList] = useState([]);
   const [filteredStudents, setFilteredStudents] = useState([]);
@@ -55,7 +57,21 @@ export default function StudentList({ onAddClick }) {
   useEffect(() => {
     setFilteredStudents(studentsList);
   }, [studentsList]);
+  const navigate = useNavigate();
 
+  const navigateToCV = (studentId) => {
+    if (!studentId) {
+      Swal.fire({
+        title: "Erreur",
+        text: "Identifiant d'étudiant manquant",
+        icon: "error",
+      });
+      return;
+    }
+    
+    // Navigation vers la page du CV académique
+    navigate(`/cv/generate/${studentId}`);
+  };
   // Toast function
   const showToast = (message, type = "success") => {
     setToast({
@@ -700,12 +716,13 @@ export default function StudentList({ onAddClick }) {
                       {formatDate(student.createdAt)}
                     </td>
                     <td className="py-3 px-6 text-center flex justify-center space-x-2">
-                      <button
-                        onClick={() => watch(student._id)}
-                        className="bg-green-500 text-white p-2 rounded-full hover:bg-green-600"
-                      >
-                        <CgEyeAlt size={18} />
-                      </button>
+                    <button
+          onClick={() => navigateToCV(student._id)}
+          className="bg-yellow-500 text-white p-2 rounded-full hover:bg-yellow-600"
+          title="Voir le CV académique"
+        >
+          <CgEyeAlt size={18} />
+        </button>
                       <button
                         onClick={() => edit(student._id)}
                         className="bg-blue-500 text-white p-2 rounded-full hover:bg-blue-600"

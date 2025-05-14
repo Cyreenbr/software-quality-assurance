@@ -12,7 +12,8 @@ import {
   MdDownload,
   MdHome,
   MdList,
-  MdNotifications
+  MdNotifications,
+   MdAccountCircle
 } from "react-icons/md";
 import { PiStudentBold, PiStudentFill } from "react-icons/pi";
 import Pfa from "../../../src/pages/pfaPage/Pfa";
@@ -39,7 +40,12 @@ import StudentsListTeachers from "../../pages/usersListPage/StudentsListTeachers
 import StudentsManagPage from "../../pages/UsersManagementPage/StudentsManagPage";
 import TeachersManagPage from "../../pages/UsersManagementPage/TeachersManagPage";
 import { RoleEnum } from "../../utils/userRoles";
+
+import StudentCVPage from "../../pages/StudentCVPage";
+import Profile from "../../pages/profilePage/Profile"
+
 import OptionsListForStudentPage from "../../pages/optionsListForStudentsPage/OptionsListForStudentsPage.jsx";
+
 export const menuConfig = [
   {
     order: 1,
@@ -248,20 +254,7 @@ export const menuConfig = [
     hideHeader: false,
   },
 
-  /*{
-    order: 16,
-    label: "PFE",
-    icon: FaGraduationCap,
-    path: "/pfeStudent",
-    tooltip: "pfe",
-    component: PFEStudent,
-    eligbleRoles: [RoleEnum.STUDENT],
-    //eligibleLevels: [RoleEnum.ISPFE],
-    active: true,
-    dontShow: false,
-    hideSideBar: false,
-    hideHeader: false,
-  },*/
+
   {
     order: 16,
     label: "PFE",
@@ -361,6 +354,32 @@ export const menuConfig = [
   },
   {
     order: 28,
+
+    label: "CVAcademic",
+    icon: MdList,
+    path: "/cv/generate/:id",
+    tooltip: "StudentCVPage ",
+    component: StudentCVPage,
+    eligibleRoles: [RoleEnum.ADMIN, RoleEnum.TEACHER],
+    active: true,
+    dontShow: true,
+    hideSideBar: false,
+    hideHeader: false,
+  },
+   {
+   order: 29,
+    label: "Profile",
+    icon: MdAccountCircle,
+    path: "/profile",
+     component: Profile,
+    eligibleRoles: [RoleEnum.ADMIN, RoleEnum.TEACHER, RoleEnum.STUDENT],
+    active: true,
+    hideSideBar: false,
+     hideHeader: false,
+   },
+   
+ {
+   order: 30,
     label: "List Options",
     icon: MdAutoStories,
     path: "/list-options",
