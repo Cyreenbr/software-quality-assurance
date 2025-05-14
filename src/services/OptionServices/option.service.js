@@ -11,11 +11,36 @@ export const chooseOption = async (optionData) => {
         throw error;
     }
 };
+export const getQuota = async (response) => {
+    try {
+        const res = await axiosAPI.get(`/options/quota`);
+        console.log("Option quota retrieved successfully:", res.data);
+        return res.data;
+    } catch (error) {
+        console.error(
+            "Error getting quota options:",
+            error.response?.data || error.message
+        );
+        throw error;
+    }
+};
+export const editquota = async (response) => {
+    try {
+        const res = await axiosAPI.post(`/options/quota`, response);
+        console.log("Quota updated successfully:", res.data);
+        return res.data;
+    } catch (error) {
+        console.error(
+            "Error updating quota:",
+            error.response?.data || error.message
+        );
+        throw error;
+    }
+};
 export const getOptions = async () => {
     try {
         console.log("Fetching options list data...");
         const response = await axiosAPI.get('/options/students');
-
         console.log("Options retrieved successfully:", response.data);
         return response.data;
     } catch (error) {
@@ -119,3 +144,31 @@ export const ListIsPublished = async () => {
         throw error;
     }
 };
+
+export const notifyStudentsOfOptions = async (params) => {
+    try {
+        // Change to POST and pass the parameters
+        const response = await axiosAPI.post(`/options/send`, params);
+        console.log("Option list publication status:", response.data);
+        return response.data;
+    } catch (error) {
+        console.error(
+            "Error checking publication status:",
+            error.response?.data || error.message
+        );
+        throw error;
+    }
+};
+export const validatestudentsOptions = async () => {
+    try {
+        const response = await axiosAPI.patch(`/options/validate`);
+        console.log("Option list publication status:", response.data.message);
+        return response.data;
+    } catch (error) {
+        console.error(
+            "Error checking publication status:",
+            error.response?.data || error.message
+        );
+        throw error;
+    }
+}

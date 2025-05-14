@@ -1,4 +1,3 @@
-import React from "react";
 import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
 import Layout from "./components/Layout";
 import NotFound404 from "./components/skillsComponents/NotFound404";
@@ -7,6 +6,9 @@ import ErrorPage from "./pages/ErrorPage";
 import SignIn from "./pages/signinPage/SignIn";
 import SignUp from "./pages/signupPage/SignUp";
 import { menuConfig } from "./services/configs/menuHandler";
+import ProfilePage from "../src/pages/profilePage/Profile";
+import EditProfilePage from "../src/pages/profilePage/EditProfilePage";  
+import MyCV from "./pages/MyCV";
 
 // Higher-order component to wrap pages with Layout
 const withLayout = (Component, hideSideBar = false, hideHeader = false) => (
@@ -56,6 +58,11 @@ function App() {
         {/* Authentication Pages */}
         <Route path="/signin" element={withLayout(SignIn, true)} />
         <Route path="/signup" element={withLayout(SignUp, true)} />
+        
+        <Route path="/profile" element={<ProfilePage />} />
+        <Route path="/edit-profile" element={<EditProfilePage />} />
+        
+        <Route path="/cv/me" element={<MyCV/>} />
 
         {/* Error Handling */}
         <Route path="/error" element={withLayout(ErrorPage)} />

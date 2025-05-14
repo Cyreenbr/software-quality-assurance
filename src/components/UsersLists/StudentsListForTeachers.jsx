@@ -1,5 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { getStudentsforTearchers } from "../../services/ManageUsersServices/students.service";
+import { useNavigate } from "react-router-dom";
+import { CgEyeAlt } from "react-icons/cg";
+import Swal from "sweetalert2";
 
 const StudentsListForTeachers = ({ onAddClick }) => {
   const [students, setStudents] = useState([]);
@@ -7,6 +10,7 @@ const StudentsListForTeachers = ({ onAddClick }) => {
   const [filteredStudents, setFilteredStudents] = useState([]);
   const [selectedLevel, setSelectedLevel] = useState("");
   const [error, setError] = useState(null);
+  const [toast, setToast] = useState({ show: false, message: "", type: "success" });
 
   useEffect(() => {
     const fetchStudents = async () => {
@@ -31,6 +35,35 @@ const StudentsListForTeachers = ({ onAddClick }) => {
     };
     fetchStudents();
   }, []);
+  
+  const navigate = useNavigate();
+  
+  const navigateToCV = (studentId) => {
+    if (!studentId) {
+      Swal.fire({
+        title: "Erreur",
+        text: "Identifiant d'étudiant manquant",
+        icon: "error",
+      });
+      return;
+    }
+    // Navigation vers la page du CV académique
+    navigate(`/cv/generate/${studentId}`);
+    showToast("Generating academic CV...");
+  };
+
+  // Toast function
+  const showToast = (message, type = "success") => {
+    setToast({
+      show: true,
+      message,
+      type,
+    });
+
+    setTimeout(() => {
+      setToast((prev) => ({ ...prev, show: false }));
+    }, 3000);
+  };
 
   const handleLevelFilter = (e) => {
     const level = e.target.value;
@@ -39,19 +72,36 @@ const StudentsListForTeachers = ({ onAddClick }) => {
       level ? students.filter((s) => s.level === level) : students
     );
   };
+  
   const formatDate = (dateString) => {
     if (!dateString) return "";
     const date = new Date(dateString);
     return date.toLocaleDateString();
   };
+  
   if (loading) {
-    return <div>Loading...</div>;
+    return (
+      <div className="flex justify-center items-center p-10">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+      </div>
+    );
   }
+  
   if (error) {
-    return <div className="text-red-500">Error: {error}</div>;
+    return <div className="text-red-500 p-6 text-center">Error: {error}</div>;
   }
+  
   return (
     <div className="bg-white p-6 rounded-lg shadow-lg mb-6">
+      {/* Toast notification */}
+      {toast.show && (
+        <div className={`fixed top-4 right-4 px-4 py-2 rounded-md shadow-lg z-50 ${
+          toast.type === "success" ? "bg-green-500" : "bg-red-500"
+        } text-white`}>
+          {toast.message}
+        </div>
+      )}
+      
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-xl font-semibold">List of Students</h2>
         {onAddClick && (
@@ -98,6 +148,9 @@ const StudentsListForTeachers = ({ onAddClick }) => {
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
                 Enrollement Date
               </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+                Actions
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -115,11 +168,20 @@ const StudentsListForTeachers = ({ onAddClick }) => {
                   <td className="py-3 px-6 text-left">
                     {formatDate(student.createdAt)}
                   </td>
+                  <td className="py-3 px-6 text-center flex justify-center space-x-2">
+                    <button
+                      onClick={() => navigateToCV(student._id)}
+                      className="bg-yellow-500 text-white p-2 rounded-full hover:bg-yellow-600 transition-colors duration-200"
+                      title="View Academic CV"
+                    >
+                      <CgEyeAlt size={18} />
+                    </button>
+                  </td>
                 </tr>
               ))
             ) : (
               <tr>
-                <td colSpan="4" className="py-4 px-6 text-center text-gray-500">
+                <td colSpan="5" className="py-4 px-6 text-center text-gray-500">
                   No students available
                 </td>
               </tr>
