@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import PageLayout from "../../components/skillsComponents/PageLayout";
+import StarRating from "../../components/subjectsComponents/StarRating";
 import matieresServices from "../../services/matieresServices/matieres.service";
 
 const initialCriteria = [
@@ -19,27 +20,37 @@ const EvaluationFormPage = () => {
     const [evaluation, setEvaluation] = useState(initialCriteria);
     const [additionalComment, setAdditionalComment] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
+    const [hasError, setHasError] = useState(false); // Ajout d'un état pour éviter des toasts multiples
 
-    // Step 1: Check if user can evaluate first
     useEffect(() => {
-        const checkIfEvaluated = async () => {
+        let isMounted = true; // Pour éviter les erreurs après le démontage du composant
+
+        const init = async () => {
             try {
-                // This will throw if user cannot evaluate
+                if (!subjectId) throw new Error("Invalid subject ID");
                 await matieresServices.checkEvaluatedStudentMatiere(subjectId);
-                // Only fetch the subject if the user can evaluate
                 const { subject } = await matieresServices.fetchMatiereById(subjectId);
-                setTitle(subject.title);
+                if (isMounted) {
+                    setTitle(subject.title);
+                }
             } catch (err) {
-                // If user cannot evaluate, show error and redirect
-                toast.error(err.message || "You cannot evaluate this subject.");
-                navigate(-1); // Redirect to previous page
+                if (!hasError) { // Empêche d'afficher plusieurs fois le toast
+                    toast.error(err.message || "You cannot evaluate this subject.");
+                    setHasError(true); // Marque qu'une erreur a été affichée
+                    navigate(-1); // Redirige
+                }
+            } finally {
+                if (isMounted) setIsLoading(false);
             }
         };
 
-        if (subjectId) {
-            checkIfEvaluated();
-        }
-    }, [subjectId, navigate]);
+        init();
+
+        return () => {
+            isMounted = false;
+        };
+    }, [subjectId, navigate, hasError]); // Ajout de `hasError` pour éviter l'affichage multiple
 
     const handleRankChange = (index, value) => {
         const updated = [...evaluation];
@@ -58,10 +69,7 @@ const EvaluationFormPage = () => {
     };
 
     const handleAddCriterion = () => {
-        setEvaluation([
-            ...evaluation,
-            { description: "", rank: 0 }
-        ]);
+        setEvaluation([...evaluation, { description: "", rank: 0 }]);
     };
 
     const handleSubmit = async () => {
@@ -71,8 +79,8 @@ const EvaluationFormPage = () => {
             return toast.error("Each added criterion must have a description.");
         }
 
-        if (evaluation.some(e => e.rank < 1 || e.rank > 5)) {
-            return toast.error("All criteria must be rated from 1 to 5.");
+        if (evaluation.some(e => e.rank < 0 || e.rank > 5)) {
+            return toast.error("All criteria must be rated from 0 to 5.");
         }
 
         try {
@@ -86,6 +94,10 @@ const EvaluationFormPage = () => {
             setIsSubmitting(false);
         }
     };
+
+    if (isLoading) {
+        return <PageLayout title="Loading..."><div className="text-center p-6">Checking evaluation rights...</div></PageLayout>;
+    }
 
     return (
         <PageLayout title={`Evaluation Form for ${title}`}>
@@ -103,14 +115,9 @@ const EvaluationFormPage = () => {
                                 className="w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring focus:border-blue-400"
                             />
                         )}
-                        <input
-                            type="number"
-                            min={1}
-                            max={5}
+                        <StarRating
                             value={item.rank}
-                            onChange={(e) => handleRankChange(index, e.target.value)}
-                            className="w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring focus:border-blue-400"
-                            placeholder="Rank from 1 to 5"
+                            onChange={(value) => handleRankChange(index, value)}
                         />
                     </div>
                 ))}

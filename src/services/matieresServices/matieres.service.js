@@ -235,6 +235,27 @@ const matieresServices = {
         }
     },
 
+    validatePropositionMatiere: async (id, subjectId, isApproved = false) => {
+        if (!id || !subjectId) {
+            throw new Error("Invalid subject data: Missing ID.");
+        }
+        const data = {
+            subjectId,
+            isApproved,
+        };
+
+        try {
+            const response = await axiosAPI.patch(`/matieres/${id}/validate`, data);
+            if (response.status >= 200 && response.status < 300) {
+                return response.data;
+            } else {
+                throw new Error("Unexpected response from server.");
+            }
+        } catch (err) {
+            throw err.response?.data?.error || err.response?.data?.message || "Failed to update subject.";
+        }
+    },
+
     fetchTeachers: async ({ page = 1, searchTerm = '', sortBy = '_id', order = 'desc', limit = 5 }) => {
         try {
             const response = await axiosAPI.get("/teachers/forForm", {
