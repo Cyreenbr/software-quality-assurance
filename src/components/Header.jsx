@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   MdAccountCircle,
   MdExitToApp,
@@ -13,6 +13,7 @@ import { ClipLoader } from "react-spinners";
 import isammLogo from "../assets/logo_isamm.png";
 import { logoutUser } from "../redux/authSlice";
 import Breadcrumb from "./Breadcrumb";
+import NotificationDropdown from "./NotificationDropdown";
 import Tooltip from "./skillsComponents/Tooltip";
 
 const Header = ({ isSidebarOpen, setIsSidebarOpen }) => {
@@ -20,7 +21,7 @@ const Header = ({ isSidebarOpen, setIsSidebarOpen }) => {
   const dispatch = useDispatch();
   const [loading, setLoading] = useState(false);
   const token = useSelector((state) => state.auth.token);
-  // Gestion unifiée des popups
+  // Unified popup management
   const [openMenu, setOpenMenu] = useState(null);
   const menuRef = useRef(null);
 
@@ -49,10 +50,10 @@ const Header = ({ isSidebarOpen, setIsSidebarOpen }) => {
     }, 100);
   };
 
-  // Fonction pour naviguer vers la page de profil
+  // Function to navigate to profile page
   const navigateToProfile = () => {
-    setOpenMenu(null); // Fermer les menus ouverts
-    navigate("/profile"); // Naviguer vers la route du profil
+    setOpenMenu(null); // Close open menus
+    navigate("/profile"); // Navigate to profile route
   };
 
   return (
@@ -111,7 +112,7 @@ const Header = ({ isSidebarOpen, setIsSidebarOpen }) => {
               </div>
 
               <div className="hidden md:flex items-center space-x-4">
-                {/* Profile - Modifié pour utiliser la navigation */}
+                {/* Profile - Modified to use navigation */}
                 <Tooltip text="Profile" position="bottom">
                   <button 
                     className="text-gray-600 hover:text-indigo-600 p-2 rounded-full hover:bg-gray-100 transition-all"
@@ -205,8 +206,6 @@ const Header = ({ isSidebarOpen, setIsSidebarOpen }) => {
           )}
         </div>
       </div>
-
-      {/* Suppression du ProfileModal qui n'est plus utilisé */}
     </>
   );
 };

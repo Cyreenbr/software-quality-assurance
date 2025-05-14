@@ -1,8 +1,8 @@
-import { FaCalendarAlt, FaCheckCircle, FaClock, FaEnvelope, FaFileAlt, FaUserTie, FaVideo } from "react-icons/fa";
+import { FaCalendarAlt, FaClock, FaEnvelope, FaFileAlt, FaUserTie, FaVideo } from "react-icons/fa";
 
 const InternshipCard = ({ internship }) => {
   return (
-    <div className=" border border-gray-300 p-6 shadow-sm rounded-lg hover:shadow-xl duration-300 hover:bg-gradient-to-r from-blue-50 to-purple-100">
+    <div className="border border-gray-300 p-6 shadow-sm rounded-lg hover:shadow-xl duration-300 hover:bg-gradient-to-r from-blue-50 to-purple-100">
       <table className="min-w-full table-auto">
         <tbody>
           <tr className="mb-4">
@@ -17,15 +17,15 @@ const InternshipCard = ({ internship }) => {
           </tr>
           <tr className="mb-4">
             <td className="px-4 py-3 text-gray-600 flex items-center gap-3">
+              <FaFileAlt className="text-blue-500" />
+              <span className="font-bold">Title:</span> {internship.titre || "No Title"}
+            </td>
+            <td className="px-4 py-3 text-gray-600 flex items-center gap-3">
               <FaClock className="text-gray-500" />
               <span className="font-bold">Late Submission:</span>
               <span className={`${internship.isRetard ? 'text-red-500' : 'text-green-500'}`}>
                 {internship.isRetard ? "Yes" : "No"}
               </span>
-            </td>
-            <td className="px-4 py-3 text-gray-600 flex items-center gap-3">
-              <FaCheckCircle className="text-green-500" />
-              <span className="font-bold">Submitted:</span> {internship.deposited ? "Yes" : "No"}
             </td>
           </tr>
           <tr className="mb-4">
