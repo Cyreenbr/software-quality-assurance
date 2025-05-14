@@ -47,7 +47,7 @@ const SubjectDetailsPage = () => {
     const [isPropositionPopupOpen, setIsPropositionPopupOpen] = useState(false);
     const [propositions, setPropositions] = useState(null);
     const deviceType = useDeviceType();
-    let positionTooltip = deviceType === "desktop" ? "bottom" : "left";
+    let positionTooltip = deviceType !== "mobile" ? "bottom" : "left";
 
 
     const fetchPropositions = useCallback(async () => {
@@ -180,7 +180,7 @@ const SubjectDetailsPage = () => {
             fetchRef.current = false;
             fetchSubject();
             setShowForm(false); // Hide the form after submission
-            toast.success(data.message || "Subject updated successfully!");
+            toast.success(data.message || "Proposition update for Subject have been added successfully!");
         } catch (error) {
             toast.error("Failed to update subject: " + error);
         }
