@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
 import { FaTimes } from "react-icons/fa"; // FontAwesome Close Icon
 
 const Popup = ({
@@ -9,9 +9,10 @@ const Popup = ({
     children,
     position = "center",
     showCloseButton = false,
-    closeButtonStyle = "absolute top-2 right-2 text-gray-600 hover:text-gray-900 cursor-pointer",
+    closeButtonStyle = "text-gray-600 hover:text-gray-900 cursor-pointer",
     zindex = "z-40",
     styles = "cursor-auto",
+    size = "", // New prop: 'sm' | 'md' | 'lg' | 'xl' | custom tailwind
 }) => {
     const popupRef = useRef(null);
 
@@ -44,43 +45,43 @@ const Popup = ({
         center: "text-center",
     };
 
+    const sizeClasses = {
+        sm: "w-full sm:w-3/4 md:w-1/2",
+        md: "w-full sm:w-3/4 md:w-2/3 lg:w-1/2",
+        lg: "w-full sm:w-4/5 md:w-3/4 lg:w-2/3 xl:w-1/2",
+        xl: "w-full sm:w-11/12 lg:w-4/5",
+        "2xl": "w-full sm:w-full max-w-6xl",
+    };
+
+    const popupWidth = sizeClasses[size] || size; // Allow custom Tailwind classes
+
     return (
         <div className={`fixed inset-0 flex items-center justify-center ${styles} ${zindex}`}>
             {/* Backdrop */}
-            <div
-                className="fixed inset-0 bg-black opacity-50"
-                onClick={onClose}
-            />
+            <div className="fixed inset-0 bg-black opacity-50" onClick={onClose} />
 
             {/* Popup Container */}
-            {/* <div
-                ref={popupRef}
-                className={`absolute ${positionClasses[position]} 
-                    bg-white shadow-lg rounded-md p-6 transition-all duration-300
-                    transform scale-100 opacity-100
-                    max-h-[90vh] overflow-auto
-                    w-full sm:w-3/4 md:w-2/3 lg:w-1/2 xl:w-1/3`}
-                role="dialog"
-                aria-labelledby="popup-title"
-                aria-hidden={!isOpen}
-            > */}
             <div
                 ref={popupRef}
                 className={`absolute ${positionClasses[position]} 
-        bg-white shadow-lg rounded-md p-6 transition-transform duration-300 ease-in-out
-        scale-95 sm:scale-100 transform opacity-100
-        w-full sm:w-3/4 md:w-2/3 lg:w-1/2 xl:w-1/3`} // max-h-[90vh] overflow-auto
+                    bg-white shadow-lg rounded-md p-6 transition-transform duration-300 ease-in-out
+                    scale-95 sm:scale-100 transform opacity-100
+                    ${sizeClasses[size]} max-h-[90vh] overflow-y-auto`}
                 role="dialog"
                 aria-labelledby="popup-title"
                 aria-hidden={!isOpen}
             >
-
+                {/* Title */}
                 {title && (
-                    <div id="popup-title" className={`${titlePositions[titlePosition]} text-lg font-semibold text-gray-800 mb-3`}>
+                    <div
+                        id="popup-title"
+                        className={`${titlePositions[titlePosition]} text-lg font-semibold text-gray-800 mb-3`}
+                    >
                         {title}
                     </div>
                 )}
 
+                {/* Close Button */}
                 {showCloseButton && (
                     <button
                         className={`absolute top-2 right-2 ${closeButtonStyle}`}
@@ -91,6 +92,7 @@ const Popup = ({
                     </button>
                 )}
 
+                {/* Popup Content */}
                 <div className="text-sm text-gray-700">{children}</div>
             </div>
         </div>

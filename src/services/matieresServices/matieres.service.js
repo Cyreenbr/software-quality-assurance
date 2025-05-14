@@ -12,10 +12,12 @@ const matieresServices = {
         }
     },
 
-    fetchMatiereById: async (id) => {
+    fetchMatiereById: async (id, page = 1, searchTerm = '', sortBy = '_id', order = 'desc', limit = 9) => {
         if (!id) throw new Error("Invalid subject ID.");
         try {
-            const response = await axiosAPI.get(`/matieres/${id}`);
+            const response = await axiosAPI.get(`/matieres/${id}`, {
+                params: { page, limit, searchTerm, sortBy, order }
+            });
             return response.data;
         } catch (err) {
             throw err.response?.data?.error || "Failed to fetch subject.";
@@ -69,6 +71,36 @@ const matieresServices = {
             throw err.response?.data?.error || err.response?.data?.message || "Failed to update subject.";
         }
     },
+    addUpdatePropositionMatiere: async (editSubject) => {
+        if (!editSubject || !editSubject._id) {
+            throw new Error("Invalid subject data: Missing ID.");
+        }
+        try {
+            const response = await axiosAPI.patch(`/matieres/${editSubject._id}/proposition`, editSubject);
+            if (response.status >= 200 && response.status < 300) {
+                return response.data;
+            } else {
+                throw new Error("Unexpected response from server.");
+            }
+        } catch (err) {
+            throw err.response?.data?.error || err.response?.data?.message || "Failed to update subject.";
+        }
+    },
+    fetchUpdatePropositionMatiere: async (subjectId) => {
+        if (!subjectId) {
+            throw new Error("Invalid subject data: Missing ID.");
+        }
+        try {
+            const response = await axiosAPI.get(`/matieres/${subjectId}/proposition`);
+            if (response.status >= 200 && response.status < 300) {
+                return response.data;
+            } else {
+                throw new Error("Unexpected response from server.");
+            }
+        } catch (err) {
+            throw err.response?.data?.error || "Failed to fetch subject.";
+        }
+    },
     updateMatiereAvancement: async (editSubject) => {
         if (!editSubject || !editSubject._id) {
             throw new Error("Invalid subject data: Missing ID.");
@@ -84,6 +116,27 @@ const matieresServices = {
             throw err.response?.data?.error || err.response?.data?.message || "Failed to update subject.";
         }
     },
+    validatePropositionMatiere: async (id, subjectId, isApproved = false) => {
+        if (!id || !subjectId) {
+            throw new Error("Invalid subject data: Missing ID.");
+        }
+        const data = {
+            subjectId,
+            isApproved,
+        };
+
+        try {
+            const response = await axiosAPI.patch(`/matieres/${id}/validate`, data);
+            if (response.status >= 200 && response.status < 300) {
+                return response.data;
+            } else {
+                throw new Error("Unexpected response from server.");
+            }
+        } catch (err) {
+            throw err.response?.data?.error || err.response?.data?.message || "Failed to update subject.";
+        }
+    },
+
     deleteMatiere: async (id, { forced = false, archive = false }) => {
         if (!id) {
             throw new Error("Invalid skill ID.");
