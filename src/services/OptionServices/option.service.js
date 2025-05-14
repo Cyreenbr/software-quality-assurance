@@ -41,7 +41,6 @@ export const getOptions = async () => {
     try {
         console.log("Fetching options list data...");
         const response = await axiosAPI.get('/options/students');
-
         console.log("Options retrieved successfully:", response.data);
         return response.data;
     } catch (error) {
