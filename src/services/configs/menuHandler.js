@@ -6,14 +6,14 @@ import {
 } from "react-icons/fa";
 import { GiTeacher } from "react-icons/gi";
 import {
+  MdAccountCircle,
   MdAssignmentAdd,
   MdAutoStories,
   MdCalendarMonth,
   MdDownload,
   MdHome,
   MdList,
-  MdNotifications,
-   MdAccountCircle
+  MdNotifications
 } from "react-icons/md";
 import { PiStudentBold, PiStudentFill } from "react-icons/pi";
 import Pfa from "../../../src/pages/pfaPage/Pfa";
@@ -27,6 +27,7 @@ import Home from "../../pages/homePage/Home";
 import Notifications from "../../pages/Notifications";
 import OptionListPage from "../../pages/optionPage/OptionListPage";
 import OptionPage from "../../pages/optionPage/OptionPage";
+import OptionsListForStudentPage from "../../pages/optionsListForStudentsPage/OptionsListForStudentsPage.jsx";
 import AdminPfeManagement from "../../pages/pfePage/pfeadmin";
 import TeacherPFEList from "../../pages/pfePage/pfeens";
 import PFEStudent from "../../pages/pfePage/pfeStudent";
@@ -34,6 +35,7 @@ import PlanningPage from "../../pages/pfePage/planning";
 import PlanninginternshipPage from "../../pages/planningPage/PlanningPage";
 import InternshipPlanning from "../../pages/PlanningUpdate/InternshipPlanningUpdate";
 import InternshipList from "../../pages/studentInternshipPage/studentInternship";
+import EvaluationFormPage from "../../pages/subjectsPage/EvaluationPage.jsx";
 import Subjects from "../../pages/subjectsPage/Subjects";
 import TeacherInternshipList from "../../pages/teacherInternshipPage/TeacherInternshipPage";
 import StudentsListTeachers from "../../pages/usersListPage/StudentsListTeachers";
@@ -41,10 +43,8 @@ import StudentsManagPage from "../../pages/UsersManagementPage/StudentsManagPage
 import TeachersManagPage from "../../pages/UsersManagementPage/TeachersManagPage";
 import { RoleEnum } from "../../utils/userRoles";
 
+import Profile from "../../pages/profilePage/Profile";
 import StudentCVPage from "../../pages/StudentCVPage";
-import Profile from "../../pages/profilePage/Profile"
-
-import OptionsListForStudentPage from "../../pages/optionsListForStudentsPage/OptionsListForStudentsPage.jsx";
 
 export const menuConfig = [
   {
@@ -124,6 +124,17 @@ export const menuConfig = [
     path: (id) => `/subjects/${id}`, // Dynamic path
     component: SubjectDetailsPage,
     eligibleRoles: [RoleEnum.ADMIN, RoleEnum.TEACHER, RoleEnum.STUDENT],
+    active: true,
+    hideSideBar: false,
+    hideHeader: false,
+    dontShow: true,
+  }, {
+    order: 77,
+    // label: 'Subject Details',
+    icon: undefined,
+    path: (id) => `/subjects/${id}/evaluation`, // Dynamic path
+    component: EvaluationFormPage,
+    eligibleRoles: [RoleEnum.STUDENT],
     active: true,
     hideSideBar: false,
     hideHeader: false,
@@ -366,20 +377,20 @@ export const menuConfig = [
     hideSideBar: false,
     hideHeader: false,
   },
-   {
-   order: 29,
+  {
+    order: 29,
     label: "Profile",
     icon: MdAccountCircle,
     path: "/profile",
-     component: Profile,
+    component: Profile,
     eligibleRoles: [RoleEnum.ADMIN, RoleEnum.TEACHER, RoleEnum.STUDENT],
     active: true,
     hideSideBar: false,
-     hideHeader: false,
-   },
-   
- {
-   order: 30,
+    hideHeader: false,
+  },
+
+  {
+    order: 30,
     label: "List Options",
     icon: MdAutoStories,
     path: "/list-options",
