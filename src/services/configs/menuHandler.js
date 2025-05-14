@@ -39,7 +39,7 @@ import StudentsListTeachers from "../../pages/usersListPage/StudentsListTeachers
 import StudentsManagPage from "../../pages/UsersManagementPage/StudentsManagPage";
 import TeachersManagPage from "../../pages/UsersManagementPage/TeachersManagPage";
 import { RoleEnum } from "../../utils/userRoles";
-
+import OptionsListForStudentPage from "../../pages/optionsListForStudentsPage/OptionsListForStudentsPage.jsx";
 export const menuConfig = [
   {
     order: 1,
@@ -196,7 +196,7 @@ export const menuConfig = [
   },
   {
     order: 13,
-    label: "Internship Deposit",
+    label: "My internships",
     icon: MdDownload,
     path: "/deposit",
     tooltip: "deposit",
@@ -356,6 +356,17 @@ export const menuConfig = [
     eligibleRoles: [RoleEnum.ADMIN, RoleEnum.STUDENT, RoleEnum.TEACHER],
     active: true,
     dontShow: true,
+    hideSideBar: false,
+    hideHeader: false,
+  },
+  {
+    order: 28,
+    label: "List Options",
+    icon: MdAutoStories,
+    path: "/list-options",
+    component: OptionsListForStudentPage,
+    eligibleRoles: [RoleEnum.STUDENT],
+    active: true,
     hideSideBar: false,
     hideHeader: false,
   },
