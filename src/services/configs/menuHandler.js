@@ -45,6 +45,7 @@ import StudentCVPage from "../../pages/StudentCVPage";
 import Profile from "../../pages/profilePage/Profile"
 
 import OptionsListForStudentPage from "../../pages/optionsListForStudentsPage/OptionsListForStudentsPage.jsx";
+
 export const menuConfig = [
   {
     order: 1,
@@ -353,6 +354,7 @@ export const menuConfig = [
   },
   {
     order: 28,
+
     label: "CVAcademic",
     icon: MdList,
     path: "/cv/generate/:id",
@@ -375,9 +377,9 @@ export const menuConfig = [
     hideSideBar: false,
      hideHeader: false,
    },
-    {
+   
+ {
    order: 30,
-
     label: "List Options",
     icon: MdAutoStories,
     path: "/list-options",
