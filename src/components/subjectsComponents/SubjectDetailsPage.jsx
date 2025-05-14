@@ -1,15 +1,17 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { CgEye } from "react-icons/cg";
 import {
+    FaArrowLeft,
     FaCalendarAlt,
     FaCheck,
     FaChevronDown,
     FaChevronUp,
     FaEdit,
+    FaEye,
     FaHistory,
     FaTimes
 } from "react-icons/fa";
-import { FiEyeOff } from "react-icons/fi";
+import { FiBook, FiCalendar, FiCheckCircle, FiChevronDown, FiChevronRight, FiClock, FiEyeOff, FiFileText, FiLayers, FiUser, FiXCircle } from "react-icons/fi";
 import { MdTitle } from "react-icons/md";
 import { useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
@@ -21,6 +23,8 @@ import { RoleEnum } from "../../utils/userRoles";
 import PageLayout from "../skillsComponents/PageLayout";
 import Popup from "../skillsComponents/Popup";
 import Tooltip from "../skillsComponents/Tooltip";
+import { CurriculumChapters } from "./CurriculumChapters";
+import { SkillList } from "./SkillList";
 import SubjectForm from "./SubjectForm";
 
 const SubjectDetailsPage = () => {
@@ -38,7 +42,43 @@ const SubjectDetailsPage = () => {
     const canEdit = userId === formData?.subject?.teacherId[0]?._id;
     // console.log(formData.subject.teacherId[0]._id);
 
+    const [isPropositionPopupOpen, setIsPropositionPopupOpen] = useState(false);
+    const [propositions, setPropositions] = useState(null);
 
+    const fetchPropositions = useCallback(async () => {
+        if (userRole !== RoleEnum.ADMIN) {
+            return;
+        }
+
+        try {
+            // setLoading(true);
+            setError(null);
+
+            const response = await matieresServices.fetchUpdatePropositionMatiere(id);
+
+            // 🔍 Comparaison simple via JSON.stringify (ok si taille raisonnable)
+            const hasChanged = JSON.stringify(response) !== JSON.stringify(propositions);
+
+            if (hasChanged) {
+                setPropositions(response || []);
+                console.log("✅ Propositions mises à jour");
+            } else {
+                console.log("♻️ Propositions identiques, aucune mise à jour");
+            }
+
+        } catch (err) {
+            toast.error(err.response?.message || "Failed to load subject data.");
+            setError(err.message || "Failed to load subject data.");
+        } finally {
+            setLoading(false);
+        }
+    }, [id, userRole, propositions]);
+
+    useEffect(() => {
+        fetchPropositions();
+    }, [formData?.subject?._id, id]);
+
+    // 
     // State to manage visibility of sections for each chapter
     const [visibleChapters, setVisibleChapters] = useState({});
 
@@ -52,12 +92,15 @@ const SubjectDetailsPage = () => {
     const [completedAtDates, setCompletedAtDates] = useState({}); // Store completedAt dates
     const fetchRef = useRef(false);
     const toggleForm = () => setShowForm((prev) => !prev);
-    const fetchSubject = async () => {
+
+    const fetchSubject = useCallback(async (force = false) => {
         try {
-            setLoading(true);
+            if (!force) {
+                setLoading(true);
+            }
             setError(null);
 
-            if (fetchRef.current && formData?.subject?._id === id) return;
+            if (!force && fetchRef.current && formData?.subject?._id === id) return;
 
             const response = await matieresServices.fetchMatiereById(id);
             const { subject, history, historyPagination } = response;
@@ -89,16 +132,46 @@ const SubjectDetailsPage = () => {
         } finally {
             setLoading(false);
         }
+    }, [id, formData?.subject?._id]); // ajoutez toutes les dépendances nécessaires ici
+
+    const handleUpdateStatus = async (subjectId, newStatus) => {
+        try {
+            console.log(subjectId);
+            console.log(id);
+
+            const result = await matieresServices.validatePropositionMatiere(id, subjectId, newStatus);
+
+            toast.success(
+                `Proposition ${newStatus ? "approuvée" : "refusée"} avec succès.`,
+                { position: "top-right" }
+            );
+
+            // Met à jour localement la liste des propositions
+            setPropositions((prev) =>
+                prev.map((p) => (p._id === id ? { ...p, isApproved: newStatus } : p))
+            );
+            fetchSubject(true);
+            fetchPropositions();
+            // setIsModalOpen(false);
+        } catch (error) {
+            toast.error(`Erreur : ${error}`, { position: "top-right" });
+        }
     };
 
     useEffect(() => {
         fetchSubject();
-    }, [formData?.subject?._id, id]);
+    }, [fetchSubject, id]);
 
     // Handle form submission (after adding/editing a subject)
     const handleFormSubmit = async (updatedData) => {
         try {
-            const data = await matieresServices.updateMatieres(updatedData);
+            let data;
+            if (userRole === RoleEnum.ADMIN) {
+                data = await matieresServices.updateMatieres(updatedData);
+            } else {
+                // toast.info("trigger proposition");
+                data = await matieresServices.addUpdatePropositionMatiere(updatedData);
+            }
             // Reset form state
             fetchRef.current = false;
             fetchSubject();
@@ -115,9 +188,18 @@ const SubjectDetailsPage = () => {
 
     const toggleChapterStatus = (index) => {
         setFormData((prevData) => {
-            const updatedChapters = prevData.subject.curriculum.chapitres.map((chapter, i) =>
-                i === index ? { ...chapter, status: !chapter.status } : chapter
-            );
+            const updatedChapters = prevData.subject.curriculum.chapitres.map((chapter, i) => {
+                if (i === index) {
+                    const newStatus = !chapter.status;
+                    return {
+                        ...chapter,
+                        status: newStatus,
+                        completedDate: newStatus ? new Date().toISOString() : null,
+                    };
+                }
+                return chapter;
+            });
+
             return {
                 ...prevData,
                 subject: {
@@ -135,13 +217,22 @@ const SubjectDetailsPage = () => {
         setFormData((prevData) => {
             const updatedChapters = prevData.subject.curriculum.chapitres.map((chapter, cIndex) => {
                 if (cIndex === chapterIndex) {
-                    const updatedSections = chapter.sections.map((section, sIndex) =>
-                        sIndex === sectionIndex ? { ...section, status: !section.status } : section
-                    );
+                    const updatedSections = chapter.sections.map((section, sIndex) => {
+                        if (sIndex === sectionIndex) {
+                            const newStatus = !section.status;
+                            return {
+                                ...section,
+                                status: newStatus,
+                                completedDate: newStatus ? new Date().toISOString() : null, // Ajoute ou supprime la date
+                            };
+                        }
+                        return section;
+                    });
                     return { ...chapter, sections: updatedSections };
                 }
                 return chapter;
             });
+
             return {
                 ...prevData,
                 subject: {
@@ -249,14 +340,186 @@ const SubjectDetailsPage = () => {
         );
     if (error) return <ErrorState message={error} />;
     if (!formData) return <ErrorState message="Invalid subject data." />;
-    const actionHeaders = userRole === RoleEnum.ADMIN ? (
-        <button
-            onClick={toggleForm}
-            className="flex justify-center items-center bg-blue-400 text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-200 hover:text-blue-900  transition duration-200 sm:w-auto w-full mb-2 sm:mb-0 sm:mr-2"
-        >
-            <FaEdit className="mr-2" /> Edit
-        </button>
-    ) : null;
+
+    const actionHeaders = (userRole === RoleEnum.ADMIN || canEdit) && (
+        <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-2">
+            {/* Bouton réservé aux Admins pour voir les propositions */}
+            {userRole === RoleEnum.ADMIN && (
+                <>
+                    <button
+                        onClick={() => {
+                            setIsPropositionPopupOpen(true);
+                            fetchPropositions();
+                        }}
+                        className="flex justify-center items-center bg-green-500 text-white px-4 py-2 rounded-lg font-semibold hover:bg-green-400 transition duration-200 sm:w-auto w-full"
+                    >
+                        <FaEye className="mr-2" />
+                        View Proposed Modifications
+                    </button>
+                    <Popup
+                        isOpen={isPropositionPopupOpen}
+                        onClose={() => setIsPropositionPopupOpen(false)}
+                        position="center"
+                        size="lg"
+                        showCloseButton
+                    >
+                        <div className="max-w-3xl mx-auto text-left">
+                            <h2 className="text-2xl font-bold text-blue-800 mb-8 text-center flex items-center justify-center gap-2">
+                                <FiFileText className="text-2xl" /> Curriculum Change Proposals
+                            </h2>
+
+                            {propositions === null ? (
+                                <p className="text-gray-500 text-center">Loading...</p>
+                            ) : Array.isArray(propositions) && propositions.length === 0 ? (
+                                <p className="text-gray-500 text-center">No proposals available.</p>
+                            ) : (
+                                <div className="space-y-5 max-h-[65vh] overflow-y-auto pr-2">
+                                    {propositions.map((p) => (
+                                        <div
+                                            key={p._id}
+                                            className="border border-gray-200 rounded-xl p-5 bg-white shadow-sm relative"
+                                        >
+                                            {/* Status */}
+                                            <div className="absolute top-4 right-4 text-sm space-y-1 text-right">
+                                                {p.isApproved === true ? (
+                                                    <div className="text-green-600 space-y-1">
+                                                        <div className="flex items-center justify-end gap-1 font-semibold">
+                                                            <FiCheckCircle />
+                                                            <span>Approved</span>
+                                                        </div>
+                                                        <div className="flex items-center justify-end gap-1 text-xs text-gray-600">
+                                                            <FiUser /> <span><b>{`${p.reviewer?.firstName} ${p.reviewer?.lastName}`}</b></span>
+                                                        </div>
+                                                        {p.reviewDate && (
+                                                            <div className="flex items-center justify-end gap-1 text-xs text-gray-500">
+                                                                <FiCalendar />
+                                                                <span>on <b>{humanizeDate(p.reviewDate, true)}</b></span>
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                ) : p.isApproved === false ? (
+                                                    <div className="text-red-600 space-y-1">
+                                                        <div className="flex items-center justify-end gap-1 font-semibold">
+                                                            <FiXCircle />
+                                                            <span>Declined</span>
+                                                        </div>
+                                                        <div className="flex items-center justify-end gap-1 text-xs text-gray-600">
+                                                            <FiUser /> <span><b>{`${p.reviewer?.firstName} ${p.reviewer?.lastName}`}</b></span>
+                                                        </div>
+                                                        {p.reviewDate && (
+                                                            <div className="flex items-center justify-end gap-1 text-xs text-gray-500">
+                                                                <FiCalendar />
+                                                                <span>on <b>{humanizeDate(p.reviewDate, true)}</b></span>
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                ) : (
+                                                    <div className="text-yellow-600">
+                                                        <div className="flex items-center justify-end gap-1 font-semibold">
+                                                            <FiClock />
+                                                            <span>Pending</span>
+                                                        </div>
+                                                    </div>
+                                                )}
+                                            </div>
+
+                                            {/* Header */}
+                                            <div className="mb-2">
+                                                <p className="text-base font-semibold text-gray-700">
+                                                    📚 Proposed by <span className="text-blue-600">{`${p.teacherId[0].firstName} ${p.teacherId[0].lastName}`}</span>
+                                                </p>
+                                                <p className="text-xs text-gray-400 mt-1 flex items-center gap-1">
+                                                    <FiCalendar className="text-sm" />
+                                                    {humanizeDate(p.createdAt, true)}
+                                                </p>
+                                            </div>
+
+                                            {/* Reason */}
+                                            <div className="mb-1 mt-5 bg-gray-50 border rounded-md p-2">
+                                                <p className="text-sm text-gray-700">
+                                                    <strong>📝 Reason:</strong> {p.reason}
+                                                </p>
+                                            </div>
+
+                                            {/* Curriculum details */}
+                                            <div className="bg-gray-50 border rounded-lg p-4 text-sm space-y-2">
+                                                <p className="text-center"><strong>Proposed Curriculum </strong>  </p>
+                                                <p><strong>🗓️ Semester:</strong> {p.curriculum?.semestre}</p>
+                                                <p><strong>🌐 Language:</strong> {p.curriculum?.langue}</p>
+                                                <p><strong>⏱️ Total Hours:</strong> {p.curriculum?.volume_horaire_total}</p>
+                                                <p><strong>📖 Teaching Type:</strong> {p.curriculum?.type_enseignement}</p>
+
+                                                {Array.isArray(p.curriculum?.prerequis_recommandes) && p.curriculum.prerequis_recommandes.length > 0 && (
+                                                    <p><strong>✅ Prerequisites:</strong> {p.curriculum.prerequis_recommandes.join(", ")}</p>
+                                                )}
+
+                                                {Array.isArray(p.curriculum?.chapitres) && p.curriculum.chapitres.length > 0 && (
+                                                    <CurriculumChapters curriculum={p.curriculum} />
+                                                )}
+
+                                                <div>
+                                                    <strong>💡 Skills:</strong>
+                                                    <SkillList skills={p.skillsId} />
+                                                </div>
+                                            </div>
+
+                                            {/* Buttons */}
+                                            {p.isApproved === null && (
+                                                <div className="flex justify-end gap-3 mt-5">
+                                                    <button
+                                                        className="flex items-center gap-2 px-4 py-2 bg-teal-600 text-white rounded-md hover:bg-teal-800 text-sm transition"
+                                                        onClick={() => handleUpdateStatus(p._id, true)}
+                                                    >
+                                                        <FiCheckCircle /> Approve
+                                                    </button>
+                                                    <button
+                                                        className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-800 text-sm transition"
+                                                        onClick={() => handleUpdateStatus(p._id, false)}
+                                                    >
+                                                        <FiXCircle /> Decline
+                                                    </button>
+                                                </div>
+                                            )}
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+
+                            {/* <div className="mt-6 flex justify-center">
+                                <button
+                                    onClick={() => setIsPropositionPopupOpen(false)}
+                                    className="flex items-center gap-2 bg-gray-600 text-white px-5 py-2 rounded-md hover:bg-gray-700 transition"
+                                >
+                                    <FiX /> Close
+                                </button>
+                            </div> */}
+                        </div>
+                    </Popup>
+
+                </>
+            )}
+            {/* Bouton pour Proposer une modification ou Go Back */}
+            {showForm ? (
+                <button
+                    onClick={toggleForm}
+                    className="flex justify-center items-center bg-gray-300 text-gray-800 px-4 py-2 rounded-lg font-semibold hover:bg-gray-400 transition duration-200 sm:w-auto w-full mb-2 sm:mb-0"
+                >
+                    <FaArrowLeft className="mr-2" />
+                    Go Back
+                </button>
+            ) : (
+                <button
+                    onClick={toggleForm}
+                    className="flex justify-center items-center bg-blue-400 text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-200 hover:text-blue-900 transition duration-200 sm:w-auto w-full mb-2 sm:mb-0"
+                >
+                    <FaEdit className="mr-2" />
+                    {userRole === RoleEnum.ADMIN ? 'Edit' : 'Propose an Edit'}
+                </button>
+            )}
+        </div>
+    );
+
+
 
     return (
         <PageLayout title={formData.subject.title} headerActions={actionHeaders} a >
@@ -266,6 +529,7 @@ const SubjectDetailsPage = () => {
                     initialData={fetchData}
                     onSubmit={handleFormSubmit} // Pass the updated handleFormSubmit
                     onCancel={toggleForm} // Allow canceling the form
+                    proposeEdit={canEdit}
                 />
             ) :
                 (<div className=" ">
@@ -312,12 +576,15 @@ const SubjectDetailsPage = () => {
                                 <InfoCard label="Total Hours" value={formData.subject.curriculum?.volume_horaire_total || "N/A"} />
                                 <InfoCard label="Credits" value={formData.subject.curriculum?.credit || "N/A"} />
                                 <InfoCard label="Code" value={formData.subject.curriculum?.code || "N/A"} />
-                                <InfoCard label="Relation" value={formData.subject.curriculum?.relation || "N/A"} />
+                                {/* <InfoCard label="Relation" value={formData.subject.curriculum?.relation || "N/A"} /> */}
+                                <InfoCard label="Academic Year" value={formData.subject.curriculum?.academicYear || "N/A"} />
                                 <InfoCard label="Teaching Type" value={formData.subject.curriculum?.type_enseignement || "N/A"} />
-                                <InfoCard
+                                <InfoListCard
                                     label="Prerequisites"
-                                    value={formData.subject.curriculum?.prerequis_recommandes?.join(", ") || "None"}
+                                    values={formData.subject.curriculum?.prerequis_recommandes}
                                 />
+
+
                             </div>
                         </Section>
 
@@ -404,7 +671,8 @@ const SubjectDetailsPage = () => {
                                                                 <label className="block text-sm text-gray-600 mb-1">Completion Date:</label>
                                                                 <input
                                                                     type="date"
-                                                                    value={completedAtDates[chapterKey]?.split("T")[0] || ""}
+                                                                    defaultValue={new Date().toISOString().split("T")[0]}
+                                                                    value={completedAtDates[chapterKey]?.split("T")[0] || new Date().toISOString().split("T")[0]}
                                                                     onChange={(e) => handleDateChange(chapterKey, e.target.value)}
                                                                     className="border rounded px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                                                                 />
@@ -458,12 +726,15 @@ const SubjectDetailsPage = () => {
                                                                                         </label>
                                                                                         <input
                                                                                             type="date"
-                                                                                            value={completedAtDates[sectionKey]?.split("T")[0] || ""}
-                                                                                            onChange={(e) =>
-                                                                                                handleDateChange(sectionKey, e.target.value)
+                                                                                            value={
+                                                                                                completedAtDates[sectionKey]
+                                                                                                    ? completedAtDates[sectionKey].split("T")[0]
+                                                                                                    : new Date().toISOString().split("T")[0]
                                                                                             }
+                                                                                            onChange={(e) => handleDateChange(sectionKey, e.target.value)}
                                                                                             className="border rounded px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                                                                                         />
+
                                                                                     </div>
                                                                                 )}
                                                                             </>
@@ -557,107 +828,154 @@ const SubjectDetailsPage = () => {
                             <Popup
                                 isOpen={isModalOpen}
                                 onClose={() => setIsModalOpen(false)}
-                                title="History Details"
+                                // title="History Details"
                                 position="center"
                                 showCloseButton={true}
                                 zindex="z-50"
                             >
                                 <div className="space-y-6">
-                                    {/* Header Section */}
+                                    {/* Header */}
                                     <div className="flex items-center space-x-3">
                                         <MdTitle className="text-2xl text-primary-600" />
-                                        <h2 className="text-lg font-bold text-gray-900">History Details</h2>
+                                        <h2 className="text-lg font-bold text-gray-900">History Overview</h2>
                                     </div>
-                                    {/* Title Row */}
-                                    <DetailRow label="Title" value={selectedHistory.title} />
-                                    {/* Modified At Row */}
-                                    <DetailRow label="Modified At" value={humanizeDate(selectedHistory.modifiedAt)} />
-                                    {/* Teachers Row */}
+
+                                    {/* Title */}
                                     <DetailRow
-                                        label="Teachers"
+                                        label={
+                                            <span className="flex items-center gap-2 text-gray-600 font-medium">
+                                                <MdTitle className="text-lg text-indigo-500" />
+                                                Title
+                                            </span>
+                                        }
+                                        value={selectedHistory.title}
+                                    />
+
+                                    {/* Modified At */}
+                                    <DetailRow
+                                        label={
+                                            <span className="flex items-center gap-2 text-gray-600 font-medium">
+                                                <FiLayers className="text-lg text-indigo-500" />
+                                                Modified At
+                                            </span>
+                                        }
+                                        value={humanizeDate(selectedHistory.modifiedAt)}
+                                    />
+
+                                    {/* Teachers */}
+                                    <DetailRow
+                                        label={
+                                            <span className="flex items-center gap-2 text-gray-600 font-medium">
+                                                <FiBook className="text-lg text-indigo-500" />
+                                                Teacher
+                                            </span>
+                                        }
                                         value={
-                                            selectedHistory.teacherId.length > 0 ? (
-                                                selectedHistory.teacherId
+                                            selectedHistory.teacherId.length > 0
+                                                ? selectedHistory.teacherId
                                                     .map((t) => `${t.firstName} ${t.lastName} (${t.email})`)
                                                     .join(", ")
-                                            ) : (
-                                                "None"
-                                            )
+                                                : "None"
                                         }
                                     />
-                                    {/* chapter */}
+
+                                    {/* Chapters & Sections */}
                                     <DetailRow
-                                        label="Chapters"
+                                        label={
+                                            <span className="flex items-center gap-2 text-gray-600 font-medium">
+                                                <FiLayers className="text-lg text-indigo-500" />
+                                                Chapters ({selectedHistory.curriculum.chapitres.length})
+                                            </span>
+                                        }
                                         value={
                                             selectedHistory.curriculum.chapitres.length > 0 ? (
-                                                selectedHistory.curriculum.chapitres
-                                                    .map((chapter) => {
+                                                <div className="space-y-2">
+                                                    {selectedHistory.curriculum.chapitres.map((chapter) => {
                                                         const sectionsVisible = visibleChapters[chapter._id];
                                                         const sectionCount = chapter.sections.length;
 
                                                         return (
                                                             <div
                                                                 key={chapter._id}
-                                                                className="p-2 hover:bg-gray-100 cursor-pointer"
-                                                                onClick={() => toggleSectionVisibility(chapter._id)} // Toggle on chapter div click
+                                                                className="p-3 border rounded-md bg-gray-50 hover:bg-blue-50 cursor-pointer transition"
+                                                                onClick={() => sectionCount > 0 && toggleSectionVisibility(chapter._id)}
                                                             >
-                                                                {/* Display chapter title with section count on the right */}
+                                                                {/* Chapter Header */}
                                                                 <div className="flex justify-between items-center">
-                                                                    <strong className="hover:text-blue-600">
-                                                                        {chapter.title}
-                                                                    </strong>
-                                                                    <span className="text-gray-500">
-                                                                        ({sectionCount} {sectionCount === 1 ? 'Section' : 'Sections'})
-                                                                    </span>
+                                                                    <div className="flex items-center gap-2">
+                                                                        <FiBook className="text-blue-600" />
+                                                                        <span className="font-semibold text-gray-800">{chapter.title}</span>
+                                                                        <span className="text-sm text-gray-500">
+                                                                            ({sectionCount} {sectionCount === 1 ? "section" : "sections"})
+                                                                        </span>
+                                                                    </div>
+                                                                    {sectionCount > 0 && (
+                                                                        <span className="text-gray-500">
+                                                                            {sectionsVisible ? <FiChevronDown /> : <FiChevronRight />}
+                                                                        </span>
+                                                                    )}
                                                                 </div>
 
-                                                                {/* Display sections under the chapter */}
-                                                                {sectionsVisible && chapter.sections.length > 0 ? (
-                                                                    <div className="ml-4">
+                                                                {/* Sections */}
+                                                                {sectionsVisible && sectionCount > 0 && (
+                                                                    <div className="ml-6 mt-2 space-y-1">
                                                                         {chapter.sections.map((section) => (
                                                                             <div
                                                                                 key={section._id}
-                                                                                className="p-1 hover:bg-gray-100 cursor-pointer"
+                                                                                className="flex items-center gap-2 text-sm text-gray-700"
                                                                             >
-                                                                                {section.title}{" "}
                                                                                 {section.completedAt ? (
-                                                                                    `( Completed at ${humanizeDate(section.completedAt)})`
-                                                                                ) : ''}
+                                                                                    <FiCheckCircle className="text-green-500" />
+                                                                                ) : (
+                                                                                    <FiXCircle className="text-red-400" />
+                                                                                )}
+                                                                                <span>{section.title}</span>
+                                                                                {section.completedAt && (
+                                                                                    <span className="text-gray-500 text-xs">
+                                                                                        ({humanizeDate(section.completedAt)})
+                                                                                    </span>
+                                                                                )}
                                                                             </div>
                                                                         ))}
                                                                     </div>
-                                                                ) : sectionsVisible && chapter.sections.length === 0 ? (
-                                                                    <div className="ml-4 text-gray-500">No sections</div>
-                                                                ) : null}
+                                                                )}
+
+                                                                {/* Empty section */}
+                                                                {sectionsVisible && sectionCount === 0 && (
+                                                                    <div className="ml-6 text-gray-500 text-sm">No sections</div>
+                                                                )}
                                                             </div>
                                                         );
-                                                    })
-                                                    .reduce((acc, curr) => [acc, <br key={curr.key} />, curr]) // Add <br> between chapters
+                                                    })}
+                                                </div>
                                             ) : (
-                                                "None"
+                                                <span className="text-gray-500">None</span>
                                             )
                                         }
                                     />
-                                    {/* Skills Row */}
+
+                                    {/* Skills */}
                                     <DetailRow
-                                        label="Skills"
+                                        label={
+                                            <span className="flex items-center gap-2 text-gray-600 font-medium">
+                                                <FiCheckCircle className="text-lg text-indigo-500" />
+                                                Skills
+                                            </span>
+                                        }
                                         value={
-                                            selectedHistory.skillsId.length > 0 ? (
-                                                selectedHistory.skillsId
-                                                    .map((s) =>
-                                                        `${s.title} (${s.familyId.map((f) => f.title).join(", ")})`
+                                            selectedHistory.skillsId.length > 0
+                                                ? selectedHistory.skillsId
+                                                    .map(
+                                                        (s) => `${s.title} (${s.familyId.map((f) => f.title).join(", ")})`
                                                     )
                                                     .join(", ")
-                                            ) : (
-                                                "None"
-                                            )
+                                                : "None"
                                         }
                                     />
-
-
                                 </div>
                             </Popup>
                         )}
+
                     </div>
                 </div>)
             }
@@ -682,6 +1000,20 @@ const InfoCard = ({ label, value }) => (
         <p className="text-gray-600 truncate overflow-hidden whitespace-nowrap">{value}</p>
     </div>
 
+);
+const InfoListCard = ({ label, values }) => (
+    <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
+        <h4 className="text-sm font-semibold text-gray-700 mb-2">{label}</h4>
+        {values && values.length > 0 ? (
+            <ul className="list-disc pl-5 space-y-1 text-gray-800 text-sm">
+                {values.map((item, index) => (
+                    <li key={index}>{item}</li>
+                ))}
+            </ul>
+        ) : (
+            <p className="text-gray-500 text-sm italic">None</p>
+        )}
+    </div>
 );
 
 const SkillCard = ({ title, families }) => (
