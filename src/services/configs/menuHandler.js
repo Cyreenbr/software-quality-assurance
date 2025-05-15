@@ -40,12 +40,13 @@ import StudentsListTeachers from "../../pages/usersListPage/StudentsListTeachers
 import StudentsManagPage from "../../pages/UsersManagementPage/StudentsManagPage";
 import TeachersManagPage from "../../pages/UsersManagementPage/TeachersManagPage";
 import { RoleEnum } from "../../utils/userRoles";
+import MyCV from "../../pages/MyCV.jsx";
 
 import StudentCVPage from "../../pages/StudentCVPage";
-import Profile from "../../pages/profilePage/Profile"
+import Profile from "../../pages/profilePage/Profile";
 
 import OptionsListForStudentPage from "../../pages/optionsListForStudentsPage/OptionsListForStudentsPage.jsx";
-
+import EditCV from "../../pages/EditCV";
 export const menuConfig = [
   {
     order: 1,
@@ -384,6 +385,32 @@ export const menuConfig = [
     icon: MdAutoStories,
     path: "/list-options",
     component: OptionsListForStudentPage,
+    eligibleRoles: [RoleEnum.STUDENT],
+    active: true,
+    hideSideBar: false,
+    hideHeader: false,
+  },
+
+     
+ {
+   order: 31,
+    label: "View CV",
+    icon: MdAutoStories,
+    path: "/CV/me",
+    component:MyCV,
+    eligibleRoles: [RoleEnum.STUDENT],
+    active: true,
+    hideSideBar: false,
+    hideHeader: false,
+  },
+
+     
+ {
+   order: 32,
+    label: "Edit CV",
+    icon: MdAutoStories,
+    path: "/CV/editCV",
+    component:EditCV,
     eligibleRoles: [RoleEnum.STUDENT],
     active: true,
     hideSideBar: false,
