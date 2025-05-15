@@ -116,9 +116,9 @@ const SubjectList = ({ onEdit, refresh = false, }) => {
     };
 
     // Delete subject
-    const handleDeleteSubject = useCallback(async (id, forced = false) => {
+    const handleDeleteSubject = useCallback(async (id, { forced = false, archive = false }) => {
         try {
-            await matieresServices.deleteMatiere(id, forced);
+            await matieresServices.deleteMatiere(id, { forced: forced, archive: archive });
 
             // Met à jour la page actuelle si l'élément supprimé était le dernier de la page
             setCurrentPage(prevPage => (itemsOnPage === 1 && prevPage > 1 ? prevPage - 1 : prevPage));
@@ -126,7 +126,7 @@ const SubjectList = ({ onEdit, refresh = false, }) => {
             toast.success("Subject deleted successfully!");
             return true;
         } catch (error) {
-            setError(error);
+            // setError(error);
             console.error("Error deleting subject:", error);
             toast.error("Failed to delete subject: " + (error?.message || error));
             return false;
