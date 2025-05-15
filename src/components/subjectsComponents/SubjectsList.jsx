@@ -1,5 +1,5 @@
 import debounce from "lodash.debounce";
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
     FaBook,
     FaEdit,
@@ -33,13 +33,16 @@ const SubjectList = ({ onEdit, refresh = false, }) => {
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
     const [titleSortOrder, setTitleSortOrder] = useState("asc");
+    const [levelSortOrder, setLevelSortOrder] = useState("asc");
     const navigate = useNavigate();
     const firstFetchDone = useRef(false);
     const [forced, setForced] = useState(false);
     const [archive, setArchive] = useState(false);
-    const [itemsOnPage, setItemsOnPage] = useState(0);
+    const [itemsOnPage,] = useState(0);
     const confirmDeleteMessage = `Are you sure you want to delete this subject?`;
-
+    let hide = false
+    const isMounted = useRef(true);
+    const [sortConfig, setSortConfig] = useState({ key: 'title', order: 'asc' });
 
     const handleConfirmDelete = async () => {
         const deleteSuccess = await handleDeleteSubject(subjectToDelete._id, { forced, archive });
@@ -53,6 +56,7 @@ const SubjectList = ({ onEdit, refresh = false, }) => {
     // Fetch subjects
     const fetchSubjects = useCallback(async (page, searchTerm, sortBy, order) => {
         setLoading(true);
+
         try {
             const response = await matieresServices.fetchMatieres(page, searchTerm, sortBy, order);
             const fetchedSubjects = response.subjects || [];
@@ -61,13 +65,19 @@ const SubjectList = ({ onEdit, refresh = false, }) => {
             setTotalPages(response.pagination?.totalPages || 1);
             setError(null);
         } catch (err) {
-
-
+            if (!hide)
+                toast.error(`Failed to load subjects: ${err}`);
+            hide = true
             setError(err || "An error occurred while fetching subjects.");
-            toast.error(`Failed to load subjects: ${err}`);
         } finally {
             setLoading(false);
         }
+    }, []);
+    useEffect(() => {
+        isMounted.current = true;
+        return () => {
+            isMounted.current = false;
+        };
     }, []);
 
     useEffect(() => {
@@ -78,9 +88,9 @@ const SubjectList = ({ onEdit, refresh = false, }) => {
     useEffect(() => {
         if (!firstFetchDone.current) {
             firstFetchDone.current = true;
-            fetchSubjects(currentPage, searchQuery, "title", titleSortOrder);
+            fetchSubjects(currentPage, searchQuery, sortConfig.key, sortConfig.order);
         }
-    }, [fetchSubjects, currentPage, searchQuery, titleSortOrder]);
+    }, [fetchSubjects, currentPage, searchQuery, sortConfig]);
 
     // Debounced search handler
     const handleSearch = debounce((query) => {
@@ -90,11 +100,12 @@ const SubjectList = ({ onEdit, refresh = false, }) => {
     }, 500);
 
     // Toggle sort order
-    const handleSortByTitle = () => {
-        const newSortOrder = titleSortOrder === "asc" ? "desc" : "asc";
-        setTitleSortOrder(newSortOrder);
-        fetchSubjects(currentPage, searchQuery, "title", newSortOrder); // Trigger fetch with new sort order
+    const handleSortBy = (key) => {
+        const newOrder = sortConfig.key === key && sortConfig.order === 'asc' ? 'desc' : 'asc';
+        setSortConfig({ key, order: newOrder });
+        fetchSubjects(currentPage, searchQuery, key, newOrder);
     };
+
 
     // Handle page change
     const handlePageChange = (pageNumber) => {
@@ -134,22 +145,29 @@ const SubjectList = ({ onEdit, refresh = false, }) => {
                 />
 
                 {/* Sort Button */}
-                <Tooltip text={`Sort by Title (${titleSortOrder.toUpperCase()})`} position="top">
-                    <button
-                        onClick={handleSortByTitle}
-                        className="flex items-center bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition duration-200 shadow-md"
-                    >
-                        {titleSortOrder === "asc" ? (
-                            <>
-                                <FaSortAlphaUp className="mr-2" /> Ascending
-                            </>
-                        ) : (
-                            <>
-                                <FaSortAlphaDown className="mr-2" /> Descending
-                            </>
-                        )}
-                    </button>
-                </Tooltip>
+                {/* Sort by Title */}
+                <div className="flex space-x-4 w-full md:w-auto justify-center mb-5">
+                    <Tooltip text={`${sortConfig.order.toUpperCase()} : Sort by Title`} position="top" bgColor="bg-black">
+                        <button
+                            onClick={() => handleSortBy('title')}
+                            className="flex items-center bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition duration-300"
+                        >
+                            {sortConfig.key === 'title' && sortConfig.order === "asc" ? <FaSortAlphaUp /> : <FaSortAlphaDown />}
+                            <span className="ml-2">Title</span>
+                        </button>
+                    </Tooltip>
+
+                    {/* Sort by Level */}
+                    <Tooltip text={`${sortConfig.order.toUpperCase()} : Sort by Level`} position="top" bgColor="bg-black">
+                        <button
+                            onClick={() => handleSortBy('curriculum.level')}
+                            className="flex items-center bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-700 transition duration-300"
+                        >
+                            {sortConfig.key === 'curriculum.level' && sortConfig.order === "asc" ? <FaSortAlphaUp /> : <FaSortAlphaDown />}
+                            <span className="ml-2">Level</span>
+                        </button>
+                    </Tooltip>
+                </div>
             </header>
 
             {/* Loading State */}
@@ -183,12 +201,12 @@ const SubjectList = ({ onEdit, refresh = false, }) => {
                                 <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
                                     <FaBook className="text-blue-600" /> {subject.title}
                                 </h2>
-                                <span
+                                {role === RoleEnum.ADMIN && <span
                                     className={`text-xs font-semibold px-2 py-1 rounded-full ${subject.isPublish ? "bg-green-200 text-green-800" : "bg-red-200 text-red-800"
                                         }`}
                                 >
                                     {subject.isPublish ? "Published" : "Hidden"}
-                                </span>
+                                </span>}
                             </div>
 
                             {/* Subject Details */}

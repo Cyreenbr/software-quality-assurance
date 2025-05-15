@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { FaChevronDown, FaChevronUp, FaTimes } from 'react-icons/fa';
 
 const MSDropdown = ({
@@ -15,6 +15,9 @@ const MSDropdown = ({
     const [searchTerm, setSearchTerm] = useState('');
     const [filteredOptions, setFilteredOptions] = useState(options);
     const [dropdownOpen, setDropdownOpen] = useState(false);
+
+    // Reference to the dropdown container
+    const dropdownRef = useRef(null);
 
     // Initialize selectedOptions to include preSelectedOptions
     const [currentSelectedOptions, setCurrentSelectedOptions] = useState([
@@ -40,6 +43,23 @@ const MSDropdown = ({
             setDropdownOpen(false);
         }
     }, [filteredOptions]);
+
+    useEffect(() => {
+        // Close dropdown when clicking outside of it
+        const handleClickOutside = (e) => {
+            if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+                setDropdownOpen(false);
+            }
+        };
+
+        // Adding event listener
+        document.addEventListener('mousedown', handleClickOutside);
+
+        // Cleanup event listener on unmount
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, []);
 
     const handleSearchChange = (e) => {
         setSearchTerm(e.target.value);
@@ -101,33 +121,43 @@ const MSDropdown = ({
                 }}
                 className="w-full flex justify-between items-center p-2 bg-gray-200 rounded-lg text-left cursor-pointer"
             >
-                <div className="flex items-center">
+                <div className="flex items-center justify-between">
+
+                    {/* Display selected titles */}
+                    <span>{selectedTitles}</span>
+
                     {/* Clear All Button (X Icon) */}
                     {allSelectedOptions.length > 0 && (
                         <div
                             onClick={handleClearAll}
-                            className="text-red-500 mr-2 cursor-pointer"
+                            className="text-red-500 ml-2 cursor-pointer"
                             title="Clear All"
                         >
                             <FaTimes />
                         </div>
                     )}
-                    {/* Display selected titles */}
-                    <span>{selectedTitles}</span>
                 </div>
+
                 <span>{dropdownOpen ? <FaChevronUp /> : <FaChevronDown />}</span>
             </div>
 
             {/* Dropdown Content */}
             {dropdownOpen && (
-                <div className="absolute w-full mt-1 bg-white border rounded-lg shadow-md max-h-60 overflow-y-auto z-10">
+                <div ref={dropdownRef} className="absolute w-full mt-1 bg-white border rounded-lg shadow-md max-h-60 overflow-y-auto z-10">
                     <ul className="divide-y">
                         {filteredOptions.map((option) => (
-                            <li key={option._id} className="flex items-center p-2 cursor-pointer hover:bg-gray-100">
+                            <li
+                                key={option._id}
+                                className={`flex items-center p-2 cursor-pointer hover:bg-gray-100 ${allSelectedOptions.includes(option._id) ? 'bg-blue-100' : ''}`}
+                                onClick={(e) => {
+                                    e.preventDefault();
+                                    handleOptionSelect(option);
+                                }}
+                            >
                                 <input
                                     type="checkbox"
                                     checked={allSelectedOptions.includes(option._id)}
-                                    onChange={() => handleOptionSelect(option)}
+                                    readOnly
                                     className="mr-2"
                                 />
                                 <span>{option.title}</span>
@@ -146,6 +176,7 @@ const MSDropdown = ({
                     )}
                 </div>
             )}
+
         </div>
     );
 };

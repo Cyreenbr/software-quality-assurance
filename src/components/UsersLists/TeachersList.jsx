@@ -40,7 +40,7 @@ export function TeachersList({ onAddClick }) {
     confirmationPassword: "",
   });
   const [selectedTeacher, setSelectedTeacher] = useState(null);
- 
+
   // Toast notification
   const showToast = (message, type = "success") => {
     toast[type](message, {
@@ -52,7 +52,7 @@ export function TeachersList({ onAddClick }) {
       draggable: true,
     });
   };
-  
+
   useEffect(() => {
     const fetchTeachers = async () => {
       try {
@@ -69,7 +69,7 @@ export function TeachersList({ onAddClick }) {
 
     fetchTeachers();
   }, []);
- 
+
   // Function to format the date
   const formatDate = (dateString) => {
     const date = new Date(dateString);
@@ -79,16 +79,15 @@ export function TeachersList({ onAddClick }) {
       month: "short", // e.g. "Mar"
       day: "numeric", // e.g. "30"
     });
-  }; 
-  
+  };
+
   // Directly attempt to delete without confirmation popup
   const handleDeleteClick = async (teacher) => {
-    setIsDeleting(true);
     setTeacherToDelete(teacher);
-    
+
     try {
       const response = await deleteTeacher(teacher._id);
-      
+
       // Check if a force delete is required
       if (!response.success && response.details) {
         // Show force confirmation dialog since teacher has dependencies
@@ -100,42 +99,49 @@ export function TeachersList({ onAddClick }) {
           (t) => t._id !== teacher._id
         );
         setTeachersList(updatedTeachersList);
-        toast.success(`${teacher.firstName} ${teacher.lastName} has been deleted successfully`);
+        toast.success(
+          `${teacher.firstName} ${teacher.lastName} has been deleted successfully`
+        );
       }
     } catch (error) {
       console.error("Error deleting teacher:", error);
-      toast.error("Failed to delete teacher. Please try again.");
-    } finally {
-      if (!showForceDeleteModal) {
+      
+      // Check if error contains dependency information
+      if (error.response?.data?.hasDependencies || 
+          error.response?.data?.courses || 
+          error.response?.data?.supervising) {
+        
+        setDeleteDetails({
+          courses: error.response.data.courses || 0,
+          supervising: error.response.data.supervising || 0,
+          ...(error.response.data.details || {})
+        });
+        setShowForceDeleteModal(true);
+      } else {
+        toast.error("Failed to delete teacher. Please try again.");
         setIsDeleting(false);
         setTeacherToDelete(null);
       }
     }
   };
-
-  const handleCancelDelete = () => {
-    setShowForceDeleteModal(false);
-    setTeacherToDelete(null);
-    setDeleteDetails(null);
-    setIsDeleting(false);
-  };
-
   const handleForceDelete = async () => {
     if (!teacherToDelete) return;
-
+    
     try {
-      // Call delete with force=true
+      // Second API call with force: true when user confirms
       const response = await deleteTeacher(teacherToDelete._id, true);
-      
+
       if (response.success) {
-        // Remove the deleted teacher from the list
+        // Update teacher lists after successful force deletion
         const updatedTeachersList = teachersList.filter(
-          (teacher) => teacher._id !== teacherToDelete._id
+          teacher => teacher._id !== teacherToDelete._id
         );
         setTeachersList(updatedTeachersList);
-        toast.success(`${teacherToDelete.firstName} ${teacherToDelete.lastName} has been deleted successfully (force delete)`);
+        toast.success(
+          `${teacherToDelete.firstName} ${teacherToDelete.lastName} has been deleted successfully (force delete)`
+        );
       } else {
-        toast.error(`Error: ${response.message}`);
+        toast.error(response.message || "Force deletion failed");
       }
     } catch (error) {
       console.error("Error force deleting teacher:", error);
@@ -147,6 +153,14 @@ export function TeachersList({ onAddClick }) {
       setIsDeleting(false);
     }
   };
+  const handleCancelDelete = () => {
+    setShowForceDeleteModal(false);
+    setTeacherToDelete(null);
+    setDeleteDetails(null);
+    setIsDeleting(false);
+  };
+
+ 
 
   const watch = async (teacherId) => {
     try {
@@ -250,26 +264,26 @@ export function TeachersList({ onAddClick }) {
 
   const handleSubmitPassword = (e) => {
     e.preventDefault();
-    
+
     // Client-side validation
     if (editedPassword.newPassword !== editedPassword.confirmationPassword) {
       toast.error("New password and confirmation do not match!");
       return;
     }
-    
+
     // Password validity check
     if (editedPassword.newPassword.length < 8) {
       toast.error("Password must be at least 8 characters long.");
       return;
     }
-    
+
     editPassword({
       oldPassword: editedPassword.oldPassword,
       newPassword: editedPassword.newPassword,
-      confirmationPassword: editedPassword.confirmationPassword
+      confirmationPassword: editedPassword.confirmationPassword,
     });
   };
-  
+
   const editPassword = async (passwordData) => {
     try {
       if (!selectedTeacher || !selectedTeacher._id) {
@@ -277,24 +291,29 @@ export function TeachersList({ onAddClick }) {
         toast.error("No teacher selected");
         return;
       }
-      const response = await editPasswordTeacher(selectedTeacher._id, passwordData);
+      const response = await editPasswordTeacher(
+        selectedTeacher._id,
+        passwordData
+      );
       console.log("Password updated successfully:", response);
       closePasswordDialog();
       // Success toast
       toast.success("Password updated successfully");
     } catch (error) {
       console.error("Error updating password:", error);
-      
+
       // Precise error message from server with toast
       if (error.response && error.response.data) {
-        toast.error(`Error: ${error.response.data.message || "An error occurred"}`);
+        toast.error(
+          `Error: ${error.response.data.message || "An error occurred"}`
+        );
         console.error("Details:", error.response.data);
       } else {
         toast.error("An error occurred while updating the password");
       }
     }
   };
-  
+
   const closeDialog = () => {
     setIsDialogOpen(false);
     setSelectedTeacher(null);
@@ -340,7 +359,7 @@ export function TeachersList({ onAddClick }) {
             <FaPlus size={18} />
           </button>
         </div>
-        
+
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-100">
@@ -407,7 +426,10 @@ export function TeachersList({ onAddClick }) {
                 ))
               ) : (
                 <tr>
-                  <td colSpan="4" className="py-4 px-6 text-center text-gray-500">
+                  <td
+                    colSpan="4"
+                    className="py-4 px-6 text-center text-gray-500"
+                  >
                     No teachers available
                   </td>
                 </tr>
@@ -649,18 +671,19 @@ export function TeachersList({ onAddClick }) {
           </div>
         </div>
       )}
-    
-    {/* Force Delete Confirmation Modal */}
-    {showForceDeleteModal && (
+
+      {/* Force Delete Confirmation Modal */}
+      {showForceDeleteModal && (
         <div className="fixed inset-0 flex justify-center items-center z-50 bg-black bg-opacity-50">
           <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
             <h3 className="text-lg font-medium text-gray-900 mb-4">
               Confirm Force Deletion
             </h3>
             <p className="text-gray-600 mb-4">
-              Teacher {teacherToDelete?.firstName} {teacherToDelete?.lastName} has associated data:
+              Teacher {teacherToDelete?.firstName} {teacherToDelete?.lastName}{" "}
+              has associated data:
             </p>
-            
+
             {deleteDetails && (
               <div className="mb-4 p-3 bg-yellow-50 rounded-md border border-yellow-200">
                 <ul className="list-disc pl-5 text-sm text-gray-700">
@@ -668,17 +691,20 @@ export function TeachersList({ onAddClick }) {
                     <li>Teaching {deleteDetails.courses} courses</li>
                   )}
                   {deleteDetails.supervising && (
-                    <li>Supervising {deleteDetails.supervising} PFE projects</li>
+                    <li>
+                      Supervising {deleteDetails.supervising} PFE projects
+                    </li>
                   )}
                   {/* Add other types of associated data here */}
                 </ul>
               </div>
             )}
-            
+
             <p className="text-red-500 text-sm mb-6">
-              Are you sure you want to delete this teacher? This will also remove all associated data and cannot be undone.
+              Are you sure you want to delete this teacher? This will also
+              remove all associated data and cannot be undone.
             </p>
-            
+
             <div className="flex justify-end gap-4">
               <button
                 className="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300"
