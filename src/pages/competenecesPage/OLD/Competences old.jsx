@@ -8,7 +8,7 @@ import SkillForm from "../../../components/skillsComponents/CompetenceForm";
 import NotFound404 from "../../../components/skillsComponents/NotFound404";
 import Pagination from "../../../components/skillsComponents/Pagination";
 import SearchBar from "../../../components/skillsComponents/SearchBar";
-import Tooltip from "../../../components/skillsComponents/tooltip";
+//import Tooltip from "../../../components/skillsComponents/tooltip";
 import competenceServices from "../../../services/CompetencesServices/competences.service";
 
 const Competences = () => {

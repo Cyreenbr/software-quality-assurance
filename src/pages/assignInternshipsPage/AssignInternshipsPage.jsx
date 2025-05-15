@@ -77,7 +77,7 @@ const AssignInternships = () => {
     <div className="min-h-screen bg-gradient-to-r from-blue-50 to-purple-100 py-10 rounded-lg">
       <ToastContainer position="top-right" autoClose={3000} />
       <div className="max-w-7xl bg-white rounded-lg mx-auto mt-8 p-6">
-        <h1 className="text-2xl font-bold mb-4">Assign Internships</h1>
+        <h1 className="text-2xl text-blue-500 font-bold mb-4">Assign Internships</h1>
 
         <div className="flex flex-wrap gap-2 mb-6 justify-between items-center">
           <div className="flex items-center mr-4">

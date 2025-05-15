@@ -1,16 +1,17 @@
 import { useEffect, useState } from "react";
 import {
-  FaBookmark,
   FaBriefcase,
   FaBuilding,
   FaCalendarAlt,
+  FaCheckCircle,
   FaClock,
+  FaEnvelope,
   FaExclamationTriangle,
-  FaFileAlt,
+  FaFolderOpen,
   FaInfoCircle,
   FaSpinner,
   FaTimesCircle,
-  FaUser,
+  FaUserTie,
   FaVideo
 } from 'react-icons/fa';
 import { getStudentInternship } from "../../services/internshipServices/DepositInternship.service";
@@ -80,131 +81,187 @@ const StudentInternshipDetails = () => {
     );
   }
 
-  const getStatusColor = (status) => {
+  const getStatusIcon = (status) => {
     switch (status) {
       case "Validated":
-        return "bg-green-100 text-green-800 border-green-200";
+        return <FaCheckCircle className="text-green-500" />;
+      case "Not validated":
+        return <FaTimesCircle className="text-red-500" />;
       case "Pending":
-        return "bg-amber-100 text-amber-800 border-amber-200";
       default:
-        return "bg-blue-100 text-blue-800 border-blue-200";
+        return <FaExclamationTriangle className="text-amber-500" />;
     }
   };
 
   return (
-    <div className="max-w-4xl mx-auto">
+    <div className="max-w-5xl mx-auto space-y-8">
       {internships.map((internship, index) => (
         <div 
           key={index}
-          className="mb-8 bg-white rounded-xl shadow-sm overflow-hidden transition-all duration-300 hover:shadow-md"
+          className="border border-gray-300 p-6 shadow-sm rounded-lg hover:shadow-xl duration-300 hover:bg-gradient-to-r from-blue-50 to-purple-100 w-full mx-auto"
         >
-          <div className="bg-gradient-to-r from-indigo-500 to-purple-600 px-6 py-4">
-            <div className="inline-flex items-center bg-white bg-opacity-20 text-grey-100 rounded-full px-4 py-1.5 mb-3">
-              <span className="mb-2 font-semibold text-gray-700 text-xm">
-                {internship.type === "1year" ? "First Year Internship" : "Second Year Internship"}
-              </span>
-            </div>
+          <table className="min-w-full table-auto">
+            <tbody>
+              {/* Internship Title and Type */}
+              <tr className="mb-4">
+                <td className="px-4 py-3 font-semibold text-gray-800 flex items-center gap-3">
+                  <FaBriefcase className="text-blue-600" />
+                  <span className="text-lg font-bold">{internship.title}</span>
+                </td>
+                <td className="px-4 py-3 text-gray-600">
+                  <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800 border border-blue-200">
+                    {internship.type === "1year" ? "First Year Internship" : "Second Year Internship"}
+                  </span>
+                </td>
+              </tr>
 
-            <div className="flex items-center">
-              <FaBriefcase className="text-yellow-300 mr-2 text-lg" />
-              <h3 className="text-xl font-semibold text-white">
-                {internship.title}
-              </h3>
-            </div>
-            
-            <div className="flex items-center mt-2 text-indigo-100">
-              <FaBuilding className="text-sm text-blue-300" />
-              <span className="ml-2">{internship.company}</span>
-              <span className="mx-2 text-indigo-200">•</span>
-              <FaClock className="text-sm text-purple-300" />
-              <span className="ml-2">{internship.duration} months</span>
-            </div>
-          </div>
-          
-          <div className="p-6">
-            <div className="flex flex-wrap gap-4">
-              <div className="flex-1 min-w-[250px]">
-                <div className="flex items-center mb-2 text-gray-700">
-                  <FaBookmark className="text-indigo-500" />
-                  <span className="ml-2 font-medium">Status</span>
-                </div>
-                <div className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium border ${getStatusColor(internship.status)}`}>
-                  {internship.status}
-                </div>
-              </div>
-              
-              <div className="flex-1 min-w-[250px]">
-                <div className="flex items-center mb-2 text-gray-700">
-                  <FaUser className="text-green-500" />
-                  <span className="ml-2 font-medium">Assigned Teacher</span>
-                </div>
-                {internship.teacher && typeof internship.teacher !== "string" ? (
-                  <div>
-                    <p className="text-gray-800">{internship.teacher.name}</p>
-                    <p className="text-indigo-600">{internship.teacher.email}</p>
-                  </div>
-                ) : (
-                  <p className="text-gray-500 italic">Not assigned yet</p>
-                )}
-              </div>
-            </div>
-            
-            <div className="flex flex-wrap gap-4 mt-4">
-              <div className="flex-1 min-w-[250px]">
-                <div className="flex items-center mb-2 text-gray-700">
-                  <FaInfoCircle className="text-blue-400" />
-                  <span className="ml-2 font-medium">Defense Details</span>
-                </div>
-                {internship.defenseDate !== "Not scheduled" ? (
-                  <div className="space-y-1">
-                    <div className="flex items-center text-gray-700">
-                      <FaCalendarAlt className="text-blue-400 mr-2" />
-                      <span className="text-gray-500">Date:</span> {internship.defenseDate}
-                    </div>
-                    <div className="flex items-center text-gray-700">
-                      <FaClock className="text-blue-400 mr-2" />
-                      <span className="text-gray-500">Time:</span> {internship.defenseTime}
+              {/* Company and Duration */}
+              <tr className="mb-4">
+                <td className="px-4 py-3 text-gray-600 flex items-center gap-3">
+                  <FaBuilding className="text-blue-500" />
+                  <span className="font-bold">Company:</span> {internship.company}
+                </td>
+                <td className="px-4 py-3 text-gray-600 flex items-center gap-3">
+                  <FaClock className="text-orange-500" />
+                  <span className="font-bold">Duration:</span> {internship.duration} months
+                </td>
+              </tr>
+
+              {/* Status - Highlighted */}
+              <tr className="mb-4">
+                <td colSpan="2" className="px-4 py-3">
+                  <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg border border-gray-100">
+                    {getStatusIcon(internship.status)}
+                    <div>
+                      <span className="font-bold">Status:</span>
+                      <span className={`ml-2 font-semibold ${
+                        internship.status === "Validated" ? "text-green-600" : 
+                        internship.status === "Not validated" ? "text-red-600" : "text-amber-600"
+                      }`}>
+                        {internship.status}
+                      </span>
                     </div>
                   </div>
-                ) : (
-                  <p className="text-gray-500 italic">Not scheduled yet</p>
-                )}
-              </div>
+                </td>
+              </tr>
+
+              {/* Teacher - Highlighted */}
+              <tr className="mb-4">
+                <td colSpan="2" className="px-4 py-3">
+                  <div className="flex items-start gap-3 p-3 bg-blue-50 rounded-lg border border-blue-100">
+                    <FaUserTie className="text-blue-600 mt-1" />
+                    <div>
+                      <span className="font-bold">Assigned Teacher:</span>
+                      {internship.teacher && typeof internship.teacher !== "string" ? (
+                        <div className="mt-1">
+                          <p className="font-semibold text-gray-800">{internship.teacher.name}</p>
+                          <div className="flex items-center gap-2 mt-1">
+                            <FaEnvelope className="text-gray-500" />
+                            <span className="text-indigo-600">{internship.teacher.email}</span>
+                          </div>
+                        </div>
+                      ) : (
+                        <p className="text-gray-500 italic mt-1">Not assigned yet</p>
+                      )}
+                    </div>
+                  </div>
+                </td>
+              </tr>
+
+              {/* Defense Details */}
+              {internship.defenseDate && internship.defenseDate !== "Not scheduled" && (
+                <>
+                  <tr className="mb-4">
+                    <td colSpan="2" className="px-4 py-3 text-gray-600 flex items-center gap-3">
+                      <FaCalendarAlt className="text-green-500" />
+                      <span className="font-bold">Defense Date:</span> {internship.defenseDate}
+                    </td>
+                  </tr>
+                  <tr className="mb-4">
+                    <td colSpan="2" className="px-4 py-3 text-gray-600 flex items-center gap-3">
+                      <FaClock className="text-orange-500" />
+                      <span className="font-bold">Defense Time:</span> {internship.defenseTime}
+                    </td>
+                  </tr>
+                </>
+              )}
+
+              {/* Google Meet Link */}
+              {internship.googleMeetLink && internship.googleMeetLink !== "Not provided" && (
+                <tr className="mb-4">
+                  <td colSpan="2" className="px-4 py-3 text-gray-600 flex items-start gap-3">
+                    <FaVideo className="text-red-500" />
+                    <div>
+                      <span className="font-bold">Meeting Link:</span>
+                      <a 
+                        href={internship.googleMeetLink} 
+                        target="_blank" 
+                        rel="noopener noreferrer" 
+                        className="text-blue-600 hover:underline ml-2 block mt-1"
+                      >
+                        {internship.googleMeetLink}
+                      </a>
+                    </div>
+                  </td>
+                </tr>
+              )}
+
+              {/* PV Details */}
+              {internship.pvDetails && internship.pvDetails !== "Not provided" && (
+                <tr className="mb-4">
+                  <td colSpan="2" className="px-4 py-3">
+                    <div className="flex items-start gap-3">
+                      <FaFolderOpen className="text-gray-500 mt-1" size={20} />
+                      <div>
+                        <span className="font-bold">PV Details:</span>
+                        <div className="bg-gray-50 rounded-lg border border-gray-100 p-4 mt-2">
+                          <pre className="whitespace-pre-wrap text-sm text-gray-700">
+                            {internship.pvDetails}
+                          </pre>
+                        </div>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+              )}
+
+              {/* No meeting or defense scheduled message */}
+              {(!internship.defenseDate || internship.defenseDate === "Not scheduled") && (
+                <tr className="mb-4">
+                  <td colSpan="2" className="px-4 py-3">
+                    <div className="bg-amber-50 border-l-4 border-amber-400 p-4 rounded shadow">
+                      <div className="flex">
+                        <div className="flex-shrink-0">
+                          <FaInfoCircle className="h-5 w-5 text-amber-500" />
+                        </div>
+                        <div className="ml-3">
+                          <p className="text-sm text-amber-700">
+                            Defense has not been scheduled yet. Your teacher will set a date and provide a meeting link.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+              )}
               
-              <div className="flex-1 min-w-[250px]">
-                <div className="flex items-center mb-2 text-gray-700">
-                  <FaVideo className="text-purple-500" />
-                  <span className="ml-2 font-medium">Google Meet</span>
-                </div>
-                {internship.googleMeetLink !== "Not provided" ? (
-                  <a 
-                    href={internship.googleMeetLink} 
-                    target="_blank" 
-                    rel="noopener noreferrer" 
-                    className="inline-flex items-center px-3 py-2 text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 transition-colors duration-200"
-                  >
-                    Join Meeting
-                  </a>
-                ) : (
-                  <p className="text-gray-500 italic">Not provided yet</p>
-                )}
-              </div>
-            </div>
-            
-            <div className="mt-6">
-              <div className="flex items-center mb-2 text-gray-700">
-                <FaFileAlt className="text-amber-500" />
-                <span className="ml-2 font-medium">PV Details</span>
-              </div>
-              <div className="p-4 bg-gray-50 rounded-lg border border-gray-100">
-                {internship.pvDetails && internship.pvDetails !== "Not provided" ? (
-                  <pre className="whitespace-pre-wrap text-sm text-gray-700">{internship.pvDetails}</pre>
-                ) : (
-                  <p className="text-gray-500 italic text-sm">No PV details available yet</p>
-                )}
-              </div>
-            </div>
-          </div>
+              {/* Join Meeting Button */}
+              {internship.googleMeetLink && internship.googleMeetLink !== "Not provided" && (
+                <tr className="mb-4">
+                  <td colSpan="2" className="px-4 py-3">
+                    <a 
+                      href={internship.googleMeetLink} 
+                      target="_blank" 
+                      rel="noopener noreferrer" 
+                      className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition duration-300 ease-in-out inline-block"
+                    >
+                      Join Defense Meeting
+                    </a>
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
         </div>
       ))}
     </div>
