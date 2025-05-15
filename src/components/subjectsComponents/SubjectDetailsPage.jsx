@@ -107,11 +107,12 @@ const SubjectDetailsPage = () => {
             if (!force && fetchRef.current && formData?.subject?._id === id) return;
 
             const response = await matieresServices.fetchMatiereById(id);
-            const { subject, history, historyPagination } = response;
+            const { subject, archivedSubjects, archivedPagination } = response;
 
             if (!subject || !subject.curriculum || !Array.isArray(subject.curriculum.chapitres)) {
                 throw new Error("Invalid subject data received from the server.");
             }
+
             setFetchData(subject);
             setFormData({
                 subject: {
@@ -124,8 +125,8 @@ const SubjectDetailsPage = () => {
                         })),
                     },
                 },
-                history: Array.isArray(history) ? history : [],
-                historyPagination: historyPagination || null,
+                history: Array.isArray(archivedSubjects) ? archivedSubjects : [],
+                historyPagination: archivedPagination || null,
             });
 
             fetchRef.current = true;
@@ -709,7 +710,7 @@ const SubjectDetailsPage = () => {
                                                                 <label className="block text-sm text-gray-600 mb-1">Completion Date:</label>
                                                                 <input
                                                                     type="date"
-                                                                    defaultValue={new Date().toISOString().split("T")[0]}
+                                                                    // defaultValue={new Date().toISOString().split("T")[0]}
                                                                     value={completedAtDates[chapterKey]?.split("T")[0] || new Date().toISOString().split("T")[0]}
                                                                     onChange={(e) => handleDateChange(chapterKey, e.target.value)}
                                                                     className="border rounded px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -893,7 +894,7 @@ const SubjectDetailsPage = () => {
                                     <DetailRow
                                         label={
                                             <span className="flex items-center gap-2 text-gray-600 font-medium">
-                                                <FiLayers className="text-lg text-indigo-500" />
+                                                <FiCalendar className="text-lg text-indigo-500" />
                                                 Modified At
                                             </span>
                                         }
@@ -1001,13 +1002,26 @@ const SubjectDetailsPage = () => {
                                             </span>
                                         }
                                         value={
-                                            selectedHistory.skillsId.length > 0
-                                                ? selectedHistory.skillsId
-                                                    .map(
-                                                        (s) => `${s.title} (${s.familyId.map((f) => f.title).join(", ")})`
-                                                    )
-                                                    .join(", ")
-                                                : "None"
+                                            selectedHistory.skillsId.length > 0 ? (
+                                                <div className="flex flex-wrap gap-2 mt-1">
+                                                    {selectedHistory.skillsId.map((s, idx) => {
+                                                        const hasFamilies = s.familyId && s.familyId.length > 0;
+                                                        const familyTitles = hasFamilies
+                                                            ? s.familyId.map((f) => f.title).join(", ")
+                                                            : "";
+
+                                                        return (
+
+                                                            <Pill color={hasFamilies ? "blue" : "gray"}>
+                                                                {s.title}
+                                                                {hasFamilies && <span className="ml-1 text-xs">({familyTitles})</span>}
+                                                            </Pill>
+                                                        );
+                                                    })}
+                                                </div>
+                                            ) : (
+                                                <span className="text-gray-500">None</span>
+                                            )
                                         }
                                     />
                                 </div>
@@ -1074,10 +1088,32 @@ const ErrorState = ({ message }) => (
 );
 
 const DetailRow = ({ label, value }) => (
-    <div className="flex flex-col space-y-1 transition-all duration-200 rounded-lg ">
-        <span className="text-sm font-medium text-gray-600">{label}</span>
-        <span className="text-base font-semibold text-gray-900">{value}</span>
+    <div className="flex flex-col space-y-2 p-3 bg-gray-50 rounded-lg border border-gray-100 shadow-sm transition-all duration-200 hover:shadow-md">
+        <div className="flex items-center gap-2 text-gray-600 text-sm font-medium">
+            {typeof label === "string" ? (
+                <span>{label}</span>
+            ) : (
+                label
+            )}
+        </div>
+        <div className="text-base font-normal text-gray-800">
+            {value}
+        </div>
     </div>
 );
 
+const Pill = ({ children, color = "indigo" }) => {
+    const colorClasses = {
+        indigo: "bg-indigo-100 text-indigo-800 border-indigo-300",
+        blue: "bg-blue-100 text-blue-800 border-blue-300",
+        green: "bg-green-100 text-green-800 border-green-300",
+        gray: "bg-gray-100 text-gray-800 border-gray-300",
+    };
+
+    return (
+        <span className={`inline-flex px-3 py-1 rounded-full text-sm font-medium border ${colorClasses[color]}`}>
+            {children}
+        </span>
+    );
+};
 export default SubjectDetailsPage;
