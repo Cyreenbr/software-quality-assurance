@@ -42,8 +42,8 @@ import StudentsListTeachers from "../../pages/usersListPage/StudentsListTeachers
 import StudentsManagPage from "../../pages/UsersManagementPage/StudentsManagPage";
 import TeachersManagPage from "../../pages/UsersManagementPage/TeachersManagPage";
 import { RoleEnum } from "../../utils/userRoles";
-import OptionsListForStudentPage from "../../pages/optionsListForStudentsPage/OptionsListForStudentsPage.jsx";
 import Profile from "../../pages/profilePage/Profile";
+import UniversityYearPage from "../../pages/universityYearPage/UniversityYearPage";
 export const menuConfig = [
   {
     order: 1,
@@ -361,9 +361,9 @@ export const menuConfig = [
     hideSideBar: false,
     hideHeader: false,
   },
+  /*
   {
     order: 28,
-
     label: "CVAcademic",
     icon: MdList,
     path: "/cv/generate/:id",
@@ -374,7 +374,7 @@ export const menuConfig = [
     dontShow: true,
     hideSideBar: false,
     hideHeader: false,
-  },
+  },*/
   {
     order: 29,
     label: "Profile",
