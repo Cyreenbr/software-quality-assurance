@@ -1,5 +1,7 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { FaEdit, FaEnvelope, FaSearch, FaTimes, FaUserTie } from "react-icons/fa";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import internshipService from "../../services/updateplanninginternship/UpdateInternshipPlanning.service";
 
 const InternshipPlanning = () => {
@@ -10,8 +12,6 @@ const InternshipPlanning = () => {
   const [selectedInternship, setSelectedInternship] = useState(null);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
-  const [message, setMessage] = useState("");
-  const [messageType, setMessageType] = useState("");
 
   useEffect(() => {
     const fetchData = async () => {
@@ -27,8 +27,7 @@ const InternshipPlanning = () => {
           setTeachers(teachersData);
         }
       } catch (error) {
-        setMessage("Error fetching data. Please try again later.");
-        setMessageType("error");
+        toast.error("Error fetching data. Please try again later.");
       } finally {
         setLoading(false);
       }
@@ -48,12 +47,7 @@ const InternshipPlanning = () => {
 
   const handleAssignTeacher = async () => {
     if (!selectedTeacher || !selectedInternship?._id) {
-      setMessage("Please select both an internship and a teacher.");
-      setMessageType("error");
-      setTimeout(() => {
-        setMessage("");
-        setMessageType("");
-      }, 3000);
+      toast.error("Please select both an internship and a teacher.");
       return;
     }
 
@@ -64,16 +58,12 @@ const InternshipPlanning = () => {
       );
 
       if (response) {
-        setMessage("Internship updated successfully!");
-        setMessageType("success");
-        setTimeout(() => {
-          setMessage("");
-          setMessageType("");
-        }, 3000);
-        const selectedTeacherObj = teachers.find(t => t._id === selectedTeacher);
+        toast.success("Internship updated successfully!");
+        
+        const selectedTeacherObj = teachers.find(t => t._id === selectedTeacher); // njib l'objet teacher mel objet selectionné
         const updatedInternships = internships.map((internship) =>
           internship._id === selectedInternship._id
-            ? { ...internship, teacher: selectedTeacherObj }
+            ? { ...internship, teacher: selectedTeacherObj } //lista avec l'updated internships
             : internship
         );
 
@@ -82,20 +72,10 @@ const InternshipPlanning = () => {
         setSelectedTeacher("");
         setSelectedInternship(null);
       } else {
-        setMessage("Error updating internship.");
-        setMessageType("error");
-        setTimeout(() => {
-          setMessage("");
-          setMessageType("");
-        }, 3000);
+        toast.error("Error updating internship.");
       }
     } catch (error) {
-      setMessage("Error updating internship. Please try again.");
-      setMessageType("error");
-      setTimeout(() => {
-        setMessage("");
-        setMessageType("");
-      }, 3000);
+      toast.error("Error updating internship. Please try again.");
     }
   };
 
@@ -115,16 +95,9 @@ const InternshipPlanning = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-r from-blue-50 to-purple-100 py-10">
+      <ToastContainer position="top-right" autoClose={3000} />
       <div className="max-w-7xl bg-white rounded-lg shadow-lg mx-auto p-8">
-        <h1 className="text-3xl font-semibold text-start text-gray-700 mb-6">Internship Assignments</h1>
-
-        {message && (
-          <div
-            className={`p-3 rounded-lg mb-4 ${messageType === "error" ? "bg-red-400 text-white" : "bg-green-400 text-white"}`}
-          >
-            {message}
-          </div>
-        )}
+        <h1 className="text-3xl font-semibold text-start text-blue-500 mb-6">Internship Assignments</h1>
 
         <div className="relative w-full max-w-md ml-auto mb-6">
           <input
@@ -223,14 +196,6 @@ const InternshipPlanning = () => {
                 </option>
               )}
             </select>
-
-            {message && (
-              <div
-                className={`p-3 rounded-lg mb-4 ${messageType === "error" ? "bg-red-400 text-white" : "bg-green-400 text-white"}`}
-              >
-                {message}
-              </div>
-            )}
 
             <div className="flex justify-end">
               <button

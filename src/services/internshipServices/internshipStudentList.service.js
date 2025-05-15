@@ -10,6 +10,18 @@ const internshipService = {
       return [];
     }
   },
+
+  publishPlanning: async (action) => {
+    try {
+      const response = await axiosAPI.post(`/internship/stage/planning/publish/${action}`);
+      return response.data;
+    } catch (error) {
+      console.error("Error publishing planning:", error.response?.data?.message || error);
+      throw error;
+    }
+  },
+
+
 };
 
 export default internshipService;

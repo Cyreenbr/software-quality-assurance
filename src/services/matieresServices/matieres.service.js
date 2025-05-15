@@ -12,10 +12,12 @@ const matieresServices = {
         }
     },
 
-    fetchMatiereById: async (id) => {
+    fetchMatiereById: async (id, page = 1, searchTerm = '', sortBy = '_id', order = 'desc', limit = 9) => {
         if (!id) throw new Error("Invalid subject ID.");
         try {
-            const response = await axiosAPI.get(`/matieres/${id}`);
+            const response = await axiosAPI.get(`/matieres/${id}`, {
+                params: { page, limit, searchTerm, sortBy, order }
+            });
             return response.data;
         } catch (err) {
             throw err.response?.data?.error || "Failed to fetch subject.";
@@ -69,6 +71,36 @@ const matieresServices = {
             throw err.response?.data?.error || err.response?.data?.message || "Failed to update subject.";
         }
     },
+    addUpdatePropositionMatiere: async (editSubject) => {
+        if (!editSubject || !editSubject._id) {
+            throw new Error("Invalid subject data: Missing ID.");
+        }
+        try {
+            const response = await axiosAPI.patch(`/matieres/${editSubject._id}/proposition`, editSubject);
+            if (response.status >= 200 && response.status < 300) {
+                return response.data;
+            } else {
+                throw new Error("Unexpected response from server.");
+            }
+        } catch (err) {
+            throw err.response?.data?.error || err.response?.data?.message || "Failed to update subject.";
+        }
+    },
+    fetchUpdatePropositionMatiere: async (subjectId) => {
+        if (!subjectId) {
+            throw new Error("Invalid subject data: Missing ID.");
+        }
+        try {
+            const response = await axiosAPI.get(`/matieres/${subjectId}/proposition`);
+            if (response.status >= 200 && response.status < 300) {
+                return response.data;
+            } else {
+                throw new Error("Unexpected response from server.");
+            }
+        } catch (err) {
+            throw err.response?.data?.error || "Failed to fetch subject.";
+        }
+    },
     updateMatiereAvancement: async (editSubject) => {
         if (!editSubject || !editSubject._id) {
             throw new Error("Invalid subject data: Missing ID.");
@@ -82,6 +114,23 @@ const matieresServices = {
             }
         } catch (err) {
             throw err.response?.data?.error || err.response?.data?.message || "Failed to update subject.";
+        }
+    },
+    sendEvaluationNotif: async (subjectId = null) => {
+        const data = {};
+        if (subjectId) {
+            data.subjectId = subjectId;
+        }
+
+        try {
+            const response = await axiosAPI.post(`/matieres/evaluation`, data);
+            if (response.status >= 200 && response.status < 300) {
+                return response.data;
+            } else {
+                throw new Error("Unexpected response from server.");
+            }
+        } catch (err) {
+            throw err.response?.data?.error || err.response?.data?.message || "Failed to open evaluation session.";
         }
     },
     deleteMatiere: async (id, { forced = false, archive = false }) => {
@@ -121,13 +170,89 @@ const matieresServices = {
             throw err.response?.data?.error || "Failed to publish subject.";
         }
     },
-    evaluateMatiere: async (id, evaluationData) => {
-        if (!id) throw new Error("Invalid subject ID.");
+    // evaluateMatiere: async (id, evaluationData) => {
+    //     if (!id) throw new Error("Invalid subject ID.");
+    //     try {
+    //         const response = await axiosAPI.post(`/matieres/${id}/evaluation`, evaluationData);
+    //         return response.data;
+    //     } catch (err) {
+    //         throw err.response?.data?.error || "Failed to evaluate subject.";
+    //     }
+    // },
+
+    evaluateMatiere: async (subjectId = null, evaluationArray = [], additionalComment = "") => {
+        if (!subjectId || !Array.isArray(evaluationArray) || evaluationArray.length === 0) {
+            throw new Error("Subject ID and evaluation data are required.");
+        }
+
+        // Optional: Validate each evaluation item (if needed)
+        const isValidEvaluation = evaluationArray.every(item =>
+            Object.prototype.hasOwnProperty.call(item, 'description') && typeof item.description === 'string' &&
+            Object.prototype.hasOwnProperty.call(item, 'rank') && typeof item.rank === 'number'
+        );
+
+        if (!isValidEvaluation) {
+            throw new Error("Each evaluation item must have a description and a numeric rank.");
+        }
+
         try {
-            const response = await axiosAPI.post(`/matieres/${id}/evaluation`, evaluationData);
-            return response.data;
+            const data = {
+                evaluation: evaluationArray,
+                comment: additionalComment || undefined, // Include comment only if it's not an empty string
+            };
+
+            const response = await axiosAPI.post(`/matieres/${subjectId}/evaluation`, data);
+
+            if (response.status >= 200 && response.status < 300) {
+                return response.data;
+            } else {
+                throw new Error("Unexpected response from server.");
+            }
         } catch (err) {
-            throw err.response?.data?.error || "Failed to evaluate subject.";
+            // Improved error handling to check for the response structure
+            const errorMessage = err.response?.data?.error || err.response?.data?.message || "Failed to submit evaluation.";
+            throw new Error(errorMessage);
+        }
+    },
+
+    checkEvaluatedStudentMatiere: async (subjectId) => {
+        if (!subjectId) throw new Error("Subject ID is required.");
+
+        try {
+            const response = await axiosAPI.get(`/matieres/${subjectId}/check-evaluation`);
+
+            if (response.status === 200) {
+                return response.data; // { message: "You can evaluate this subject." }
+            }
+
+            throw new Error("Evaluation not allowed.");
+        } catch (err) {
+            const errorMessage =
+                err.response?.data?.message ||
+                err.response?.data?.error ||
+                "Failed to check evaluation.";
+            throw new Error(errorMessage);
+        }
+    },
+
+    validatePropositionMatiere: async (id, subjectId, isApproved = false) => {
+        if (!id || !subjectId) {
+            throw new Error("Invalid subject data: Missing ID.");
+        }
+        const data = {
+            subjectId,
+            isApproved,
+        };
+
+        try {
+            const response = await axiosAPI.patch(`/matieres/${id}/validate`, data);
+            if (response.status >= 200 && response.status < 300) {
+                return response.data;
+            } else {
+                throw new Error("Unexpected response from server.");
+            }
+        } catch (err) {
+            throw err.response?.data?.error || err.response?.data?.message || "Failed to update subject.";
         }
     },
 
