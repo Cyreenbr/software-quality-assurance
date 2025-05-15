@@ -40,6 +40,7 @@ import StudentsManagPage from "../../pages/UsersManagementPage/StudentsManagPage
 import TeachersManagPage from "../../pages/UsersManagementPage/TeachersManagPage";
 import { RoleEnum } from "../../utils/userRoles";
 import OptionsListForStudentPage from "../../pages/optionsListForStudentsPage/OptionsListForStudentsPage.jsx";
+import UniversityYearPage from "../../pages/universityYearPage/UniversityYearPage";
 export const menuConfig = [
   {
     order: 1,
@@ -366,6 +367,17 @@ export const menuConfig = [
     path: "/list-options",
     component: OptionsListForStudentPage,
     eligibleRoles: [RoleEnum.STUDENT],
+    active: true,
+    hideSideBar: false,
+    hideHeader: false,
+  },
+  {
+    order: 31,
+    label: "Manage University Year",
+    icon: MdAutoStories,
+    path: "/UniversityYear",
+    component: UniversityYearPage,
+    eligibleRoles: [RoleEnum.ADMIN],
     active: true,
     hideSideBar: false,
     hideHeader: false,
