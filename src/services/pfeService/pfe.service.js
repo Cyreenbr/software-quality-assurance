@@ -36,7 +36,7 @@ export const updatePFE = async (id, formData) => {
     toast.success("PFE updated successfully");
     return response.data;
   } catch (error) {
-    toast.error(" Error updating PFE:", error.response?.data || error.message);
+    toast.error(error.response?.data || error.message);
 
     throw error;
   }
@@ -130,12 +130,10 @@ export const togglePublication = async (isPublished) => {
   }
 };
 
-export const sendEmail = async (type) => {
+export const sendEmail = async () => {
   try {
-    const response = await axiosAPI.post(`${API_URL}/planning/send`, {
-      sendType: type,
-    });
-    toast.success(` ${type === "first" ? "First" : "Modified"} email sent.`);
+    const response = await axiosAPI.post(`${API_URL}/planning/send`, {});
+    toast.success(` email sent.`);
     return response.data;
   } catch (error) {
     toast.error(" Error sending email:", error.response?.data || error.message);
