@@ -2,7 +2,7 @@ import {
   FaBook,
   FaGraduationCap,
   FaLightbulb,
-  FaWindowRestore
+  FaWindowRestore,
 } from "react-icons/fa";
 import { GiTeacher } from "react-icons/gi";
 import {
@@ -13,7 +13,7 @@ import {
   MdDownload,
   MdHome,
   MdList,
-  MdNotifications
+  MdNotifications,
 } from "react-icons/md";
 import { PiStudentBold, PiStudentFill } from "react-icons/pi";
 import Pfa from "../../../src/pages/pfaPage/Pfa";
@@ -42,8 +42,14 @@ import StudentsListTeachers from "../../pages/usersListPage/StudentsListTeachers
 import StudentsManagPage from "../../pages/UsersManagementPage/StudentsManagPage";
 import TeachersManagPage from "../../pages/UsersManagementPage/TeachersManagPage";
 import { RoleEnum } from "../../utils/userRoles";
+
+import AdminPlanningPage from "../../pages/pfePage/pfeSoutenance/PFEDefenseManagement";
+import EnseignantPage from "../../pages/pfePage/pfeSoutenance/EnseignantPage";
+import EtudiantSoutenancePage from "../../pages/pfePage/pfeSoutenance/EtudiantSoutenancePage";
+
 import Profile from "../../pages/profilePage/Profile";
 import UniversityYearPage from "../../pages/universityYearPage/UniversityYearPage";
+
 export const menuConfig = [
   {
     order: 1,
@@ -96,7 +102,7 @@ export const menuConfig = [
     path: "/competences",
     tooltip: "Competences",
     component: Competences,
-    eligibleRoles: [RoleEnum.ADMIN, RoleEnum.TEACHER,],
+    eligibleRoles: [RoleEnum.ADMIN, RoleEnum.TEACHER],
     active: true,
     hideSideBar: false,
     hideHeader: false,
@@ -157,7 +163,7 @@ export const menuConfig = [
     path: "/PFA",
     component: Pfa,
     eligibleRoles: [RoleEnum.ADMIN, RoleEnum.TEACHER, RoleEnum.STUDENT],
-    // eligibleLevels: [RoleEnum.ISPFA],
+    eligibleLevels: [RoleEnum.ISPFA],
     active: true,
     hideSideBar: false,
     hideHeader: false,
@@ -361,6 +367,50 @@ export const menuConfig = [
     hideSideBar: false,
     hideHeader: false,
   },
+
+
+  {
+    order: 28,
+    label: "soutenancePlanning",
+    icon: MdList,
+    path: "/soutenancePlanning",
+    tooltip: "soutenancePlanning",
+    component: AdminPlanningPage,
+    eligibleRoles: [RoleEnum.ADMIN],
+    active: true,
+    dontShow: false,
+    hideSideBar: false,
+    hideHeader: false,
+  },
+  {
+    order: 29,
+    label: "soutenanceEnseignantPage",
+    icon: MdList,
+    path: "/soutenanceEnseignantPage",
+    tooltip: "soutenanceEnseignantPage",
+    component: EnseignantPage,
+    eligibleRoles: [RoleEnum.TEACHER],
+    active: true,
+    dontShow: false,
+    hideSideBar: false,
+    hideHeader: false,
+  },
+  {
+    order: 30,
+    label: "EtudiantSoutenancePage",
+    icon: MdList,
+    path: "/EtudiantSoutenancePage",
+    tooltip: "EtudiantSoutenancePage",
+    component: EtudiantSoutenancePage,
+    eligibleRoles: [RoleEnum.STUDENT],
+    eligibleLevels: [RoleEnum.ISPFE],
+    active: true,
+    dontShow: false,
+    hideSideBar: false,
+    hideHeader: false,
+  },
+
+
   /*
   {
     order: 28,
@@ -376,7 +426,7 @@ export const menuConfig = [
     hideHeader: false,
   },*/
   {
-    order: 29,
+    order: 31,
     label: "Profile",
     icon: MdAccountCircle,
     path: "/profile",
@@ -388,7 +438,7 @@ export const menuConfig = [
   },
 
   {
-    order: 30,
+    order: 32,
     label: "List Options",
     icon: MdAutoStories,
     path: "/list-options",
@@ -399,7 +449,7 @@ export const menuConfig = [
     hideHeader: false,
   },
   {
-    order: 31,
+    order: 33,
     label: "Manage University Year",
     icon: MdAutoStories,
     path: "/UniversityYear",
@@ -409,6 +459,7 @@ export const menuConfig = [
     hideSideBar: false,
     hideHeader: false,
   },
+
   // kifeh tzid route jdid ??
   // {
   //     order: 7,

@@ -16,13 +16,35 @@ const StudentPfaComponent = () => {
 
   const fetchPfas = async () => {
     try {
-      console.log("hi");
       const response = await pfaService.getPublishedPfas();
-      console.log(response);
+
       if (!response || !Array.isArray(response.openPFA)) {
-        throw new Error("The API did not return an array of periods.");
+        throw new Error("The API did not return an array of PFAs.");
       }
-      setpfaList(response.openPFA);
+
+      const currentUser = JSON.parse(localStorage.getItem("user"));
+      const currentUserId = currentUser?.id;
+
+      if (!currentUserId) {
+        throw new Error("User ID is not available. Please login first.");
+      }
+
+      console.log("Current User ID:", currentUserId);
+
+      const filteredPfas = response.openPFA.filter((pfa) => {
+        // Montrer les PFAs non assignés
+        if (!pfa.assigned) return true;
+
+        // Sinon, vérifier si l'utilisateur courant est parmi les affectés
+        return (
+          Array.isArray(pfa.affectedStudents) &&
+          pfa.affectedStudents.some((studentId) => {
+            return studentId?.toString() === currentUserId;
+          })
+        );
+      });
+
+      setpfaList(filteredPfas);
     } catch (error) {
       console.error("Error loading periods:", error);
       setpfaList([]);
@@ -56,8 +78,13 @@ const StudentPfaComponent = () => {
     const addpri = await pfaService.addPriority(selectedPfa._id, prio);
 
     console.log(addpri);
+    await fetchPfas();
 
     setSelectedPfa(null);
+  };
+
+  const cancelPopup = () => {
+    setSelectedPfa(null); // ferme juste le popup
   };
 
   const handlePriorityChange = (pfaId, value) => {
@@ -179,7 +206,8 @@ const StudentPfaComponent = () => {
                     ) ? (
                       <div>
                         {pfa.priorities.map((priority) =>
-                          priority.monome.toString() === JSON.parse(localStorage.getItem("user")).id ? (
+                          priority.monome.toString() ===
+                          JSON.parse(localStorage.getItem("user")).id ? (
                             <div
                               key={priority._id}
                               className="flex items-center"
@@ -193,7 +221,8 @@ const StudentPfaComponent = () => {
 
                         {!pfa.priorities.some(
                           (priority) =>
-                            priority.monome.toString() === JSON.parse(localStorage.getItem("user")).id &&
+                            priority.monome.toString() ===
+                              JSON.parse(localStorage.getItem("user")).id &&
                             priority.acceptTeacher
                         ) && (
                           <button
@@ -291,10 +320,16 @@ const StudentPfaComponent = () => {
               )}
 
               {/* Action Buttons */}
-              <div className="flex justify-between mt-6">
+              <div className="flex justify-between mt-5">
+                <button
+                  onClick={cancelPopup}
+                  className="bg-gray-400 text-white px-4 py-2 rounded-full hover:bg-gray-500 transition-all duration-200 shadow"
+                >
+                  Cancel
+                </button>
                 <button
                   onClick={closePopup}
-                  className="bg-blue-500 text-white px-6 py-3 rounded-l  hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+                  className="bg-blue-500 text-white px-4 py-2 rounded-full rounded-full hover:bg-gray-500 transition-all duration-200 shadow"
                 >
                   Add Priority
                 </button>
