@@ -55,4 +55,27 @@ export const teacherinternshipService = {
       }
     }
   },
+
+  evaluateInternship: async (internshipId, evaluationData) => {
+    try {
+      if (!internshipId) {
+        throw new Error("Internship ID is required");
+      }
+      
+      const response = await axiosAPI.patch(
+        `internship/stage/pv/${internshipId}`,
+        evaluationData
+      );
+      
+      return response.data;
+    } catch (error) {
+      console.error("Error evaluating internship:", error);
+      if (error.response?.data?.message) {
+        throw new Error(error.response.data.message);
+      } else {
+        throw new Error("Failed to evaluate internship. Please try again.");
+      }
+    }
+  },
+
 };

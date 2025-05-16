@@ -220,21 +220,25 @@ const pfaService = {
     }
   },
 
-  addPriority: async (pfaId, data) => {
-    try {
-      const response = await axiosAPI.patch(
-        `${API_BASE_URL}/${pfaId}/choice`,
-        data,
-        {
-          headers: { ...getAuthHeader() },
-        }
-      );
-      return response.data;
-    } catch (error) {
-      console.error("Error API (POST PFA) :", error);
-      return null;
-    }
-  },
+addPriority: async (pfaId, data) => {
+  try {
+    console.log('PATCH URL:', `${API_BASE_URL}/${pfaId}/choice`);
+    console.log('Data envoyée:', data);
+    
+    const response = await axiosAPI.patch(
+      `${API_BASE_URL}/${pfaId}/choice`,
+      data,
+      {
+        headers: { ...getAuthHeader() },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error API (POST PFA) :", error.response?.data || error.message);
+    return null;
+  }
+},
+
 
   acceptBinome: async (pfaId, studentIds) => {
     try {

@@ -1,13 +1,15 @@
-import { Button, DatePicker, Form, Input, message, Modal, TimePicker } from "antd";
+import { Button, DatePicker, Form, Input, message, Modal, Radio, TimePicker } from "antd";
 import dayjs from "dayjs";
 import { useState } from "react";
 import {
   FaCalendarAlt,
+  FaCheckCircle,
   FaClock,
   FaEnvelope,
   FaEye,
   FaFileAlt,
   FaFolderOpen,
+  FaTimesCircle,
   FaUserTie,
   FaVideo
 } from "react-icons/fa";
@@ -23,14 +25,16 @@ const getDocName = (doc) => {
     .join("");
 };
 
-const TeacherInternshipCard = ({ internship, onScheduleUpdate }) => {
+const TeacherInternshipCard = ({ internship, onScheduleUpdate, onEvaluate }) => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
+  const [isEvaluationModalVisible, setIsEvaluationModalVisible] = useState(false);
+  const [evaluationForm] = Form.useForm();
+  const [evaluationLoading, setEvaluationLoading] = useState(false);
   const [messageApi, contextHolder] = message.useMessage();
   const isValidDate = internship.defenseDate && !isNaN(new Date(internship.defenseDate));
   const isUpdate = isValidDate;
-
 
   const internshipId = internship.id || internship._id;
 
@@ -82,7 +86,33 @@ const TeacherInternshipCard = ({ internship, onScheduleUpdate }) => {
     }
   };
 
-  // do we have studentId object !!
+  const handleEvaluationSubmit = async () => {
+    try {
+      setEvaluationLoading(true);
+      const values = await evaluationForm.validateFields();
+      
+      messageApi.loading('Submitting evaluation...');
+
+      const success = await onEvaluate(internshipId, {
+        validated: values.validated,
+        reason: values.validated ? '' : values.reason
+      });
+      
+      if (success) {
+        setIsEvaluationModalVisible(false);
+        evaluationForm.resetFields();
+      }
+    } catch (error) {
+      if (error.errorFields) {
+        return;
+      }
+      console.error("Error evaluating internship:", error);
+      messageApi.error(error.message || "Failed to submit evaluation");
+    } finally {
+      setEvaluationLoading(false);
+    }
+  };
+
   const studentName = typeof internship.studentId === 'object' ? 
     internship.studentId?.name || "Unknown Student" : 
     "Unknown Student";
@@ -93,7 +123,7 @@ const TeacherInternshipCard = ({ internship, onScheduleUpdate }) => {
 
   return (
     <>
-      {contextHolder} {/* Ant Design message provider */}
+      {contextHolder}
       <div className="border border-gray-300 p-6 shadow-sm rounded-lg hover:shadow-xl duration-300 hover:bg-gradient-to-r from-blue-50 to-purple-100 max-w-5xl w-full mx-auto">
         <table className="min-w-full table-auto">
           <tbody>
@@ -120,8 +150,12 @@ const TeacherInternshipCard = ({ internship, onScheduleUpdate }) => {
             {/* PV */}
             <tr className="mb-4">
               <td className="px-4 py-3 text-gray-600 flex items-center gap-3">
-                <FaFileAlt className="text-gray-500" />
-                <span className="font-bold">PV:</span> {internship.pv || "No PV available"}
+                {internship.valide ? (
+                  <FaCheckCircle className="text-green-500" />
+                ) : (
+                  <FaTimesCircle className="text-red-500" />
+                )}
+                <span className="font-bold">Status:</span> {internship.status}
               </td>
             </tr>
 
@@ -150,7 +184,7 @@ const TeacherInternshipCard = ({ internship, onScheduleUpdate }) => {
                   <FaVideo className="text-red-500" />
                   <span className="font-bold">Meeting Link:</span>
                   <a href={internship.googleMeetLink} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline ml-2">
-                  {internship.googleMeetLink}
+                    {internship.googleMeetLink}
                   </a>
                 </td>
               </tr>
@@ -172,7 +206,7 @@ const TeacherInternshipCard = ({ internship, onScheduleUpdate }) => {
                           <div key={index}>
                             <div className="flex items-center gap-2">
                               <FaEye className="text-pink-500 text-xl" />
-                              <span className="font-semibold">Consulter</span>
+                              <span className="font-semibold">View</span>
                               <a
                                 href={fileURL}
                                 target="_blank"
@@ -194,15 +228,20 @@ const TeacherInternshipCard = ({ internship, onScheduleUpdate }) => {
               </td>
             </tr>
 
-            {/* Schedule Button */}
+            {/* Action Buttons */}
             <tr className="mb-4">
-              <td colSpan="2" className="px-4 py-3">
+              <td colSpan="2" className="px-4 py-3 flex gap-4">
                 <button
                   onClick={showModal}
                   className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition duration-300 ease-in-out"
                 >
                   {isUpdate ? "Update Defense" : "Schedule Defense"}
-
+                </button>
+                <button
+                  onClick={() => setIsEvaluationModalVisible(true)}
+                  className="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg transition duration-300 ease-in-out"
+                >
+                  Evaluate Internship
                 </button>
               </td>
             </tr>
@@ -228,7 +267,6 @@ const TeacherInternshipCard = ({ internship, onScheduleUpdate }) => {
               name="date"
               label={
                 <div className="flex items-center gap-2 font-semibold">
-                  <FaCalendarAlt className="text-blue-500" />
                   Defense Date
                 </div>
               }
@@ -241,7 +279,6 @@ const TeacherInternshipCard = ({ internship, onScheduleUpdate }) => {
               name="time"
               label={
                 <div className="flex items-center gap-2 font-semibold">
-                  <FaClock className="text-orange-500" />
                   Defense Time
                 </div>
               }
@@ -254,8 +291,7 @@ const TeacherInternshipCard = ({ internship, onScheduleUpdate }) => {
               name="googleMeetLink"
               label={
                 <div className="flex items-center gap-2 font-semibold">
-                  <FaVideo className="text-red-500" />
-                  Link Google Meet
+                  Google Meet Link
                 </div>
               }
               rules={[
@@ -264,6 +300,60 @@ const TeacherInternshipCard = ({ internship, onScheduleUpdate }) => {
               ]}
             >
               <Input placeholder="https://meet.google.com/xxx-yyyy-zzz" />
+            </Form.Item>
+          </Form>
+        </Modal>
+
+        {/* Evaluation Modal */}
+        <Modal
+          title="Evaluate Internship"
+          open={isEvaluationModalVisible}
+          onCancel={() => setIsEvaluationModalVisible(false)}
+          footer={[
+            <Button key="back" onClick={() => setIsEvaluationModalVisible(false)}>
+              Cancel
+            </Button>,
+            <Button 
+              key="submit" 
+              type="primary" 
+              loading={evaluationLoading} 
+              onClick={handleEvaluationSubmit}
+            >
+              Submit Evaluation
+            </Button>,
+          ]}
+        >
+          <Form form={evaluationForm} layout="vertical">
+            <Form.Item
+              name="validated"
+              label="Internship Validation"
+              rules={[{ required: true, message: "Please select an option" }]}
+            >
+              <Radio.Group>
+                <Radio value={true}>Validated</Radio>
+                <Radio value={false}>Not Validated</Radio>
+              </Radio.Group>
+            </Form.Item>
+
+            {/* bech pv mayodhhorch wa9t ne5tar validated*/}
+            <Form.Item
+              noStyle
+              shouldUpdate={(prevValues, currentValues) => prevValues.validated !== currentValues.validated}
+            >
+              {({ getFieldValue }) => 
+                getFieldValue('validated') === false ? (
+                  <Form.Item
+                    name="reason"
+                    label="PV (Reason for rejection)"
+                    rules={[{ required: true, message: "Please provide a reason for rejection" }]}
+                  >
+                    <Input.TextArea 
+                      rows={4} 
+                      placeholder="Explain why the internship is not validated..." 
+                    />
+                  </Form.Item>
+                ) : null
+              }
             </Form.Item>
           </Form>
         </Modal>
