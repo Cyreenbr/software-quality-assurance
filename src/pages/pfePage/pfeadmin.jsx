@@ -59,6 +59,8 @@ const AdminPfeManagement = () => {
   const handleManualAssignment = async (pfeId, teacherId) => {
     setLoadingId(pfeId);
     try {
+      console.log(pfeId);
+      //console.log(teacherId);
       await assignPFEManually(pfeId, teacherId);
       await loadData();
     } catch (err) {
@@ -121,7 +123,7 @@ const AdminPfeManagement = () => {
           </thead>
           <tbody>
             {pfeChoices.map((choice) => (
-              <tr key={choice._id} className="border-b hover:bg-gray-50">
+              <tr key={choice.pfeId} className="border-b hover:bg-gray-50">
                 <td className="py-3 px-6">
                   {choice.student?.firstName + choice.student?.lastName ||
                     "Unknown"}
@@ -151,7 +153,7 @@ const AdminPfeManagement = () => {
                       setShowTeacherModal(true);
                     }}
                     className="bg-blue-500 text-white p-2 rounded-full hover:bg-blue-600"
-                    disabled={loadingId === choice._id}
+                    disabled={loadingId === choice.pfeId}
                   >
                     <FaUserPlus />
                   </button>
@@ -161,18 +163,22 @@ const AdminPfeManagement = () => {
                 </td>
                 <td className="py-3 px-6 flex space-x-2">
                   <button
-                    onClick={() => handleApproveOrReject(choice._id, "approve")}
+                    onClick={() =>
+                      handleApproveOrReject(choice.pfeId, "approve")
+                    }
                     className="bg-green-500 text-white p-2 rounded-full hover:bg-green-600 disabled:opacity-50"
-                    disabled={loadingId === choice._id}
+                    disabled={loadingId === choice.pfeId}
                   >
-                    {loadingId === choice._id ? "..." : <FaCheck />}
+                    {loadingId === choice.pfeId ? "..." : <FaCheck />}
                   </button>
                   <button
-                    onClick={() => handleApproveOrReject(choice._id, "reject")}
+                    onClick={() =>
+                      handleApproveOrReject(choice.pfeId, "reject")
+                    }
                     className="bg-red-500 text-white p-2 rounded-full hover:bg-red-600 disabled:opacity-50"
-                    disabled={loadingId === choice._id}
+                    disabled={loadingId === choice.pfeId}
                   >
-                    {loadingId === choice._id ? "..." : <FaTimes />}
+                    {loadingId === choice.pfeId ? "..." : <FaTimes />}
                   </button>
                 </td>
               </tr>
@@ -202,7 +208,7 @@ const AdminPfeManagement = () => {
                     key={teacher._id}
                     className="py-2 px-4 cursor-pointer hover:bg-gray-200"
                     onClick={() =>
-                      handleManualAssignment(selectedPfe._id, teacher._id)
+                      handleManualAssignment(selectedPfe.pfeId, teacher._id)
                     }
                   >
                     {teacher.firstName} {teacher.lastName}
