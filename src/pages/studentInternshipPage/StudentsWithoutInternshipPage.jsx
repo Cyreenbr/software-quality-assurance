@@ -214,5 +214,4 @@ const StudentsWithoutInternship = () => {
     </div>
   );
 };
-
 export default StudentsWithoutInternship;
