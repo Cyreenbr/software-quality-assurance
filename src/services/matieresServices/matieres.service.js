@@ -1,7 +1,7 @@
 import axiosAPI from "../axiosAPI/axiosInstance";
 
 const matieresServices = {
-    fetchMatieres: async (page = 1, searchTerm = '', sortBy = '_id', order = 'desc', limit = 9) => {
+    fetchMatieres: async ({ page = 1, searchTerm = '', sortBy = '_id', order = 'desc', limit = 9 }) => {
         try {
             const response = await axiosAPI.get("/matieres", {
                 params: { page, limit, searchTerm, sortBy, order }
@@ -274,6 +274,17 @@ const matieresServices = {
             throw err.response?.data?.message || "Failed to load teacher with id " + id;
         }
     },
+    affectTeachersToSubjects: async (assignments = []) => {
+        try {
+            console.log(assignments);
+
+            const response = await axiosAPI.post("/matieres/affectTeachersToSubjects", { assignments });
+            return response.data;
+        } catch (err) {
+            throw err.response?.data?.message || "Failed to assign teachers to subjects.";
+        }
+    }
+
 };
 
 export default matieresServices;

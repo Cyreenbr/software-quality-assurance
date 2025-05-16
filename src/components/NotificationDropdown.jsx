@@ -177,7 +177,7 @@ const NotificationDropdown = () => {
                                                             <span className="text-[10px] text-gray-400">Non cliqué</span>
                                                         )
                                                     )}
-                                                    <p className="text-[10px] text-gray-600">{humanizeDate(notif.createdAt)}</p>
+                                                    <p className="text-[10px] text-gray-600">{humanizeDate(notif.createdAt, true)}</p>
                                                 </div>
                                             </div>
                                         </div>

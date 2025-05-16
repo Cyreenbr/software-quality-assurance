@@ -34,7 +34,7 @@ const AcademicYearPicker = ({
     disableYears = () => false,
     className = "",
     label = "Select Academic Year",
-    required = false
+    required = false,
 }) => {
 
     const parseStartYear = (val) => {

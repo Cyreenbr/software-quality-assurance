@@ -1,16 +1,17 @@
-import React, { useState, useEffect } from "react";
-import { OpenNewYear } from "../../services/UniversityYearServices/universityyear.service.js";
+import { useEffect, useState } from "react";
+import { FaCheckCircle } from "react-icons/fa";
+import { MdDone, MdUploadFile } from "react-icons/md";
+import Swal from "sweetalert2";
+import * as XLSX from "xlsx";
 import {
   getStudents,
   insertStudentsFromExcel,
 } from "../../services/ManageUsersServices/students.service.js";
+import matieresServices from "../../services/matieresServices/matieres.service.js";
+import { OpenNewYear } from "../../services/UniversityYearServices/universityyear.service.js";
 import AcademicYearPicker from "../AcademicYearPicker.jsx";
+import AssignTeachersStep from "./AssignTeachersToSubjects.jsx";
 import UpgradeStudents from "./UpgradeStudents.jsx"; // Import UpgradeStudents component
-import * as XLSX from "xlsx";
-import { MdSchool, MdUploadFile, MdRefresh } from "react-icons/md";
-import Swal from "sweetalert2";
-import { MdDone } from "react-icons/md";
-
 const NewYearListing = ({ onBack }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -28,6 +29,79 @@ const NewYearListing = ({ onBack }) => {
   const [totalPages, setTotalPages] = useState(0);
   const [allStudentsProcessed, setAllStudentsProcessed] = useState(false);
   const studentsPerPage = 5;
+  const [subjects, setSubjects] = useState([]);
+  const [teachers, setTeachers] = useState([]);
+  const [selectedTeachers, setSelectedTeachers] = useState({});
+  const [fetchingSubjects, setFetchingSubjects] = useState(false);
+  const steps = [
+    "Create Year",
+    "Process Students",
+    "Upload Data",
+    "Assign Teachers to Subjects",
+    "Completion"
+  ];
+
+  // Fetch subjects & teachers when entering step 4
+
+  useEffect(() => {
+    if (success || error) {
+      const timer = setTimeout(() => {
+        setSuccess(null);
+        setError(null);
+      }, 5000);
+
+      return () => clearTimeout(timer); // Clean up if component unmounts
+    }
+  }, [success, error]);
+
+
+  useEffect(() => {
+    const loadSubjectsAndTeachers = async () => {
+      if (currentStep !== 3) return;
+
+      try {
+        setFetchingSubjects(true);
+        const [subjectsResponse, teachersResponse] = await Promise.all([
+          matieresServices.fetchMatieres({ page: 1, limit: 100 }),
+          matieresServices.fetchTeachers({ page: 1, limit: 100 }),
+        ]);
+
+        const fetchedSubjects = subjectsResponse.subjects || [];
+        const fetchedTeachers = teachersResponse.teachers || [];
+        console.log(fetchedSubjects);
+        console.log(fetchedTeachers);
+
+        setSubjects(fetchedSubjects);
+        setTeachers(fetchedTeachers);
+
+        const initialSelected = {};
+        fetchedSubjects.forEach((subject) => {
+          if (subject.teacherId) {
+            initialSelected[subject._id] = subject.teacherId;
+          }
+        });
+        setSelectedTeachers(initialSelected);
+      } catch (err) {
+        console.error("Failed to load subjects or teachers:", err);
+        Swal.fire("Error", "Could not load subjects or teachers.", "error");
+      } finally {
+        setFetchingSubjects(false);
+      }
+    };
+
+    loadSubjectsAndTeachers();
+  }, [currentStep]);
+
+
+  const fetchTeachers = async (searchTerm) => {
+    try {
+      const data = await matieresServices.fetchTeachers({ page: 1, searchTerm: searchTerm, limit: 100 });
+      return data.teachers;
+    } catch (error) {
+      console.error("Error fetching teachers:", error);
+      return [];
+    }
+  };
 
   useEffect(() => {
     fetchStudents();
@@ -55,8 +129,8 @@ const NewYearListing = ({ onBack }) => {
   // Get unique levels and sort them
   const levels = Array.isArray(students)
     ? [
-        ...new Set(students.map((student) => student.level).filter(Boolean)),
-      ].sort()
+      ...new Set(students.map((student) => student.level).filter(Boolean)),
+    ].sort()
     : [];
 
   const filteredStudents =
@@ -180,14 +254,14 @@ const NewYearListing = ({ onBack }) => {
 
   const handleNext = () => {
     // Only proceed to next step if all students are processed (when coming from Step 2)
-    if (currentStep === 2 && !allStudentsProcessed) {
-      Swal.fire({
-        title: "Error",
-        text: "Please process all students before proceeding",
-        icon: "warning",
-      });
-      return;
-    }
+    // if (currentStep === 2 && !allStudentsProcessed) {
+    //   Swal.fire({
+    //     title: "Error",
+    //     text: "Please process all students before proceeding",
+    //     icon: "warning",
+    //   });
+    //   return;
+    // }
 
     setCurrentStep(currentStep + 1);
   };
@@ -205,7 +279,7 @@ const NewYearListing = ({ onBack }) => {
   };
 
   // Calculate progress percentage
-  const progressPercentage = (currentStep / 3) * 100;
+  const progressPercentage = (currentStep / 5) * 100;
 
   return (
     <div className="p-6 max-w-6xl mx-auto">
@@ -222,28 +296,28 @@ const NewYearListing = ({ onBack }) => {
                   style={{ width: `${progressPercentage}%` }}
                 ></div>
               </div>
-              <div className="flex justify-between">
-                <div
-                  className={`${
-                    currentStep >= 1 ? "text-blue-600" : "text-gray-500"
-                  }`}
-                >
-                  Step 1: Create Year
-                </div>
-                <div
-                  className={`${
-                    currentStep >= 2 ? "text-blue-600" : "text-gray-500"
-                  }`}
-                >
-                  Step 2: Process Students
-                </div>
-                <div
-                  className={`${
-                    currentStep >= 3 ? "text-blue-600" : "text-gray-500"
-                  }`}
-                >
-                  Step 3: Upload Data
-                </div>
+              <div className="flex justify-between items-center p-4 bg-white border rounded-xl shadow-sm">
+                {steps.map((label, index) => {
+                  const stepNumber = index + 1;
+                  const isCompleted = currentStep > stepNumber;
+                  const isCurrent = currentStep === stepNumber;
+                  const isFuture = currentStep < stepNumber;
+
+                  return (
+                    <div key={label} className="flex items-center gap-2">
+                      {isCompleted ? (
+                        <FaCheckCircle className="text-green-600" />
+                      ) : (
+                        <div
+                          className={`w-4 h-4 rounded-full border-2 ${isCurrent ? "border-blue-600 bg-blue-600" : "border-gray-400"}`}
+                        />
+                      )}
+                      <span className={`${isCompleted || isCurrent ? "text-blue-600 font-medium" : "text-gray-500"}`}>
+                        Step {stepNumber}: {label}
+                      </span>
+                    </div>
+                  );
+                })}
               </div>
             </div>
           </div>
@@ -280,7 +354,7 @@ const NewYearListing = ({ onBack }) => {
                 className="block text-gray-700 text-sm font-bold mb-2"
                 htmlFor="year"
               >
-                Academic Year (e.g., 2024-2025)
+                Academic Year :
               </label>
               <AcademicYearPicker
                 value={year}
@@ -399,6 +473,7 @@ const NewYearListing = ({ onBack }) => {
                   Selected file: <span className="font-medium">{fileName}</span>
                 </p>
               )}
+
             </div>
 
             {/* Excel Preview */}
@@ -485,6 +560,47 @@ const NewYearListing = ({ onBack }) => {
                 <li>Phone Number</li>
               </ul>
             </div>
+            <div className="flex justify-center items-center">
+              <button
+                onClick={handleFileUpload}
+                disabled={loading || !file}
+                className={`px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white ${loading || !file
+                  ? "bg-green-300 cursor-not-allowed"
+                  : "bg-green-600 hover:bg-green-700"
+                  }`}
+              >
+                Upload file
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Step 4: Assign Teachers */}
+        {currentStep === 4 && (
+          <AssignTeachersStep
+            step={4}
+            currentStep={currentStep}
+            subjects={subjects}
+            fetchTeachers={fetchTeachers}
+            fetchingSubjects={fetchingSubjects}
+            teachers={teachers}
+          // onSubmitAssignments={handleSubmitAssignments}
+          />
+        )}
+
+        {currentStep === 5 && (
+          <div className="text-center">
+            <h2 className="text-2xl font-bold text-green-600 mb-4">🎉 New Academic Year Setup Completed!</h2>
+            <p className="text-gray-700 text-lg">
+              The academic year <strong>{year}</strong> has been successfully set up,
+              including students, subjects, and teacher assignments.
+            </p>
+            <button
+              className="mt-6 px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
+              onClick={onBack}
+            >
+              Return to Dashboard
+            </button>
           </div>
         )}
 
@@ -497,19 +613,14 @@ const NewYearListing = ({ onBack }) => {
             {currentStep === 1 ? "Cancel" : "Back"}
           </button>
 
-          {currentStep < 3 ? (
+          {currentStep < 5 && (
             <button
               onClick={currentStep === 1 ? createNewYear : handleNext}
-              disabled={
-                (currentStep === 1 && !year) ||
-                (currentStep === 2 && !allStudentsProcessed)
-              }
-              className={`px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white ${
-                (currentStep === 1 && !year) ||
-                (currentStep === 2 && !allStudentsProcessed)
-                  ? "bg-blue-300 cursor-not-allowed"
-                  : "bg-blue-600 hover:bg-blue-700"
-              }`}
+              disabled={currentStep === 1 && !year}
+              className={`px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white ${currentStep === 1 && !year
+                ? "bg-blue-300 cursor-not-allowed"
+                : "bg-blue-600 hover:bg-blue-700"
+                }`}
             >
               {currentStep === 1 ? (
                 loading ? (
@@ -539,47 +650,10 @@ const NewYearListing = ({ onBack }) => {
                 ) : (
                   "Create & Continue"
                 )
-              ) : (
-                "Next"
-              )}
-            </button>
-          ) : (
-            <button
-              onClick={handleFileUpload}
-              disabled={loading || !file}
-              className={`px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white ${
-                loading || !file
-                  ? "bg-green-300 cursor-not-allowed"
-                  : "bg-green-600 hover:bg-green-700"
-              }`}
-            >
-              {loading ? (
-                <span className="flex items-center">
-                  <svg
-                    className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                  >
-                    <circle
-                      className="opacity-25"
-                      cx="12"
-                      cy="12"
-                      r="10"
-                      stroke="currentColor"
-                      strokeWidth="4"
-                    ></circle>
-                    <path
-                      className="opacity-75"
-                      fill="currentColor"
-                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                    ></path>
-                  </svg>
-                  Uploading...
-                </span>
-              ) : (
-                "Upload & Finish"
-              )}
+              ) : currentStep === 4 ?
+                ("Finish Academic Year Setup") : (
+                  "Next"
+                )}
             </button>
           )}
         </div>

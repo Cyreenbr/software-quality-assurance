@@ -57,6 +57,7 @@ const SubjectForm = ({ initialData = null, onSubmit, proposeEdit = false }) => {
     const [competences, setCompetences] = useState([]);
     const [totalItems, setTotalItems] = useState(0);
     const [loading, setLoading] = useState(false);
+    const [loadingBtnSubmit, setLoadingBtnSubmit] = useState(false);
     //
     const [competencesFiltered, setCompetencesFiltered] = useState([]);
     const [selectedSkills, setSelectedSkills] = useState(formData.skillsId || []);
@@ -390,6 +391,7 @@ const SubjectForm = ({ initialData = null, onSubmit, proposeEdit = false }) => {
 
     const handleSubmit = (e) => {
         e.preventDefault();
+        setLoadingBtnSubmit(true);
         if (validateForm()) {
             const finalData = {
                 _id: formData._id,
@@ -424,6 +426,7 @@ const SubjectForm = ({ initialData = null, onSubmit, proposeEdit = false }) => {
             };
             onSubmit(finalData);
         }
+        setLoadingBtnSubmit(false);
     };
 
 
@@ -886,7 +889,12 @@ const SubjectForm = ({ initialData = null, onSubmit, proposeEdit = false }) => {
                         type="submit"
                         className="px-6 py-3 bg-blue-600 text-white font-semibold rounded-md shadow"
                     >
-                        Submit
+                        {loadingBtnSubmit ?
+                            <ClipLoader size={20} color="#FFFFFF" />
+                            :
+                            "Submit"
+                        }
+
                     </button>
                 </div>
             </form >
