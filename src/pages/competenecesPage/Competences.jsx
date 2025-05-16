@@ -1,11 +1,12 @@
 import debounce from "lodash.debounce";
-import React, { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { FaPlusCircle, FaSortAlphaDown, FaSortAlphaUp } from 'react-icons/fa';
 import { useSelector } from "react-redux";
 import { toast } from 'react-toastify';
 import SkillForm from "../../components/skillsComponents/CompetenceForm";
 import CompetenceList from "../../components/skillsComponents/CompetenceList";
 import PageLayout from "../../components/skillsComponents/PageLayout";
+import Pagination from "../../components/skillsComponents/Pagination";
 import SearchBar from "../../components/skillsComponents/SearchBar";
 import Tooltip from "../../components/skillsComponents/Tooltip";
 import competenceServices from "../../services/CompetencesServices/competences.service";
@@ -185,7 +186,7 @@ const Competences = () => {
         // <div className="  mx-auto p-8 bg-white shadow-lg rounded-xl min-h-screen overflow-hidden border border-gray-200">
         // <h1 className="text-4xl font-bold text-center mb-8 text-indigo-700">List of Competences</h1>
         <PageLayout title={"Competences"} headerActions={headerActions}>
-            <div className="flex flex-col md:flex-row md:justify-between items-center mb-8 space-y-4 md:space-y-0 md:space-x-6">
+            <div className="flex flex-col p-6 md:flex-row md:justify-between items-center mb-8 space-y-4 md:space-y-0 md:space-x-6">
                 <SearchBar handleSearch={handleSearch} className="w-full md:max-w-xs" />
                 <div className="pl-4 pr-4 flex space-x-4 w-full md:w-auto justify-center">
 
@@ -230,15 +231,16 @@ const Competences = () => {
                 families={families}
                 setEditSkill={setEditSkill}
                 setIsEditPopupOpen={setIsEditPopupOpen}
-                enableSortingBtns={true}
+                enableSortingBtns={false}
+            //enableDefaultPaginationbtns
             />
-            {/* <Pagination
+            <Pagination
                 currentPage={currentPage}
                 totalPages={totalPages}
                 onPageChange={handlePageChange}
                 styles={" bg-blue-600 text-white"}
                 hoverColor="bg-blue-500"
-            /> */}
+            />
 
             {(role === RoleEnum.ADMIN) &&
                 <div className="md:hidden">

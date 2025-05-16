@@ -1,8 +1,8 @@
-import { FaCalendarAlt, FaCheckCircle, FaClock, FaEnvelope, FaFileAlt, FaUserTie, FaVideo } from "react-icons/fa";
+import { FaBuilding, FaCalendarAlt, FaCheckCircle, FaClock, FaEnvelope, FaFileAlt, FaUserTie, FaVideo } from "react-icons/fa";
 
 const InternshipCard = ({ internship }) => {
   return (
-    <div className=" border border-gray-300 p-6 shadow-sm rounded-lg hover:shadow-xl duration-300 hover:bg-gradient-to-r from-blue-50 to-purple-100">
+    <div className="border border-gray-300 p-6 shadow-sm rounded-lg hover:shadow-xl duration-300 hover:bg-gradient-to-r from-blue-50 to-purple-100">
       <table className="min-w-full table-auto">
         <tbody>
           <tr className="mb-4">
@@ -11,21 +11,25 @@ const InternshipCard = ({ internship }) => {
               <span className="text-lg font-bold">{internship.student.name}</span>
             </td>
             <td className="px-4 py-3 text-gray-600 flex items-center gap-3">
-              <FaEnvelope className="text-gray-500" />
+              <FaEnvelope className="text-yellow-500" />
               <span className="font-bold">Email:</span> {internship.student.email}
             </td>
           </tr>
           <tr className="mb-4">
             <td className="px-4 py-3 text-gray-600 flex items-center gap-3">
-              <FaClock className="text-gray-500" />
+              <FaFileAlt className="text-blue-500" />
+              <span className="font-bold">Title:</span> {internship.titre || "No Title"}
+            </td>
+                        <td className="px-4 py-3 text-gray-600 flex items-center gap-3">
+              <FaBuilding className="text-gray-500" />
+              <span className="font-bold">Company:</span> {internship.company|| "Not Provided"}
+            </td>
+            <td className="px-4 py-3 text-gray-600 flex items-center gap-3">
+              <FaClock className="text-red-500" />
               <span className="font-bold">Late Submission:</span>
               <span className={`${internship.isRetard ? 'text-red-500' : 'text-green-500'}`}>
                 {internship.isRetard ? "Yes" : "No"}
               </span>
-            </td>
-            <td className="px-4 py-3 text-gray-600 flex items-center gap-3">
-              <FaCheckCircle className="text-green-500" />
-              <span className="font-bold">Submitted:</span> {internship.deposited ? "Yes" : "No"}
             </td>
           </tr>
           <tr className="mb-4">
@@ -34,7 +38,7 @@ const InternshipCard = ({ internship }) => {
               <span className="font-bold">Supervisor:</span> {internship.teacher.name || "Not Assigned"}
             </td>
             <td className="px-4 py-3 text-gray-600 flex items-center gap-3">
-              <FaCalendarAlt className="text-gray-500" />
+              <FaCalendarAlt className="text-green-500" />
               <span className="font-bold">Planning:</span> {internship.planningStatus}
             </td>
           </tr>
@@ -50,6 +54,11 @@ const InternshipCard = ({ internship }) => {
               <FaFileAlt className="text-gray-500" />
               <span className="font-bold">PV:</span> {internship.pvDetails || "Not Available"}
             </td>
+            <td className="px-4 py-3 text-gray-600 flex items-center gap-3">
+              <FaCheckCircle className="text-green-500" />
+              <span className="font-bold">Status:</span> {internship.status|| "Not Available"}
+            </td>
+
           </tr>
         </tbody>
       </table>

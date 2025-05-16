@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { ClipLoader } from "react-spinners";
@@ -17,6 +17,8 @@ const SignIn = () => {
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
+
+
 
   const validateForm = (values) => {
     const error = {};
@@ -39,7 +41,7 @@ const SignIn = () => {
       ...formData,
       [name]: value,
     });
-    setFormErrors(false);
+    setFormErrors({});
   };
 
   const handleClickShowPassword = () => setShowPassword((show) => !show);
@@ -59,17 +61,13 @@ const SignIn = () => {
         const result = await dispatch(loginUser(formData));
 
         if (result.meta.requestStatus === "fulfilled") {
-          // login with success
           navigate("/");
-          // window.location.reload();
         } else if (result.payload) {
-          //error message from payload
           const errorMessage =
             result.payload.error ||
             result.payload.message ||
             "Invalid credentials";
 
-          // error messages
           let title = "Login Failed";
           let text = errorMessage;
 
@@ -82,13 +80,8 @@ const SignIn = () => {
             text = "Please verify your password, then try again.";
           }
 
-          Swal.fire({
-            title: title,
-            text: text,
-            icon: "error",
-          });
+          Swal.fire({ title, text, icon: "error" });
         } else {
-          // error
           Swal.fire({
             title: "Login failed",
             text: "An error occurred during login. Please try again.",
@@ -106,6 +99,7 @@ const SignIn = () => {
       }
     }
   };
+
   return (
     <div
       className="flex min-h-screen items-center justify-center bg-cover bg-center relative"
@@ -114,7 +108,7 @@ const SignIn = () => {
       <div className="absolute inset-0 bg-black opacity-40"></div>
       <div className="relative z-10 bg-white p-8 rounded-lg shadow-lg max-w-md w-full">
         <h1 className="text-2xl font-bold text-center mb-6">Sign In</h1>
-        {/* Error Messages */}
+
         {formErrors.email && (
           <div className="text-red-500 text-center mb-4">
             {formErrors.email}
@@ -125,6 +119,7 @@ const SignIn = () => {
             {formErrors.password}
           </div>
         )}
+
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
             <label
@@ -175,6 +170,7 @@ const SignIn = () => {
               </button>
             </div>
           </div>
+
           <button
             type="submit"
             className="w-full py-2 px-4 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
