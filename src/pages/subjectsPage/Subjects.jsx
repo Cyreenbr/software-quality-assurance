@@ -98,7 +98,7 @@ const Subject = () => {
                                     :
                                     <>
                                         <FiBell className="text-lg" />
-                                        Send Evaluation
+                                        Send Evaluation Notif
                                     </>
                                 }
                             </button>
