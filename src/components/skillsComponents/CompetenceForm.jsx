@@ -5,7 +5,7 @@ import { TiWarning } from "react-icons/ti";
 import useDeviceType from '../../utils/useDeviceType';
 import Popup from './Popup';
 import MultiSelectDropdownFamily from './REComponents/MultiSelectDropdownFamily';
-import Tooltip from './Tooltip';
+import Tooltip from './tooltip';
 
 const SkillForm = ({
     isPopupOpen,

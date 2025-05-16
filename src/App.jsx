@@ -6,9 +6,11 @@ import ErrorPage from "./pages/ErrorPage";
 import SignIn from "./pages/signinPage/SignIn";
 import SignUp from "./pages/signupPage/SignUp";
 import { menuConfig } from "./services/configs/menuHandler";
-import ProfilePage from "../src/pages/profilePage/Profile";
 import EditProfilePage from "../src/pages/profilePage/EditProfilePage";  
 import MyCV from "./pages/MyCV";
+import EditMyCV from "./pages/EditCV";
+
+import ProfilePage from "../src/pages/profilePage/Profile";
 
 // Higher-order component to wrap pages with Layout
 const withLayout = (Component, hideSideBar = false, hideHeader = false) => (
@@ -62,7 +64,9 @@ function App() {
         <Route path="/profile" element={<ProfilePage />} />
         <Route path="/edit-profile" element={<EditProfilePage />} />
         
-        <Route path="/cv/me" element={<MyCV/>} />
+        <Route path="/CV/me" element={<MyCV/>} />
+        <Route path="/CV/editCV" element={<EditMyCV/>} />
+
 
         {/* Error Handling */}
         <Route path="/error" element={withLayout(ErrorPage)} />

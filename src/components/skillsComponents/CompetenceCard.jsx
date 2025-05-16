@@ -3,7 +3,7 @@ import { FiAlertTriangle, FiArchive, FiCheck, FiCheckCircle, FiChevronDown, FiCh
 import { useSelector } from 'react-redux';
 import { RoleEnum } from '../../utils/userRoles';
 import Popup from './Popup';
-import Tooltip from './Tooltip';
+import Tooltip from './tooltip';
 
 const SkillCard = ({ skill, setEditSkill, setIsEditPopupOpen, handleDeleteSkill, families }) => {
     const [isDeletePopupOpen, setIsDeletePopupOpen] = useState(false);
