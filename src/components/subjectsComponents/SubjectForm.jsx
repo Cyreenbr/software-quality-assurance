@@ -7,7 +7,7 @@ import competenceServices from "../../services/CompetencesServices/competences.s
 import matieresServices from "../../services/matieresServices/matieres.service";
 import AcademicYearPicker from "../AcademicYearPicker";
 import MSDropdown from "../skillsComponents/REComponents/MSDropdown";
-import Tooltip from "../skillsComponents/Tooltip";
+import Tooltip from "../skillsComponents/tooltip";
 import SearchDropdown from "./SearchDropdown";
 
 const capitalizeFirstLetter = (str) => str.charAt(0).toUpperCase() + str.slice(1);
