@@ -469,7 +469,8 @@ export const menuConfig = [
     dontShow: true,
     hideSideBar: false,
     hideHeader: false,
-  }
+  },
+  
   // kifeh tzid route jdid ??
   // {
   //     order: 7,
