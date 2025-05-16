@@ -9,6 +9,8 @@ import {
     FaEdit,
     FaEye,
     FaHistory,
+    FaSave,
+    FaSpinner,
     FaStar,
     FaTimes
 } from "react-icons/fa";
@@ -35,6 +37,8 @@ const SubjectDetailsPage = () => {
     const [fetchData, setFetchData] = useState(null);
     const [showForm, setShowForm] = useState(false);
     const [loading, setLoading] = useState(true);
+    const [loadingBtn, setLoadingBtn] = useState(false);
+    const [loadingBtnSubmit, setLoadingBtnSubmit] = useState(false);
     const [error, setError] = useState(null);
     const [selectedHistory, setSelectedHistory] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -169,6 +173,7 @@ const SubjectDetailsPage = () => {
 
     // Handle form submission (after adding/editing a subject)
     const handleFormSubmit = async (updatedData) => {
+        setLoadingBtnSubmit(true);
         try {
             let data;
             if (userRole === RoleEnum.ADMIN) {
@@ -185,6 +190,7 @@ const SubjectDetailsPage = () => {
         } catch (error) {
             toast.error("Failed to update subject: " + error);
         }
+        setLoadingBtnSubmit(false);
     };
 
     const toggleChapterExpand = (index) => {
@@ -274,6 +280,7 @@ const SubjectDetailsPage = () => {
     // };
 
     const handleSubmit = async () => {
+        setLoadingBtnSubmit(true);
         try {
             // Étape 1 : Mise à jour des dates dans les chapitres et sections
             const updatedChapters = formData.subject.curriculum.chapitres.map((chapter, cIndex) => {
@@ -325,6 +332,7 @@ const SubjectDetailsPage = () => {
             toast.error("Échec de la mise à jour de la matière.");
             toast.error(err.message || err);
         }
+        setLoadingBtnSubmit(false);
     };
 
     const handleDateChange = (key, date) => {
@@ -347,12 +355,15 @@ const SubjectDetailsPage = () => {
     if (!formData) return <ErrorState message="Invalid subject data." />;
 
     const handleSendNotif = async (id) => {
+        setLoadingBtn(true);
         try {
             const result = await matieresServices.sendEvaluationNotif(id);
             toast.success(result.message);
         } catch (error) {
             toast.error(error.toString());
         }
+        setLoadingBtn(false);
+
     };
 
     const actionHeaders =
@@ -381,7 +392,11 @@ const SubjectDetailsPage = () => {
                                         }}
                                         className="flex items-center justify-center gap-2 bg-gray-500 text-white px-5 py-2.5 rounded-xl font-medium shadow hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-400 transition-all duration-200 sm:w-auto w-full"
                                     >
-                                        <FiBell className="text-lg" />
+                                        {loadingBtn ?
+                                            <ClipLoader color="#ffffff" size={20} />
+                                            :
+                                            <FiBell className="text-lg" />
+                                        }
                                     </button>
                                 </Tooltip>
                                 <Tooltip text={"Proposed Modifications"} position={positionTooltip}>
@@ -833,10 +848,24 @@ const SubjectDetailsPage = () => {
                                 <div className="flex justify-end mt-8">
                                     <button
                                         onClick={handleSubmit}
-                                        className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl shadow-md transition-all"
+                                        disabled={loadingBtnSubmit}
+                                        aria-label={loadingBtnSubmit ? "Saving progress" : "Update status"}
+                                        className={`px-6 py-2 font-semibold rounded-xl shadow-md transition-all flex items-center gap-2
+                                            ${loadingBtnSubmit ? "bg-blue-400 cursor-not-allowed" : "bg-blue-600 hover:bg-blue-700"} text-white`}
                                     >
-                                        Update Status
+                                        {loadingBtnSubmit ? (
+                                            <>
+                                                <FaSpinner className="animate-spin" />
+                                                Saving Progress
+                                            </>
+                                        ) : (
+                                            <>
+                                                <FaSave />
+                                                Update Status
+                                            </>
+                                        )}
                                     </button>
+
                                 </div>
                             )}
                         </Section>

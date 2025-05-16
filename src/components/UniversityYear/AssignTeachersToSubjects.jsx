@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
-import { FaChalkboardTeacher, FaCheckCircle } from "react-icons/fa";
+import { FaChalkboardTeacher, FaCheckCircle, FaInfoCircle } from "react-icons/fa";
 import { ClipLoader } from "react-spinners";
 import { toast } from "react-toastify";
 import matieresServices from "../../services/matieresServices/matieres.service";
+import ProgressBar from "../skillsComponents/REComponents/ProgressBar";
 import SearchDropdown from "../subjectsComponents/SearchDropdown";
 
 const AssignTeachersStep = ({
@@ -64,9 +65,24 @@ const AssignTeachersStep = ({
     return (
         currentStep === step && (
             <div>
-                <h2 className="text-2xl font-bold mb-3">Step 4: Assign Teachers</h2>
-                <p className="mb-6 text-gray-600">Select a teacher for each subject.</p>
-
+                {/* <h2 className="text-2xl font-bold mb-3">Step 4: Assign Teachers</h2>
+                <p className="mb-6 text-gray-600">Select a teacher for each subject.</p> */}
+                <h2 className="text-xl font-semibold mb-4">
+                    Step 3: Assign Teachers
+                </h2>
+                <div className="flex items-start gap-3 p-4 mb-6 bg-blue-50 border border-blue-200 rounded-lg shadow-sm">
+                    <FaInfoCircle className="text-blue-600 mt-1" size={20} />
+                    <div>
+                        <h3 className="text-blue-700 font-semibold mb-1">Note</h3>
+                        <p className="text-sm text-blue-800">
+                            Use the <b>searchable dropdown list</b> to assign a teacher to each subject.
+                            This ensures that every course is properly linked to an instructor for the new academic year.
+                        </p>
+                        <p className="text-sm text-blue-800 mt-2">
+                            <b>Note:</b> Subjects are already <b>preselected</b> with the teachers assigned in the previous year.
+                        </p>
+                    </div>
+                </div>
                 {fetchingSubjects ? (
                     <div className="text-center py-8">
                         <div className="inline-block animate-spin h-8 w-8 border-4 border-blue-500 border-t-transparent rounded-full"></div>
@@ -74,10 +90,13 @@ const AssignTeachersStep = ({
                     </div>
                 ) : subjects.length > 0 ? (
                     <div className="space-y-4">
-                        <div className="text-sm text-gray-600 font-medium text-right">
-                            Assigned {assignedCount} / {subjects.length} subjects
-                        </div>
 
+                        <ProgressBar
+                            value={assignedCount}
+                            max={subjects.length}
+                            label="Teacher Assignment Progress"
+                            color="bg-teal-600"
+                        />
                         <div className="overflow-x-auto border rounded bg-white shadow">
                             <table className="min-w-full divide-y divide-gray-200">
                                 <thead className="bg-gray-100 sticky top-0 z-10">

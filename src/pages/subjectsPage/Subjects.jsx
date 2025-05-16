@@ -2,6 +2,7 @@ import { useCallback, useState } from "react";
 import { FaArrowLeft, FaPlus } from "react-icons/fa";
 import { FiBell, FiEye, FiEyeOff } from "react-icons/fi";
 import { useSelector } from "react-redux";
+import { ClipLoader } from "react-spinners";
 import { toast } from "react-toastify";
 import PageLayout from "../../components/skillsComponents/PageLayout";
 import SubjectForm from "../../components/subjectsComponents/SubjectForm";
@@ -16,6 +17,7 @@ const Subject = () => {
     const [initialData, setInitialData] = useState(null);
     const [responseValue, setResponseValue] = useState('publish');
     const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const [loading, setLoading] = useState(false);
 
     const deviceType = useDeviceType(); // Get the device type using the custom hook
     const isMobileOrTablet = deviceType === "mobile" || deviceType === "tablet"; // Check if the device is mobile or tablet
@@ -28,12 +30,14 @@ const Subject = () => {
         setShowForm(true);
     };
     const handleSendNotif = async () => {
+        setLoading(true);
         try {
             const result = await matieresServices.sendEvaluationNotif();
             toast.success(result.message);
         } catch (error) {
             toast.error(error.toString());
         }
+        setLoading(false);
     };
 
     const handleFormSubmit = async (updatedData) => {
@@ -84,8 +88,19 @@ const Subject = () => {
                                 onClick={handleSendNotif}
                                 className="flex items-center gap-2 px-4 py-2 rounded-xl bg-blue-100 text-blue-700 hover:bg-blue-200 shadow-sm transition"
                             >
-                                <FiBell className="text-lg" />
-                                Send Evaluation
+
+                                {loading ?
+                                    <>
+                                        <ClipLoader color="#ffffff" size={20} />
+                                        Sending...
+                                    </>
+
+                                    :
+                                    <>
+                                        <FiBell className="text-lg" />
+                                        Send Evaluation
+                                    </>
+                                }
                             </button>
 
                             {/* Visibility Dropdown */}
