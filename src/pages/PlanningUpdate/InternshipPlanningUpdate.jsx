@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { FaEdit, FaEnvelope, FaSearch, FaTimes, FaUserTie } from "react-icons/fa";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -97,7 +97,7 @@ const InternshipPlanning = () => {
     <div className="min-h-screen bg-gradient-to-r from-blue-50 to-purple-100 py-10">
       <ToastContainer position="top-right" autoClose={3000} />
       <div className="max-w-7xl bg-white rounded-lg shadow-lg mx-auto p-8">
-        <h1 className="text-3xl font-semibold text-start text-gray-700 mb-6">Internship Assignments</h1>
+        <h1 className="text-3xl font-semibold text-start text-blue-500 mb-6">Internship Assignments</h1>
 
         <div className="relative w-full max-w-md ml-auto mb-6">
           <input

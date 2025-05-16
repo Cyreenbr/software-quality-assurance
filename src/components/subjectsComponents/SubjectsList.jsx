@@ -1,5 +1,5 @@
 import debounce from "lodash.debounce";
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
     FaBook,
     FaEdit,
@@ -33,6 +33,7 @@ const SubjectList = ({ onEdit, refresh = false, }) => {
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
     const [titleSortOrder, setTitleSortOrder] = useState("asc");
+    const [levelSortOrder, setLevelSortOrder] = useState("asc");
     const navigate = useNavigate();
     const firstFetchDone = useRef(false);
     const [forced, setForced] = useState(false);
@@ -40,6 +41,8 @@ const SubjectList = ({ onEdit, refresh = false, }) => {
     const [itemsOnPage,] = useState(0);
     const confirmDeleteMessage = `Are you sure you want to delete this subject?`;
     let hide = false
+    const isMounted = useRef(true);
+    const [sortConfig, setSortConfig] = useState({ key: 'title', order: 'asc' });
 
     const handleConfirmDelete = async () => {
         const deleteSuccess = await handleDeleteSubject(subjectToDelete._id, { forced, archive });
@@ -70,6 +73,12 @@ const SubjectList = ({ onEdit, refresh = false, }) => {
             setLoading(false);
         }
     }, []);
+    useEffect(() => {
+        isMounted.current = true;
+        return () => {
+            isMounted.current = false;
+        };
+    }, []);
 
     useEffect(() => {
         fetchSubjects();
@@ -79,9 +88,9 @@ const SubjectList = ({ onEdit, refresh = false, }) => {
     useEffect(() => {
         if (!firstFetchDone.current) {
             firstFetchDone.current = true;
-            fetchSubjects(currentPage, searchQuery, "title", titleSortOrder);
+            fetchSubjects(currentPage, searchQuery, sortConfig.key, sortConfig.order);
         }
-    }, [fetchSubjects, currentPage, searchQuery, titleSortOrder]);
+    }, [fetchSubjects, currentPage, searchQuery, sortConfig]);
 
     // Debounced search handler
     const handleSearch = debounce((query) => {
@@ -91,11 +100,12 @@ const SubjectList = ({ onEdit, refresh = false, }) => {
     }, 500);
 
     // Toggle sort order
-    const handleSortByTitle = () => {
-        const newSortOrder = titleSortOrder === "asc" ? "desc" : "asc";
-        setTitleSortOrder(newSortOrder);
-        fetchSubjects(currentPage, searchQuery, "title", newSortOrder); // Trigger fetch with new sort order
+    const handleSortBy = (key) => {
+        const newOrder = sortConfig.key === key && sortConfig.order === 'asc' ? 'desc' : 'asc';
+        setSortConfig({ key, order: newOrder });
+        fetchSubjects(currentPage, searchQuery, key, newOrder);
     };
+
 
     // Handle page change
     const handlePageChange = (pageNumber) => {
@@ -106,9 +116,9 @@ const SubjectList = ({ onEdit, refresh = false, }) => {
     };
 
     // Delete subject
-    const handleDeleteSubject = useCallback(async (id, forced = false) => {
+    const handleDeleteSubject = useCallback(async (id, { forced = false, archive = false }) => {
         try {
-            await matieresServices.deleteMatiere(id, forced);
+            await matieresServices.deleteMatiere(id, { forced: forced, archive: archive });
 
             // Met à jour la page actuelle si l'élément supprimé était le dernier de la page
             setCurrentPage(prevPage => (itemsOnPage === 1 && prevPage > 1 ? prevPage - 1 : prevPage));
@@ -116,7 +126,7 @@ const SubjectList = ({ onEdit, refresh = false, }) => {
             toast.success("Subject deleted successfully!");
             return true;
         } catch (error) {
-            setError(error);
+            // setError(error);
             console.error("Error deleting subject:", error);
             toast.error("Failed to delete subject: " + (error?.message || error));
             return false;
@@ -135,22 +145,29 @@ const SubjectList = ({ onEdit, refresh = false, }) => {
                 />
 
                 {/* Sort Button */}
-                <Tooltip text={`Sort by Title (${titleSortOrder.toUpperCase()})`} position="top">
-                    <button
-                        onClick={handleSortByTitle}
-                        className="flex items-center bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition duration-200 shadow-md"
-                    >
-                        {titleSortOrder === "asc" ? (
-                            <>
-                                <FaSortAlphaUp className="mr-2" /> Ascending
-                            </>
-                        ) : (
-                            <>
-                                <FaSortAlphaDown className="mr-2" /> Descending
-                            </>
-                        )}
-                    </button>
-                </Tooltip>
+                {/* Sort by Title */}
+                <div className="flex space-x-4 w-full md:w-auto justify-center mb-5">
+                    <Tooltip text={`${sortConfig.order.toUpperCase()} : Sort by Title`} position="top" bgColor="bg-black">
+                        <button
+                            onClick={() => handleSortBy('title')}
+                            className="flex items-center bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition duration-300"
+                        >
+                            {sortConfig.key === 'title' && sortConfig.order === "asc" ? <FaSortAlphaUp /> : <FaSortAlphaDown />}
+                            <span className="ml-2">Title</span>
+                        </button>
+                    </Tooltip>
+
+                    {/* Sort by Level */}
+                    <Tooltip text={`${sortConfig.order.toUpperCase()} : Sort by Level`} position="top" bgColor="bg-black">
+                        <button
+                            onClick={() => handleSortBy('curriculum.level')}
+                            className="flex items-center bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-700 transition duration-300"
+                        >
+                            {sortConfig.key === 'curriculum.level' && sortConfig.order === "asc" ? <FaSortAlphaUp /> : <FaSortAlphaDown />}
+                            <span className="ml-2">Level</span>
+                        </button>
+                    </Tooltip>
+                </div>
             </header>
 
             {/* Loading State */}

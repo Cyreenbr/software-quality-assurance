@@ -84,51 +84,57 @@ const DepotSujet = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4">
-        <h1 className="text-3xl font-bold text-center mb-6 text-blue-600">
-          Internship Management
-        </h1>
+      <h1 className="text-3xl font-bold text-center mb-8 text-blue-500">
+        Internship Management
+      </h1>
 
-        {/* Navigation Tabs */}
-        <div className="flex justify-center mb-8">
-          <div className="inline-flex rounded-md shadow-sm bg-white" role="group">
-            <button
-              type="button"
-              onClick={() => setActiveTab("form")}
-              className={`px-5 py-2.5 text-sm font-medium rounded-l-lg ${
-                activeTab === "form"
-                  ? "bg-blue-500 text-white"
-                  : "bg-white text-blue-600 hover:bg-gray-100"
-              }`}
-            >
+      {/* Navigation Tabs */}
+      <div className="flex justify-center mb-10">
+        <div className="inline-flex rounded-full shadow-sm bg-white" role="group">
+          <button
+            type="button"
+            onClick={() => setActiveTab("form")}
+            className={`px-6 py-2 text-sm font-medium rounded-l-full transition-all duration-300 ${
+              activeTab === "form"
+                ? "bg-blue-100 text-blue-600 shadow-inner"
+                : "bg-white text-blue-500 hover:bg-blue-50"
+            }`}
+          >
+            <div className="flex items-center">
+              <FiPlus className="h-4 w-4 mr-2" />
               Add New Internship
-            </button>
-            <button
-              type="button"
-              onClick={() => setActiveTab("details")}
-              className={`px-5 py-2.5 text-sm font-medium rounded-r-lg ${
-                activeTab === "details"
-                  ? "bg-blue-500 text-white"
-                  : "bg-white text-blue-600 hover:bg-gray-100"
-              }`}
-            >
+            </div>
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveTab("details")}
+            className={`px-6 py-2 text-sm font-medium rounded-r-full transition-all duration-300 ${
+              activeTab === "details"
+                ? "bg-blue-100 text-blue-600 shadow-inner"
+                : "bg-white text-blue-500 hover:bg-blue-50"
+            }`}
+          >
+            <div className="flex items-center">
+              <FiFolder className="h-4 w-4 mr-2" />
               View My Internships
-            </button>
-          </div>
+            </div>
+          </button>
         </div>
+      </div>
 
-        <div className="bg-white rounded-lg shadow-md">
-          {activeTab === "form" ? (
-            <div className="p-6">
-              <div className="max-w-5xl mx-auto">
-              <h2 className="text-xl font-bold text-gray-800 mb-6 flex items-center">
-                <span className="bg-blue-500 text-white w-6 h-6 rounded-full flex items-center justify-center mr-3">
+      <div className="bg-white rounded-xl shadow-sm border border-gray-100 max-w-5xl mx-auto">
+        {activeTab === "form" ? (
+          <div className="p-8">
+            <div className="max-w-4xl mx-auto">
+              <h2 className="text-xl font-semibold text-gray-800 mb-8 flex items-center">
+                <span className="bg-blue-100 text-blue-500 w-8 h-8 rounded-full flex items-center justify-center mr-3">
                   <FiPlus className="h-4 w-4" />
                 </span>
                 Submit a New Internship
               </h2>
-              <form onSubmit={handleSubmit} className="space-y-4">
+              <form onSubmit={handleSubmit} className="space-y-6">
                 <div>
-                  <label className="block text-gray-700 font-medium mb-1">
+                  <label className="block text-gray-600 font-medium mb-1.5 text-sm">
                     Internship Title
                   </label>
                   <input
@@ -137,12 +143,12 @@ const DepotSujet = () => {
                     placeholder="Enter the internship title"
                     value={formData.titre}
                     onChange={handleChange}
-                    className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-400 focus:outline-none"
+                    className="w-full p-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-200 focus:border-blue-400 focus:outline-none transition-all duration-200"
                     required
                   />
                 </div>
                 <div>
-                  <label className="block text-gray-700 font-medium mb-1">
+                  <label className="block text-gray-600 font-medium mb-1.5 text-sm">
                     Duration (in months)
                   </label>
                   <input
@@ -151,12 +157,12 @@ const DepotSujet = () => {
                     placeholder="How long will the internship last?"
                     value={formData.duree}
                     onChange={handleChange}
-                    className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-400 focus:outline-none"
+                    className="w-full p-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-200 focus:border-blue-400 focus:outline-none transition-all duration-200"
                     required
                   />
                 </div>
                 <div>
-                  <label className="block text-gray-700 font-medium mb-1">
+                  <label className="block text-gray-600 font-medium mb-1.5 text-sm">
                     Company
                   </label>
                   <input
@@ -165,12 +171,12 @@ const DepotSujet = () => {
                     placeholder="Where will you intern?"
                     value={formData.entreprise}
                     onChange={handleChange}
-                    className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-400 focus:outline-none"
+                    className="w-full p-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-200 focus:border-blue-400 focus:outline-none transition-all duration-200"
                     required
                   />
                 </div>
                 <div>
-                  <label className="block text-gray-700 font-medium mb-1">
+                  <label className="block text-gray-600 font-medium mb-1.5 text-sm">
                     Internship Type
                   </label>
                   <div className="relative">
@@ -178,26 +184,26 @@ const DepotSujet = () => {
                       name="type"
                       value={formData.type}
                       onChange={handleChange}
-                      className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-400 focus:outline-none appearance-none"
+                      className="w-full p-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-200 focus:border-blue-400 focus:outline-none appearance-none transition-all duration-200"
                       required
                     >
                       <option value="">Select internship type</option>
                       <option value="1year">1st Year Internship</option>
                       <option value="2year">2nd Year Internship</option>
                     </select>
-                    <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-700">
+                    <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
                       <FiChevronDown className="h-5 w-5" />
                     </div>
                   </div>
                 </div>
                 <div>
-                  <label className="block text-gray-700 font-medium mb-1">
+                  <label className="block text-gray-600 font-medium mb-1.5 text-sm">
                     Documents to attach
                   </label>
-                  <div className="border-dashed border-2 border-blue-300 p-4 rounded bg-blue-50 hover:bg-blue-100 transition flex flex-col items-center justify-center cursor-pointer">
-                    <FiUpload className="w-8 h-8 text-blue-500 mb-2" />
+                  <div className="border-dashed border-2 border-blue-200 p-6 rounded-lg bg-blue-50 hover:bg-blue-100 transition-all duration-300 flex flex-col items-center justify-center cursor-pointer">
+                    <FiUpload className="w-8 h-8 text-blue-400 mb-2" />
                     <label className="cursor-pointer flex flex-col items-center">
-                      <span className="text-blue-600 font-medium">
+                      <span className="text-blue-500 font-medium">
                         Drop files here or click to browse
                       </span>
                       <input
@@ -211,20 +217,20 @@ const DepotSujet = () => {
                   </div>
 
                   {formData.documents.length > 0 && (
-                    <ul className="mt-3 space-y-2">
+                    <ul className="mt-4 space-y-2">
                       {formData.documents.map((doc, index) => (
                         <li
                           key={index}
-                          className="flex items-center justify-between bg-blue-50 p-2 rounded border border-blue-100"
+                          className="flex items-center justify-between bg-blue-50 p-2.5 rounded-lg border border-blue-100"
                         >
                           <span className="flex items-center">
-                            <FiFileText className="w-4 h-4 text-blue-500 mr-2" />
-                            <span className="truncate max-w-xs">{doc.name}</span>
+                            <FiFileText className="w-4 h-4 text-blue-400 mr-2" />
+                            <span className="truncate max-w-xs text-gray-700">{doc.name}</span>
                           </span>
                           <button
                             type="button"
                             onClick={() => handleRemoveFile(index)}
-                            className="text-red-500 hover:text-red-700 p-1 rounded-full"
+                            className="text-red-400 hover:text-red-600 p-1 rounded-full hover:bg-red-50 transition-colors duration-200"
                           >
                             <FiX className="w-5 h-5" />
                           </button>
@@ -233,14 +239,14 @@ const DepotSujet = () => {
                     </ul>
                   )}
                 </div>
-                <div className="flex items-center pt-3">
+                <div className="flex items-center pt-4">
                   <button
                     type="submit"
-                    className="w-full bg-blue-500 text-white py-3 rounded font-medium hover:bg-blue-600 transition flex items-center justify-center"
+                    className="w-full bg-blue-100 text-blue-600 py-3 rounded-lg font-medium hover:bg-blue-200 transition-all duration-300 flex items-center justify-center shadow-sm"
                     disabled={loading}
                   >
                     {loading ? (
-                      <FaSpinner className="animate-spin h-5 w-5 mr-3 text-white" />
+                      <FaSpinner className="animate-spin h-5 w-5 mr-3 text-blue-600" />
                     ) : (
                       <>
                         <span>Submit Internship</span>
@@ -251,12 +257,12 @@ const DepotSujet = () => {
                 </div>
               </form>
             </div>
-                  </div>
-          ) : (
-           <div className="max-w-5xl mx-auto">
-            <div className="p-6">
-              <h2 className="text-xl font-bold text-gray-800 mb-6 flex items-center">
-                <span className="bg-blue-500 text-white w-6 h-6 rounded-full flex items-center justify-center mr-3">
+          </div>
+        ) : (
+          <div className="max-w-5xl mx-auto">
+            <div className="p-8">
+              <h2 className="text-xl font-semibold text-gray-800 mb-8 flex items-center">
+                <span className="bg-blue-100 text-blue-500 w-8 h-8 rounded-full flex items-center justify-center mr-3">
                   <FiFolder className="h-4 w-4" />
                 </span>
                 My Internships
@@ -264,12 +270,10 @@ const DepotSujet = () => {
               <div>
                 <StudentInternshipDetails key={refreshDetails} />
               </div>
-             </div>
             </div>
-
-          )}
-        </div>
-
+          </div>
+        )}
+      </div>
 
       <ToastContainer
         position="top-right"

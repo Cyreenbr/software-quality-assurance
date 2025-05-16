@@ -9,16 +9,18 @@ import {
     FaEdit,
     FaEye,
     FaHistory,
+    FaStar,
     FaTimes
 } from "react-icons/fa";
-import { FiBook, FiCalendar, FiCheckCircle, FiChevronDown, FiChevronRight, FiClock, FiEyeOff, FiFileText, FiLayers, FiUser, FiXCircle } from "react-icons/fi";
+import { FiBell, FiBook, FiCalendar, FiCheckCircle, FiChevronDown, FiChevronRight, FiClock, FiEyeOff, FiFileText, FiLayers, FiUser, FiXCircle } from "react-icons/fi";
 import { MdTitle } from "react-icons/md";
 import { useSelector } from "react-redux";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { ClipLoader } from "react-spinners";
 import { toast } from "react-toastify";
 import matieresServices from "../../services/matieresServices/matieres.service";
 import humanizeDate from "../../utils/humanizeDate";
+import useDeviceType from "../../utils/useDeviceType";
 import { RoleEnum } from "../../utils/userRoles";
 import PageLayout from "../skillsComponents/PageLayout";
 import Popup from "../skillsComponents/Popup";
@@ -41,9 +43,12 @@ const SubjectDetailsPage = () => {
     const userId = useSelector((state) => state.auth.user.id);
     const canEdit = userId === formData?.subject?.teacherId[0]?._id;
     // console.log(formData.subject.teacherId[0]._id);
-
+    const navigate = useNavigate();
     const [isPropositionPopupOpen, setIsPropositionPopupOpen] = useState(false);
     const [propositions, setPropositions] = useState(null);
+    const deviceType = useDeviceType();
+    let positionTooltip = deviceType !== "mobile" ? "bottom" : "left";
+
 
     const fetchPropositions = useCallback(async () => {
         if (userRole !== RoleEnum.ADMIN) {
@@ -78,7 +83,6 @@ const SubjectDetailsPage = () => {
         fetchPropositions();
     }, [formData?.subject?._id, id]);
 
-    // 
     // State to manage visibility of sections for each chapter
     const [visibleChapters, setVisibleChapters] = useState({});
 
@@ -103,11 +107,12 @@ const SubjectDetailsPage = () => {
             if (!force && fetchRef.current && formData?.subject?._id === id) return;
 
             const response = await matieresServices.fetchMatiereById(id);
-            const { subject, history, historyPagination } = response;
+            const { subject, archivedSubjects, archivedPagination } = response;
 
             if (!subject || !subject.curriculum || !Array.isArray(subject.curriculum.chapitres)) {
                 throw new Error("Invalid subject data received from the server.");
             }
+
             setFetchData(subject);
             setFormData({
                 subject: {
@@ -120,8 +125,8 @@ const SubjectDetailsPage = () => {
                         })),
                     },
                 },
-                history: Array.isArray(history) ? history : [],
-                historyPagination: historyPagination || null,
+                history: Array.isArray(archivedSubjects) ? archivedSubjects : [],
+                historyPagination: archivedPagination || null,
             });
 
             fetchRef.current = true;
@@ -176,7 +181,7 @@ const SubjectDetailsPage = () => {
             fetchRef.current = false;
             fetchSubject();
             setShowForm(false); // Hide the form after submission
-            toast.success(data.message || "Subject updated successfully!");
+            toast.success(data.message || "Proposition update for Subject have been added successfully!");
         } catch (error) {
             toast.error("Failed to update subject: " + error);
         }
@@ -341,21 +346,84 @@ const SubjectDetailsPage = () => {
     if (error) return <ErrorState message={error} />;
     if (!formData) return <ErrorState message="Invalid subject data." />;
 
-    const actionHeaders = (userRole === RoleEnum.ADMIN || canEdit) && (
-        <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-2">
-            {/* Bouton réservé aux Admins pour voir les propositions */}
-            {userRole === RoleEnum.ADMIN && (
+    const handleSendNotif = async (id) => {
+        try {
+            const result = await matieresServices.sendEvaluationNotif(id);
+            toast.success(result.message);
+        } catch (error) {
+            toast.error(error.toString());
+        }
+    };
+
+    const actionHeaders =
+        userRole === RoleEnum.STUDENT ? (
+            <Tooltip text={"Evaluate Subject"} position={positionTooltip}>
+                <button
+                    onClick={() => navigate(`/subjects/${id}/evaluation`)}  // Navigate to the evaluate page
+                    className="flex justify-center items-center bg-yellow-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-yellow-500 transition duration-200 sm:w-auto w-full mb-2 sm:mb-0"
+                >
+                    <FaStar className="mr-2" />
+                </button>
+            </Tooltip>
+        )
+            : (userRole === RoleEnum.ADMIN || canEdit) && (
                 <>
-                    <button
-                        onClick={() => {
-                            setIsPropositionPopupOpen(true);
-                            fetchPropositions();
-                        }}
-                        className="flex justify-center items-center bg-green-500 text-white px-4 py-2 rounded-lg font-semibold hover:bg-green-400 transition duration-200 sm:w-auto w-full"
-                    >
-                        <FaEye className="mr-2" />
-                        View Proposed Modifications
-                    </button>
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-2">
+                        {/* Button reserved for Admins to see proposals */}
+                        <div className="pb-2 flex flex-col sm:flex-row gap-3"></div>
+                        {userRole === RoleEnum.ADMIN && (
+                            <>
+
+                                <Tooltip text={"Send Evaluation Notif to Students"} position={positionTooltip}>
+                                    <button
+                                        onClick={() => {
+                                            handleSendNotif(id);
+                                        }}
+                                        className="flex items-center justify-center gap-2 bg-gray-500 text-white px-5 py-2.5 rounded-xl font-medium shadow hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-400 transition-all duration-200 sm:w-auto w-full"
+                                    >
+                                        <FiBell className="text-lg" />
+                                    </button>
+                                </Tooltip>
+                                <Tooltip text={"Proposed Modifications"} position={positionTooltip}>
+                                    <button
+                                        onClick={() => {
+                                            setIsPropositionPopupOpen(true);
+                                            fetchPropositions();
+                                        }}
+                                        className="flex items-center justify-center gap-2 bg-green-600 text-white px-5 py-2.5 rounded-xl font-medium shadow hover:bg-green-500 focus:outline-none focus:ring-2 focus:ring-green-400 transition-all duration-200 sm:w-auto w-full"
+                                    >
+                                        <FaEye className="text-lg" />
+                                    </button>
+                                </Tooltip>
+
+                            </>
+                        )}
+
+                        {/* Button to Propose a modification or Go Back */}
+                        {showForm ? (
+                            <Tooltip text={"Go Back"} position={positionTooltip}>
+                                <button
+                                    onClick={toggleForm}
+                                    className="flex justify-center items-center bg-gray-300 text-gray-800 px-4 py-2 rounded-lg font-semibold hover:bg-gray-400 transition duration-200 sm:w-auto w-full mb-2 sm:mb-0"
+                                >
+                                    <FaArrowLeft className="mr-2" />
+                                </button>
+                            </Tooltip>
+                        ) : (
+                            <Tooltip text={userRole === RoleEnum.ADMIN ? 'Edit' : 'Propose an Edit'}
+                                position={positionTooltip}>
+                                <button
+                                    onClick={toggleForm}
+                                    className="flex items-center justify-center gap-2 bg-teal-600 text-white px-5 py-2.5 rounded-xl font-medium shadow hover:bg-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-400 transition-all duration-200 sm:w-auto w-full"
+                                >
+                                    <FaEdit className="mr-2" />
+                                </button>
+                            </Tooltip>
+                        )}
+
+                    </div>
+
+                    {/* Popup for Proposed Modifications */}
                     <Popup
                         isOpen={isPropositionPopupOpen}
                         onClose={() => setIsPropositionPopupOpen(false)}
@@ -484,40 +552,11 @@ const SubjectDetailsPage = () => {
                                     ))}
                                 </div>
                             )}
-
-                            {/* <div className="mt-6 flex justify-center">
-                                <button
-                                    onClick={() => setIsPropositionPopupOpen(false)}
-                                    className="flex items-center gap-2 bg-gray-600 text-white px-5 py-2 rounded-md hover:bg-gray-700 transition"
-                                >
-                                    <FiX /> Close
-                                </button>
-                            </div> */}
                         </div>
-                    </Popup>
-
+                    </Popup >
                 </>
-            )}
-            {/* Bouton pour Proposer une modification ou Go Back */}
-            {showForm ? (
-                <button
-                    onClick={toggleForm}
-                    className="flex justify-center items-center bg-gray-300 text-gray-800 px-4 py-2 rounded-lg font-semibold hover:bg-gray-400 transition duration-200 sm:w-auto w-full mb-2 sm:mb-0"
-                >
-                    <FaArrowLeft className="mr-2" />
-                    Go Back
-                </button>
-            ) : (
-                <button
-                    onClick={toggleForm}
-                    className="flex justify-center items-center bg-blue-400 text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-200 hover:text-blue-900 transition duration-200 sm:w-auto w-full mb-2 sm:mb-0"
-                >
-                    <FaEdit className="mr-2" />
-                    {userRole === RoleEnum.ADMIN ? 'Edit' : 'Propose an Edit'}
-                </button>
-            )}
-        </div>
-    );
+            );
+
 
 
 
@@ -671,7 +710,7 @@ const SubjectDetailsPage = () => {
                                                                 <label className="block text-sm text-gray-600 mb-1">Completion Date:</label>
                                                                 <input
                                                                     type="date"
-                                                                    defaultValue={new Date().toISOString().split("T")[0]}
+                                                                    // defaultValue={new Date().toISOString().split("T")[0]}
                                                                     value={completedAtDates[chapterKey]?.split("T")[0] || new Date().toISOString().split("T")[0]}
                                                                     onChange={(e) => handleDateChange(chapterKey, e.target.value)}
                                                                     className="border rounded px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -855,7 +894,7 @@ const SubjectDetailsPage = () => {
                                     <DetailRow
                                         label={
                                             <span className="flex items-center gap-2 text-gray-600 font-medium">
-                                                <FiLayers className="text-lg text-indigo-500" />
+                                                <FiCalendar className="text-lg text-indigo-500" />
                                                 Modified At
                                             </span>
                                         }
@@ -963,13 +1002,26 @@ const SubjectDetailsPage = () => {
                                             </span>
                                         }
                                         value={
-                                            selectedHistory.skillsId.length > 0
-                                                ? selectedHistory.skillsId
-                                                    .map(
-                                                        (s) => `${s.title} (${s.familyId.map((f) => f.title).join(", ")})`
-                                                    )
-                                                    .join(", ")
-                                                : "None"
+                                            selectedHistory.skillsId.length > 0 ? (
+                                                <div className="flex flex-wrap gap-2 mt-1">
+                                                    {selectedHistory.skillsId.map((s, idx) => {
+                                                        const hasFamilies = s.familyId && s.familyId.length > 0;
+                                                        const familyTitles = hasFamilies
+                                                            ? s.familyId.map((f) => f.title).join(", ")
+                                                            : "";
+
+                                                        return (
+
+                                                            <Pill color={hasFamilies ? "blue" : "gray"}>
+                                                                {s.title}
+                                                                {hasFamilies && <span className="ml-1 text-xs">({familyTitles})</span>}
+                                                            </Pill>
+                                                        );
+                                                    })}
+                                                </div>
+                                            ) : (
+                                                <span className="text-gray-500">None</span>
+                                            )
                                         }
                                     />
                                 </div>
@@ -1036,10 +1088,32 @@ const ErrorState = ({ message }) => (
 );
 
 const DetailRow = ({ label, value }) => (
-    <div className="flex flex-col space-y-1 transition-all duration-200 rounded-lg ">
-        <span className="text-sm font-medium text-gray-600">{label}</span>
-        <span className="text-base font-semibold text-gray-900">{value}</span>
+    <div className="flex flex-col space-y-2 p-3 bg-gray-50 rounded-lg border border-gray-100 shadow-sm transition-all duration-200 hover:shadow-md">
+        <div className="flex items-center gap-2 text-gray-600 text-sm font-medium">
+            {typeof label === "string" ? (
+                <span>{label}</span>
+            ) : (
+                label
+            )}
+        </div>
+        <div className="text-base font-normal text-gray-800">
+            {value}
+        </div>
     </div>
 );
 
+const Pill = ({ children, color = "indigo" }) => {
+    const colorClasses = {
+        indigo: "bg-indigo-100 text-indigo-800 border-indigo-300",
+        blue: "bg-blue-100 text-blue-800 border-blue-300",
+        green: "bg-green-100 text-green-800 border-green-300",
+        gray: "bg-gray-100 text-gray-800 border-gray-300",
+    };
+
+    return (
+        <span className={`inline-flex px-3 py-1 rounded-full text-sm font-medium border ${colorClasses[color]}`}>
+            {children}
+        </span>
+    );
+};
 export default SubjectDetailsPage;

@@ -1,5 +1,6 @@
+import { Button, Dropdown, Menu, Tooltip } from "antd";
 import { useEffect, useState } from "react";
-import { FaEye, FaEyeSlash, FaFilter, FaSearch } from "react-icons/fa";
+import { FaEye, FaEyeSlash, FaSearch } from "react-icons/fa";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import InternshipCard from "../../components/internshipComponents/InternshipCard";
@@ -151,26 +152,81 @@ const InternshipList = () => {
     return Array.from(values);
   };
 
+  // For late submission filter menu
+  const lateSubmissionMenu = (
+    <Menu
+      onClick={({ key }) => handleFilterChange('lateSubmission', key)}
+      selectedKeys={[filters.lateSubmission]}
+      items={[
+        { key: "", label: "All" },
+        { key: "yes", label: "Late" },
+        { key: "no", label: "On Time" }
+      ].map(item => ({
+        key: item.key,
+        label: (
+          <div className="flex items-center">
+            <span className={`w-3 h-3 rounded-full mr-2 ${
+              item.key === "yes" ? "bg-red-500" : 
+              item.key === "no" ? "bg-green-500" : 
+              "bg-gray-400"
+            }`}></span>
+            {item.label}
+          </div>
+        )
+      }))}
+    />
+  );
+
+  // For supervisor filter menu
+  const supervisorMenu = (
+    <Menu
+      onClick={({ key }) => handleFilterChange('supervisor', key)}
+      selectedKeys={[filters.supervisor]}
+      items={
+        [{ key: "", label: "All" }].concat(
+          getUniqueSupervisors().map(name => ({
+            key: name,
+            label: name
+          }))
+        ).map(item => ({
+          key: item.key,
+          label: (
+            <div className="flex items-center">
+              {item.key === "Not Assigned" ? (
+                <span className="w-3 h-3 rounded-full mr-2 bg-orange-500"></span>
+              ) : item.key === "" ? (
+                <span className="w-3 h-3 rounded-full mr-2 bg-gray-400"></span>
+              ) : (
+                <span className="w-3 h-3 rounded-full mr-2 bg-blue-500"></span>
+              )}
+              {item.label}
+            </div>
+          )
+        }))
+      }
+    />
+  );
+
   return (
     <div className="min-h-screen bg-white py-10 rounded-lg">
       <div className="max-w-7xl mx-auto p-8">
-        <h2 className="text-2xl font-bold text-black-700 mb-6 text-start">
+        <h2 className="text-2xl font-bold text-blue-500 mb-6 text-start">
           Internship List
         </h2>
 
-        <div className="mb-6 flex flex-wrap justify-between items-center">
+        <div className="mb-6 flex flex-wrap justify-between items-center gap-4">
           {/* Publish and Hide buttons */}
-          <div className="flex items-center mr-4 border-r border-gray-200 pr-4">
+          <div className="flex items-center border-r border-gray-200 pr-4">
             <button
               onClick={handlePublishPlanning}
               disabled={isLoading || isPublished}
               className={`${
                 isLoading || isPublished 
-                  ? 'bg-gray-400 cursor-not-allowed' 
-                  : 'bg-purple-500 hover:bg-purple-600'
-              } text-white px-3 py-1.5 rounded-lg text-sm font-medium flex items-center mx-2 transition-colors`}
+                  ? 'bg-gray-300 cursor-not-allowed' 
+                  : 'bg-pink-500 hover:bg-pink-600'
+              } text-white px-4 py-2 rounded-full text-sm font-medium flex items-center mx-2 transition-colors`}
             >
-              <FaEye className="mr-1" />
+              <FaEye className="mr-2" />
               {isPublished ? 'Published' : 'Publish'}
             </button>
 
@@ -179,93 +235,131 @@ const InternshipList = () => {
               disabled={isLoading || !isPublished}
               className={`${
                 isLoading || !isPublished 
-                  ? 'bg-gray-400 cursor-not-allowed' 
-                  : 'bg-red-500 hover:bg-red-600'
-              } text-white px-3 py-1.5 rounded-lg text-sm font-medium flex items-center mx-2 transition-colors`}
+                  ? 'bg-gray-300 cursor-not-allowed' 
+                  : 'bg-purple-500 hover:bg-purple-600'
+              } text-white px-4 py-2 rounded-full text-sm font-medium flex items-center mx-2 transition-colors`}
             >
-              <FaEyeSlash className="mr-1" />
+              <FaEyeSlash className="mr-2" />
               {!isPublished ? 'Hidden' : 'Hide'}
             </button>
           </div>
 
-          <div className="flex flex-1 items-center justify-end gap-2">
-            <div className="flex items-center">
-              <button 
-                onClick={() => setShowFilters(!showFilters)}
-                className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-2 rounded-lg text-sm font-medium flex items-center transition-colors mr-2"
-              >
-                <FaFilter className="mr-1" />
-                {showFilters ? 'Hide' : 'Filter'}
-              </button>
+          <div className="flex flex-1 flex-wrap items-center justify-end gap-3">
+            <div className="flex space-x-2">
+              <Tooltip title="Filter by submission status">
+                <Dropdown overlay={lateSubmissionMenu} placement="bottomRight" trigger={["click"]}>
+                  <Button 
+                    type="default" 
+                    className="flex items-center justify-center border border-pink-200 rounded-full bg-white hover:bg-pink-50 hover:border-pink-300 transition-colors"
+                  >
+                    <div className="flex items-center">
+                      <ClockIcon className="text-pink-500 mr-1.5" />
+                      <span className="text-gray-700">
+                        {filters.lateSubmission ? 
+                          (filters.lateSubmission === "yes" ? "Late" : "On Time") : 
+                          "Submission"
+                        }
+                      </span>
+                    </div>
+                  </Button>
+                </Dropdown>
+              </Tooltip>
               
-              {(filters.lateSubmission || filters.supervisor) && (
-                <button 
+              <Tooltip title="Filter by supervisor">
+                <Dropdown overlay={supervisorMenu} placement="bottomRight" trigger={["click"]}>
+                  <Button 
+                    type="default" 
+                    className="flex items-center justify-center border border-pink-200 rounded-full bg-white hover:bg-pink-50 hover:border-pink-300 transition-colors"
+                  >
+                    <div className="flex items-center">
+                      <TeacherIcon className="text-pink-500 mr-1.5" />
+                      <span className="text-gray-700">
+                        {filters.supervisor ? 
+                          (filters.supervisor.length > 10 ? 
+                            filters.supervisor.substring(0, 10) + "..." : 
+                            filters.supervisor) : 
+                          "Supervisor"
+                        }
+                      </span>
+                    </div>
+                  </Button>
+                </Dropdown>
+              </Tooltip>
+              
+              {(filters.lateSubmission || filters.supervisor || searchTerm) && (
+                <Button
                   onClick={resetFilters}
-                  className="bg-gray-200 hover:bg-gray-300 text-gray-700 px-3 py-2 rounded-lg text-sm font-medium transition-colors mr-2"
+                  className="flex items-center justify-center border border-pink-200 rounded-full bg-white hover:bg-pink-50 hover:border-pink-300 transition-colors"
                 >
-                  Reset
-                </button>
+                  <div className="flex items-center">
+                    <ResetIcon className="text-pink-500 mr-1.5" />
+                    <span className="text-gray-700">Reset</span>
+                  </div>
+                </Button>
               )}
             </div>
             
-            <div className="relative w-48 md:w-64">
-              <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">
-                <FaSearch />
-              </span>
+            <div className="relative w-full sm:w-auto sm:min-w-48 md:min-w-64">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <FaSearch className="text-pink-400" />
+              </div>
               <input
                 type="text"
                 value={searchTerm}
                 onChange={handleSearch}
-                placeholder="Search Student"
-                className="pl-9 pr-3 py-2 border border-gray-300 rounded-lg w-full focus:outline-none focus:ring-1 focus:ring-blue-500 transition"
+                placeholder="Search student..."
+                className="block w-full pl-10 pr-3 py-2 border border-pink-200 rounded-full leading-5 bg-white placeholder-gray-400 focus:outline-none focus:ring-pink-300 focus:border-pink-300 sm:text-sm transition-colors"
               />
             </div>
           </div>
         </div>
 
-        {/*Filter Panel */}
-        {showFilters && (
-          <div className="bg-gray-50 p-3 rounded-lg mb-4 border border-gray-200 shadow-sm">
-            <div className="flex flex-wrap gap-3">
-              {/* Late submission filter */}
-              <div className="w-auto min-w-32">
-                <label className="block text-xs font-medium text-gray-700 mb-1">Late Submission</label>
-                <select
-                  value={filters.lateSubmission}
-                  onChange={(e) => handleFilterChange('lateSubmission', e.target.value)}
-                  className="w-full border border-gray-300 rounded-md p-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
-                >
-                  <option value="">All</option>
-                  <option value="yes">Yes</option>
-                  <option value="no">No</option>
-                </select>
-              </div>
-              
-              {/* Supervisor filter */}
-              <div className="w-auto min-w-48">
-                <label className="block text-xs font-medium text-gray-700 mb-1">Supervisor</label>
-                <select
-                  value={filters.supervisor}
-                  onChange={(e) => handleFilterChange('supervisor', e.target.value)}
-                  className="w-full border border-gray-300 rounded-md p-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
-                >
-                  <option value="">All</option>
-                  {getUniqueSupervisors().map((name, idx) => (
-                    <option key={idx} value={name}>{name}</option>
-                  ))}
-                </select>
-              </div>
+        {/* Active filters display */}
+        {(filters.lateSubmission || filters.supervisor || searchTerm) && (
+          <div className="bg-white p-4 rounded-lg shadow-sm border border-pink-100 mb-6">
+            <div className="flex flex-wrap gap-2">
+              <span className="font-medium text-gray-700">Active filters:</span>
+              {filters.lateSubmission && (
+                <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-pink-100 text-pink-800">
+                  {filters.lateSubmission === "yes" ? "Late" : "On Time"}
+                  <button onClick={() => handleFilterChange('lateSubmission', '')} className="ml-2 text-pink-500 hover:text-pink-700 focus:outline-none">
+                    ×
+                  </button>
+                </span>
+              )}
+              {filters.supervisor && (
+                <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
+                  Supervisor: {filters.supervisor}
+                  <button onClick={() => handleFilterChange('supervisor', '')} className="ml-2 text-blue-500 hover:text-blue-700 focus:outline-none">
+                    ×
+                  </button>
+                </span>
+              )}
+              {searchTerm && (
+                <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-purple-100 text-purple-800">
+                  Search: "{searchTerm}"
+                  <button onClick={() => setSearchTerm("")} className="ml-2 text-purple-500 hover:text-purple-700 focus:outline-none">
+                    ×
+                  </button>
+                </span>
+              )}
             </div>
           </div>
         )}
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {filteredInternships.length > 0 ? (
             filteredInternships.map((internship, index) => (
               <InternshipCard key={index} internship={internship} />
             ))
           ) : (
-            <p className="col-span-3 text-center text-gray-500 py-10">No internships found</p>
+            <div className="col-span-full text-center py-12 bg-white rounded-lg shadow-sm border border-pink-100">
+              <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-pink-50 mb-4">
+                <FaSearch className="text-pink-400 text-2xl" />
+              </div>
+              <h3 className="text-lg font-medium text-gray-900 mb-2">No internships found</h3>
+              <p className="text-gray-500">Try adjusting your search or filter criteria</p>
+            </div>
           )}
         </div>
       </div>
@@ -285,5 +379,65 @@ const InternshipList = () => {
     </div>
   );
 };
+
+// Clock Icon Component for Late Submission filter
+const ClockIcon = ({ className }) => (
+  <div className={className}>
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="1em"
+      height="1em"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <circle cx="12" cy="12" r="10"></circle>
+      <polyline points="12 6 12 12 16 14"></polyline>
+    </svg>
+  </div>
+);
+
+// Teacher Icon Component for Supervisor filter
+const TeacherIcon = ({ className }) => (
+  <div className={className}>
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="1em"
+      height="1em"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+      <circle cx="12" cy="7" r="4"></circle>
+    </svg>
+  </div>
+);
+
+// Reset Icon Component
+const ResetIcon = ({ className }) => (
+  <div className={className}>
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="1em"
+      height="1em"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M3 2v6h6"></path>
+      <path d="M3 13a9 9 0 1 0 3-7.7L3 8"></path>
+    </svg>
+  </div>
+);
 
 export default InternshipList;

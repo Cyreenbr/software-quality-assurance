@@ -2,10 +2,11 @@ import {
   FaBook,
   FaGraduationCap,
   FaLightbulb,
-  FaWindowRestore
+  FaWindowRestore,
 } from "react-icons/fa";
 import { GiTeacher } from "react-icons/gi";
 import {
+  MdAccountCircle,
   MdAssignmentAdd,
   MdAutoStories,
   MdCalendarMonth,
@@ -13,7 +14,6 @@ import {
   MdHome,
   MdList,
   MdNotifications,
-   MdAccountCircle
 } from "react-icons/md";
 import { PiStudentBold, PiStudentFill } from "react-icons/pi";
 import Pfa from "../../../src/pages/pfaPage/Pfa";
@@ -27,6 +27,7 @@ import Home from "../../pages/homePage/Home";
 import Notifications from "../../pages/Notifications";
 import OptionListPage from "../../pages/optionPage/OptionListPage";
 import OptionPage from "../../pages/optionPage/OptionPage";
+import OptionsListForStudentPage from "../../pages/optionsListForStudentsPage/OptionsListForStudentsPage.jsx";
 import AdminPfeManagement from "../../pages/pfePage/pfeadmin";
 import TeacherPFEList from "../../pages/pfePage/pfeens";
 import PFEStudent from "../../pages/pfePage/pfeStudent";
@@ -34,6 +35,7 @@ import PlanningPage from "../../pages/pfePage/planning";
 import PlanninginternshipPage from "../../pages/planningPage/PlanningPage";
 import InternshipPlanning from "../../pages/PlanningUpdate/InternshipPlanningUpdate";
 import InternshipList from "../../pages/studentInternshipPage/studentInternship";
+import EvaluationFormPage from "../../pages/subjectsPage/EvaluationPage.jsx";
 import Subjects from "../../pages/subjectsPage/Subjects";
 import TeacherInternshipList from "../../pages/teacherInternshipPage/TeacherInternshipPage";
 import StudentsListTeachers from "../../pages/usersListPage/StudentsListTeachers";
@@ -42,11 +44,19 @@ import TeachersManagPage from "../../pages/UsersManagementPage/TeachersManagPage
 import { RoleEnum } from "../../utils/userRoles";
 import MyCV from "../../pages/MyCV.jsx";
 
+
 import StudentCVPage from "../../pages/StudentCVPage";
 import Profile from "../../pages/profilePage/Profile";
 
 import OptionsListForStudentPage from "../../pages/optionsListForStudentsPage/OptionsListForStudentsPage.jsx";
 import EditCV from "../../pages/EditCV";
+
+import AdminPlanningPage from "../../pages/pfePage/pfeSoutenance/PFEDefenseManagement";
+import EnseignantPage from "../../pages/pfePage/pfeSoutenance/EnseignantPage";
+import EtudiantSoutenancePage from "../../pages/pfePage/pfeSoutenance/EtudiantSoutenancePage";
+
+import UniversityYearPage from "../../pages/universityYearPage/UniversityYearPage";
+
 export const menuConfig = [
   {
     order: 1,
@@ -99,7 +109,7 @@ export const menuConfig = [
     path: "/competences",
     tooltip: "Competences",
     component: Competences,
-    eligibleRoles: [RoleEnum.ADMIN, RoleEnum.TEACHER,],
+    eligibleRoles: [RoleEnum.ADMIN, RoleEnum.TEACHER],
     active: true,
     hideSideBar: false,
     hideHeader: false,
@@ -129,6 +139,17 @@ export const menuConfig = [
     hideSideBar: false,
     hideHeader: false,
     dontShow: true,
+  }, {
+    order: 77,
+    // label: 'Subject Details',
+    icon: undefined,
+    path: (id) => `/subjects/${id}/evaluation`, // Dynamic path
+    component: EvaluationFormPage,
+    eligibleRoles: [RoleEnum.STUDENT],
+    active: true,
+    hideSideBar: false,
+    hideHeader: false,
+    dontShow: true,
   },
   {
     order: 7,
@@ -149,7 +170,7 @@ export const menuConfig = [
     path: "/PFA",
     component: Pfa,
     eligibleRoles: [RoleEnum.ADMIN, RoleEnum.TEACHER, RoleEnum.STUDENT],
-    // eligibleLevels: [RoleEnum.ISPFA],
+    eligibleLevels: [RoleEnum.ISPFA],
     active: true,
     hideSideBar: false,
     hideHeader: false,
@@ -196,7 +217,7 @@ export const menuConfig = [
     icon: MdAutoStories,
     path: "/chooseoption",
     component: OptionPage,
-    eligibleRoles: [RoleEnum.STUDENT],
+    eligibleRoles: [RoleEnum.ISPFA],
     active: true,
     hideSideBar: false,
     hideHeader: false,
@@ -353,9 +374,53 @@ export const menuConfig = [
     hideSideBar: false,
     hideHeader: false,
   },
+
+
   {
     order: 28,
+    label: "soutenancePlanning",
+    icon: MdList,
+    path: "/soutenancePlanning",
+    tooltip: "soutenancePlanning",
+    component: AdminPlanningPage,
+    eligibleRoles: [RoleEnum.ADMIN],
+    active: true,
+    dontShow: false,
+    hideSideBar: false,
+    hideHeader: false,
+  },
+  {
+    order: 29,
+    label: "soutenanceEnseignantPage",
+    icon: MdList,
+    path: "/soutenanceEnseignantPage",
+    tooltip: "soutenanceEnseignantPage",
+    component: EnseignantPage,
+    eligibleRoles: [RoleEnum.TEACHER],
+    active: true,
+    dontShow: false,
+    hideSideBar: false,
+    hideHeader: false,
+  },
+  {
+    order: 30,
+    label: "EtudiantSoutenancePage",
+    icon: MdList,
+    path: "/EtudiantSoutenancePage",
+    tooltip: "EtudiantSoutenancePage",
+    component: EtudiantSoutenancePage,
+    eligibleRoles: [RoleEnum.STUDENT],
+    eligibleLevels: [RoleEnum.ISPFE],
+    active: true,
+    dontShow: false,
+    hideSideBar: false,
+    hideHeader: false,
+  },
 
+
+  
+  {
+    order: 31,
     label: "CVAcademic",
     icon: MdList,
     path: "/cv/generate/:id",
@@ -367,46 +432,57 @@ export const menuConfig = [
     hideSideBar: false,
     hideHeader: false,
   },
-   {
-   order: 29,
+  {
+    order: 32,
     label: "Profile",
     icon: MdAccountCircle,
     path: "/profile",
-     component: Profile,
+    component: Profile,
     eligibleRoles: [RoleEnum.ADMIN, RoleEnum.TEACHER, RoleEnum.STUDENT],
-    active: true,
-    hideSideBar: false,
-     hideHeader: false,
-   },
-   
- {
-   order: 30,
-    label: "List Options",
-    icon: MdAutoStories,
-    path: "/list-options",
-    component: OptionsListForStudentPage,
-    eligibleRoles: [RoleEnum.STUDENT],
     active: true,
     hideSideBar: false,
     hideHeader: false,
   },
 
+  {
+    order: 33,
+    label: "List Options",
+    icon: MdAutoStories,
+    path: "/list-options",
+    component: OptionsListForStudentPage,
+    eligibleRoles: [RoleEnum.ISPFA],
+    active: true,
+    hideSideBar: false,
+    hideHeader: false,
+  },
+
+
      
  {
-   order: 31,
+   order: 34,
     label: "View CV",
     icon: MdAutoStories,
     path: "/CV/me",
     component:MyCV,
     eligibleRoles: [RoleEnum.STUDENT],
+
+  {
+    order: 35,
+    label: "Manage University Year",
+    icon: MdAutoStories,
+    path: "/UniversityYear",
+    component: UniversityYearPage,
+    eligibleRoles: [RoleEnum.ADMIN],
+
     active: true,
     hideSideBar: false,
     hideHeader: false,
   },
 
+
      
  {
-   order: 32,
+   order: 36,
     label: "Edit CV",
     icon: MdAutoStories,
     path: "/CV/editCV",
