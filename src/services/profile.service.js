@@ -5,10 +5,6 @@
 import axiosAPI from "../services/axiosAPI/axiosInstance.js";
 
 
-/**
- * Fetches the user profile data from the API
- * @returns {Promise<Object>} The profile data
- */
 export const getProfile = async () => {
   try {
     const response = await axiosAPI.get('/profile/me');
