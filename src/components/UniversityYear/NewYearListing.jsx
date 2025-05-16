@@ -5,9 +5,11 @@ import {
   insertStudentsFromExcel,
 } from "../../services/ManageUsersServices/students.service.js";
 import AcademicYearPicker from "../AcademicYearPicker.jsx";
+import UpgradeStudents from "./UpgradeStudents.jsx"; // Import UpgradeStudents component
 import * as XLSX from "xlsx";
 import { MdSchool, MdUploadFile, MdRefresh } from "react-icons/md";
 import Swal from "sweetalert2";
+import { MdDone } from "react-icons/md";
 
 const NewYearListing = ({ onBack }) => {
   const [loading, setLoading] = useState(false);
@@ -24,6 +26,7 @@ const NewYearListing = ({ onBack }) => {
   const [importedStudents, setImportedStudents] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
+  const [allStudentsProcessed, setAllStudentsProcessed] = useState(false);
   const studentsPerPage = 5;
 
   useEffect(() => {
@@ -176,7 +179,29 @@ const NewYearListing = ({ onBack }) => {
   };
 
   const handleNext = () => {
+    // Only proceed to next step if all students are processed (when coming from Step 2)
+    if (currentStep === 2 && !allStudentsProcessed) {
+      Swal.fire({
+        title: "Error",
+        text: "Please process all students before proceeding",
+        icon: "warning",
+      });
+      return;
+    }
+
     setCurrentStep(currentStep + 1);
+  };
+
+  // Handle completion of student processing
+  const handleStudentProcessingComplete = () => {
+    setAllStudentsProcessed(true);
+    Swal.fire({
+      title: "Success",
+      text: "All students have been processed successfully!",
+      icon: "success",
+      timer: 2000,
+      showConfirmButton: false,
+    });
   };
 
   // Calculate progress percentage
@@ -210,7 +235,7 @@ const NewYearListing = ({ onBack }) => {
                     currentStep >= 2 ? "text-blue-600" : "text-gray-500"
                   }`}
                 >
-                  Step 2: Review Students
+                  Step 2: Process Students
                 </div>
                 <div
                   className={`${
@@ -260,7 +285,7 @@ const NewYearListing = ({ onBack }) => {
               <AcademicYearPicker
                 value={year}
                 onChange={(val) => setYear(val)}
-                range={10}
+                range={20}
                 direction="future"
                 includeCurrent={true}
                 label="Academic Year"
@@ -306,117 +331,28 @@ const NewYearListing = ({ onBack }) => {
           </div>
         )}
 
-        {/* Step 2: Review Students by Level */}
+        {/* Step 2: Process Students using UpgradeStudents component */}
         {currentStep === 2 && (
           <div>
             <h2 className="text-xl font-semibold mb-4">
-              Step 2: Review Students by Level
+              Step 2: Process Students
             </h2>
             <p className="mb-6 text-gray-600">
-              Review student information by academic level. You can filter
-              students to ensure all data is correct before proceeding.
+              Update the status of each student by selecting whether they should
+              be upgraded, held back, or graduated. You must process all
+              students before proceeding to the next step.
             </p>
 
-            <div className="mb-6">
-              <label className="block text-gray-700 font-medium mb-2">
-                Select Academic Level:
-              </label>
-              <select
-                className="w-full md:w-64 border rounded p-2"
-                value={selectedLevel}
-                onChange={(e) => setSelectedLevel(e.target.value)}
-              >
-                <option value="all">All Levels</option>
-                <option value="1ère année">
-                  1ère année (
-                  {students.filter((s) => s.level === "1ère année").length}{" "}
-                  students)
-                </option>
-                <option value="2ème année">
-                  2ème année (
-                  {students.filter((s) => s.level === "2ème année").length}{" "}
-                  students)
-                </option>
-                <option value="3ème année">
-                  3ème année (
-                  {students.filter((s) => s.level === "3ème année").length}{" "}
-                  students)
-                </option>
-                {levels
-                  .filter(
-                    (level) =>
-                      !["1ère année", "2ème année", "3ème année"].includes(
-                        level
-                      )
-                  )
-                  .map((level) => (
-                    <option key={level} value={level}>
-                      {level} (
-                      {students.filter((s) => s.level === level).length}{" "}
-                      students)
-                    </option>
-                  ))}
-              </select>
-            </div>
+            {/* Using the UpgradeStudents component */}
+            <UpgradeStudents onComplete={handleStudentProcessingComplete} />
 
-            {loading ? (
-              <div className="text-center py-8">
-                <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-blue-500 border-t-transparent"></div>
-                <p className="mt-2 text-gray-600">Loading students...</p>
-              </div>
-            ) : (
-              <div className="overflow-x-auto border rounded">
-                <table className="min-w-full divide-y divide-gray-200">
-                  <thead className="bg-gray-50">
-                    <tr>
-                      <th
-                        scope="col"
-                        className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                      >
-                        Name
-                      </th>
-                      <th
-                        scope="col"
-                        className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                      >
-                        Level
-                      </th>
-                      <th
-                        scope="col"
-                        className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                      >
-                        Email
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
-                    {Array.isArray(filteredStudents) &&
-                    filteredStudents.length > 0 ? (
-                      filteredStudents.map((student) => (
-                        <tr key={student._id}>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            {student.firstName} {student.lastName}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            {student.level}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            {student.email}
-                          </td>
-                        </tr>
-                      ))
-                    ) : (
-                      <tr>
-                        <td
-                          colSpan="3"
-                          className="px-6 py-4 text-center text-gray-500"
-                        >
-                          No students found
-                        </td>
-                      </tr>
-                    )}
-                  </tbody>
-                </table>
+            {/* Display message when all students are processed */}
+            {allStudentsProcessed && (
+              <div className="mt-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded">
+                <div className="flex items-center">
+                  <MdDone className="h-5 w-5 mr-2" />
+                  <span>All students have been successfully processed!</span>
+                </div>
               </div>
             )}
           </div>
@@ -564,9 +500,13 @@ const NewYearListing = ({ onBack }) => {
           {currentStep < 3 ? (
             <button
               onClick={currentStep === 1 ? createNewYear : handleNext}
-              disabled={currentStep === 1 && !year}
+              disabled={
+                (currentStep === 1 && !year) ||
+                (currentStep === 2 && !allStudentsProcessed)
+              }
               className={`px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white ${
-                currentStep === 1 && !year
+                (currentStep === 1 && !year) ||
+                (currentStep === 2 && !allStudentsProcessed)
                   ? "bg-blue-300 cursor-not-allowed"
                   : "bg-blue-600 hover:bg-blue-700"
               }`}
