@@ -8,7 +8,7 @@ import CompetenceList from "../../components/skillsComponents/CompetenceList";
 import PageLayout from "../../components/skillsComponents/PageLayout";
 import Pagination from "../../components/skillsComponents/Pagination";
 import SearchBar from "../../components/skillsComponents/SearchBar";
-import Tooltip from "../../components/skillsComponents/Tooltip";
+import Tooltip from "../../components/skillsComponents/tooltip";
 import competenceServices from "../../services/CompetencesServices/competences.service";
 import { RoleEnum } from "../../utils/userRoles";
 

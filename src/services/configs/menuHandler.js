@@ -35,6 +35,7 @@ import PlanningPage from "../../pages/pfePage/planning";
 import PlanninginternshipPage from "../../pages/planningPage/PlanningPage";
 import InternshipPlanning from "../../pages/PlanningUpdate/InternshipPlanningUpdate";
 import InternshipList from "../../pages/studentInternshipPage/studentInternship";
+import StudentsWithoutInternship from "../../pages/studentInternshipPage/StudentsWithoutInternshipPage";
 import EvaluationFormPage from "../../pages/subjectsPage/EvaluationPage.jsx";
 import Subjects from "../../pages/subjectsPage/Subjects";
 import TeacherInternshipList from "../../pages/teacherInternshipPage/TeacherInternshipPage";
@@ -43,9 +44,9 @@ import StudentsManagPage from "../../pages/UsersManagementPage/StudentsManagPage
 import TeachersManagPage from "../../pages/UsersManagementPage/TeachersManagPage";
 import { RoleEnum } from "../../utils/userRoles";
 
-import AdminPlanningPage from "../../pages/pfePage/pfeSoutenance/PFEDefenseManagement";
 import EnseignantPage from "../../pages/pfePage/pfeSoutenance/EnseignantPage";
 import EtudiantSoutenancePage from "../../pages/pfePage/pfeSoutenance/EtudiantSoutenancePage";
+import AdminPlanningPage from "../../pages/pfePage/pfeSoutenance/PFEDefenseManagement";
 
 import Profile from "../../pages/profilePage/Profile";
 import UniversityYearPage from "../../pages/universityYearPage/UniversityYearPage";
@@ -163,7 +164,7 @@ export const menuConfig = [
     path: "/PFA",
     component: Pfa,
     eligibleRoles: [RoleEnum.ADMIN, RoleEnum.TEACHER, RoleEnum.STUDENT],
-    // eligibleLevels: [RoleEnum.ISPFA],
+    eligibleLevels: [RoleEnum.ISPFA],
     active: true,
     hideSideBar: false,
     hideHeader: false,
@@ -210,7 +211,7 @@ export const menuConfig = [
     icon: MdAutoStories,
     path: "/chooseoption",
     component: OptionPage,
-    eligibleRoles: [RoleEnum.STUDENT],
+    eligibleRoles: [RoleEnum.ISPFA],
     active: true,
     hideSideBar: false,
     hideHeader: false,
@@ -443,7 +444,7 @@ export const menuConfig = [
     icon: MdAutoStories,
     path: "/list-options",
     component: OptionsListForStudentPage,
-    eligibleRoles: [RoleEnum.STUDENT],
+    eligibleRoles: [RoleEnum.ISPFA],
     active: true,
     hideSideBar: false,
     hideHeader: false,
@@ -459,7 +460,17 @@ export const menuConfig = [
     hideSideBar: false,
     hideHeader: false,
   },
-
+  {
+    order: 34,
+    path: "/StudentsWithoutInternship",
+    component: StudentsWithoutInternship,
+    eligibleRoles: [RoleEnum.ADMIN],
+    active: true,
+    dontShow: true,
+    hideSideBar: false,
+    hideHeader: false,
+  },
+  
   // kifeh tzid route jdid ??
   // {
   //     order: 7,

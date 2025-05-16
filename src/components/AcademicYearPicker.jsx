@@ -34,9 +34,8 @@ const AcademicYearPicker = ({
     disableYears = () => false,
     className = "",
     label = "Select Academic Year",
-    required = false
+    required = false,
 }) => {
-    const currentYear = new Date().getFullYear();
 
     const parseStartYear = (val) => {
         const match = val?.match(/^(\d{4})-(\d{4})$/);

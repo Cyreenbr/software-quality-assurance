@@ -5,6 +5,7 @@ import {
   GetAllYears,
 } from "../../services/UniversityYearServices/universityyear.service.js";
 import { getStudents } from "../../services/ManageUsersServices/students.service.js";
+import AcademicYearPicker from "../AcademicYearPicker";
 
 const UniversityYears = () => {
   const [years, setYears] = useState([]);
@@ -42,7 +43,19 @@ const UniversityYears = () => {
     try {
       setLoading(true);
       const data = await GetAllYears();
-      setYears(data);
+
+      // Trier les années universitaires par ordre chronologique
+      const sortedData = [...data].sort((a, b) => {
+        // Extraire les années de début pour le tri
+        const getStartYear = (yearStr) => {
+          const match = yearStr.year.match(/^(\d{4})/);
+          return match ? parseInt(match[1]) : 0;
+        };
+
+        return getStartYear(a) - getStartYear(b);
+      });
+
+      setYears(sortedData);
       setError(null);
     } catch (err) {
       setError("Failed to fetch university years");
@@ -142,19 +155,15 @@ const UniversityYears = () => {
             >
               Year (e.g., 2024-2025)
             </label>
-            <input
-              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-              id="year"
-              type="text"
-              placeholder="Enter academic year"
+            <AcademicYearPicker
               value={newYear}
-              onChange={(e) => setNewYear(e.target.value)}
-              onKeyPress={(e) => {
-                if (e.key === "Enter") {
-                  e.preventDefault();
-                  handleOpenNewYear();
-                }
-              }}
+              onChange={(val) => setNewYear(val)}
+              range={10}
+              direction="past"
+              includeCurrent={true}
+              // disableYears={(year) => year < 2022} // désactive les années avant 2022
+              label="Academic Year"
+              required
             />
           </div>
           <button

@@ -18,7 +18,7 @@ import NotFound404 from "../skillsComponents/NotFound404";
 import Pagination from "../skillsComponents/Pagination";
 import Popup from "../skillsComponents/Popup";
 import SearchBar from "../skillsComponents/SearchBar";
-import Tooltip from "../skillsComponents/Tooltip";
+import Tooltip from "../skillsComponents/tooltip";
 
 const SubjectList = ({ onEdit, refresh = false, }) => {
     const role = useSelector((status) => status.auth.role);
@@ -58,7 +58,7 @@ const SubjectList = ({ onEdit, refresh = false, }) => {
         setLoading(true);
 
         try {
-            const response = await matieresServices.fetchMatieres(page, searchTerm, sortBy, order);
+            const response = await matieresServices.fetchMatieres({ page, searchTerm, sortBy, order });
             const fetchedSubjects = response.subjects || [];
             setSubjects(fetchedSubjects);
             setSortedSubjects(fetchedSubjects); // Update sorted subjects
@@ -116,9 +116,9 @@ const SubjectList = ({ onEdit, refresh = false, }) => {
     };
 
     // Delete subject
-    const handleDeleteSubject = useCallback(async (id, forced = false) => {
+    const handleDeleteSubject = useCallback(async (id, { forced = false, archive = false }) => {
         try {
-            await matieresServices.deleteMatiere(id, forced);
+            await matieresServices.deleteMatiere(id, { forced: forced, archive: archive });
 
             // Met à jour la page actuelle si l'élément supprimé était le dernier de la page
             setCurrentPage(prevPage => (itemsOnPage === 1 && prevPage > 1 ? prevPage - 1 : prevPage));
@@ -126,7 +126,7 @@ const SubjectList = ({ onEdit, refresh = false, }) => {
             toast.success("Subject deleted successfully!");
             return true;
         } catch (error) {
-            setError(error);
+            // setError(error);
             console.error("Error deleting subject:", error);
             toast.error("Failed to delete subject: " + (error?.message || error));
             return false;
@@ -270,7 +270,6 @@ const SubjectList = ({ onEdit, refresh = false, }) => {
             <Popup
                 isOpen={isDeletePopupOpen}
                 onClose={() => setIsDeletePopupOpen(false)}
-                // onConfirm={() => handleDelete(subjectToDelete._id)}
                 position="center"
             >
                 <div className="max-w-md mx-auto text-center">

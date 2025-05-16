@@ -1,8 +1,9 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
+import { FaBook, FaCalendarAlt, FaChalkboardTeacher, FaClock, FaDoorOpen, FaUserGraduate, FaUserTie } from "react-icons/fa";
 import { getStudentDefense } from "../../../services/pfeService/pfeSoutenance";
 
-const EtudiantSoutenancePage = () => {
-  const [soutenance, setSoutenance] = useState(null);
+const StudentDefensePage = () => {
+  const [defense, setDefense] = useState(null);
   const [message, setMessage] = useState("");
 
   useEffect(() => {
@@ -11,12 +12,12 @@ const EtudiantSoutenancePage = () => {
         const data = await getStudentDefense();
         console.log(data.defense);
         if (data) {
-          setSoutenance(data.defense);
+          setDefense(data.defense);
         } else {
-          setMessage("Aucune soutenance trouvée pour votre PFE.");
+          setMessage("No defense found for your internship project.");
         }
       } catch (err) {
-        setMessage("Erreur lors du chargement de la soutenance.");
+        setMessage("Error loading defense information.");
       }
     };
 
@@ -32,42 +33,105 @@ const EtudiantSoutenancePage = () => {
   };
 
   return (
-    <div className="p-6 max-w-3xl mx-auto">
-      <h1 className="text-2xl font-bold mb-4">Ma soutenance</h1>
-
-      {message && <p className="text-red-600">{message}</p>}
-
-      {soutenance && (
-        <div className="bg-white p-4 rounded shadow space-y-3">
-          <p>
-            <strong>Titre du PFE :</strong> {soutenance.pfe?.title}
-          </p>
-          <p>
-            <strong>Date :</strong>{" "}
-            {new Date(soutenance.date).toLocaleDateString("fr-FR")}
-          </p>
-          <p>
-            <strong>Heure :</strong> {formatTime(soutenance.time)}
-          </p>
-          <p>
-            <strong>Salle :</strong> {soutenance.room}
-          </p>
-          <p>
-            <strong>Encadrant :</strong>{" "}
-            {soutenance.pfe?.IsammSupervisor?.email || "N/A"}
-          </p>
-          <p>
-            <strong>Président :</strong>{" "}
-            {soutenance.presidentId?.email || "N/A"}
-          </p>
-          <p>
-            <strong>Rapporteur :</strong>{" "}
-            {soutenance.reporterId?.email || "N/A"}
+    <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-3xl mx-auto">
+        <div className="text-center mb-8">
+          <h1 className="text-3xl font-extrabold text-blue-400 sm:text-4xl">
+            My Defense
+          </h1>
+          <p className="mt-3 text-xl text-gray-500">
+            Details about your internship project defense
           </p>
         </div>
-      )}
+
+        {message && (
+          <div className="rounded-md bg-red-50 p-4 mb-6">
+            <p className="text-sm font-medium text-red-800">{message}</p>
+          </div>
+        )}
+
+        {defense && (
+          <div className="bg-white shadow overflow-hidden sm:rounded-lg">
+            <div className="px-4 py-5 sm:px-6 bg-indigo-600">
+              <h3 className="text-lg leading-6 font-medium text-white">
+                Defense Information
+              </h3>
+            </div>
+            <div className="border-t border-gray-200 divide-y divide-gray-200">
+              <div className="px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6 hover:bg-gray-50">
+                <dt className="text-sm font-medium text-gray-500 flex items-center">
+                  <FaBook className="mr-2 text-indigo-500" />
+                  Project Title
+                </dt>
+                <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                  {defense.pfe?.title || "Not specified"}
+                </dd>
+              </div>
+              <div className="px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6 hover:bg-gray-50">
+                <dt className="text-sm font-medium text-gray-500 flex items-center">
+                  <FaCalendarAlt className="mr-2 text-indigo-500" />
+                  Date
+                </dt>
+                <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                  {new Date(defense.date).toLocaleDateString("en-US", {
+                    weekday: 'long',
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                  })}
+                </dd>
+              </div>
+              <div className="px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6 hover:bg-gray-50">
+                <dt className="text-sm font-medium text-gray-500 flex items-center">
+                  <FaClock className="mr-2 text-indigo-500" />
+                  Time
+                </dt>
+                <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                  {formatTime(defense.time)}
+                </dd>
+              </div>
+              <div className="px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6 hover:bg-gray-50">
+                <dt className="text-sm font-medium text-gray-500 flex items-center">
+                  <FaDoorOpen className="mr-2 text-indigo-500" />
+                  Room
+                </dt>
+                <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                  {defense.room || "Not specified"}
+                </dd>
+              </div>
+              <div className="px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6 hover:bg-gray-50">
+                <dt className="text-sm font-medium text-gray-500 flex items-center">
+                  <FaUserTie className="mr-2 text-indigo-500" />
+                  Supervisor
+                </dt>
+                <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                  {defense.pfe?.IsammSupervisor?.email || "Not assigned"}
+                </dd>
+              </div>
+              <div className="px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6 hover:bg-gray-50">
+                <dt className="text-sm font-medium text-gray-500 flex items-center">
+                  <FaChalkboardTeacher className="mr-2 text-indigo-500" />
+                  President
+                </dt>
+                <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                  {defense.presidentId?.email || "Not assigned"}
+                </dd>
+              </div>
+              <div className="px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6 hover:bg-gray-50">
+                <dt className="text-sm font-medium text-gray-500 flex items-center">
+                  <FaUserGraduate className="mr-2 text-indigo-500" />
+                  Reporter
+                </dt>
+                <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                  {defense.reporterId?.email || "Not assigned"}
+                </dd>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 };
 
-export default EtudiantSoutenancePage;
+export default StudentDefensePage;

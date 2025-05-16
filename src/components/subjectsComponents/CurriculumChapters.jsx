@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { FaCheckCircle } from "react-icons/fa";
 import { FiChevronDown, FiChevronRight } from "react-icons/fi";
 
 export const CurriculumChapters = ({ curriculum }) => {
@@ -45,9 +46,12 @@ export const CurriculumChapters = ({ curriculum }) => {
                                     {chapitre.sections.map((section, secIndex) => (
                                         <li key={section._id || secIndex}>
                                             {section.title}
-                                            {section.status === false && (
-                                                <span className="text-red-500 italic ml-1">(Update)</span>
+                                            {section.status === true && (
+                                                <span className="text-teal-500 italic ml-1 inline-flex items-center gap-1">
+                                                    (Completed <FaCheckCircle />)
+                                                </span>
                                             )}
+
                                         </li>
                                     ))}
                                 </ul>

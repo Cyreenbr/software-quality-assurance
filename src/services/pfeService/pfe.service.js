@@ -1,6 +1,6 @@
 import axios from "axios";
-import axiosAPI from "../axiosAPI/axiosInstance";
 import { toast } from "react-toastify";
+import axiosAPI from "../axiosAPI/axiosInstance";
 
 const API_URL = "http://localhost:3000/api/PFE";
 

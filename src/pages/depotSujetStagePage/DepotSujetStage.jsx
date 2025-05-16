@@ -24,7 +24,7 @@ const DepotSujet = () => {
   });
   const [loading, setLoading] = useState(false);
   const [refreshDetails, setRefreshDetails] = useState(false);
-  const [activeTab, setActiveTab] = useState("form"); // "form" or "details"
+  const [activeTab, setActiveTab] = useState("form"); 
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
