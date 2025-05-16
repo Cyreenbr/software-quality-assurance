@@ -4,7 +4,6 @@ import {
   MdExitToApp,
   MdMenu,
   MdMoreVert,
-  MdNotifications,
   MdSettings
 } from "react-icons/md";
 import { useDispatch, useSelector } from "react-redux";
@@ -21,7 +20,7 @@ const Header = ({ isSidebarOpen, setIsSidebarOpen }) => {
   const dispatch = useDispatch();
   const [loading, setLoading] = useState(false);
   const token = useSelector((state) => state.auth.token);
-  // Unified popup management
+  // Gestion unifiée des popups
   const [openMenu, setOpenMenu] = useState(null);
   const menuRef = useRef(null);
 
@@ -48,12 +47,6 @@ const Header = ({ isSidebarOpen, setIsSidebarOpen }) => {
       navigate("/");
       setLoading(false);
     }, 100);
-  };
-
-  // Function to navigate to profile page
-  const navigateToProfile = () => {
-    setOpenMenu(null); // Close open menus
-    navigate("/profile"); // Navigate to profile route
   };
 
   return (
@@ -112,14 +105,13 @@ const Header = ({ isSidebarOpen, setIsSidebarOpen }) => {
             </div>
 
             <div className="hidden md:flex items-center space-x-4">
-              {/* Profile - Modified to use navigation */}
+              {/* Profile */}
               <Tooltip text="Profile" position="bottom">
-                <button 
-                  className="text-gray-600 hover:text-indigo-600 p-2 rounded-full hover:bg-gray-100 transition-all"
-                  onClick={navigateToProfile}
-                >
-                  <MdAccountCircle size={24} />
-                </button>
+                <Link to="/profile">
+                  <button className="text-gray-600 hover:text-indigo-600 p-2 rounded-full hover:bg-gray-100 transition-all">
+                    <MdAccountCircle size={24} />
+                  </button>
+                </Link>
               </Tooltip>
 
               {/* Settings */}
@@ -136,10 +128,7 @@ const Header = ({ isSidebarOpen, setIsSidebarOpen }) => {
                 {openMenu === "settings" && (
                   <div className="absolute right-0 mt-2 bg-white shadow-lg rounded-lg w-48 p-2 z-50">
                     <ul className="space-y-2">
-                      <li 
-                        className="text-gray-700 hover:text-indigo-600 cursor-pointer p-2"
-                        onClick={navigateToProfile}
-                      >
+                      <li className="text-gray-700 hover:text-indigo-600 cursor-pointer p-2">
                         Profile Settings
                       </li>
                       <li className="text-gray-700 hover:text-indigo-600 cursor-pointer p-2">

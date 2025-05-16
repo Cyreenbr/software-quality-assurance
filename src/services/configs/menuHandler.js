@@ -45,14 +45,14 @@ import { RoleEnum } from "../../utils/userRoles";
 import MyCV from "../../pages/MyCV.jsx";
 
 
-import OptionsListForStudentPage from "../../pages/optionsListForStudentsPage/OptionsListForStudentsPage.jsx";
+import StudentCVPage from "../../pages/StudentCVPage";
+import Profile from "../../pages/profilePage/Profile";
 import EditCV from "../../pages/EditCV";
 
 import AdminPlanningPage from "../../pages/pfePage/pfeSoutenance/PFEDefenseManagement";
 import EnseignantPage from "../../pages/pfePage/pfeSoutenance/EnseignantPage";
 import EtudiantSoutenancePage from "../../pages/pfePage/pfeSoutenance/EtudiantSoutenancePage";
 
-import Profile from "../../pages/profilePage/Profile";
 import UniversityYearPage from "../../pages/universityYearPage/UniversityYearPage";
 
 export const menuConfig = [
@@ -260,7 +260,7 @@ export const menuConfig = [
     hideHeader: false,
   },
   {
-    order: 27,
+    order: 57,
     label: "PFE",
     icon: FaGraduationCap,
     path: "/pfeplanning",
@@ -416,9 +416,9 @@ export const menuConfig = [
   },
 
 
-  /*
+  
   {
-    order: 28,
+    order: 31,
     label: "CVAcademic",
     icon: MdList,
     path: "/cv/generate/:id",
@@ -429,28 +429,15 @@ export const menuConfig = [
     dontShow: true,
     hideSideBar: false,
     hideHeader: false,
-  },*/
+  },
   {
-    order: 31,
+    order: 32,
     label: "Profile",
     icon: MdAccountCircle,
     path: "/profile",
     component: Profile,
     eligibleRoles: [RoleEnum.ADMIN, RoleEnum.TEACHER, RoleEnum.STUDENT],
     active: true,
-    hideSideBar: false,
-    hideHeader: false,
-  },
-
-     
- {
-   order: 32,
-    label: "View CV",
-    icon: MdAutoStories,
-    path: "/CV/me",
-    component:MyCV,
-    eligibleRoles: [RoleEnum.STUDENT],
-      active: true,
     hideSideBar: false,
     hideHeader: false,
   },
@@ -466,8 +453,22 @@ export const menuConfig = [
     hideSideBar: false,
     hideHeader: false,
   },
+
+
+     
+ {
+   order: 34,
+    label: "View CV",
+    icon: MdAutoStories,
+    path: "/CV/me",
+    component:MyCV,
+    eligibleRoles: [RoleEnum.STUDENT],
+    active: true,
+    hideSideBar: false,
+    hideHeader: false,
+  },
   {
-    order: 34,
+    order: 35,
     label: "Manage University Year",
     icon: MdAutoStories,
     path: "/UniversityYear",
@@ -479,8 +480,10 @@ export const menuConfig = [
     hideHeader: false,
   },
 
+
+     
  {
-   order: 35,
+   order: 36,
     label: "Edit CV",
     icon: MdAutoStories,
     path: "/CV/editCV",
@@ -489,7 +492,7 @@ export const menuConfig = [
     active: true,
     hideSideBar: false,
     hideHeader: false,
-  }
+  },
   // kifeh tzid route jdid ??
   // {
   //     order: 7,
