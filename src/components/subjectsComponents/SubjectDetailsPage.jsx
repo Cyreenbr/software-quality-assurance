@@ -589,8 +589,8 @@ const SubjectDetailsPage = () => {
                                     </>
                                 )}
                             </div>
-                            <p className="text-sm text-gray-600">Last update at :{humanizeDate(formData.subject.updatedAt)}</p>
-                            <p className="text-sm text-gray-600">Created at :{humanizeDate(formData.subject.createdAt)}</p>
+                            <p className="text-sm text-gray-600">Last update :{humanizeDate(formData.subject.updatedAt, true)}</p>
+                            <p className="text-sm text-gray-600">Created :{humanizeDate(formData.subject.createdAt, true)}</p>
                         </header>)}
 
 
@@ -635,13 +635,12 @@ const SubjectDetailsPage = () => {
                                         const chapterKey = `chapter-${index}`;
                                         const isCompleted = chapter.status;
                                         const completedAt = chapter.completedAt || completedAtDates[chapterKey];
-                                        // const canEdit = userId === formData?.subject.teacherId._id;
                                         const sectionCount = chapter.sections.length;
 
                                         return (
                                             <div
                                                 key={index}
-                                                className={`border rounded-2xl p-5 shadow-md transition-colors duration-200 ${isCompleted ? "bg-green-50 border-green-300" : "bg-white"
+                                                className={`border rounded-2xl p-5 shadow-md transition-colors duration-200 ${isCompleted ? "bg-teal-50 border-teal-400" : "bg-red-50 border-red-300"
                                                     }`}
                                             >
                                                 {/* Chapter Header */}
@@ -650,12 +649,12 @@ const SubjectDetailsPage = () => {
                                                     onClick={() => toggleChapterExpand(index)}
                                                 >
                                                     <h3
-                                                        className={`text-xl font-semibold flex items-center gap-2 ${isCompleted ? "text-green-800" : "text-gray-800"
+                                                        className={`text-xl font-semibold flex items-center gap-2 ${isCompleted ? "text-teal-900" : "text-red-800"
                                                             }`}
                                                     >
                                                         {chapter.title || `Chapter ${index + 1}`}
                                                         {isCompleted ? (
-                                                            <FaCheck className="text-green-500" />
+                                                            <FaCheck className="text-teal-700" />
                                                         ) : (
                                                             <FaTimes className="text-red-500" />
                                                         )}
@@ -672,8 +671,8 @@ const SubjectDetailsPage = () => {
                                                 </div>
 
                                                 {/* Number of Sections */}
-                                                <div className="text-sm text-gray-500 mt-1">
-                                                    {sectionCount} {sectionCount === 1 ? 'Section' : 'Sections'}
+                                                <div className="text-sm text-gray-600 mt-1">
+                                                    {sectionCount} {sectionCount === 1 ? "Section" : "Sections"}
                                                 </div>
 
                                                 {/* Chapter Checkbox */}
@@ -683,10 +682,12 @@ const SubjectDetailsPage = () => {
                                                             type="checkbox"
                                                             checked={chapter.status}
                                                             onChange={() => toggleChapterStatus(index)}
-                                                            className="w-5 h-5 text-green-600 border-gray-300 focus:ring-green-500 rounded"
+                                                            className="w-5 h-5 text-teal-600 border-gray-300 focus:ring-teal-500 rounded"
                                                             aria-label={`Mark Chapter ${index + 1} as complete`}
                                                         />
-                                                        <label className="text-sm text-gray-700">Mark as complete</label>
+                                                        <label className="text-sm text-gray-700">
+                                                            Mark as complete
+                                                        </label>
                                                     </div>
                                                 )}
 
@@ -696,9 +697,11 @@ const SubjectDetailsPage = () => {
                                                         <div className="flex items-center gap-2">
                                                             <FaCalendarAlt />
                                                             <span>
-                                                                Completed At:{" "}
+                                                                Completed :{" "}
                                                                 {completedAt ? (
-                                                                    <span className="font-medium">{humanizeDate(completedAt)}</span>
+                                                                    <span className="font-medium">
+                                                                        {humanizeDate(completedAt)}
+                                                                    </span>
                                                                 ) : (
                                                                     <span className="text-gray-400">Not yet updated</span>
                                                                 )}
@@ -707,12 +710,18 @@ const SubjectDetailsPage = () => {
 
                                                         {canEdit && (
                                                             <div className="mt-2">
-                                                                <label className="block text-sm text-gray-600 mb-1">Completion Date:</label>
+                                                                <label className="block text-sm text-gray-600 mb-1">
+                                                                    Completion Date:
+                                                                </label>
                                                                 <input
                                                                     type="date"
-                                                                    // defaultValue={new Date().toISOString().split("T")[0]}
-                                                                    value={completedAtDates[chapterKey]?.split("T")[0] || new Date().toISOString().split("T")[0]}
-                                                                    onChange={(e) => handleDateChange(chapterKey, e.target.value)}
+                                                                    value={
+                                                                        completedAtDates[chapterKey]?.split("T")[0] ||
+                                                                        new Date().toISOString().split("T")[0]
+                                                                    }
+                                                                    onChange={(e) =>
+                                                                        handleDateChange(chapterKey, e.target.value)
+                                                                    }
                                                                     className="border rounded px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                                                                 />
                                                             </div>
@@ -725,29 +734,43 @@ const SubjectDetailsPage = () => {
                                                     <ul className="mt-4 border-l-2 border-gray-300 pl-5 space-y-3">
                                                         {chapter.sections.map((section, sIndex) => {
                                                             const sectionKey = `section-${index}-${sIndex}`;
-                                                            const sectionCompletedAt = completedAtDates[sectionKey] || section.completedAt;
+                                                            const sectionCompletedAt =
+                                                                completedAtDates[sectionKey] || section.completedAt;
+
+                                                            const isSectionCompleted = section.status;
 
                                                             return (
-                                                                <li key={sIndex} className="flex justify-between items-start">
+                                                                <li
+                                                                    key={sIndex}
+                                                                    className={`flex justify-between items-start rounded-md p-2 transition-colors ${isSectionCompleted
+                                                                        ? "bg-teal-100 border border-teal-400"
+                                                                        : "bg-red-50 border border-red-200"
+                                                                        }`}
+                                                                    title={
+                                                                        isSectionCompleted && sectionCompletedAt
+                                                                            ? `Completed ${humanizeDate(sectionCompletedAt)}`
+                                                                            : undefined
+                                                                    }
+                                                                >
                                                                     <div
-                                                                        className={`flex flex-col items-start gap-1 text-base ${section.status ? "text-green-800" : "text-gray-700"
+                                                                        className={`flex flex-col items-start gap-1 text-base ${isSectionCompleted ? "text-teal-900" : "text-red-800"
                                                                             }`}
                                                                     >
                                                                         <div className="flex items-center gap-2">
                                                                             {sIndex + 1} - {section.title || `Section ${sIndex + 1}`}{" "}
-                                                                            {section.status ? (
-                                                                                <FaCheck className="text-green-500 ml-1" />
+                                                                            {isSectionCompleted ? (
+                                                                                <FaCheck className="text-teal-700 ml-1" />
                                                                             ) : (
                                                                                 <FaTimes className="text-red-500 ml-1" />
                                                                             )}
                                                                         </div>
 
-                                                                        {section.status && (
+                                                                        {isSectionCompleted && (
                                                                             <>
-                                                                                <div className="flex items-center text-sm text-gray-600 gap-2">
+                                                                                <div className="flex items-center text-sm text-gray-700 gap-2">
                                                                                     <FaCalendarAlt />
                                                                                     <span>
-                                                                                        Completed At:{" "}
+                                                                                        Completed :{" "}
                                                                                         {sectionCompletedAt ? (
                                                                                             <span className="font-medium">
                                                                                                 {humanizeDate(sectionCompletedAt)}
@@ -770,10 +793,11 @@ const SubjectDetailsPage = () => {
                                                                                                     ? completedAtDates[sectionKey].split("T")[0]
                                                                                                     : new Date().toISOString().split("T")[0]
                                                                                             }
-                                                                                            onChange={(e) => handleDateChange(sectionKey, e.target.value)}
+                                                                                            onChange={(e) =>
+                                                                                                handleDateChange(sectionKey, e.target.value)
+                                                                                            }
                                                                                             className="border rounded px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                                                                                         />
-
                                                                                     </div>
                                                                                 )}
                                                                             </>
@@ -784,9 +808,9 @@ const SubjectDetailsPage = () => {
                                                                         {canEdit && (
                                                                             <input
                                                                                 type="checkbox"
-                                                                                checked={section.status}
+                                                                                checked={isSectionCompleted}
                                                                                 onChange={() => toggleSectionStatus(index, sIndex)}
-                                                                                className="w-5 h-5 text-green-600 border-gray-300 focus:ring-green-500 rounded"
+                                                                                className="w-5 h-5 text-teal-600 border-gray-300 focus:ring-teal-500 rounded"
                                                                                 aria-label={`Mark Section ${sIndex + 1} as complete`}
                                                                             />
                                                                         )}
@@ -816,6 +840,7 @@ const SubjectDetailsPage = () => {
                                 </div>
                             )}
                         </Section>
+
 
 
                         {/* Skills */}
@@ -898,7 +923,7 @@ const SubjectDetailsPage = () => {
                                                 Modified At
                                             </span>
                                         }
-                                        value={humanizeDate(selectedHistory.modifiedAt)}
+                                        value={humanizeDate(selectedHistory.modifiedAt, true)}
                                     />
 
                                     {/* Teachers */}
@@ -971,7 +996,7 @@ const SubjectDetailsPage = () => {
                                                                                 <span>{section.title}</span>
                                                                                 {section.completedAt && (
                                                                                     <span className="text-gray-500 text-xs">
-                                                                                        ({humanizeDate(section.completedAt)})
+                                                                                        (Completed {humanizeDate(section.completedAt)})
                                                                                     </span>
                                                                                 )}
                                                                             </div>

@@ -58,7 +58,7 @@ const SubjectList = ({ onEdit, refresh = false, }) => {
         setLoading(true);
 
         try {
-            const response = await matieresServices.fetchMatieres(page, searchTerm, sortBy, order);
+            const response = await matieresServices.fetchMatieres({ page, searchTerm, sortBy, order });
             const fetchedSubjects = response.subjects || [];
             setSubjects(fetchedSubjects);
             setSortedSubjects(fetchedSubjects); // Update sorted subjects

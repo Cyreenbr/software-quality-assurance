@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { FaCheckCircle, FaExclamationCircle, FaTimesCircle } from "react-icons/fa";
 import { ClipLoader } from "react-spinners";
 import { toast } from "react-toastify";
@@ -12,14 +12,16 @@ const SearchDropdown = ({
     placeholder = "Search...",
     multiple = false,
     showSelectedZone = true,
-    children, // Add support for children
+    children,
+    required = false,
+    requiredMissMessage = "This field is required."
 }) => {
     const [items, setItems] = useState([]);
     const [searchTerm, setSearchTerm] = useState("");
     const [selectedItems, setSelectedItems] = useState(multiple ? [] : null); // Store full objects
     const [isLoading, setIsLoading] = useState(false);
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-
+    const [hasError, setHasError] = useState(false);
     const dropdownRef = useRef(null);
     const inputRef = useRef(null);
 
@@ -39,6 +41,16 @@ const SearchDropdown = ({
             document.removeEventListener("mousedown", handleClickOutside);
         };
     }, []);
+
+    useEffect(() => {
+        if (required) {
+            if ((multiple && selectedItems.length === 0) || (!multiple && !selectedItems)) {
+                setHasError(true);
+            } else {
+                setHasError(false);
+            }
+        }
+    }, [selectedItems, required, multiple]);
 
     const fetchItems = async (searchValue) => {
         if (searchValue.trim() === "") {
@@ -129,18 +141,46 @@ const SearchDropdown = ({
 
     return (
         <div className="relative w-full">
-            {/* Input Field */}
-            <input
-                ref={inputRef}
-                type="text"
-                placeholder={placeholder}
-                value={searchTerm}
-                onChange={handleSearchChange}
-                className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
-                onFocus={() => setIsDropdownOpen(true)}
-            />
+            {/* Only show search input if nothing is selected */}
+            {!selectedItems && !multiple && (
+                <>
+                    <input
+                        ref={inputRef}
+                        type="text"
+                        placeholder={placeholder}
+                        value={searchTerm}
+                        onChange={handleSearchChange}
+                        className={`w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 ${hasError ? 'border-red-500 focus:ring-red-500' : 'focus:ring-blue-400'}`}
 
-            {/* Dropdown Options */}
+                        // className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+                        onFocus={() => setIsDropdownOpen(true)}
+                    />
+                    {hasError && (
+                        <p className="text-red-500 text-sm mt-1">{requiredMissMessage}</p>
+                    )}
+                </>
+            )}
+
+            {/* For multiple selection, show input only if no items are selected or dropdown is open */}
+            {multiple && selectedItems.length === 0 && (
+                <>
+                    <input
+                        ref={inputRef}
+                        type="text"
+                        placeholder={placeholder}
+                        value={searchTerm}
+                        onChange={handleSearchChange}
+                        className={`w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 ${hasError ? 'border-red-500 focus:ring-red-500' : 'focus:ring-blue-400'}`}
+                        // className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+                        onFocus={() => setIsDropdownOpen(true)}
+                    />
+                    {hasError && (
+                        <p className="text-red-500 text-sm mt-1">{requiredMissMessage}</p>
+                    )}
+                </>
+            )}
+
+            {/* Dropdown Options - Always visible when open */}
             {isDropdownOpen && (
                 <ul
                     ref={dropdownRef}
@@ -156,7 +196,7 @@ const SearchDropdown = ({
                             return (
                                 <li
                                     key={itemId}
-                                    onClick={() => handleSelectItem(item)} // Pass the full object
+                                    onClick={() => handleSelectItem(item)} // Pass full object
                                     className="cursor-pointer px-4 py-2 hover:bg-blue-100 flex justify-between"
                                 >
                                     <span>
@@ -166,7 +206,9 @@ const SearchDropdown = ({
                                             </span>
                                         ))}
                                     </span>
-                                    {selectedItems === item || (multiple && selectedItems.some((i) => i[itemValue] === itemId)) ? (
+                                    {selectedItems === item ||
+                                        (multiple &&
+                                            selectedItems.some((i) => i[itemValue] === itemId)) ? (
                                         <FaCheckCircle className="text-blue-600" />
                                     ) : null}
                                 </li>
@@ -189,7 +231,10 @@ const SearchDropdown = ({
                 <div className="mt-4 p-2 bg-blue-50 border border-blue-300 rounded-md flex flex-wrap gap-2">
                     {multiple ? (
                         selectedItems.map((item) => (
-                            <div key={item[itemValue]} className="flex items-center space-x-2 bg-blue-100 p-1 rounded-md">
+                            <div
+                                key={item[itemValue]}
+                                className="flex items-center space-x-2 bg-blue-100 p-1 rounded-md"
+                            >
                                 <span>
                                     {itemLabels.map((label, idx) => (
                                         <span key={idx}>
@@ -198,7 +243,7 @@ const SearchDropdown = ({
                                     ))}
                                 </span>
                                 <button
-                                    onClick={() => handleSelectItem(item)} // Pass the full object
+                                    onClick={() => handleSelectItem(item)}
                                     className="text-red-500 hover:text-red-700"
                                 >
                                     <FaTimesCircle size={16} />
