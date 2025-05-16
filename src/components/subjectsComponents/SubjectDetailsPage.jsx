@@ -27,10 +27,13 @@ import useDeviceType from "../../utils/useDeviceType";
 import { RoleEnum } from "../../utils/userRoles";
 import PageLayout from "../skillsComponents/PageLayout";
 import Popup from "../skillsComponents/Popup";
-import Tooltip from "../skillsComponents/Tooltip";
+
+import Tooltip from "../skillsComponents/tooltip";
+
 import { CurriculumChapters } from "./CurriculumChapters";
 import EvaluationList from "./EvaluationList.jsx";
 import { SkillList } from "./SkillList";
+
 import SubjectForm from "./SubjectForm";
 
 const SubjectDetailsPage = () => {

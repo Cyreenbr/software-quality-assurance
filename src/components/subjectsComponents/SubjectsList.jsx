@@ -18,7 +18,7 @@ import NotFound404 from "../skillsComponents/NotFound404";
 import Pagination from "../skillsComponents/Pagination";
 import Popup from "../skillsComponents/Popup";
 import SearchBar from "../skillsComponents/SearchBar";
-import Tooltip from "../skillsComponents/Tooltip";
+import Tooltip from "../skillsComponents/tooltip";
 
 const SubjectList = ({ onEdit, refresh = false, }) => {
     const role = useSelector((status) => status.auth.role);

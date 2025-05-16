@@ -17,7 +17,7 @@ import matieresServices from "../../../services/matieresServices/matieres.servic
 import humanizeDate from "../../../utils/humanizeDate";
 import { RoleEnum } from "../../../utils/userRoles";
 import Popup from "../../skillsComponents/Popup";
-import Tooltip from "../../skillsComponents/Tooltip";
+import Tooltip from "../../skillsComponents/tooltip";
 
 const SubjectDetailsPage = () => {
     const { id } = useParams();
