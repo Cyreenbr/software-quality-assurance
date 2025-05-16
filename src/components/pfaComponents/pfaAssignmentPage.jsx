@@ -169,14 +169,12 @@ const PfaAssignmentPage = () => {
                 <h2 className="text-xl font-semibold">{pfa.projectTitle}</h2>
                 <span
                   className={`text-xs font-semibold px-2 py-1 rounded-full ${
-                    pfa.affectedStudents && pfa.affectedStudents.length > 0
+                    pfa.assigned
                       ? "bg-green-200 text-green-800"
                       : "bg-red-200 text-red-800"
                   }`}
                 >
-                  {pfa.affectedStudents && pfa.affectedStudents.length > 0
-                    ? "Assigned"
-                    : "Not Assigned"}
+                  {pfa.assigned ? "Assigned" : "Not Assigned"}
                 </span>
               </div>
 

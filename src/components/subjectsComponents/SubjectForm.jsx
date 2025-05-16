@@ -5,8 +5,9 @@ import { FiEyeOff } from "react-icons/fi";
 import { toast } from "react-toastify";
 import competenceServices from "../../services/CompetencesServices/competences.service";
 import matieresServices from "../../services/matieresServices/matieres.service";
+import AcademicYearPicker from "../AcademicYearPicker";
 import MSDropdown from "../skillsComponents/REComponents/MSDropdown";
-import Tooltip from "../skillsComponents/Tooltip";
+import Tooltip from "../skillsComponents/tooltip";
 import SearchDropdown from "./SearchDropdown";
 
 const capitalizeFirstLetter = (str) => str.charAt(0).toUpperCase() + str.slice(1);
@@ -56,6 +57,7 @@ const SubjectForm = ({ initialData = null, onSubmit, proposeEdit = false }) => {
     const [competences, setCompetences] = useState([]);
     const [totalItems, setTotalItems] = useState(0);
     const [loading, setLoading] = useState(false);
+    const [loadingBtnSubmit, setLoadingBtnSubmit] = useState(false);
     //
     const [competencesFiltered, setCompetencesFiltered] = useState([]);
     const [selectedSkills, setSelectedSkills] = useState(formData.skillsId || []);
@@ -271,17 +273,6 @@ const SubjectForm = ({ initialData = null, onSubmit, proposeEdit = false }) => {
             return { ...prev, curriculum: { ...prev.curriculum, chapitres: updatedChapters } };
         });
 
-    const generateAcademicYears = () => {
-        const currentYear = new Date().getFullYear();
-        const years = [];
-        for (let i = -10; i <= 10; i++) {
-            const startYear = currentYear + i;
-            const endYear = startYear + 1;
-            years.push(`${startYear}-${endYear}`);
-        }
-        return years.reverse(); // années récentes en haut
-    };
-
     const deleteSection = (chapterIndex, sectionIndex) =>
         setFormData((prev) => {
             const updatedChapters = prev.curriculum.chapitres.map((chapter, idx) =>
@@ -400,6 +391,7 @@ const SubjectForm = ({ initialData = null, onSubmit, proposeEdit = false }) => {
 
     const handleSubmit = (e) => {
         e.preventDefault();
+        setLoadingBtnSubmit(true);
         if (validateForm()) {
             const finalData = {
                 _id: formData._id,
@@ -434,6 +426,7 @@ const SubjectForm = ({ initialData = null, onSubmit, proposeEdit = false }) => {
             };
             onSubmit(finalData);
         }
+        setLoadingBtnSubmit(false);
     };
 
 
@@ -615,18 +608,16 @@ const SubjectForm = ({ initialData = null, onSubmit, proposeEdit = false }) => {
                                     required={required}
                                 />
                             ) : type === "academicYear" ?
-                                <select
-                                    name={key}
-                                    value={formData.curriculum[key] || ""}
-                                    onChange={(e) => handleChange(e, `curriculum.${key}`)}
-                                    className="mt-2 p-3 w-full border border-gray-300 rounded-md"
-                                    required={required}
-                                >
-                                    <option value="" disabled>Select Academic Year</option>
-                                    {generateAcademicYears().map((year) => (
-                                        <option key={year} value={year}>{year}</option>
-                                    ))}
-                                </select>
+                                <AcademicYearPicker
+                                    value={formData.curriculum.academicYear || ""}
+                                    onChange={(val) => handleChange({ target: { value: val, type: "text" } }, "curriculum.academicYear")}
+                                    range={10}
+                                    direction="both"
+                                    includeCurrent={true}
+                                    // disableYears={(year) => year < 2022} // désactive les années avant 2022
+                                    label="Academic Year"
+                                    required
+                                />
                                 :
                                 (
                                     <input
@@ -898,7 +889,12 @@ const SubjectForm = ({ initialData = null, onSubmit, proposeEdit = false }) => {
                         type="submit"
                         className="px-6 py-3 bg-blue-600 text-white font-semibold rounded-md shadow"
                     >
-                        Submit
+                        {loadingBtnSubmit ?
+                            <ClipLoader size={20} color="#FFFFFF" />
+                            :
+                            "Submit"
+                        }
+
                     </button>
                 </div>
             </form >
