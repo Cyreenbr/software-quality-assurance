@@ -133,7 +133,7 @@ const ProfilePage = () => {
                   </h2>
                   {userData.role && (
                     <p className="text-indigo-600 font-medium">
-                      {userData.role === 'student' ? 'Étudiant' : userData.role}
+                      {userData.role}
                     </p>
                   )}
                 </div>
@@ -197,46 +197,7 @@ const ProfilePage = () => {
                 </div>
               </div>
 
-              {/* Academic information */}
-              {(userData.speciality || userData.bac || userData.level) && (
-                <div className="mt-8">
-                  <h3 className="text-xl font-semibold text-gray-800 mb-4">Informations académiques</h3>
-                  
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {userData.speciality && (
-                      <div className="p-4 bg-gray-50 rounded-xl">
-                        <h4 className="text-md font-medium text-gray-700 mb-2">Spécialité</h4>
-                        <p className="text-gray-800">{userData.speciality}</p>
-                      </div>
-                    )}
-                    
-                    {userData.bac && (
-                      <div className="p-4 bg-gray-50 rounded-xl">
-                        <h4 className="text-md font-medium text-gray-700 mb-2">Baccalauréat</h4>
-                        <p className="text-gray-800">{userData.bac}</p>
-                      </div>
-                    )}
-                    
-                    {userData.level && (
-                      <div className="p-4 bg-gray-50 rounded-xl">
-                        <h4 className="text-md font-medium text-gray-700 mb-2">Niveau actuel</h4>
-                        <p className="text-gray-800">
-                          {userData.level === "1year" ? "1ère année" : 
-                           userData.level === "2year" ? "2ème année" : 
-                           userData.level === "3year" ? "3ème année" : userData.level}
-                        </p>
-                      </div>
-                    )}
-
-                    {userData.nationality && (
-                      <div className="p-4 bg-gray-50 rounded-xl">
-                        <h4 className="text-md font-medium text-gray-700 mb-2">Nationalité</h4>
-                        <p className="text-gray-800">{userData.nationality}</p>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )}
+            
 
               {/* Personal information */}
               {(userData.sexe || userData.birthDay) && (
