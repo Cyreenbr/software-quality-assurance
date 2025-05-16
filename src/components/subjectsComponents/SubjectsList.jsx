@@ -270,7 +270,6 @@ const SubjectList = ({ onEdit, refresh = false, }) => {
             <Popup
                 isOpen={isDeletePopupOpen}
                 onClose={() => setIsDeletePopupOpen(false)}
-                // onConfirm={() => handleDelete(subjectToDelete._id)}
                 position="center"
             >
                 <div className="max-w-md mx-auto text-center">

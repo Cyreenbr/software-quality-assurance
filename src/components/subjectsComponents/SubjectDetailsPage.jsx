@@ -12,9 +12,10 @@ import {
     FaSave,
     FaSpinner,
     FaStar,
-    FaTimes
+    FaTimes,
+    FaTrash
 } from "react-icons/fa";
-import { FiBell, FiBook, FiCalendar, FiCheckCircle, FiChevronDown, FiChevronRight, FiClock, FiEyeOff, FiFileText, FiLayers, FiUser, FiXCircle } from "react-icons/fi";
+import { FiAlertTriangle, FiArchive, FiBell, FiBook, FiCalendar, FiCheck, FiCheckCircle, FiChevronDown, FiChevronRight, FiClock, FiEyeOff, FiFileText, FiLayers, FiUser, FiX, FiXCircle } from "react-icons/fi";
 import { MdTitle } from "react-icons/md";
 import { useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
@@ -28,6 +29,7 @@ import PageLayout from "../skillsComponents/PageLayout";
 import Popup from "../skillsComponents/Popup";
 import Tooltip from "../skillsComponents/Tooltip";
 import { CurriculumChapters } from "./CurriculumChapters";
+import EvaluationList from "./EvaluationList.jsx";
 import { SkillList } from "./SkillList";
 import SubjectForm from "./SubjectForm";
 
@@ -36,9 +38,11 @@ const SubjectDetailsPage = () => {
     const [formData, setFormData] = useState(null);
     const [fetchData, setFetchData] = useState(null);
     const [showForm, setShowForm] = useState(false);
+    const [showEvaluation, setShowEvaluation] = useState(false);
     const [loading, setLoading] = useState(true);
     const [loadingBtn, setLoadingBtn] = useState(false);
     const [loadingBtnSubmit, setLoadingBtnSubmit] = useState(false);
+    const [isDeletePopupOpen, setIsDeletePopupOpen] = useState(false);
     const [error, setError] = useState(null);
     const [selectedHistory, setSelectedHistory] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -52,7 +56,29 @@ const SubjectDetailsPage = () => {
     const [propositions, setPropositions] = useState(null);
     const deviceType = useDeviceType();
     let positionTooltip = deviceType !== "mobile" ? "bottom" : "left";
+    const confirmDeleteMessage = `Are you sure you want to delete this subject?`;
+    const [archive, setArchive] = useState(false);
+    const [forced, setForced] = useState(false);
 
+
+    const handleDelete = async (id, { forced = false, archive = false }) => {
+        try {
+            await matieresServices.deleteMatiere(id, { forced: forced, archive: archive });
+            toast.success("Subject deleted successfully!");
+            navigate(`/subjects`)
+            return true;
+        } catch (error) {
+            console.error("Error deleting subject:", error);
+            toast.error("Failed to delete subject: " + (error?.message || error));
+            return false;
+        }
+    }
+    const handleConfirmDelete = async () => {
+        const deleteSuccess = await handleDelete(id, { forced, archive });
+        console.log(deleteSuccess);
+
+        if (deleteSuccess === true) setIsDeletePopupOpen(false);
+    };
 
     const fetchPropositions = useCallback(async () => {
         if (userRole !== RoleEnum.ADMIN) {
@@ -410,7 +436,25 @@ const SubjectDetailsPage = () => {
                                         <FaEye className="text-lg" />
                                     </button>
                                 </Tooltip>
-
+                                <Tooltip text={"Delete"} position={positionTooltip}>
+                                    <button
+                                        onClick={() => {
+                                            setIsDeletePopupOpen(true);
+                                        }}
+                                        className="flex items-center justify-center gap-2 bg-red-600 text-white px-5 py-2.5 rounded-xl font-medium shadow hover:bg-red-500 focus:outline-none focus:ring-2 focus:ring-red-400 transition-all duration-200 sm:w-auto w-full"
+                                    >
+                                        <FaTrash className="text-lg" />
+                                    </button>
+                                </Tooltip>
+                                 <Tooltip text={'View Evaluations'}
+                                    position={positionTooltip}>
+                                    <button
+                                        onClick={() => setShowEvaluation(true)}
+                                        className="flex items-center justify-center gap-2 bg-orange-600 text-white px-5 py-2.5 rounded-xl font-medium shadow hover:bg-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-400 transition-all duration-200 sm:w-auto w-full"
+                                    >
+                                        <FaStar className="mr-2" />
+                                    </button>
+                                </Tooltip>
                             </>
                         )}
 
@@ -425,15 +469,18 @@ const SubjectDetailsPage = () => {
                                 </button>
                             </Tooltip>
                         ) : (
-                            <Tooltip text={userRole === RoleEnum.ADMIN ? 'Edit' : 'Propose an Edit'}
-                                position={positionTooltip}>
-                                <button
-                                    onClick={toggleForm}
-                                    className="flex items-center justify-center gap-2 bg-teal-600 text-white px-5 py-2.5 rounded-xl font-medium shadow hover:bg-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-400 transition-all duration-200 sm:w-auto w-full"
-                                >
-                                    <FaEdit className="mr-2" />
-                                </button>
-                            </Tooltip>
+                            <>
+                               
+                                <Tooltip text={userRole === RoleEnum.ADMIN ? 'Edit' : 'Propose an Edit'}
+                                    position={positionTooltip}>
+                                    <button
+                                        onClick={toggleForm}
+                                        className="flex items-center justify-center gap-2 bg-teal-600 text-white px-5 py-2.5 rounded-xl font-medium shadow hover:bg-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-400 transition-all duration-200 sm:w-auto w-full"
+                                    >
+                                        <FaEdit className="mr-2" />
+                                    </button>
+                                </Tooltip>
+                            </>
                         )}
 
                     </div>
@@ -567,6 +614,21 @@ const SubjectDetailsPage = () => {
                                     ))}
                                 </div>
                             )}
+                        </div>
+                    </Popup >
+                    {/* Popup Evaluatioln list */}
+                    <Popup
+                        isOpen={showEvaluation}
+                        onClose={() => setShowEvaluation(false)}
+                        position="center"
+                        size="lg"
+                        showCloseButton
+                    >
+                        <div className="max-w-3xl mx-auto text-left">
+                            {/* <h3 className="text-2xl font-bold text-blue-800 mb-4 text-center flex items-center justify-center  ">
+                                <FiCheckCircle className="text-2xl" /> List of Evaluations for this Subject
+                            </h3> */}
+                            <EvaluationList subjectId={fetchData._id} showHeader />
                         </div>
                     </Popup >
                 </>
@@ -1081,7 +1143,71 @@ const SubjectDetailsPage = () => {
                                 </div>
                             </Popup>
                         )}
+                        {/* Delete Confirmation Popup */}
+                        <Popup
+                            isOpen={isDeletePopupOpen}
+                            onClose={() => setIsDeletePopupOpen(false)}
+                            // onConfirm={() => handleDelete(subjectToDelete._id)}
+                            position="center"
+                        >
+                            <div className="max-w-md mx-auto text-center">
+                                <h2 className="text-2xl font-semibold text-red-600 mb-4">{confirmDeleteMessage}</h2>
+                                <div className="flex justify-center gap-4 mb-6">
+                                    {/* Archive Toggle Button */}
+                                    <Tooltip text={archive ? "Archive Enabled" : "Enable Archive"} position="bottom">
+                                        <button
+                                            onClick={() => setArchive(!archive)} // Toggle archive state
+                                            className={`flex items-center gap-2 px-6 py-3 rounded-full font-medium transition-all duration-300 shadow-md ${archive ? "bg-black text-white hover:bg-gray-700" : "bg-gray-300 text-gray-700 hover:bg-gray-400"
+                                                }`}
+                                        >
+                                            {archive ? <FiAlertTriangle className="text-white text-lg" /> : <FiArchive className="text-gray-700 text-lg" />}
+                                            {archive ? "Enabled" : "Archive"}
+                                        </button>
+                                    </Tooltip>
 
+                                    {/* Force Delete Toggle Button */}
+                                    <Tooltip text={forced ? "Force Delete Enabled" : "Enable Force Delete"} position="bottom">
+                                        <button
+                                            onClick={() => setForced(!forced)} // Toggle force state
+                                            className={`flex items-center gap-2 px-6 py-3 rounded-full font-medium transition-all duration-300 shadow-md ${forced ? "bg-red-600 text-white hover:bg-red-700" : "bg-gray-300 text-gray-700 hover:bg-gray-400"
+                                                }`}
+                                        >
+                                            {forced ? <FiCheckCircle className="text-white text-lg" /> : <FiAlertTriangle className="text-gray-700 text-lg" />}
+                                            {forced ? "Enabled" : "Force Delete"}
+                                        </button>
+                                    </Tooltip>
+                                </div>
+
+                                {/* Confirm and Cancel Buttons */}
+                                <div className="flex flex-col sm:flex-row gap-4 w-full justify-center">
+                                    {[
+                                        {
+                                            label: "Confirm",
+                                            action: () => {
+                                                handleConfirmDelete(); console.log(subjectToDelete._id);
+                                            },
+                                            bgColor: "bg-red-600 hover:bg-red-700",
+                                            icon: <FiCheck className="text-lg" />,
+                                        },
+                                        {
+                                            label: "Cancel",
+                                            action: () => setIsDeletePopupOpen(false),
+                                            bgColor: "bg-gray-400 hover:bg-gray-500",
+                                            icon: <FiX className="text-lg" />,
+                                        },
+                                    ].map(({ label, action, bgColor, icon }) => (
+                                        <button
+                                            key={label}
+                                            onClick={action}
+                                            className={`${bgColor} text-white px-6 py-3 rounded-lg transition flex items-center justify-center gap-2 w-full`}
+                                        >
+                                            {icon}
+                                            <span>{label}</span>
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                        </Popup>
                     </div>
                 </div>)
             }
