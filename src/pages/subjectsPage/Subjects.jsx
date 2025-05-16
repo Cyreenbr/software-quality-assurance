@@ -1,7 +1,8 @@
-import React, { useCallback, useState } from "react";
+import { useCallback, useState } from "react";
 import { FaArrowLeft, FaPlus } from "react-icons/fa";
-import { FiEye, FiEyeOff } from "react-icons/fi";
+import { FiBell, FiEye, FiEyeOff } from "react-icons/fi";
 import { useSelector } from "react-redux";
+import { ClipLoader } from "react-spinners";
 import { toast } from "react-toastify";
 import PageLayout from "../../components/skillsComponents/PageLayout";
 import SubjectForm from "../../components/subjectsComponents/SubjectForm";
@@ -16,6 +17,7 @@ const Subject = () => {
     const [initialData, setInitialData] = useState(null);
     const [responseValue, setResponseValue] = useState('publish');
     const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const [loading, setLoading] = useState(false);
 
     const deviceType = useDeviceType(); // Get the device type using the custom hook
     const isMobileOrTablet = deviceType === "mobile" || deviceType === "tablet"; // Check if the device is mobile or tablet
@@ -26,6 +28,16 @@ const Subject = () => {
     const handleEdit = (subject) => {
         setInitialData(JSON.parse(JSON.stringify(subject)));
         setShowForm(true);
+    };
+    const handleSendNotif = async () => {
+        setLoading(true);
+        try {
+            const result = await matieresServices.sendEvaluationNotif();
+            toast.success(result.message);
+        } catch (error) {
+            toast.error(error.toString());
+        }
+        setLoading(false);
     };
 
     const handleFormSubmit = async (updatedData) => {
@@ -67,49 +79,76 @@ const Subject = () => {
 
     const headerActions = (
         <div className="flex flex-wrap gap-4 justify-center sm:justify-start">
-            {role === RoleEnum.ADMIN &&
+            {role === RoleEnum.ADMIN && (
                 <>
-
-                    {!showForm && <div className="flex gap-4">
-                        <div className="relative">
+                    {!showForm && (
+                        <div className="flex flex-col sm:flex-row gap-4">
+                            {/* Send Evaluation Notif */}
                             <button
-                                onClick={() => setIsMenuOpen(!isMenuOpen)}
-                                className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gray-200 text-gray-700 hover:bg-gray-400 focus:outline-none"
+                                onClick={handleSendNotif}
+                                className="flex items-center gap-2 px-4 py-2 rounded-xl bg-blue-100 text-blue-700 hover:bg-blue-200 shadow-sm transition"
                             >
-                                <FiEye className="text-lg" />
-                                Visibility
-                            </button>
-                            {isMenuOpen && (
-                                <div className="absolute right-0 mt-2 w-32 bg-white shadow-lg rounded-md z-10">
-                                    <button
-                                        onClick={() => { setResponseValue('publish'); handlePublishSubjects('publish'); setIsMenuOpen(false); }}
-                                        className="w-full text-left mb-1 px-4 py-2 text-sm text-blue-800 hover:bg-blue-100 focus:outline-none"
-                                    >
-                                        <span className="inline-flex items-center">
-                                            <FiEye className="text-sm mr-2" />
-                                            Publish All
-                                        </span>
-                                    </button>
-                                    <button
-                                        onClick={() => { setResponseValue('masque'); handlePublishSubjects('masque'); setIsMenuOpen(false); }}
-                                        className="w-full text-left px-4 py-2 text-sm text-gray-800 hover:bg-red-100 focus:outline-none"
-                                    >
-                                        <span className="inline-flex items-center">
-                                            <FiEyeOff className="text-sm mr-2" />Hide All
-                                        </span>
-                                    </button>
-                                </div>
-                            )}
-                        </div>
-                    </div>}
 
-                    {/* Button for large screens */}
+                                {loading ?
+                                    <>
+                                        <ClipLoader color="#ffffff" size={20} />
+                                        Sending...
+                                    </>
+
+                                    :
+                                    <>
+                                        <FiBell className="text-lg" />
+                                        Send Evaluation
+                                    </>
+                                }
+                            </button>
+
+                            {/* Visibility Dropdown */}
+                            <div className="relative">
+                                <button
+                                    onClick={() => setIsMenuOpen(!isMenuOpen)}
+                                    className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gray-100 text-gray-800 hover:bg-gray-200 shadow-sm transition"
+                                >
+                                    <FiEye className="text-lg" />
+                                    Visibility
+                                </button>
+                                {isMenuOpen && (
+                                    <div className="absolute right-0 mt-2 w-40 bg-white border rounded-xl shadow-lg z-10">
+                                        <button
+                                            onClick={() => {
+                                                setResponseValue("publish");
+                                                handlePublishSubjects("publish");
+                                                setIsMenuOpen(false);
+                                            }}
+                                            className="flex items-center w-full px-4 py-2 text-sm text-blue-800 hover:bg-blue-50 transition"
+                                        >
+                                            <FiEye className="mr-2" />
+                                            Publish All
+                                        </button>
+                                        <button
+                                            onClick={() => {
+                                                setResponseValue("masque");
+                                                handlePublishSubjects("masque");
+                                                setIsMenuOpen(false);
+                                            }}
+                                            className="flex items-center w-full px-4 py-2 text-sm text-red-700 hover:bg-red-50 transition"
+                                        >
+                                            <FiEyeOff className="mr-2" />
+                                            Hide All
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Toggle Form Button */}
                     {!isMobileOrTablet && (
                         <button
                             onClick={toggleForm}
-                            className={`hidden sm:flex items-center px-4 py-2 rounded-lg transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-green-400 text-sm sm:text-base ${showForm
-                                ? "bg-red-500 hover:bg-red-600 text-white"
-                                : "bg-green-500 hover:bg-green-600 text-white"
+                            className={`hidden sm:flex items-center px-4 py-2 rounded-xl text-white shadow-md transition ${showForm
+                                ? "bg-red-500 hover:bg-red-600"
+                                : "bg-green-500 hover:bg-green-600"
                                 }`}
                         >
                             {showForm ? (
@@ -126,8 +165,7 @@ const Subject = () => {
                         </button>
                     )}
                 </>
-
-            }
+            )}
         </div>
     );
 

@@ -495,11 +495,12 @@ export default function OptionList() {
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
                   Full Name
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
-                  First Choice
-                </th>
+
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
                   Score
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+                  First Choice
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
                   Classement
@@ -525,14 +526,14 @@ export default function OptionList() {
                     className="border-b border-gray-200 hover:bg-gray-50"
                   >
                     <td className="py-3 px-6 text-left">
-                      {option.firstName && option.lastName
-                        ? `${option.firstName} ${option.lastName}`
+                      {option.user.firstName && option.user.lastName
+                        ? `${option.user.firstName} ${option.user.lastName}`
                         : "N/A"}
                     </td>
+                    <td className="py-3 px-6 text-left">{option.score}</td>
                     <td className="py-3 px-6 text-left">
                       {option.firstchoice}
                     </td>
-                    <td className="py-3 px-6 text-left">{option.score}</td>
                     <td className="py-3 px-6 text-left">{option.classement}</td>
                     <td className="py-3 px-6 text-left">
                       <span

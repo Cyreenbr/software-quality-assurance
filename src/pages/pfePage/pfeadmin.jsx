@@ -79,9 +79,9 @@ const AdminPfeManagement = () => {
     }
   };
 
-  const handleSendEmail = async (type) => {
+  const handleSendEmail = async () => {
     try {
-      await sendEmail(type);
+      await sendEmail();
     } catch (err) {
       console.error("Failed to send email:", err);
     }
@@ -223,17 +223,12 @@ const AdminPfeManagement = () => {
       {/* Action Buttons */}
       <div className="flex space-x-4 mt-6">
         <button
-          onClick={() => handleSendEmail("first")}
+          onClick={() => handleSendEmail()}
           className="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600"
         >
-          <FaPaperPlane className="inline mr-2" /> Send First Email
+          <FaPaperPlane className="inline mr-2" /> Send Email
         </button>
-        <button
-          onClick={() => handleSendEmail("modified")}
-          className="bg-orange-500 text-white py-2 px-4 rounded hover:bg-orange-600"
-        >
-          <FaPaperPlane className="inline mr-2" /> Send Modified Email
-        </button>
+
         <button
           onClick={handleTogglePublication}
           className={`py-2 px-4 rounded ${

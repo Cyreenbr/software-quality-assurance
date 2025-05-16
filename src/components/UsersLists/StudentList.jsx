@@ -4,12 +4,17 @@ import {
   editStudent,
   editPassword,
   deleteStudent,
+  notifyAlumni,
 } from "../../services/ManageUsersServices/students.service";
 import { FaTrashAlt, FaEdit } from "react-icons/fa";
 import { CgEyeAlt } from "react-icons/cg";
 import { RiLockPasswordFill } from "react-icons/ri";
 import { FaPlus } from "react-icons/fa";
 import Swal from "sweetalert2";
+
+import { MdNotifications } from "react-icons/md"; // Import notification icon
+
+import { useNavigate } from "react-router-dom";
 export default function StudentList({ onAddClick }) {
   const [studentsList, setStudentsList] = useState([]);
   const [filteredStudents, setFilteredStudents] = useState([]);
@@ -18,6 +23,8 @@ export default function StudentList({ onAddClick }) {
   const [isViewing, setIsViewing] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [isPasswordDialogOpen, setIsPasswordDialogOpen] = useState(false);
+  
+  const [isNotifying, setIsNotifying] = useState(false); // State for notification action
   
   const [showForceDeleteModal, setShowForceDeleteModal] = useState(false);
   const [studentToDelete, setStudentToDelete] = useState(null);
@@ -55,7 +62,21 @@ export default function StudentList({ onAddClick }) {
   useEffect(() => {
     setFilteredStudents(studentsList);
   }, [studentsList]);
+  const navigate = useNavigate();
 
+  const navigateToCV = (studentId) => {
+    if (!studentId) {
+      Swal.fire({
+        title: "Erreur",
+        text: "Identifiant d'étudiant manquant",
+        icon: "error",
+      });
+      return;
+    }
+    
+    // Navigation vers la page du CV académique
+    navigate(`/cv/generate/${studentId}`);
+  };
   // Toast function
   const showToast = (message, type = "success") => {
     setToast({
@@ -381,6 +402,29 @@ export default function StudentList({ onAddClick }) {
   return (
     <div className="p-6 bg-gray-100 min-h-screen relative">
       <h1 className="text-2xl font-bold mb-4">Manage Students</h1>
+         
+        {/* Notify Alumni Button */}
+        <button 
+          onClick={notifyAlumni}
+          disabled={isNotifying}
+          className="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 flex items-center gap-2 transition-colors"
+        >
+          {isNotifying ? (
+            <>
+              <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              <span>Processing...</span>
+            </>
+          ) : (
+            <>
+              <MdNotifications size={20} />
+              <span>Notify Alumni to Update CV</span>
+            </>
+          )}
+        </button>
+      
 
 
         {/* Toast Notification */}
@@ -700,12 +744,13 @@ export default function StudentList({ onAddClick }) {
                       {formatDate(student.createdAt)}
                     </td>
                     <td className="py-3 px-6 text-center flex justify-center space-x-2">
-                      <button
-                        onClick={() => watch(student._id)}
-                        className="bg-green-500 text-white p-2 rounded-full hover:bg-green-600"
-                      >
-                        <CgEyeAlt size={18} />
-                      </button>
+                    <button
+          onClick={() => navigateToCV(student._id)}
+          className="bg-yellow-500 text-white p-2 rounded-full hover:bg-yellow-600"
+          title="Voir le CV académique"
+        >
+          <CgEyeAlt size={18} />
+        </button>
                       <button
                         onClick={() => edit(student._id)}
                         className="bg-blue-500 text-white p-2 rounded-full hover:bg-blue-600"
