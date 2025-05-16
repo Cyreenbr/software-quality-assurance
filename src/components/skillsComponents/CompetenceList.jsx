@@ -5,7 +5,7 @@ import { ClipLoader } from 'react-spinners';
 import SkillCard from './CompetenceCard/';
 import NotFound404 from './NotFound404';
 import Pagination from './Pagination';
-import Tooltip from './Tooltip';
+import Tooltip from './tooltip';
 
 const CompetenceList = ({
     skills,

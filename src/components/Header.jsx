@@ -13,7 +13,7 @@ import isammLogo from "../assets/logo_isamm.png";
 import { logoutUser } from "../redux/authSlice";
 import Breadcrumb from "./Breadcrumb";
 import NotificationDropdown from "./NotificationDropdown";
-import Tooltip from "./skillsComponents/Tooltip";
+import Tooltip from "./skillsComponents/tooltip";
 
 const Header = ({ isSidebarOpen, setIsSidebarOpen }) => {
   const navigate = useNavigate();

@@ -20,7 +20,7 @@ import humanizeDate from "../../utils/humanizeDate";
 import { RoleEnum } from "../../utils/userRoles";
 import PageLayout from "../skillsComponents/PageLayout";
 import Popup from "../skillsComponents/Popup";
-import Tooltip from "../skillsComponents/Tooltip";
+import Tooltip from "../skillsComponents/tooltip";
 import SubjectForm from "./SubjectForm";
 
 const SubjectDetailsPage = () => {
