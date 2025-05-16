@@ -4,12 +4,12 @@ import { useState } from "react";
 import {
   FaCalendarAlt,
   FaCheckCircle,
+  FaChevronDown,
+  FaChevronUp,
   FaClock,
   FaEnvelope,
   FaEye,
-  FaFileAlt,
   FaFolderOpen,
-  FaTimesCircle,
   FaUserTie,
   FaVideo
 } from "react-icons/fa";
@@ -25,6 +25,12 @@ const getDocName = (doc) => {
     .join("");
 };
 
+const statusColors = {
+  pending: "bg-blue-100 text-blue-800",
+  validated: "bg-green-100 text-green-800",
+  default: "bg-red-100 text-red-800"
+};
+
 const TeacherInternshipCard = ({ internship, onScheduleUpdate, onEvaluate }) => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [form] = Form.useForm();
@@ -33,6 +39,7 @@ const TeacherInternshipCard = ({ internship, onScheduleUpdate, onEvaluate }) => 
   const [evaluationForm] = Form.useForm();
   const [evaluationLoading, setEvaluationLoading] = useState(false);
   const [messageApi, contextHolder] = message.useMessage();
+  const [showDetails, setShowDetails] = useState(false);
   const isValidDate = internship.defenseDate && !isNaN(new Date(internship.defenseDate));
   const isUpdate = isValidDate;
 
@@ -41,6 +48,11 @@ const TeacherInternshipCard = ({ internship, onScheduleUpdate, onEvaluate }) => 
   if (!internshipId) {
     console.error("Missing internship ID:", internship);
   }
+
+  const getStatusColor = (status) => {
+    const lowerStatus = status?.toLowerCase();
+    return statusColors[lowerStatus] || statusColors.default;
+  };
 
   const showModal = () => {
     form.setFieldsValue({
@@ -124,129 +136,130 @@ const TeacherInternshipCard = ({ internship, onScheduleUpdate, onEvaluate }) => 
   return (
     <>
       {contextHolder}
-      <div className="border border-gray-300 p-6 shadow-sm rounded-lg hover:shadow-xl duration-300 hover:bg-gradient-to-r from-blue-50 to-purple-100 max-w-5xl w-full mx-auto">
-        <table className="min-w-full table-auto">
-          <tbody>
-            {/* Student Info */}
-            <tr className="mb-4">
-              <td className="px-4 py-3 font-semibold text-gray-800 flex items-center gap-3">
-                <FaUserTie className="text-blue-600" />
-                <span className="text-lg font-bold">{studentName}</span>
-              </td>
-              <td className="px-4 py-3 text-gray-600 flex items-center gap-3">
-                <FaEnvelope className="text-gray-500" />
-                <span className="font-bold">Email:</span> {studentEmail}
-              </td>
-            </tr>
+      <div className="border border-gray-100 p-6 shadow-sm rounded-lg  hover:shadow-xl hover:bg-gradient-to-r from-blue-50 to-purple-100 duration-300 max-w-5xl w-full mx-auto mb-4">
+        {/* Summary View */}
+        <div className="flex justify-between items-center">
+          <div className="flex items-center gap-4">
+            <div className="text-blue-600">
+              <FaUserTie size={24} />
+            </div>
+            <div>
+              <h3 className="text-lg font-bold">{studentName}</h3>
+              <p className="text-gray-600">{internship.title || "No Title"}</p>
+            </div>
+          </div>
+          
+          <div className="flex items-center gap-4">
+            <div className={`px-3 py-1 rounded-full ${getStatusColor(internship.status)}`}>
+              {internship.status}
+            </div>
+            
+            <div className="flex gap-2">
+              <button
+                onClick={showModal}
+                className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-3 rounded-lg transition duration-300 ease-in-out flex items-center gap-2 text-sm"
+              >
+                <FaCalendarAlt />
+                {isUpdate ? "Update" : "Schedule"}
+              </button>
+              <button
+                onClick={() => setIsEvaluationModalVisible(true)}
+                className="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-3 rounded-lg transition duration-300 ease-in-out flex items-center gap-2 text-sm"
+              >
+                <FaCheckCircle />
+                Evaluate
+              </button>
+              <button 
+                onClick={() => setShowDetails(!showDetails)}
+                className="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-3 rounded-lg transition duration-300 ease-in-out flex items-center gap-2 text-sm"
+              >
+                {showDetails ? <FaChevronUp /> : <FaChevronDown />}
+                Details
+              </button>
+            </div>
+          </div>
+        </div>
 
-            {/* Internship Title */}
-            <tr className="mb-4">
-              <td className="px-4 py-3 text-gray-600 flex items-center gap-3">
-                <FaFileAlt className="text-blue-500" />
-                <span className="font-bold">Title:</span> {internship.title || "No Title"}
-              </td>
-            </tr>
-
-            {/* PV */}
-            <tr className="mb-4">
-              <td className="px-4 py-3 text-gray-600 flex items-center gap-3">
-                {internship.valide ? (
-                  <FaCheckCircle className="text-green-500" />
-                ) : (
-                  <FaTimesCircle className="text-red-500" />
-                )}
-                <span className="font-bold">Status:</span> {internship.status}
-              </td>
-            </tr>
-
-            {/* Defense Schedule */}
-            {internship.defenseDate && (
-              <tr className="mb-4">
-                <td colSpan="2" className="px-4 py-3 text-gray-600 flex items-center gap-3">
-                  <FaCalendarAlt className="text-green-500" />
-                  <span className="font-bold">Defense Date:</span> {new Date(internship.defenseDate).toLocaleDateString()|| "No Date"}
-                </td>
-              </tr>
-            )}
-
-            {internship.defenseTime && (
-              <tr className="mb-4">
-                <td colSpan="2" className="px-4 py-3 text-gray-600 flex items-center gap-3">
-                  <FaClock className="text-orange-500" />
-                  <span className="font-bold">Defense Time:</span> {internship.defenseTime || "No Time"}
-                </td>
-              </tr>
-            )}
-
-            {internship.googleMeetLink && (
-              <tr className="mb-4">
-                <td colSpan="2" className="px-4 py-3 text-gray-600 flex items-start gap-3">
-                  <FaVideo className="text-red-500" />
-                  <span className="font-bold">Meeting Link:</span>
-                  <a href={internship.googleMeetLink} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline ml-2">
-                    {internship.googleMeetLink}
-                  </a>
-                </td>
-              </tr>
-            )}
-
-            {/* Documents */}
-            <tr className="mb-4">
-              <td className="px-4 py-3 text-gray-600 flex items-start gap-3">
-                <FaFolderOpen className="text-gray-500 mt-1" size={20} />
-                <div>
-                  <span className="font-bold">Documents:</span>
-                  {internship.documents && internship.documents.length > 0 ? (
-                    <div className="space-y-4 mt-2">
-                      {internship.documents.map((doc, index) => {
-                        const fileName = getDocName(doc);
-                        const fileURL = `http://localhost:3000/uploads/${fileName}`;
-
-                        return (
-                          <div key={index}>
-                            <div className="flex items-center gap-2">
-                              <FaEye className="text-pink-500 text-xl" />
-                              <span className="font-semibold">View</span>
-                              <a
-                                href={fileURL}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                download={fileName}
-                                className="text-blue-600 hover:underline ml-2"
-                              >
-                                {fileName}
-                              </a>
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  ) : (
-                    <div className="mt-2">No documents available</div>
-                  )}
+        {/* Detailed View */}
+        {showDetails && (
+          <div className="mt-6 pt-6 border-t border-gray-200">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Student Info */}
+              <div className="space-y-2">
+                <div className="flex items-center gap-3 text-gray-600">
+                  <FaEnvelope className="text-gray-500" />
+                  <span className="font-bold">Email:</span> {studentEmail}
                 </div>
-              </td>
-            </tr>
+                
+                {internship.defenseDate && (
+                  <div className="flex items-center gap-3 text-gray-600">
+                    <FaCalendarAlt className="text-green-500" />
+                    <span className="font-bold">Defense Date:</span> {new Date(internship.defenseDate).toLocaleDateString() || "No Date"}
+                  </div>
+                )}
 
-            {/* Action Buttons */}
-            <tr className="mb-4">
-              <td colSpan="2" className="px-4 py-3 flex gap-4">
-                <button
-                  onClick={showModal}
-                  className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition duration-300 ease-in-out"
-                >
-                  {isUpdate ? "Update Defense" : "Schedule Defense"}
-                </button>
-                <button
-                  onClick={() => setIsEvaluationModalVisible(true)}
-                  className="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg transition duration-300 ease-in-out"
-                >
-                  Evaluate Internship
-                </button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+                {internship.defenseTime && (
+                  <div className="flex items-center gap-3 text-gray-600">
+                    <FaClock className="text-orange-500" />
+                    <span className="font-bold">Defense Time:</span> {internship.defenseTime || "No Time"}
+                  </div>
+                )}
+              </div>
+
+              {/* Meeting Link */}
+              {internship.googleMeetLink && (
+                <div className="flex items-start gap-3 text-gray-600">
+                  <FaVideo className="text-red-500 mt-1" />
+                  <div>
+                    <span className="font-bold">Meeting Link:</span>
+                    <a 
+                      href={internship.googleMeetLink} 
+                      target="_blank" 
+                      rel="noopener noreferrer" 
+                      className="text-blue-600 hover:underline ml-2 break-all"
+                    >
+                      {internship.googleMeetLink}
+                    </a>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Documents Section */}
+            <div className="mt-6">
+              <div className="flex items-center gap-3 text-gray-600 mb-3">
+                <FaFolderOpen className="text-gray-500" />
+                <span className="font-bold">Documents:</span>
+              </div>
+              
+              {internship.documents && internship.documents.length > 0 ? (
+                <div className="space-y-2 pl-8">
+                  {internship.documents.map((doc, index) => {
+                    const fileName = getDocName(doc);
+                    const fileURL = `http://localhost:3000/uploads/${fileName}`;
+
+                    return (
+                      <div key={index} className="flex items-center gap-2">
+                        <FaEye className="text-pink-500" />
+                        <a
+                          href={fileURL}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          download={fileName}
+                          className="text-blue-600 hover:underline"
+                        >
+                          {fileName}
+                        </a>
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : (
+                <div className="text-gray-500 pl-8">No documents available</div>
+              )}
+            </div>
+          </div>
+        )}
 
         {/* Schedule Modal */}
         <Modal
@@ -335,7 +348,6 @@ const TeacherInternshipCard = ({ internship, onScheduleUpdate, onEvaluate }) => 
               </Radio.Group>
             </Form.Item>
 
-            {/* bech pv mayodhhorch wa9t ne5tar validated*/}
             <Form.Item
               noStyle
               shouldUpdate={(prevValues, currentValues) => prevValues.validated !== currentValues.validated}

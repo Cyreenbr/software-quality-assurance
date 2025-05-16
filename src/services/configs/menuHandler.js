@@ -35,6 +35,7 @@ import PlanningPage from "../../pages/pfePage/planning";
 import PlanninginternshipPage from "../../pages/planningPage/PlanningPage";
 import InternshipPlanning from "../../pages/PlanningUpdate/InternshipPlanningUpdate";
 import InternshipList from "../../pages/studentInternshipPage/studentInternship";
+import StudentsWithoutInternship from "../../pages/studentInternshipPage/StudentsWithoutInternshipPage";
 import EvaluationFormPage from "../../pages/subjectsPage/EvaluationPage.jsx";
 import Subjects from "../../pages/subjectsPage/Subjects";
 import TeacherInternshipList from "../../pages/teacherInternshipPage/TeacherInternshipPage";
@@ -400,6 +401,17 @@ export const menuConfig = [
     hideSideBar: false,
     hideHeader: false,
   },
+  {
+    order: 31,
+    path: "/StudentsWithoutInternship",
+    component: StudentsWithoutInternship,
+    eligibleRoles: [RoleEnum.ADMIN],
+    active: true,
+    dontShow: true,
+    hideSideBar: false,
+    hideHeader: false,
+  },
+  
   // kifeh tzid route jdid ??
   // {
   //     order: 7,

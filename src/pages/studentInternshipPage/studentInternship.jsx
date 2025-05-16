@@ -1,6 +1,7 @@
-import { Button, Dropdown, Menu, Tooltip } from "antd";
+import { Button, Dropdown, Menu, Pagination, Tooltip } from "antd";
 import { useEffect, useState } from "react";
-import { FaEye, FaEyeSlash, FaSearch } from "react-icons/fa";
+import { FaClock, FaEye, FaEyeSlash, FaSearch, FaSync, FaUser } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import InternshipCard from "../../components/internshipComponents/InternshipCard";
@@ -13,10 +14,16 @@ const InternshipList = () => {
   const [isPublished, setIsPublished] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
+  const navigate = useNavigate();
   const [filters, setFilters] = useState({
     lateSubmission: "",
     supervisor: ""
   });
+  
+  // Pagination states
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(5);
+  const [totalItems, setTotalItems] = useState(0);
 
   useEffect(() => {
     fetchInternships();
@@ -35,6 +42,7 @@ const InternshipList = () => {
       
       setInternships(data);
       setFilteredInternships(data); // initialize with all internships
+      setTotalItems(data.length);
     } catch (error) {
       console.error("Error fetching internships:", error);
       toast.error("Failed to load internships");
@@ -46,6 +54,7 @@ const InternshipList = () => {
     const value = e.target.value;
     setSearchTerm(value);
     applyFilters(value, filters);
+    setCurrentPage(1); // Reset to first page on new search
   };
 
   // Filter handling
@@ -53,6 +62,7 @@ const InternshipList = () => {
     const newFilters = { ...filters, [name]: value };
     setFilters(newFilters);
     applyFilters(searchTerm, newFilters);
+    setCurrentPage(1);
   };
 
   // Apply all filters
@@ -84,6 +94,7 @@ const InternshipList = () => {
     }
 
     setFilteredInternships(filtered);
+    setTotalItems(filtered.length);
   };
 
   // Reset filters
@@ -94,6 +105,8 @@ const InternshipList = () => {
     });
     setSearchTerm("");
     setFilteredInternships(internships);
+    setTotalItems(internships.length);
+    setCurrentPage(1); 
   };
 
   const handlePublishPlanning = async () => {
@@ -135,6 +148,28 @@ const InternshipList = () => {
     } finally {
       setIsLoading(false);
     }
+  };
+
+
+  const handleUpdateAssignment = () => {
+    navigate('/StudentsWithoutInternship'); 
+  };
+
+  // Pagination handlers
+  const handlePageChange = (page, pageSize) => {
+    setCurrentPage(page);
+  };
+
+  const handlePageSizeChange = (current, size) => {
+    setPageSize(size);
+    setCurrentPage(1); // Reset to first page when page size changes
+  };
+
+  // Calculate current items to display
+  const getCurrentInternships = () => {
+    const startIndex = (currentPage - 1) * pageSize;
+    const endIndex = startIndex + pageSize;
+    return filteredInternships.slice(startIndex, endIndex);
   };
 
   // Extract unique values for supervisor filter
@@ -244,6 +279,15 @@ const InternshipList = () => {
             </button>
           </div>
 
+          <div className="flex items-center">
+              <button
+                onClick={handleUpdateAssignment}
+                className="bg-transparent text-gray-700 font-medium px-4 py-1.5 rounded-full border border-pink-300 text-sm hover:bg-pink-50 hover:border-blue-400 transition-colors duration-200 flex items-center mx-2"
+              >
+                Students without internship
+              </button>
+            </div>
+
           <div className="flex flex-1 flex-wrap items-center justify-end gap-3">
             <div className="flex space-x-2">
               <Tooltip title="Filter by submission status">
@@ -253,7 +297,7 @@ const InternshipList = () => {
                     className="flex items-center justify-center border border-pink-200 rounded-full bg-white hover:bg-pink-50 hover:border-pink-300 transition-colors"
                   >
                     <div className="flex items-center">
-                      <ClockIcon className="text-pink-500 mr-1.5" />
+                      <FaClock className="text-pink-500 mr-1.5" />
                       <span className="text-gray-700">
                         {filters.lateSubmission ? 
                           (filters.lateSubmission === "yes" ? "Late" : "On Time") : 
@@ -272,7 +316,7 @@ const InternshipList = () => {
                     className="flex items-center justify-center border border-pink-200 rounded-full bg-white hover:bg-pink-50 hover:border-pink-300 transition-colors"
                   >
                     <div className="flex items-center">
-                      <TeacherIcon className="text-pink-500 mr-1.5" />
+                      <FaUser className="text-pink-500 mr-1.5" />
                       <span className="text-gray-700">
                         {filters.supervisor ? 
                           (filters.supervisor.length > 10 ? 
@@ -292,7 +336,7 @@ const InternshipList = () => {
                   className="flex items-center justify-center border border-pink-200 rounded-full bg-white hover:bg-pink-50 hover:border-pink-300 transition-colors"
                 >
                   <div className="flex items-center">
-                    <ResetIcon className="text-pink-500 mr-1.5" />
+                    <FaSync className="text-pink-500 mr-1.5" />
                     <span className="text-gray-700">Reset</span>
                   </div>
                 </Button>
@@ -347,9 +391,9 @@ const InternshipList = () => {
           </div>
         )}
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-1 gap-6 mb-6">
           {filteredInternships.length > 0 ? (
-            filteredInternships.map((internship, index) => (
+            getCurrentInternships().map((internship, index) => (
               <InternshipCard key={index} internship={internship} />
             ))
           ) : (
@@ -362,6 +406,23 @@ const InternshipList = () => {
             </div>
           )}
         </div>
+        
+        {/* Pagination controls */}
+        {filteredInternships.length > 0 && (
+          <div className="flex justify-center mt-8 mb-8">
+            <Pagination
+              current={currentPage}
+              pageSize={pageSize}
+              total={totalItems}
+              onChange={handlePageChange}
+              onShowSizeChange={handlePageSizeChange}
+              showSizeChanger
+              pageSizeOptions={['5', '10', '20', '50']}
+              showTotal={(total, range) => `Showing ${range[0]}-${range[1]} of ${total} internships`}
+              className="pagination-blue" 
+            />
+          </div>
+        )}
       </div>
 
       {/* Toast Container */}
@@ -379,65 +440,5 @@ const InternshipList = () => {
     </div>
   );
 };
-
-// Clock Icon Component for Late Submission filter
-const ClockIcon = ({ className }) => (
-  <div className={className}>
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="1em"
-      height="1em"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <circle cx="12" cy="12" r="10"></circle>
-      <polyline points="12 6 12 12 16 14"></polyline>
-    </svg>
-  </div>
-);
-
-// Teacher Icon Component for Supervisor filter
-const TeacherIcon = ({ className }) => (
-  <div className={className}>
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="1em"
-      height="1em"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-      <circle cx="12" cy="7" r="4"></circle>
-    </svg>
-  </div>
-);
-
-// Reset Icon Component
-const ResetIcon = ({ className }) => (
-  <div className={className}>
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="1em"
-      height="1em"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M3 2v6h6"></path>
-      <path d="M3 13a9 9 0 1 0 3-7.7L3 8"></path>
-    </svg>
-  </div>
-);
 
 export default InternshipList;
