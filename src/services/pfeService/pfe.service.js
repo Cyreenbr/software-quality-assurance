@@ -98,6 +98,7 @@ export const handleAction = async (id, action) => {
 
 export const assignPFEManually = async (id, teacherId) => {
   try {
+    console.log(id);
     const response = await axiosAPI.patch(`${API_URL}/${id}/planning/assign`, {
       teacherId,
       force: true,
