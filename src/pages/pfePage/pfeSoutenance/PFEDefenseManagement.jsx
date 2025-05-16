@@ -40,14 +40,14 @@ const AdminPlanningPage = () => {
         fetchTeachers(),
         getPlannings(),
       ]);
-
+      console.log(teacherRes);
       const pfeIdsWithDefense = planningRes.defenses.map(
         (plan) => plan.pfe._id
       );
       const pfeWithoutDefense = Array.isArray(pfeRes)
         ? pfeRes.filter((pfe) => !pfeIdsWithDefense.includes(pfe.pfeId))
         : [];
-      console.log(editingId);
+      console.log(pfeRes);
       if (editingId) {
         const currentPlanning = planningRes.defenses.find(
           (plan) => plan._id === editingId
