@@ -1,6 +1,7 @@
 
 import PropTypes from "prop-types";
 import { useState } from "react";
+import { toast } from "react-toastify";
 
 const SubjectEvaluationForm = ({ onSubmit, onCancel }) => {
     const [rank, setRank] = useState("");
@@ -9,7 +10,7 @@ const SubjectEvaluationForm = ({ onSubmit, onCancel }) => {
     const handleSubmit = (e) => {
         e.preventDefault();
         if (!rank || !description.trim()) {
-            alert("Both rank and description are required.");
+            toast.error("Both rank and description are required.");
             return;
         }
 

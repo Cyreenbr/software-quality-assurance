@@ -24,7 +24,11 @@ const EvaluationFormPage = () => {
     const [hasError, setHasError] = useState(false); // Ajout d'un état pour éviter des toasts multiples
 
     useEffect(() => {
-        let isMounted = true; // Pour éviter les erreurs après le démontage du composant
+        let isMounted = true;
+
+        // ✅ Reset des valeurs à chaque (re)montage
+        setEvaluation(initialCriteria);
+        setAdditionalComment("");
 
         const init = async () => {
             try {
@@ -35,10 +39,10 @@ const EvaluationFormPage = () => {
                     setTitle(subject.title);
                 }
             } catch (err) {
-                if (!hasError) { // Empêche d'afficher plusieurs fois le toast
+                if (!hasError) {
                     toast.error(err.message || "You cannot evaluate this subject.");
-                    setHasError(true); // Marque qu'une erreur a été affichée
-                    navigate(-1); // Redirige
+                    setHasError(true);
+                    navigate(-1);
                 }
             } finally {
                 if (isMounted) setIsLoading(false);
@@ -50,7 +54,14 @@ const EvaluationFormPage = () => {
         return () => {
             isMounted = false;
         };
-    }, [subjectId, navigate, hasError]); // Ajout de `hasError` pour éviter l'affichage multiple
+    }, [subjectId, navigate, hasError]);
+
+
+    const handleRemoveCriterion = (index) => {
+        if (index < 5) return; // Prevent deletion of default criteria
+        const updated = evaluation.filter((_, i) => i !== index);
+        setEvaluation(updated);
+    };
 
     const handleRankChange = (index, value) => {
         const updated = [...evaluation];
@@ -79,8 +90,8 @@ const EvaluationFormPage = () => {
             return toast.error("Each added criterion must have a description.");
         }
 
-        if (evaluation.some(e => e.rank < 0 || e.rank > 5)) {
-            return toast.error("All criteria must be rated from 0 to 5.");
+        if (evaluation.some(e => e.rank < 1 || e.rank > 5)) {
+            return toast.error("All criteria must be rated from 1 to 5.");
         }
 
         try {
@@ -101,19 +112,28 @@ const EvaluationFormPage = () => {
 
     return (
         <PageLayout title={`Evaluation Form for ${title}`}>
-            <div className="max-w-3xl mx-auto p-6 bg-white rounded-xl shadow space-y-6">
+            <div className="max-w-3xl mx-auto p-6   space-y-6">
                 {evaluation.map((item, index) => (
-                    <div key={index} className="space-y-2">
+                    <div key={index} className="space-y-2 relative border border-gray-200 p-4 rounded-lg bg-gray-50">
                         {index < 5 ? (
                             <label className="block font-medium text-gray-800">{item.description}</label>
                         ) : (
-                            <input
-                                type="text"
-                                value={item.description}
-                                onChange={(e) => handleDescriptionChange(index, e.target.value)}
-                                placeholder={`Criterion ${index + 1} description`}
-                                className="w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring focus:border-blue-400"
-                            />
+                            <div className="flex items-center gap-2">
+                                <input
+                                    type="text"
+                                    value={item.description}
+                                    onChange={(e) => handleDescriptionChange(index, e.target.value)}
+                                    placeholder={`Criterion ${index + 1} description`}
+                                    className="flex-1 border border-gray-300 rounded-md p-2 focus:outline-none focus:ring focus:border-blue-400"
+                                />
+                                <button
+                                    onClick={() => handleRemoveCriterion(index)}
+                                    className="text-red-600 hover:text-red-800 text-xl"
+                                    title="Remove this criterion"
+                                >
+                                    &times;
+                                </button>
+                            </div>
                         )}
                         <StarRating
                             value={item.rank}
@@ -121,6 +141,7 @@ const EvaluationFormPage = () => {
                         />
                     </div>
                 ))}
+
 
                 <button
                     onClick={handleAddCriterion}

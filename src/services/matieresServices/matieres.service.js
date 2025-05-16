@@ -133,6 +133,23 @@ const matieresServices = {
             throw err.response?.data?.error || err.response?.data?.message || "Failed to open evaluation session.";
         }
     },
+    getEvaluationsBySubject: async (subjectId = null) => {
+        if (!subjectId) {
+            throw new Error("Id is required.");
+        }
+        try {
+            const response = await axiosAPI.get(`/matieres/${subjectId}/evaluation`);
+            if (response.status >= 200 && response.status < 300) {
+                console.log(response.data);
+
+                return response.data;
+            } else {
+                throw new Error("Unexpected response from server.");
+            }
+        } catch (err) {
+            throw err.response?.data?.error || err.response?.data?.message || "Failed to get evaluations.";
+        }
+    },
     deleteMatiere: async (id, { forced = false, archive = false }) => {
         if (!id) {
             throw new Error("Invalid skill ID.");
