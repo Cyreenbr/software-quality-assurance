@@ -1,16 +1,17 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { getMYCV } from "../../src/services/ManageUsersServices/students.service";
+import { getMYCV } from "../services/ManageUsersServices/students.service";
 import Swal from "sweetalert2";
 
-const StudentCVPage = () => {
+const MyCV = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [student, setStudent] = useState(null);
   const [cvData, setCvData] = useState(null);
   const [loading, setLoading] = useState(true);
 
- useEffect(() => {
+// Dans le composant MyCV.jsx, modifiez votre useEffect pour ajouter plus de logging
+useEffect(() => {
   const fetchCVData = async () => {
     try {
       setLoading(true);
@@ -18,6 +19,30 @@ const StudentCVPage = () => {
       
       const response = await getMYCV(); // appel à /me
       console.log("CV data received:", response);
+      
+      // Vérifications plus détaillées
+      if (!response) {
+        throw new Error("Aucune donnée reçue");
+      }
+      
+      if (!response.success) {
+        throw new Error(response.message || "Échec de la récupération");
+      }
+      
+      if (!response.student) {
+        console.warn("Données étudiant manquantes");
+      }
+      
+      if (!response.model) {
+        console.warn("Données du modèle de CV manquantes");
+      }
+      
+      // Log des sections spécifiques pour le débogage
+      console.log("Infos personnelles:", response.student);
+      console.log("Formations:", response.model?.formations);
+      console.log("Compétences:", response.model?.competences);
+      console.log("Expériences:", response.model?.experiences);
+      console.log("Projets:", response.model?.projets);
       
       if (response && response.student && response.model) {
         setCvData(response.model);
@@ -40,8 +65,6 @@ const StudentCVPage = () => {
 
   fetchCVData();
 }, [navigate]);
-
-
   if (loading) {
     return (
       <div className="w-[100%] p-8 bg-white rounded-xl shadow-xl mx-auto mt-8 min-h-[60vh] flex flex-col items-center justify-center">
@@ -68,6 +91,7 @@ const StudentCVPage = () => {
       </div>
     );
   }
+  
 
   return (
     <div className="w-[100%] bg-gray-50 mx-auto my-8 rounded-xl overflow-hidden shadow-xl">
@@ -77,12 +101,20 @@ const StudentCVPage = () => {
           <h1 className="text-3xl font-bold">
             {student.firstName} {student.lastName}
           </h1>
-          <button
-            onClick={() => navigate(-1)}
-            className="px-4 py-2 bg-white text-blue-400 hover:bg-gray-100 rounded-lg transition-all shadow-md font-medium"
-          >
-            Retour
-          </button>
+          <div className="flex space-x-3">
+            <button
+              onClick={() => navigate(-1)}
+              className="px-4 py-2 bg-white text-blue-400 hover:bg-gray-100 rounded-lg transition-all shadow-md font-medium"
+            >
+              Retour
+            </button>
+            <button
+              onClick={() => navigate(`/CV/editCV`)}
+              className="px-4 py-2 bg-indigo-500 text-white hover:bg-indigo-600 rounded-lg transition-all shadow-md font-medium"
+            >
+              Edit CV
+            </button>
+          </div>
         </div>
         <div className="flex flex-wrap gap-4 text-sm">
           <div className="flex items-center">
@@ -147,28 +179,40 @@ const StudentCVPage = () => {
           </div>
         )}
 
-        {/* Expériences */}
-        {cvData.experiences?.length > 0 && (
-          <div className="mb-10">
-            <h2 className="text-2xl font-bold mb-4 border-b-2 border-indigo-200 pb-2 flex items-center text-gray-800">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 mr-2 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-              </svg>
-              Expériences Professionnelles
-            </h2>
-            <div className="space-y-4">
-              {cvData.experiences.map((e, i) => (
-                <div key={i} className="bg-white p-4 rounded-lg shadow-md hover:shadow-lg transition-all">
-                  <div className="font-bold text-lg text-indigo-700">{e.poste}</div>
-                  <div className="text-gray-700">{e.entreprise}</div>
-                  <div className="text-sm text-gray-500 mt-1">{e.dateDebut} - {e.dateFin}</div>
-                  {e.description && <p className="mt-2 text-gray-600">{e.description}</p>}
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
+      {/* Expériences */}
+{cvData.experiences && cvData.experiences.length > 0 ? (
+  <div className="mb-10">
+    <h2 className="text-2xl font-bold mb-4 border-b-2 border-indigo-200 pb-2 flex items-center text-gray-800">
+      <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 mr-2 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+      </svg>
+      Expériences Professionnelles
+    </h2>
+    <div className="space-y-4">
+      {cvData.experiences.map((e, i) => (
+        <div key={i} className="bg-white p-4 rounded-lg shadow-md hover:shadow-lg transition-all">
+          <div className="font-bold text-lg text-indigo-700">{e.poste}</div>
+          <div className="text-gray-700">{e.entreprise}</div>
+          <div className="text-sm text-gray-500 mt-1">{e.dateDebut} - {e.dateFin}</div>
+          {e.description && <p className="mt-2 text-gray-600">{e.description}</p>}
+        </div>
+      ))}
+    </div>
+  </div>
+) : (
+  // Vous pouvez ajouter un message ou un placeholder quand il n'y a pas de données
+  <div className="mb-10">
+    <h2 className="text-2xl font-bold mb-4 border-b-2 border-indigo-200 pb-2 flex items-center text-gray-800">
+      <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 mr-2 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+      </svg>
+      Expériences Professionnelles
+    </h2>
+    <div className="bg-white p-4 rounded-lg shadow-md hover:shadow-lg transition-all">
+      <p className="text-gray-500 text-center">Aucune expérience professionnelle renseignée</p>
+    </div>
+  </div>
+)}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           {/* Compétences */}
           {cvData.competences?.length > 0 && (
@@ -296,4 +340,4 @@ const StudentCVPage = () => {
   );
 };
 
-export default StudentCVPage;
+export default MyCV;
