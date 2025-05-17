@@ -3,7 +3,10 @@ import { FaEnvelope, FaInfoCircle, FaPlus, FaSync } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { internshipService, teacherService } from "../../services/internshipServices/AssignInternships.service";
+import {
+  internshipService,
+  teacherService,
+} from "../../services/internshipServices/AssignInternships.service";
 
 const AssignInternships = () => {
   const [teachers, setTeachers] = useState([]);
@@ -19,7 +22,7 @@ const AssignInternships = () => {
   const fetchTeachers = async () => {
     try {
       const response = await teacherService.getTeachers();
-      const teachersList = response.teachers || response;
+      const teachersList = response.model || response;
       if (!Array.isArray(teachersList)) {
         throw new Error("Invalid teacher data.");
       }
@@ -30,9 +33,15 @@ const AssignInternships = () => {
     }
   };
 
-  const handleSelectTeacher = (teacherId) => { //prend en paramètre l'id d'un enseignant en le cochant
-    setSelectedTeachers((prev) => //prev est la valeur actuelle du tableau selectedTeachers.
-      prev.includes(teacherId) ? prev.filter((id) => id !== teacherId) : [...prev, teacherId]
+  const handleSelectTeacher = (teacherId) => {
+    //prend en paramètre l'id d'un enseignant en le cochant
+    setSelectedTeachers(
+      (
+        prev //prev est la valeur actuelle du tableau selectedTeachers.
+      ) =>
+        prev.includes(teacherId)
+          ? prev.filter((id) => id !== teacherId)
+          : [...prev, teacherId]
     );
   };
 
@@ -54,22 +63,29 @@ const AssignInternships = () => {
       fetchTeachers();
     } catch (error) {
       console.error("Error assigning internships:", error);
-      toast.error(error.response?.data?.message || "An error occurred while assigning internships.");
+      toast.error(
+        error.response?.data?.message ||
+          "An error occurred while assigning internships."
+      );
     } finally {
       setLoading(false);
     }
   };
 
   const handleUpdateAssignment = () => {
-    navigate('/PlanningUpdate'); 
+    navigate("/PlanningUpdate");
   };
 
   const handleSendPlanning = async () => {
     try {
       const response = await internshipService.sendPlanning();
-      toast.success(response?.message || "Planning notification emails sent successfully!");
+      toast.success(
+        response?.message || "Planning notification emails sent successfully!"
+      );
     } catch (error) {
-      toast.error(error.response?.data?.message || "Error sending notification emails.");
+      toast.error(
+        error.response?.data?.message || "Error sending notification emails."
+      );
     }
   };
 
@@ -77,11 +93,15 @@ const AssignInternships = () => {
     <div className="min-h-screen bg-gradient-to-r from-blue-50 to-purple-100 py-10 rounded-lg">
       <ToastContainer position="top-right" autoClose={3000} />
       <div className="max-w-7xl bg-white rounded-lg mx-auto mt-8 p-6">
-        <h1 className="text-2xl text-blue-500 font-bold mb-4">Assign Internships</h1>
+        <h1 className="text-2xl text-blue-500 font-bold mb-4">
+          Assign Internships
+        </h1>
 
         <div className="flex flex-wrap gap-2 mb-6 justify-between items-center">
           <div className="flex items-center mr-4">
-            <label className="block text-gray-700 font-medium mr-3">Semester:</label>
+            <label className="block text-gray-700 font-medium mr-3">
+              Semester:
+            </label>
             <select
               value={semester}
               onChange={(e) => setSemester(Number(e.target.value))}
