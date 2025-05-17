@@ -1,6 +1,5 @@
 import axiosAPI from "../axiosAPI/axiosInstance";
 
-
 const internshipService = {
   getInternships: async () => {
     try {
@@ -12,17 +11,6 @@ const internshipService = {
     }
   },
 
-  getTeachers: async () => {
-    try {
-      const response = await axiosAPI.get(`/internship/teachers`);
-      return response.data; 
-    } catch (error) {
-      console.error("Erreur API (GET teachers) :", error);
-      return null;  
-    }
-  },
-
-
   updateInternshipTeacher: async (internshipId, teacherId) => {
     try {
       const response = await axiosAPI.patch(
@@ -32,7 +20,7 @@ const internshipService = {
           idTeacher: teacherId,
         }
       );
-      return response.data;  
+      return response.data;
     } catch (error) {
       console.error("Erreur API (PUT updateInternshipTeacher) :", error);
       return null;
