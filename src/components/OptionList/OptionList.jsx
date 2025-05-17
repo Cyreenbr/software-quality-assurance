@@ -24,7 +24,6 @@ export default function OptionList() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedStudentOption, setSelectedStudentOption] = useState(null);
   const [editedData, setEditedData] = useState({ raison: "", option: "" });
-
   // State to manage publication/hiding of the list
   const [isPublished, setIsPublished] = useState(false);
   // State to track if we're loading the publication status
@@ -69,8 +68,9 @@ export default function OptionList() {
       setIsLoadingPublishStatus(true);
       const response = await ListIsPublished();
       if (response && response.published !== undefined) {
-        setIsPublished(response.published);
+        // setIsPublished(response.published);
       }
+      console.log("Publication status:", response);
     } catch (error) {
       console.error("Error checking publication status:", error);
     } finally {
@@ -84,7 +84,7 @@ export default function OptionList() {
       if (response && response.model) {
         setOptionsList(response.model);
         setFilteredOptions(response.model);
-
+        setIsPublished(response.isPublished);
         // Update total students count for quota calculation
         if (response.model.length > 0) {
           setQuotaData((prev) => ({
@@ -304,7 +304,7 @@ export default function OptionList() {
       const newStatus = isPublished ? "masquer" : "publier";
       const result = await publishStudentsOptions(newStatus);
       if (result && result.list) {
-        setIsPublished(result.list.published);
+        // setIsPublished(result.list.published);
       }
       // After toggling publication status, fetch the options again
       await fetchOptions();
