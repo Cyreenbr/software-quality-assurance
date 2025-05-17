@@ -3,6 +3,7 @@ import { CgEye } from "react-icons/cg";
 import {
     FaArchive,
     FaArrowLeft,
+    FaBookOpen,
     FaCalendarAlt,
     FaCheck,
     FaChevronDown,
@@ -682,7 +683,7 @@ const SubjectDetailsPage = () => {
 
 
     return (
-        <PageLayout title={formData.subject.title} headerActions={actionHeaders} a >
+        <PageLayout title={formData.subject.title} headerActions={actionHeaders} icon={FaBookOpen} >
             {/* <div className="min-h-screen bg-gray-100 p-6"> */}
             {showForm ? (
                 <SubjectForm
@@ -750,225 +751,228 @@ const SubjectDetailsPage = () => {
 
 
                         <Section title="Chapters & Sections">
-                            <div className="mb-6">
-                                <label className="text-sm font-medium text-gray-700">
-                                    Overall Progress: {overallProgress}%
-                                </label>
-                                <div className="w-full bg-gray-200 rounded-full h-4 mt-1">
-                                    <div
-                                        className="bg-blue-600 h-4 rounded-full transition-all duration-500"
-                                        style={{ width: `${overallProgress}%` }}
-                                    />
-                                </div>
-                            </div>
-
                             {formData.subject.curriculum.chapitres.length > 0 ? (
-                                <div className="space-y-6">
-                                    {formData.subject.curriculum.chapitres.map((chapter, index) => {
-                                        const chapterKey = `chapter-${index}`;
-                                        const isCompleted = chapter.status;
-                                        const completedAt = chapter.completedAt || completedAtDates[chapterKey];
-                                        const sectionCount = chapter.sections.length;
-
-                                        return (
+                                <>
+                                    <div className="mb-6">
+                                        <label className="text-sm font-medium text-gray-700">
+                                            Overall Progress: {overallProgress}%
+                                        </label>
+                                        <div className="w-full bg-gray-200 rounded-full h-4 mt-1">
                                             <div
-                                                key={index}
-                                                className={`border rounded-2xl p-5 shadow-md transition-colors duration-200 ${isCompleted ? "bg-teal-50 border-teal-400" : "bg-red-50 border-red-300"
-                                                    }`}
-                                            >
-                                                {/* Chapter Header */}
+                                                className="bg-blue-600 h-4 rounded-full transition-all duration-500"
+                                                style={{ width: `${overallProgress}%` }}
+                                            />
+                                        </div>
+                                    </div>
+                                    <div className="space-y-6">
+                                        {formData.subject.curriculum.chapitres.map((chapter, index) => {
+                                            const chapterKey = `chapter-${index}`;
+                                            const isCompleted = chapter.status;
+                                            const completedAt = chapter.completedAt || completedAtDates[chapterKey];
+                                            const sectionCount = chapter.sections.length;
+
+                                            return (
                                                 <div
-                                                    className="flex justify-between items-center cursor-pointer"
-                                                    onClick={() => toggleChapterExpand(index)}
+                                                    key={index}
+                                                    className={`border rounded-2xl p-5 shadow-md transition-colors duration-200 ${isCompleted ? "bg-teal-50 border-teal-400" : "bg-red-50 border-red-300"
+                                                        }`}
                                                 >
-                                                    <h3
-                                                        className={`text-xl font-semibold flex items-center gap-2 ${isCompleted ? "text-teal-900" : "text-red-800"
-                                                            }`}
+                                                    {/* Chapter Header */}
+                                                    <div
+                                                        className="flex justify-between items-center cursor-pointer"
+                                                        onClick={() => toggleChapterExpand(index)}
                                                     >
-                                                        {chapter.title || `Chapter ${index + 1}`}
-                                                        {isCompleted ? (
-                                                            <FaCheck className="text-teal-700" />
+                                                        <h3
+                                                            className={`text-xl font-semibold flex items-center gap-2 ${isCompleted ? "text-teal-900" : "text-red-800"
+                                                                }`}
+                                                        >
+                                                            {chapter.title || `Chapter ${index + 1}`}
+                                                            {isCompleted ? (
+                                                                <FaCheck className="text-teal-700" />
+                                                            ) : (
+                                                                <FaTimes className="text-red-500" />
+                                                            )}
+                                                        </h3>
+                                                        {expandedChapters[index] ? (
+                                                            <Tooltip text={"close"} position="top">
+                                                                <FaChevronUp className="text-gray-500" />
+                                                            </Tooltip>
                                                         ) : (
-                                                            <FaTimes className="text-red-500" />
+                                                            <Tooltip text={"open"} position="top" alwaysOn>
+                                                                <FaChevronDown className="text-gray-500" />
+                                                            </Tooltip>
                                                         )}
-                                                    </h3>
-                                                    {expandedChapters[index] ? (
-                                                        <Tooltip text={"close"} position="top">
-                                                            <FaChevronUp className="text-gray-500" />
-                                                        </Tooltip>
-                                                    ) : (
-                                                        <Tooltip text={"open"} position="top" alwaysOn>
-                                                            <FaChevronDown className="text-gray-500" />
-                                                        </Tooltip>
-                                                    )}
-                                                </div>
-
-                                                {/* Number of Sections */}
-                                                <div className="text-sm text-gray-600 mt-1">
-                                                    {sectionCount} {sectionCount === 1 ? "Section" : "Sections"}
-                                                </div>
-
-                                                {/* Chapter Checkbox */}
-                                                {canEdit && (
-                                                    <div className="flex items-center mt-3 gap-3">
-                                                        <input
-                                                            type="checkbox"
-                                                            checked={chapter.status}
-                                                            onChange={() => toggleChapterStatus(index)}
-                                                            className="w-5 h-5 text-teal-600 border-gray-300 focus:ring-teal-500 rounded"
-                                                            aria-label={`Mark Chapter ${index + 1} as complete`}
-                                                        />
-                                                        <label className="text-sm text-gray-700">
-                                                            Mark as complete
-                                                        </label>
                                                     </div>
-                                                )}
 
-                                                {/* Completed At + Input */}
-                                                {isCompleted && (
-                                                    <div className="mt-2 text-sm text-gray-600">
-                                                        <div className="flex items-center gap-2">
-                                                            <FaCalendarAlt />
-                                                            <span>
-                                                                Completed :{" "}
-                                                                {completedAt ? (
-                                                                    <span className="font-medium">
-                                                                        {humanizeDate(completedAt)}
-                                                                    </span>
-                                                                ) : (
-                                                                    <span className="text-gray-400">Not yet updated</span>
-                                                                )}
-                                                            </span>
+                                                    {/* Number of Sections */}
+                                                    <div className="text-sm text-gray-600 mt-1">
+                                                        {sectionCount} {sectionCount === 1 ? "Section" : "Sections"}
+                                                    </div>
+
+                                                    {/* Chapter Checkbox */}
+                                                    {canEdit && (
+                                                        <div className="flex items-center mt-3 gap-3">
+                                                            <input
+                                                                type="checkbox"
+                                                                checked={chapter.status}
+                                                                onChange={() => toggleChapterStatus(index)}
+                                                                className="w-5 h-5 text-teal-600 border-gray-300 focus:ring-teal-500 rounded"
+                                                                aria-label={`Mark Chapter ${index + 1} as complete`}
+                                                            />
+                                                            <label className="text-sm text-gray-700">
+                                                                Mark as complete
+                                                            </label>
                                                         </div>
+                                                    )}
 
-                                                        {canEdit && (
-                                                            <div className="mt-2">
-                                                                <label className="block text-sm text-gray-600 mb-1">
-                                                                    Completion Date:
-                                                                </label>
-                                                                <input
-                                                                    type="date"
-                                                                    value={
-                                                                        completedAtDates[chapterKey]?.split("T")[0] ||
-                                                                        new Date().toISOString().split("T")[0]
-                                                                    }
-                                                                    onChange={(e) =>
-                                                                        handleDateChange(chapterKey, e.target.value)
-                                                                    }
-                                                                    className="border rounded px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                                    {/* Completed At + Input */}
+                                                    {isCompleted && (
+                                                        <div className="mt-2 text-sm text-gray-600">
+                                                            <div className="flex items-center gap-2">
+                                                                <FaCalendarAlt />
+                                                                <span>
+                                                                    Completed :{" "}
+                                                                    {completedAt ? (
+                                                                        <span className="font-medium">
+                                                                            {humanizeDate(completedAt)}
+                                                                        </span>
+                                                                    ) : (
+                                                                        <span className="text-gray-400">Not yet updated</span>
+                                                                    )}
+                                                                </span>
+                                                            </div>
+
+                                                            {canEdit && (
+                                                                <div className="mt-2">
+                                                                    <label className="block text-sm text-gray-600 mb-1">
+                                                                        Completion Date:
+                                                                    </label>
+                                                                    <input
+                                                                        type="date"
+                                                                        value={
+                                                                            completedAtDates[chapterKey]?.split("T")[0] ||
+                                                                            new Date().toISOString().split("T")[0]
+                                                                        }
+                                                                        onChange={(e) =>
+                                                                            handleDateChange(chapterKey, e.target.value)
+                                                                        }
+                                                                        className="border rounded px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                                                    />
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    )}
+                                                    {/* Chapter Progress */}
+                                                    {chapter.sections.length > 0 &&
+                                                        <div className="mt-4">
+                                                            <label className="text-sm font-medium text-gray-600">
+                                                                Chapter Progress: {getChapterProgress(chapter)}%
+                                                            </label>
+                                                            <div className="w-full bg-gray-200 rounded-full h-3 mt-1">
+                                                                <div
+                                                                    className="bg-green-500 h-3 rounded-full transition-all duration-500"
+                                                                    style={{ width: `${getChapterProgress(chapter)}%` }}
                                                                 />
                                                             </div>
-                                                        )}
-                                                    </div>
-                                                )}
-                                                {/* Chapter Progress */}
-                                                <div className="mt-4">
-                                                    <label className="text-sm font-medium text-gray-600">
-                                                        Chapter Progress: {getChapterProgress(chapter)}%
-                                                    </label>
-                                                    <div className="w-full bg-gray-200 rounded-full h-3 mt-1">
-                                                        <div
-                                                            className="bg-green-500 h-3 rounded-full transition-all duration-500"
-                                                            style={{ width: `${getChapterProgress(chapter)}%` }}
-                                                        />
-                                                    </div>
-                                                </div>
+                                                        </div>
+                                                    }
 
-                                                {/* Sections */}
-                                                {expandedChapters[index] && chapter.sections.length > 0 && (
-                                                    <ul className="mt-4 border-l-2 border-gray-300 pl-5 space-y-3">
-                                                        {chapter.sections.map((section, sIndex) => {
-                                                            const sectionKey = `section-${index}-${sIndex}`;
-                                                            const sectionCompletedAt =
-                                                                completedAtDates[sectionKey] || section.completedAt;
+                                                    {/* Sections */}
+                                                    {expandedChapters[index] && chapter.sections.length > 0 && (
+                                                        <ul className="mt-4 border-l-2 border-gray-300 pl-5 space-y-3">
+                                                            {chapter.sections.map((section, sIndex) => {
+                                                                const sectionKey = `section-${index}-${sIndex}`;
+                                                                const sectionCompletedAt =
+                                                                    completedAtDates[sectionKey] || section.completedAt;
 
-                                                            const isSectionCompleted = section.status;
+                                                                const isSectionCompleted = section.status;
 
-                                                            return (
-                                                                <li
-                                                                    key={sIndex}
-                                                                    className={`flex justify-between items-start rounded-md p-2 transition-colors ${isSectionCompleted
-                                                                        ? "bg-teal-100 border border-teal-400"
-                                                                        : "bg-red-50 border border-red-200"
-                                                                        }`}
-                                                                    title={
-                                                                        isSectionCompleted && sectionCompletedAt
-                                                                            ? `Completed ${humanizeDate(sectionCompletedAt)}`
-                                                                            : undefined
-                                                                    }
-                                                                >
-                                                                    <div
-                                                                        className={`flex flex-col items-start gap-1 text-base ${isSectionCompleted ? "text-teal-900" : "text-red-800"
+                                                                return (
+                                                                    <li
+                                                                        key={sIndex}
+                                                                        className={`flex justify-between items-start rounded-md p-2 transition-colors ${isSectionCompleted
+                                                                            ? "bg-teal-100 border border-teal-400"
+                                                                            : "bg-red-50 border border-red-200"
                                                                             }`}
+                                                                        title={
+                                                                            isSectionCompleted && sectionCompletedAt
+                                                                                ? `Completed ${humanizeDate(sectionCompletedAt)}`
+                                                                                : undefined
+                                                                        }
                                                                     >
-                                                                        <div className="flex items-center gap-2">
-                                                                            {sIndex + 1} - {section.title || `Section ${sIndex + 1}`}{" "}
-                                                                            {isSectionCompleted ? (
-                                                                                <FaCheck className="text-teal-700 ml-1" />
-                                                                            ) : (
-                                                                                <FaTimes className="text-red-500 ml-1" />
+                                                                        <div
+                                                                            className={`flex flex-col items-start gap-1 text-base ${isSectionCompleted ? "text-teal-900" : "text-red-800"
+                                                                                }`}
+                                                                        >
+                                                                            <div className="flex items-center gap-2">
+                                                                                {sIndex + 1} - {section.title || `Section ${sIndex + 1}`}{" "}
+                                                                                {isSectionCompleted ? (
+                                                                                    <FaCheck className="text-teal-700 ml-1" />
+                                                                                ) : (
+                                                                                    <FaTimes className="text-red-500 ml-1" />
+                                                                                )}
+                                                                            </div>
+
+                                                                            {isSectionCompleted && (
+                                                                                <>
+                                                                                    <div className="flex items-center text-sm text-gray-700 gap-2">
+                                                                                        <FaCalendarAlt />
+                                                                                        <span>
+                                                                                            Completed :{" "}
+                                                                                            {sectionCompletedAt ? (
+                                                                                                <span className="font-medium">
+                                                                                                    {humanizeDate(sectionCompletedAt)}
+                                                                                                </span>
+                                                                                            ) : (
+                                                                                                <span className="text-gray-400">Not yet updated</span>
+                                                                                            )}
+                                                                                        </span>
+                                                                                    </div>
+
+                                                                                    {canEdit && (
+                                                                                        <div className="mt-1">
+                                                                                            <label className="block text-sm text-gray-600 mb-1">
+                                                                                                Completion Date:
+                                                                                            </label>
+                                                                                            <input
+                                                                                                type="date"
+                                                                                                value={
+                                                                                                    completedAtDates[sectionKey]
+                                                                                                        ? completedAtDates[sectionKey].split("T")[0]
+                                                                                                        : new Date().toISOString().split("T")[0]
+                                                                                                }
+                                                                                                onChange={(e) =>
+                                                                                                    handleDateChange(sectionKey, e.target.value)
+                                                                                                }
+                                                                                                className="border rounded px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                                                                            />
+                                                                                        </div>
+                                                                                    )}
+                                                                                </>
                                                                             )}
                                                                         </div>
 
-                                                                        {isSectionCompleted && (
-                                                                            <>
-                                                                                <div className="flex items-center text-sm text-gray-700 gap-2">
-                                                                                    <FaCalendarAlt />
-                                                                                    <span>
-                                                                                        Completed :{" "}
-                                                                                        {sectionCompletedAt ? (
-                                                                                            <span className="font-medium">
-                                                                                                {humanizeDate(sectionCompletedAt)}
-                                                                                            </span>
-                                                                                        ) : (
-                                                                                            <span className="text-gray-400">Not yet updated</span>
-                                                                                        )}
-                                                                                    </span>
-                                                                                </div>
-
-                                                                                {canEdit && (
-                                                                                    <div className="mt-1">
-                                                                                        <label className="block text-sm text-gray-600 mb-1">
-                                                                                            Completion Date:
-                                                                                        </label>
-                                                                                        <input
-                                                                                            type="date"
-                                                                                            value={
-                                                                                                completedAtDates[sectionKey]
-                                                                                                    ? completedAtDates[sectionKey].split("T")[0]
-                                                                                                    : new Date().toISOString().split("T")[0]
-                                                                                            }
-                                                                                            onChange={(e) =>
-                                                                                                handleDateChange(sectionKey, e.target.value)
-                                                                                            }
-                                                                                            className="border rounded px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                                                                        />
-                                                                                    </div>
-                                                                                )}
-                                                                            </>
-                                                                        )}
-                                                                    </div>
-
-                                                                    <div className="flex flex-col items-end gap-1">
-                                                                        {canEdit && (
-                                                                            <input
-                                                                                type="checkbox"
-                                                                                checked={isSectionCompleted}
-                                                                                onChange={() => toggleSectionStatus(index, sIndex)}
-                                                                                className="w-5 h-5 text-teal-600 border-gray-300 focus:ring-teal-500 rounded"
-                                                                                aria-label={`Mark Section ${sIndex + 1} as complete`}
-                                                                            />
-                                                                        )}
-                                                                    </div>
-                                                                </li>
-                                                            );
-                                                        })}
-                                                    </ul>
-                                                )}
-                                            </div>
-                                        );
-                                    })}
-                                </div>
+                                                                        <div className="flex flex-col items-end gap-1">
+                                                                            {canEdit && (
+                                                                                <input
+                                                                                    type="checkbox"
+                                                                                    checked={isSectionCompleted}
+                                                                                    onChange={() => toggleSectionStatus(index, sIndex)}
+                                                                                    className="w-5 h-5 text-teal-600 border-gray-300 focus:ring-teal-500 rounded"
+                                                                                    aria-label={`Mark Section ${sIndex + 1} as complete`}
+                                                                                />
+                                                                            )}
+                                                                        </div>
+                                                                    </li>
+                                                                );
+                                                            })}
+                                                        </ul>
+                                                    )}
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                </>
                             ) : (
                                 <EmptyState message="No chapters available." />
                             )}

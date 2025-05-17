@@ -1,5 +1,5 @@
 import { useCallback, useState } from "react";
-import { FaArrowLeft, FaPlus } from "react-icons/fa";
+import { FaArrowLeft, FaBook, FaPlus } from "react-icons/fa";
 import { FiBell, FiEye, FiEyeOff } from "react-icons/fi";
 import { useSelector } from "react-redux";
 import { ClipLoader } from "react-spinners";
@@ -170,7 +170,7 @@ const Subject = () => {
     );
 
     return (
-        <PageLayout title={showForm ? "Add a new subject" : "Subjects"} headerActions={headerActions}>
+        <PageLayout title={showForm ? "Add a new subject" : "Subjects"} headerActions={headerActions} icon={FaBook}>
             {showForm ? (
                 <SubjectForm
                     initialData={initialData}
