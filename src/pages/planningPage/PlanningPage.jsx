@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { getPlanning } from "../../services/planinginternshipService/Planninginternship.service";
 
 const PlanninginternshipPage = () => {
@@ -46,24 +46,22 @@ const PlanninginternshipPage = () => {
           </thead>
           <tbody>
             {internships.map((internship) => (
-              <tr key={internship._id} className="border-b hover:bg-gray-50">
-                <td className="py-3 px-6">
-                  {internship.student.name}
-                </td>
-                <td className="py-3 px-6">{internship.title || "No Title"}</td>
-                <td className="py-3 px-6">{internship.entreprise || "No Company"}</td>
-                <td className="py-3 px-6">
-                  {internship.teacherId
-                    ? `${internship.teacher}`
-                    : "No Supervisor"}
-                </td>
-                <td className="py-3 px-6">
-                  {internship.student.email || "No Email"}
-                </td>
-                <td className="py-3 px-6">
-                  {internship.teacher.email || "No Email"}
-                </td>
-              </tr>
+<tr key={internship._id} className="border-b hover:bg-gray-50">
+  <td className="py-3 px-6">
+    {internship.student?.name || "Not linked"}
+  </td>
+  <td className="py-3 px-6">{internship.title || "No Title"}</td>
+  <td className="py-3 px-6">{internship.company || "No Company"}</td>
+  <td className="py-3 px-6">
+    {internship.teacher?.name || "Not assigned"}
+  </td>
+  <td className="py-3 px-6">
+    {internship.student?.email || "No Email"}
+  </td>
+  <td className="py-3 px-6">
+    {internship.teacher?.email || "No Email"}
+  </td>
+</tr>
             ))}
           </tbody>
         </table>
