@@ -1,16 +1,17 @@
-import React, { useEffect, useState } from "react";
-import {
-  getPlannings,
-  createPlanning,
-  updateSoutenance,
-  sendEmail,
-  togglePublication,
-} from "../../../services/pfeService/pfeSoutenance";
+import { useEffect, useState } from "react";
+import { FaCalendarAlt, FaEdit, FaEye, FaEyeSlash, FaPaperPlane } from "react-icons/fa";
 import {
   fetchPFEChoices,
   fetchTeachers,
 } from "../../../services/pfeService/pfe.service";
-import { FaEye, FaEyeSlash } from "react-icons/fa";
+import {
+  createPlanning,
+  getPlannings,
+  sendEmail,
+  togglePublication,
+  updateSoutenance,
+} from "../../../services/pfeService/pfeSoutenance";
+
 const AdminPlanningPage = () => {
   const [pfes, setPfes] = useState([]);
   const [teachers, setTeachers] = useState([]);
@@ -40,14 +41,14 @@ const AdminPlanningPage = () => {
         fetchTeachers(),
         getPlannings(),
       ]);
-
+      console.log(teacherRes);
       const pfeIdsWithDefense = planningRes.defenses.map(
         (plan) => plan.pfe._id
       );
       const pfeWithoutDefense = Array.isArray(pfeRes)
         ? pfeRes.filter((pfe) => !pfeIdsWithDefense.includes(pfe.pfeId))
         : [];
-      console.log(editingId);
+
       if (editingId) {
         const currentPlanning = planningRes.defenses.find(
           (plan) => plan._id === editingId
@@ -68,7 +69,7 @@ const AdminPlanningPage = () => {
       setPlannings(planningRes.defenses || []);
       setIsPublished(planningRes.defenses?.[0]?.published ?? false);
     } catch (err) {
-      setMessage("Erreur lors du chargement des données.");
+      setMessage("Error loading data.");
     } finally {
       setLoading(false);
     }
@@ -77,31 +78,30 @@ const AdminPlanningPage = () => {
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
+
   const handleTogglePublish = async () => {
     if (!plannings[0]) return;
     try {
-      //const newStatus = !isPublished;
       await togglePublication(isPublished);
-      setIsPublished(isPublished); // <- update the UI state
-
+      setIsPublished(isPublished);
       await loadData();
     } catch (err) {
-      setMessage("Erreur lors du changement de statut de publication.");
+      setMessage("Error changing publication status.");
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     const selectedPfe = pfes.find((p) => p.pfeId === form.pfeId);
-    const encadrantId = selectedPfe?.IsammSupervisor?._id;
+    const supervisorId = selectedPfe?.IsammSupervisor?._id;
 
     if (
       form.presidentId === form.reporterId ||
-      form.presidentId === encadrantId ||
-      form.reporterId === encadrantId
+      form.presidentId === supervisorId ||
+      form.reporterId === supervisorId
     ) {
       setMessage(
-        "Le président, le rapporteur et l'encadrant doivent être trois personnes différentes."
+        "The president, reporter, and supervisor must be three different people."
       );
       return;
     }
@@ -109,10 +109,10 @@ const AdminPlanningPage = () => {
     try {
       if (editingId) {
         await updateSoutenance(editingId, form);
-        setMessage("Planning mis à jour avec succès.");
+        setMessage("Schedule updated successfully.");
       } else {
         await createPlanning(form);
-        setMessage("Planning créé avec succès.");
+        setMessage("Schedule created successfully.");
       }
 
       setForm({
@@ -127,7 +127,7 @@ const AdminPlanningPage = () => {
       await loadData();
     } catch (err) {
       setMessage(
-        err.response?.data?.message || "Erreur lors de l'enregistrement."
+        err.response?.data?.message || "Error saving the schedule."
       );
     }
   };
@@ -149,209 +149,236 @@ const AdminPlanningPage = () => {
       date: planning.date?.split("T")[0] || "",
       time: formatTime(planning.time || 0),
     });
-    console.log(planning._id);
     setEditingId(planning._id);
   };
 
   const handleSendEmail = async () => {
     try {
       await sendEmail();
-      setMessage("Email envoyé avec succès.");
+      setMessage("Email sent successfully.");
     } catch (err) {
-      setMessage("Erreur lors de l'envoi de l'email.");
+      setMessage("Error sending email.");
     }
   };
 
   return (
-    <div className="p-6 max-w-6xl mx-auto">
-      <h1 className="text-3xl font-bold mb-6 text-center text-blue-800">
-        Gestion des Plannings de Soutenance
-      </h1>
-
-      {loading && (
-        <p className="text-blue-500 mb-4 text-center">Chargement en cours...</p>
-      )}
-      {message && (
-        <div className="mb-4 px-4 py-2 bg-green-100 border border-green-400 text-green-700 rounded">
-          {message}
-        </div>
-      )}
-
-      {/* Formulaire */}
-      <form
-        onSubmit={handleSubmit}
-        className="space-y-4 bg-white p-6 rounded-lg shadow-md border border-gray-200"
-      >
-        <h2 className="text-xl font-semibold text-gray-700">
-          {editingId ? "Modifier" : "Créer"} une soutenance
-        </h2>
-
-        <div className="grid md:grid-cols-2 gap-4">
-          <select
-            name="pfeId"
-            value={form.pfeId}
-            onChange={handleChange}
-            className="border p-2 rounded w-full"
-            required
-          >
-            <option value="">-- Choisir un PFE --</option>
-            {pfes.map((pfe) => (
-              <option key={pfe.pfeId} value={pfe.pfeId}>
-                {pfe.title}
-              </option>
-            ))}
-          </select>
-
-          <input
-            name="room"
-            value={form.room}
-            onChange={handleChange}
-            type="text"
-            placeholder="Salle"
-            required
-            className="border p-2 rounded w-full"
-          />
-
-          <select
-            name="presidentId"
-            value={form.presidentId}
-            onChange={handleChange}
-            className="border p-2 rounded w-full"
-            required
-          >
-            <option value="">-- Président du jury --</option>
-            {teachers.map((t) => (
-              <option key={t._id} value={t._id}>
-                {t.firstName}
-              </option>
-            ))}
-          </select>
-
-          <select
-            name="reporterId"
-            value={form.reporterId}
-            onChange={handleChange}
-            className="border p-2 rounded w-full"
-            required
-          >
-            <option value="">-- Rapporteur --</option>
-            {teachers.map((t) => (
-              <option key={t._id} value={t._id}>
-                {t.firstName}
-              </option>
-            ))}
-          </select>
-
-          <input
-            name="date"
-            value={form.date}
-            onChange={handleChange}
-            type="date"
-            required
-            className="border p-2 rounded w-full"
-          />
-          <input
-            name="time"
-            value={form.time}
-            onChange={handleChange}
-            type="time"
-            required
-            className="border p-2 rounded w-full"
-          />
+    <div className="p-4 md:p-6 max-w-6xl mx-auto">
+      <div className="bg-transparent rounded-lg shadow-sm overflow-hidden">
+        <div className="bg-transparent p-4 text-blue-400">
+          <h1 className="text-2xl font-bold text-center">
+            Defense Schedule Management
+          </h1>
         </div>
 
-        <div className="pt-4">
-          <button
-            type="submit"
-            className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2 rounded transition duration-200"
-          >
-            {editingId ? "Mettre à jour" : "Créer"}
-          </button>
-        </div>
-      </form>
-
-      {/* Boutons Email & Publication */}
-      <div className="flex gap-4 mt-6">
-        <button
-          onClick={handleSendEmail}
-          className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded font-medium transition"
-        >
-          📧 Envoyer Email
-        </button>
-        <button
-          onClick={handleTogglePublish}
-          className={`py-2 px-4 rounded ${
-            isPublished ? "bg-gray-500" : "bg-green-500"
-          } text-white`}
-        >
-          {isPublished ? (
-            <FaEyeSlash className="inline mr-2" />
-          ) : (
-            <FaEye className="inline mr-2" />
+        <div className="p-4 md:p-6">
+          {loading && (
+            <div className="text-center py-4">
+              <div className="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
+            </div>
           )}
-          {isPublished ? "Hide Planning" : "Publish Planning"}
-        </button>
-      </div>
 
-      {/* Liste des plannings */}
-      <div className="mt-10 overflow-x-auto">
-        <h2 className="text-xl font-semibold mb-4 text-gray-800">
-          Plannings existants
-        </h2>
-        <table className="w-full table-auto border border-gray-300 text-sm">
-          <thead>
-            <tr className="bg-gray-100 text-gray-700">
-              <th className="p-2 border">PFE</th>
-              <th className="p-2 border">Salle</th>
-              <th className="p-2 border">Date</th>
-              <th className="p-2 border">Heure</th>
-              <th className="p-2 border">Encadrant</th>
-              <th className="p-2 border">Président</th>
-              <th className="p-2 border">Rapporteur</th>
-              <th className="p-2 border">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {Array.isArray(plannings) && plannings.length > 0 ? (
-              plannings.map((plan, index) => (
-                <tr
-                  key={plan._id || index}
-                  className="odd:bg-white even:bg-gray-50"
+          {message && (
+            <div className={`mb-4 p-3 rounded-md ${message.includes("success") ? "bg-green-50 text-green-700" : "bg-red-50 text-red-700"}`}>
+              {message}
+            </div>
+          )}
+
+          {/* Form */}
+          <form onSubmit={handleSubmit} className="space-y-4 bg-gray-50 p-4 rounded-lg border border-gray-200">
+            <h2 className="text-lg font-semibold text-gray-700 flex items-center">
+              <FaCalendarAlt className="mr-2 text-blue-600" />
+              {editingId ? "Edit Defense" : "New Defense Schedule"}
+            </h2>
+
+            <div className="grid md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Thesis</label>
+                <select
+                  name="pfeId"
+                  value={form.pfeId}
+                  onChange={handleChange}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                  required
                 >
-                  <td className="p-2 border">{plan.pfe?.title || "N/A"}</td>
-                  <td className="p-2 border">{plan.room}</td>
-                  <td className="p-2 border">
-                    {new Date(plan.date).toLocaleDateString("fr-FR")}
-                  </td>
-                  <td className="p-2 border">{formatTime(plan.time)}</td>
-                  <td className="p-2 border">
-                    {plan.pfe?.IsammSupervisor?.email || "N/A"}
-                  </td>
-                  <td className="p-2 border">
-                    {plan.presidentId?.email || "N/A"}
-                  </td>
-                  <td className="p-2 border">
-                    {plan.reporterId?.email || "N/A"}
-                  </td>
-                  <td className="p-2 border text-center">
-                    <button
-                      onClick={() => handleEdit(plan)}
-                      className="text-blue-600 hover:underline font-medium"
-                    >
-                      ✏️ Modifier
-                    </button>
-                  </td>
-                </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan="8" className="p-4 text-center text-gray-500">
-                  Aucun planning trouvé.
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
+                  <option value="">Select a thesis</option>
+                  {pfes.map((pfe) => (
+                    <option key={pfe.pfeId} value={pfe.pfeId}>
+                      {pfe.title}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Room</label>
+                <input
+                  name="room"
+                  value={form.room}
+                  onChange={handleChange}
+                  type="text"
+                  placeholder="Room"
+                  required
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">President</label>
+                <select
+                  name="presidentId"
+                  value={form.presidentId}
+                  onChange={handleChange}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                  required
+                >
+                  <option value="">Select a president</option>
+                  {teachers.map((t) => (
+                    <option key={t._id} value={t._id}>
+                      {t.firstName} {t.lastName}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Reporter</label>
+                <select
+                  name="reporterId"
+                  value={form.reporterId}
+                  onChange={handleChange}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                  required
+                >
+                  <option value="">Select a reporter</option>
+                  {teachers.map((t) => (
+                    <option key={t._id} value={t._id}>
+                      {t.firstName} {t.lastName}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Date</label>
+                <input
+                  name="date"
+                  value={form.date}
+                  onChange={handleChange}
+                  type="date"
+                  required
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Time</label>
+                <input
+                  name="time"
+                  value={form.time}
+                  onChange={handleChange}
+                  type="time"
+                  required
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                />
+              </div>
+            </div>
+
+            <div className="flex justify-end pt-2">
+              <button
+                type="submit"
+                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+              >
+                {editingId ? "Update" : "Save"}
+              </button>
+            </div>
+          </form>
+
+          {/* Email & Publication Buttons */}
+          <div className="flex flex-wrap gap-3 mt-6 justify-end">
+            <button
+              onClick={handleSendEmail}
+              className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+            >
+              <FaPaperPlane className="mr-2" />
+              Send Email
+            </button>
+            <button
+              onClick={handleTogglePublish}
+              className={`inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white focus:outline-none focus:ring-2 focus:ring-offset-2 ${
+                isPublished ? "bg-gray-600 hover:bg-gray-700 focus:ring-gray-500" : "bg-green-600 hover:bg-green-700 focus:ring-green-500"
+              }`}
+            >
+              {isPublished ? (
+                <FaEyeSlash className="mr-2" />
+              ) : (
+                <FaEye className="mr-2" />
+              )}
+              {isPublished ? "Hide Schedule" : "Publish Schedule"}
+            </button>
+          </div>
+
+          {/* Schedules List */}
+          <div className="mt-8">
+            <h2 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+              <FaCalendarAlt className="mr-2 text-blue-600" />
+              Existing Schedules
+            </h2>
+            
+            <div className="overflow-x-auto shadow-sm rounded-lg border border-gray-200">
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Thesis</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Room</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Time</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Supervisor</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">President</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Reporter</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {Array.isArray(plannings) && plannings.length > 0 ? (
+                    plannings.map((plan) => (
+                      <tr key={plan._id} className="hover:bg-gray-50">
+                        <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">{plan.pfe?.title || "N/A"}</td>
+                        <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500">{plan.room}</td>
+                        <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500">
+                          {plan.date ? new Date(plan.date).toLocaleDateString("en-US") : "N/A"}
+                        </td>
+                        <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500">{formatTime(plan.time)}</td>
+                        <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500">
+                          {plan.pfe?.IsammSupervisor?.email || "N/A"}
+                        </td>
+                        <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500">
+                          {plan.presidentId?.email || "N/A"}
+                        </td>
+                        <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500">
+                          {plan.reporterId?.email || "N/A"}
+                        </td>
+                        <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500">
+                          <button
+                            onClick={() => handleEdit(plan)}
+                            className="text-blue-600 hover:text-blue-900 inline-flex items-center"
+                          >
+                            <FaEdit className="mr-1" /> Edit
+                          </button>
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan="8" className="px-4 py-4 text-center text-sm text-gray-500">
+                        No schedules found.
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

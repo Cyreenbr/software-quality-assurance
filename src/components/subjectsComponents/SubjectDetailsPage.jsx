@@ -9,10 +9,13 @@ import {
     FaEdit,
     FaEye,
     FaHistory,
+    FaSave,
+    FaSpinner,
     FaStar,
-    FaTimes
+    FaTimes,
+    FaTrash
 } from "react-icons/fa";
-import { FiBell, FiBook, FiCalendar, FiCheckCircle, FiChevronDown, FiChevronRight, FiClock, FiEyeOff, FiFileText, FiLayers, FiUser, FiXCircle } from "react-icons/fi";
+import { FiAlertTriangle, FiArchive, FiBell, FiBook, FiCalendar, FiCheck, FiCheckCircle, FiChevronDown, FiChevronRight, FiClock, FiEyeOff, FiFileText, FiLayers, FiUser, FiX, FiXCircle } from "react-icons/fi";
 import { MdTitle } from "react-icons/md";
 import { useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
@@ -24,9 +27,13 @@ import useDeviceType from "../../utils/useDeviceType";
 import { RoleEnum } from "../../utils/userRoles";
 import PageLayout from "../skillsComponents/PageLayout";
 import Popup from "../skillsComponents/Popup";
-import Tooltip from "../skillsComponents/Tooltip";
+
+import Tooltip from "../skillsComponents/tooltip";
+
 import { CurriculumChapters } from "./CurriculumChapters";
+import EvaluationList from "./EvaluationList.jsx";
 import { SkillList } from "./SkillList";
+
 import SubjectForm from "./SubjectForm";
 
 const SubjectDetailsPage = () => {
@@ -34,7 +41,11 @@ const SubjectDetailsPage = () => {
     const [formData, setFormData] = useState(null);
     const [fetchData, setFetchData] = useState(null);
     const [showForm, setShowForm] = useState(false);
+    const [showEvaluation, setShowEvaluation] = useState(false);
     const [loading, setLoading] = useState(true);
+    const [loadingBtn, setLoadingBtn] = useState(false);
+    const [loadingBtnSubmit, setLoadingBtnSubmit] = useState(false);
+    const [isDeletePopupOpen, setIsDeletePopupOpen] = useState(false);
     const [error, setError] = useState(null);
     const [selectedHistory, setSelectedHistory] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -48,7 +59,29 @@ const SubjectDetailsPage = () => {
     const [propositions, setPropositions] = useState(null);
     const deviceType = useDeviceType();
     let positionTooltip = deviceType !== "mobile" ? "bottom" : "left";
+    const confirmDeleteMessage = `Are you sure you want to delete this subject?`;
+    const [archive, setArchive] = useState(false);
+    const [forced, setForced] = useState(false);
 
+
+    const handleDelete = async (id, { forced = false, archive = false }) => {
+        try {
+            await matieresServices.deleteMatiere(id, { forced: forced, archive: archive });
+            toast.success("Subject deleted successfully!");
+            navigate(`/subjects`)
+            return true;
+        } catch (error) {
+            console.error("Error deleting subject:", error);
+            toast.error("Failed to delete subject: " + (error?.message || error));
+            return false;
+        }
+    }
+    const handleConfirmDelete = async () => {
+        const deleteSuccess = await handleDelete(id, { forced, archive });
+        console.log(deleteSuccess);
+
+        if (deleteSuccess === true) setIsDeletePopupOpen(false);
+    };
 
     const fetchPropositions = useCallback(async () => {
         if (userRole !== RoleEnum.ADMIN) {
@@ -169,6 +202,7 @@ const SubjectDetailsPage = () => {
 
     // Handle form submission (after adding/editing a subject)
     const handleFormSubmit = async (updatedData) => {
+        setLoadingBtnSubmit(true);
         try {
             let data;
             if (userRole === RoleEnum.ADMIN) {
@@ -185,6 +219,7 @@ const SubjectDetailsPage = () => {
         } catch (error) {
             toast.error("Failed to update subject: " + error);
         }
+        setLoadingBtnSubmit(false);
     };
 
     const toggleChapterExpand = (index) => {
@@ -274,6 +309,7 @@ const SubjectDetailsPage = () => {
     // };
 
     const handleSubmit = async () => {
+        setLoadingBtnSubmit(true);
         try {
             // Étape 1 : Mise à jour des dates dans les chapitres et sections
             const updatedChapters = formData.subject.curriculum.chapitres.map((chapter, cIndex) => {
@@ -325,6 +361,7 @@ const SubjectDetailsPage = () => {
             toast.error("Échec de la mise à jour de la matière.");
             toast.error(err.message || err);
         }
+        setLoadingBtnSubmit(false);
     };
 
     const handleDateChange = (key, date) => {
@@ -347,12 +384,15 @@ const SubjectDetailsPage = () => {
     if (!formData) return <ErrorState message="Invalid subject data." />;
 
     const handleSendNotif = async (id) => {
+        setLoadingBtn(true);
         try {
             const result = await matieresServices.sendEvaluationNotif(id);
             toast.success(result.message);
         } catch (error) {
             toast.error(error.toString());
         }
+        setLoadingBtn(false);
+
     };
 
     const actionHeaders =
@@ -381,7 +421,11 @@ const SubjectDetailsPage = () => {
                                         }}
                                         className="flex items-center justify-center gap-2 bg-gray-500 text-white px-5 py-2.5 rounded-xl font-medium shadow hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-400 transition-all duration-200 sm:w-auto w-full"
                                     >
-                                        <FiBell className="text-lg" />
+                                        {loadingBtn ?
+                                            <ClipLoader color="#ffffff" size={20} />
+                                            :
+                                            <FiBell className="text-lg" />
+                                        }
                                     </button>
                                 </Tooltip>
                                 <Tooltip text={"Proposed Modifications"} position={positionTooltip}>
@@ -395,7 +439,25 @@ const SubjectDetailsPage = () => {
                                         <FaEye className="text-lg" />
                                     </button>
                                 </Tooltip>
-
+                                <Tooltip text={"Delete"} position={positionTooltip}>
+                                    <button
+                                        onClick={() => {
+                                            setIsDeletePopupOpen(true);
+                                        }}
+                                        className="flex items-center justify-center gap-2 bg-red-600 text-white px-5 py-2.5 rounded-xl font-medium shadow hover:bg-red-500 focus:outline-none focus:ring-2 focus:ring-red-400 transition-all duration-200 sm:w-auto w-full"
+                                    >
+                                        <FaTrash className="text-lg" />
+                                    </button>
+                                </Tooltip>
+                                 <Tooltip text={'View Evaluations'}
+                                    position={positionTooltip}>
+                                    <button
+                                        onClick={() => setShowEvaluation(true)}
+                                        className="flex items-center justify-center gap-2 bg-orange-600 text-white px-5 py-2.5 rounded-xl font-medium shadow hover:bg-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-400 transition-all duration-200 sm:w-auto w-full"
+                                    >
+                                        <FaStar className="mr-2" />
+                                    </button>
+                                </Tooltip>
                             </>
                         )}
 
@@ -410,15 +472,18 @@ const SubjectDetailsPage = () => {
                                 </button>
                             </Tooltip>
                         ) : (
-                            <Tooltip text={userRole === RoleEnum.ADMIN ? 'Edit' : 'Propose an Edit'}
-                                position={positionTooltip}>
-                                <button
-                                    onClick={toggleForm}
-                                    className="flex items-center justify-center gap-2 bg-teal-600 text-white px-5 py-2.5 rounded-xl font-medium shadow hover:bg-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-400 transition-all duration-200 sm:w-auto w-full"
-                                >
-                                    <FaEdit className="mr-2" />
-                                </button>
-                            </Tooltip>
+                            <>
+                               
+                                <Tooltip text={userRole === RoleEnum.ADMIN ? 'Edit' : 'Propose an Edit'}
+                                    position={positionTooltip}>
+                                    <button
+                                        onClick={toggleForm}
+                                        className="flex items-center justify-center gap-2 bg-teal-600 text-white px-5 py-2.5 rounded-xl font-medium shadow hover:bg-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-400 transition-all duration-200 sm:w-auto w-full"
+                                    >
+                                        <FaEdit className="mr-2" />
+                                    </button>
+                                </Tooltip>
+                            </>
                         )}
 
                     </div>
@@ -554,6 +619,21 @@ const SubjectDetailsPage = () => {
                             )}
                         </div>
                     </Popup >
+                    {/* Popup Evaluatioln list */}
+                    <Popup
+                        isOpen={showEvaluation}
+                        onClose={() => setShowEvaluation(false)}
+                        position="center"
+                        size="lg"
+                        showCloseButton
+                    >
+                        <div className="max-w-3xl mx-auto text-left">
+                            {/* <h3 className="text-2xl font-bold text-blue-800 mb-4 text-center flex items-center justify-center  ">
+                                <FiCheckCircle className="text-2xl" /> List of Evaluations for this Subject
+                            </h3> */}
+                            <EvaluationList subjectId={fetchData._id} showHeader />
+                        </div>
+                    </Popup >
                 </>
             );
 
@@ -589,8 +669,8 @@ const SubjectDetailsPage = () => {
                                     </>
                                 )}
                             </div>
-                            <p className="text-sm text-gray-600">Last update at :{humanizeDate(formData.subject.updatedAt)}</p>
-                            <p className="text-sm text-gray-600">Created at :{humanizeDate(formData.subject.createdAt)}</p>
+                            <p className="text-sm text-gray-600">Last update :{humanizeDate(formData.subject.updatedAt, true)}</p>
+                            <p className="text-sm text-gray-600">Created :{humanizeDate(formData.subject.createdAt, true)}</p>
                         </header>)}
 
 
@@ -635,13 +715,12 @@ const SubjectDetailsPage = () => {
                                         const chapterKey = `chapter-${index}`;
                                         const isCompleted = chapter.status;
                                         const completedAt = chapter.completedAt || completedAtDates[chapterKey];
-                                        // const canEdit = userId === formData?.subject.teacherId._id;
                                         const sectionCount = chapter.sections.length;
 
                                         return (
                                             <div
                                                 key={index}
-                                                className={`border rounded-2xl p-5 shadow-md transition-colors duration-200 ${isCompleted ? "bg-green-50 border-green-300" : "bg-white"
+                                                className={`border rounded-2xl p-5 shadow-md transition-colors duration-200 ${isCompleted ? "bg-teal-50 border-teal-400" : "bg-red-50 border-red-300"
                                                     }`}
                                             >
                                                 {/* Chapter Header */}
@@ -650,12 +729,12 @@ const SubjectDetailsPage = () => {
                                                     onClick={() => toggleChapterExpand(index)}
                                                 >
                                                     <h3
-                                                        className={`text-xl font-semibold flex items-center gap-2 ${isCompleted ? "text-green-800" : "text-gray-800"
+                                                        className={`text-xl font-semibold flex items-center gap-2 ${isCompleted ? "text-teal-900" : "text-red-800"
                                                             }`}
                                                     >
                                                         {chapter.title || `Chapter ${index + 1}`}
                                                         {isCompleted ? (
-                                                            <FaCheck className="text-green-500" />
+                                                            <FaCheck className="text-teal-700" />
                                                         ) : (
                                                             <FaTimes className="text-red-500" />
                                                         )}
@@ -672,8 +751,8 @@ const SubjectDetailsPage = () => {
                                                 </div>
 
                                                 {/* Number of Sections */}
-                                                <div className="text-sm text-gray-500 mt-1">
-                                                    {sectionCount} {sectionCount === 1 ? 'Section' : 'Sections'}
+                                                <div className="text-sm text-gray-600 mt-1">
+                                                    {sectionCount} {sectionCount === 1 ? "Section" : "Sections"}
                                                 </div>
 
                                                 {/* Chapter Checkbox */}
@@ -683,10 +762,12 @@ const SubjectDetailsPage = () => {
                                                             type="checkbox"
                                                             checked={chapter.status}
                                                             onChange={() => toggleChapterStatus(index)}
-                                                            className="w-5 h-5 text-green-600 border-gray-300 focus:ring-green-500 rounded"
+                                                            className="w-5 h-5 text-teal-600 border-gray-300 focus:ring-teal-500 rounded"
                                                             aria-label={`Mark Chapter ${index + 1} as complete`}
                                                         />
-                                                        <label className="text-sm text-gray-700">Mark as complete</label>
+                                                        <label className="text-sm text-gray-700">
+                                                            Mark as complete
+                                                        </label>
                                                     </div>
                                                 )}
 
@@ -696,9 +777,11 @@ const SubjectDetailsPage = () => {
                                                         <div className="flex items-center gap-2">
                                                             <FaCalendarAlt />
                                                             <span>
-                                                                Completed At:{" "}
+                                                                Completed :{" "}
                                                                 {completedAt ? (
-                                                                    <span className="font-medium">{humanizeDate(completedAt)}</span>
+                                                                    <span className="font-medium">
+                                                                        {humanizeDate(completedAt)}
+                                                                    </span>
                                                                 ) : (
                                                                     <span className="text-gray-400">Not yet updated</span>
                                                                 )}
@@ -707,12 +790,18 @@ const SubjectDetailsPage = () => {
 
                                                         {canEdit && (
                                                             <div className="mt-2">
-                                                                <label className="block text-sm text-gray-600 mb-1">Completion Date:</label>
+                                                                <label className="block text-sm text-gray-600 mb-1">
+                                                                    Completion Date:
+                                                                </label>
                                                                 <input
                                                                     type="date"
-                                                                    // defaultValue={new Date().toISOString().split("T")[0]}
-                                                                    value={completedAtDates[chapterKey]?.split("T")[0] || new Date().toISOString().split("T")[0]}
-                                                                    onChange={(e) => handleDateChange(chapterKey, e.target.value)}
+                                                                    value={
+                                                                        completedAtDates[chapterKey]?.split("T")[0] ||
+                                                                        new Date().toISOString().split("T")[0]
+                                                                    }
+                                                                    onChange={(e) =>
+                                                                        handleDateChange(chapterKey, e.target.value)
+                                                                    }
                                                                     className="border rounded px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                                                                 />
                                                             </div>
@@ -725,29 +814,43 @@ const SubjectDetailsPage = () => {
                                                     <ul className="mt-4 border-l-2 border-gray-300 pl-5 space-y-3">
                                                         {chapter.sections.map((section, sIndex) => {
                                                             const sectionKey = `section-${index}-${sIndex}`;
-                                                            const sectionCompletedAt = completedAtDates[sectionKey] || section.completedAt;
+                                                            const sectionCompletedAt =
+                                                                completedAtDates[sectionKey] || section.completedAt;
+
+                                                            const isSectionCompleted = section.status;
 
                                                             return (
-                                                                <li key={sIndex} className="flex justify-between items-start">
+                                                                <li
+                                                                    key={sIndex}
+                                                                    className={`flex justify-between items-start rounded-md p-2 transition-colors ${isSectionCompleted
+                                                                        ? "bg-teal-100 border border-teal-400"
+                                                                        : "bg-red-50 border border-red-200"
+                                                                        }`}
+                                                                    title={
+                                                                        isSectionCompleted && sectionCompletedAt
+                                                                            ? `Completed ${humanizeDate(sectionCompletedAt)}`
+                                                                            : undefined
+                                                                    }
+                                                                >
                                                                     <div
-                                                                        className={`flex flex-col items-start gap-1 text-base ${section.status ? "text-green-800" : "text-gray-700"
+                                                                        className={`flex flex-col items-start gap-1 text-base ${isSectionCompleted ? "text-teal-900" : "text-red-800"
                                                                             }`}
                                                                     >
                                                                         <div className="flex items-center gap-2">
                                                                             {sIndex + 1} - {section.title || `Section ${sIndex + 1}`}{" "}
-                                                                            {section.status ? (
-                                                                                <FaCheck className="text-green-500 ml-1" />
+                                                                            {isSectionCompleted ? (
+                                                                                <FaCheck className="text-teal-700 ml-1" />
                                                                             ) : (
                                                                                 <FaTimes className="text-red-500 ml-1" />
                                                                             )}
                                                                         </div>
 
-                                                                        {section.status && (
+                                                                        {isSectionCompleted && (
                                                                             <>
-                                                                                <div className="flex items-center text-sm text-gray-600 gap-2">
+                                                                                <div className="flex items-center text-sm text-gray-700 gap-2">
                                                                                     <FaCalendarAlt />
                                                                                     <span>
-                                                                                        Completed At:{" "}
+                                                                                        Completed :{" "}
                                                                                         {sectionCompletedAt ? (
                                                                                             <span className="font-medium">
                                                                                                 {humanizeDate(sectionCompletedAt)}
@@ -770,10 +873,11 @@ const SubjectDetailsPage = () => {
                                                                                                     ? completedAtDates[sectionKey].split("T")[0]
                                                                                                     : new Date().toISOString().split("T")[0]
                                                                                             }
-                                                                                            onChange={(e) => handleDateChange(sectionKey, e.target.value)}
+                                                                                            onChange={(e) =>
+                                                                                                handleDateChange(sectionKey, e.target.value)
+                                                                                            }
                                                                                             className="border rounded px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                                                                                         />
-
                                                                                     </div>
                                                                                 )}
                                                                             </>
@@ -784,9 +888,9 @@ const SubjectDetailsPage = () => {
                                                                         {canEdit && (
                                                                             <input
                                                                                 type="checkbox"
-                                                                                checked={section.status}
+                                                                                checked={isSectionCompleted}
                                                                                 onChange={() => toggleSectionStatus(index, sIndex)}
-                                                                                className="w-5 h-5 text-green-600 border-gray-300 focus:ring-green-500 rounded"
+                                                                                className="w-5 h-5 text-teal-600 border-gray-300 focus:ring-teal-500 rounded"
                                                                                 aria-label={`Mark Section ${sIndex + 1} as complete`}
                                                                             />
                                                                         )}
@@ -809,13 +913,28 @@ const SubjectDetailsPage = () => {
                                 <div className="flex justify-end mt-8">
                                     <button
                                         onClick={handleSubmit}
-                                        className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl shadow-md transition-all"
+                                        disabled={loadingBtnSubmit}
+                                        aria-label={loadingBtnSubmit ? "Saving progress" : "Update status"}
+                                        className={`px-6 py-2 font-semibold rounded-xl shadow-md transition-all flex items-center gap-2
+                                            ${loadingBtnSubmit ? "bg-blue-400 cursor-not-allowed" : "bg-blue-600 hover:bg-blue-700"} text-white`}
                                     >
-                                        Update Status
+                                        {loadingBtnSubmit ? (
+                                            <>
+                                                <FaSpinner className="animate-spin" />
+                                                Saving Progress
+                                            </>
+                                        ) : (
+                                            <>
+                                                <FaSave />
+                                                Update Status
+                                            </>
+                                        )}
                                     </button>
+
                                 </div>
                             )}
                         </Section>
+
 
 
                         {/* Skills */}
@@ -898,7 +1017,7 @@ const SubjectDetailsPage = () => {
                                                 Modified At
                                             </span>
                                         }
-                                        value={humanizeDate(selectedHistory.modifiedAt)}
+                                        value={humanizeDate(selectedHistory.modifiedAt, true)}
                                     />
 
                                     {/* Teachers */}
@@ -971,7 +1090,7 @@ const SubjectDetailsPage = () => {
                                                                                 <span>{section.title}</span>
                                                                                 {section.completedAt && (
                                                                                     <span className="text-gray-500 text-xs">
-                                                                                        ({humanizeDate(section.completedAt)})
+                                                                                        (Completed {humanizeDate(section.completedAt)})
                                                                                     </span>
                                                                                 )}
                                                                             </div>
@@ -1027,7 +1146,71 @@ const SubjectDetailsPage = () => {
                                 </div>
                             </Popup>
                         )}
+                        {/* Delete Confirmation Popup */}
+                        <Popup
+                            isOpen={isDeletePopupOpen}
+                            onClose={() => setIsDeletePopupOpen(false)}
+                            // onConfirm={() => handleDelete(subjectToDelete._id)}
+                            position="center"
+                        >
+                            <div className="max-w-md mx-auto text-center">
+                                <h2 className="text-2xl font-semibold text-red-600 mb-4">{confirmDeleteMessage}</h2>
+                                <div className="flex justify-center gap-4 mb-6">
+                                    {/* Archive Toggle Button */}
+                                    <Tooltip text={archive ? "Archive Enabled" : "Enable Archive"} position="bottom">
+                                        <button
+                                            onClick={() => setArchive(!archive)} // Toggle archive state
+                                            className={`flex items-center gap-2 px-6 py-3 rounded-full font-medium transition-all duration-300 shadow-md ${archive ? "bg-black text-white hover:bg-gray-700" : "bg-gray-300 text-gray-700 hover:bg-gray-400"
+                                                }`}
+                                        >
+                                            {archive ? <FiAlertTriangle className="text-white text-lg" /> : <FiArchive className="text-gray-700 text-lg" />}
+                                            {archive ? "Enabled" : "Archive"}
+                                        </button>
+                                    </Tooltip>
 
+                                    {/* Force Delete Toggle Button */}
+                                    <Tooltip text={forced ? "Force Delete Enabled" : "Enable Force Delete"} position="bottom">
+                                        <button
+                                            onClick={() => setForced(!forced)} // Toggle force state
+                                            className={`flex items-center gap-2 px-6 py-3 rounded-full font-medium transition-all duration-300 shadow-md ${forced ? "bg-red-600 text-white hover:bg-red-700" : "bg-gray-300 text-gray-700 hover:bg-gray-400"
+                                                }`}
+                                        >
+                                            {forced ? <FiCheckCircle className="text-white text-lg" /> : <FiAlertTriangle className="text-gray-700 text-lg" />}
+                                            {forced ? "Enabled" : "Force Delete"}
+                                        </button>
+                                    </Tooltip>
+                                </div>
+
+                                {/* Confirm and Cancel Buttons */}
+                                <div className="flex flex-col sm:flex-row gap-4 w-full justify-center">
+                                    {[
+                                        {
+                                            label: "Confirm",
+                                            action: () => {
+                                                handleConfirmDelete(); console.log(subjectToDelete._id);
+                                            },
+                                            bgColor: "bg-red-600 hover:bg-red-700",
+                                            icon: <FiCheck className="text-lg" />,
+                                        },
+                                        {
+                                            label: "Cancel",
+                                            action: () => setIsDeletePopupOpen(false),
+                                            bgColor: "bg-gray-400 hover:bg-gray-500",
+                                            icon: <FiX className="text-lg" />,
+                                        },
+                                    ].map(({ label, action, bgColor, icon }) => (
+                                        <button
+                                            key={label}
+                                            onClick={action}
+                                            className={`${bgColor} text-white px-6 py-3 rounded-lg transition flex items-center justify-center gap-2 w-full`}
+                                        >
+                                            {icon}
+                                            <span>{label}</span>
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                        </Popup>
                     </div>
                 </div>)
             }

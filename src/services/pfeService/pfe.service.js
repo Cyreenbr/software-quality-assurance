@@ -1,6 +1,6 @@
 import axios from "axios";
-import axiosAPI from "../axiosAPI/axiosInstance";
 import { toast } from "react-toastify";
+import axiosAPI from "../axiosAPI/axiosInstance";
 
 const API_URL = "http://localhost:3000/api/PFE";
 
@@ -98,6 +98,7 @@ export const handleAction = async (id, action) => {
 
 export const assignPFEManually = async (id, teacherId) => {
   try {
+    console.log(id);
     const response = await axiosAPI.patch(`${API_URL}/${id}/planning/assign`, {
       teacherId,
       force: true,
@@ -144,7 +145,7 @@ export const sendEmail = async () => {
 export const fetchPFEChoices = async () => {
   try {
     const response = await axiosAPI.get(`${API_URL}/list`);
-
+    console.log(response.data);
     return response.data;
   } catch (error) {
     toast.error(

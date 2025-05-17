@@ -1,14 +1,17 @@
-import React, { useState, useEffect } from "react";
-import { OpenNewYear } from "../../services/UniversityYearServices/universityyear.service.js";
+import { useEffect, useState } from "react";
+import { FaCheckCircle } from "react-icons/fa";
+import { MdDone, MdUploadFile } from "react-icons/md";
+import Swal from "sweetalert2";
+import * as XLSX from "xlsx";
 import {
   getStudents,
   insertStudentsFromExcel,
 } from "../../services/ManageUsersServices/students.service.js";
+import matieresServices from "../../services/matieresServices/matieres.service.js";
+import { OpenNewYear } from "../../services/UniversityYearServices/universityyear.service.js";
 import AcademicYearPicker from "../AcademicYearPicker.jsx";
-import * as XLSX from "xlsx";
-import { MdSchool, MdUploadFile, MdRefresh } from "react-icons/md";
-import Swal from "sweetalert2";
-
+import AssignTeachersStep from "./AssignTeachersToSubjects.jsx";
+import UpgradeStudents from "./UpgradeStudents.jsx"; // Import UpgradeStudents component
 const NewYearListing = ({ onBack }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -24,7 +27,81 @@ const NewYearListing = ({ onBack }) => {
   const [importedStudents, setImportedStudents] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
+  const [allStudentsProcessed, setAllStudentsProcessed] = useState(false);
   const studentsPerPage = 5;
+  const [subjects, setSubjects] = useState([]);
+  const [teachers, setTeachers] = useState([]);
+  const [selectedTeachers, setSelectedTeachers] = useState({});
+  const [fetchingSubjects, setFetchingSubjects] = useState(false);
+  const steps = [
+    "Create Year",
+    "Process Students",
+    "Upload Data",
+    "Assign Teachers to Subjects",
+    "Completion"
+  ];
+
+  // Fetch subjects & teachers when entering step 4
+
+  useEffect(() => {
+    if (success || error) {
+      const timer = setTimeout(() => {
+        setSuccess(null);
+        setError(null);
+      }, 5000);
+
+      return () => clearTimeout(timer); // Clean up if component unmounts
+    }
+  }, [success, error]);
+
+
+  useEffect(() => {
+    const loadSubjectsAndTeachers = async () => {
+      if (currentStep !== 3) return;
+
+      try {
+        setFetchingSubjects(true);
+        const [subjectsResponse, teachersResponse] = await Promise.all([
+          matieresServices.fetchMatieres({ page: 1, limit: 100 }),
+          matieresServices.fetchTeachers({ page: 1, limit: 100 }),
+        ]);
+
+        const fetchedSubjects = subjectsResponse.subjects || [];
+        const fetchedTeachers = teachersResponse.teachers || [];
+        console.log(fetchedSubjects);
+        console.log(fetchedTeachers);
+
+        setSubjects(fetchedSubjects);
+        setTeachers(fetchedTeachers);
+
+        const initialSelected = {};
+        fetchedSubjects.forEach((subject) => {
+          if (subject.teacherId) {
+            initialSelected[subject._id] = subject.teacherId;
+          }
+        });
+        setSelectedTeachers(initialSelected);
+      } catch (err) {
+        console.error("Failed to load subjects or teachers:", err);
+        Swal.fire("Error", "Could not load subjects or teachers.", "error");
+      } finally {
+        setFetchingSubjects(false);
+      }
+    };
+
+    loadSubjectsAndTeachers();
+  }, [currentStep]);
+
+
+  const fetchTeachers = async (searchTerm) => {
+    try {
+      const data = await matieresServices.fetchTeachers({ page: 1, searchTerm: searchTerm, limit: 100 });
+      return data.teachers;
+    } catch (error) {
+      console.error("Error fetching teachers:", error);
+      return [];
+    }
+  };
 
   useEffect(() => {
     fetchStudents();
@@ -52,8 +129,8 @@ const NewYearListing = ({ onBack }) => {
   // Get unique levels and sort them
   const levels = Array.isArray(students)
     ? [
-        ...new Set(students.map((student) => student.level).filter(Boolean)),
-      ].sort()
+      ...new Set(students.map((student) => student.level).filter(Boolean)),
+    ].sort()
     : [];
 
   const filteredStudents =
@@ -176,11 +253,33 @@ const NewYearListing = ({ onBack }) => {
   };
 
   const handleNext = () => {
+    // Only proceed to next step if all students are processed (when coming from Step 2)
+    // if (currentStep === 2 && !allStudentsProcessed) {
+    //   Swal.fire({
+    //     title: "Error",
+    //     text: "Please process all students before proceeding",
+    //     icon: "warning",
+    //   });
+    //   return;
+    // }
+
     setCurrentStep(currentStep + 1);
   };
 
+  // Handle completion of student processing
+  const handleStudentProcessingComplete = () => {
+    setAllStudentsProcessed(true);
+    Swal.fire({
+      title: "Success",
+      text: "All students have been processed successfully!",
+      icon: "success",
+      timer: 2000,
+      showConfirmButton: false,
+    });
+  };
+
   // Calculate progress percentage
-  const progressPercentage = (currentStep / 3) * 100;
+  const progressPercentage = (currentStep / 5) * 100;
 
   return (
     <div className="p-6 max-w-6xl mx-auto">
@@ -197,28 +296,28 @@ const NewYearListing = ({ onBack }) => {
                   style={{ width: `${progressPercentage}%` }}
                 ></div>
               </div>
-              <div className="flex justify-between">
-                <div
-                  className={`${
-                    currentStep >= 1 ? "text-blue-600" : "text-gray-500"
-                  }`}
-                >
-                  Step 1: Create Year
-                </div>
-                <div
-                  className={`${
-                    currentStep >= 2 ? "text-blue-600" : "text-gray-500"
-                  }`}
-                >
-                  Step 2: Review Students
-                </div>
-                <div
-                  className={`${
-                    currentStep >= 3 ? "text-blue-600" : "text-gray-500"
-                  }`}
-                >
-                  Step 3: Upload Data
-                </div>
+              <div className="flex justify-between items-center p-4 bg-white border rounded-xl shadow-sm">
+                {steps.map((label, index) => {
+                  const stepNumber = index + 1;
+                  const isCompleted = currentStep > stepNumber;
+                  const isCurrent = currentStep === stepNumber;
+                  const isFuture = currentStep < stepNumber;
+
+                  return (
+                    <div key={label} className="flex items-center gap-2">
+                      {isCompleted ? (
+                        <FaCheckCircle className="text-green-600" />
+                      ) : (
+                        <div
+                          className={`w-4 h-4 rounded-full border-2 ${isCurrent ? "border-blue-600 bg-blue-600" : "border-gray-400"}`}
+                        />
+                      )}
+                      <span className={`${isCompleted || isCurrent ? "text-blue-600 font-medium" : "text-gray-500"}`}>
+                        Step {stepNumber}: {label}
+                      </span>
+                    </div>
+                  );
+                })}
               </div>
             </div>
           </div>
@@ -255,12 +354,12 @@ const NewYearListing = ({ onBack }) => {
                 className="block text-gray-700 text-sm font-bold mb-2"
                 htmlFor="year"
               >
-                Academic Year (e.g., 2024-2025)
+                Academic Year :
               </label>
               <AcademicYearPicker
                 value={year}
                 onChange={(val) => setYear(val)}
-                range={10}
+                range={20}
                 direction="future"
                 includeCurrent={true}
                 label="Academic Year"
@@ -306,117 +405,28 @@ const NewYearListing = ({ onBack }) => {
           </div>
         )}
 
-        {/* Step 2: Review Students by Level */}
+        {/* Step 2: Process Students using UpgradeStudents component */}
         {currentStep === 2 && (
           <div>
             <h2 className="text-xl font-semibold mb-4">
-              Step 2: Review Students by Level
+              Step 2: Process Students
             </h2>
             <p className="mb-6 text-gray-600">
-              Review student information by academic level. You can filter
-              students to ensure all data is correct before proceeding.
+              Update the status of each student by selecting whether they should
+              be upgraded, held back, or graduated. You must process all
+              students before proceeding to the next step.
             </p>
 
-            <div className="mb-6">
-              <label className="block text-gray-700 font-medium mb-2">
-                Select Academic Level:
-              </label>
-              <select
-                className="w-full md:w-64 border rounded p-2"
-                value={selectedLevel}
-                onChange={(e) => setSelectedLevel(e.target.value)}
-              >
-                <option value="all">All Levels</option>
-                <option value="1ère année">
-                  1ère année (
-                  {students.filter((s) => s.level === "1ère année").length}{" "}
-                  students)
-                </option>
-                <option value="2ème année">
-                  2ème année (
-                  {students.filter((s) => s.level === "2ème année").length}{" "}
-                  students)
-                </option>
-                <option value="3ème année">
-                  3ème année (
-                  {students.filter((s) => s.level === "3ème année").length}{" "}
-                  students)
-                </option>
-                {levels
-                  .filter(
-                    (level) =>
-                      !["1ère année", "2ème année", "3ème année"].includes(
-                        level
-                      )
-                  )
-                  .map((level) => (
-                    <option key={level} value={level}>
-                      {level} (
-                      {students.filter((s) => s.level === level).length}{" "}
-                      students)
-                    </option>
-                  ))}
-              </select>
-            </div>
+            {/* Using the UpgradeStudents component */}
+            <UpgradeStudents onComplete={handleStudentProcessingComplete} />
 
-            {loading ? (
-              <div className="text-center py-8">
-                <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-blue-500 border-t-transparent"></div>
-                <p className="mt-2 text-gray-600">Loading students...</p>
-              </div>
-            ) : (
-              <div className="overflow-x-auto border rounded">
-                <table className="min-w-full divide-y divide-gray-200">
-                  <thead className="bg-gray-50">
-                    <tr>
-                      <th
-                        scope="col"
-                        className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                      >
-                        Name
-                      </th>
-                      <th
-                        scope="col"
-                        className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                      >
-                        Level
-                      </th>
-                      <th
-                        scope="col"
-                        className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                      >
-                        Email
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
-                    {Array.isArray(filteredStudents) &&
-                    filteredStudents.length > 0 ? (
-                      filteredStudents.map((student) => (
-                        <tr key={student._id}>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            {student.firstName} {student.lastName}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            {student.level}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            {student.email}
-                          </td>
-                        </tr>
-                      ))
-                    ) : (
-                      <tr>
-                        <td
-                          colSpan="3"
-                          className="px-6 py-4 text-center text-gray-500"
-                        >
-                          No students found
-                        </td>
-                      </tr>
-                    )}
-                  </tbody>
-                </table>
+            {/* Display message when all students are processed */}
+            {allStudentsProcessed && (
+              <div className="mt-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded">
+                <div className="flex items-center">
+                  <MdDone className="h-5 w-5 mr-2" />
+                  <span>All students have been successfully processed!</span>
+                </div>
               </div>
             )}
           </div>
@@ -463,6 +473,7 @@ const NewYearListing = ({ onBack }) => {
                   Selected file: <span className="font-medium">{fileName}</span>
                 </p>
               )}
+
             </div>
 
             {/* Excel Preview */}
@@ -549,6 +560,47 @@ const NewYearListing = ({ onBack }) => {
                 <li>Phone Number</li>
               </ul>
             </div>
+            <div className="flex justify-center items-center">
+              <button
+                onClick={handleFileUpload}
+                disabled={loading || !file}
+                className={`px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white ${loading || !file
+                  ? "bg-green-300 cursor-not-allowed"
+                  : "bg-green-600 hover:bg-green-700"
+                  }`}
+              >
+                Upload file
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Step 4: Assign Teachers */}
+        {currentStep === 4 && (
+          <AssignTeachersStep
+            step={4}
+            currentStep={currentStep}
+            subjects={subjects}
+            fetchTeachers={fetchTeachers}
+            fetchingSubjects={fetchingSubjects}
+            teachers={teachers}
+          // onSubmitAssignments={handleSubmitAssignments}
+          />
+        )}
+
+        {currentStep === 5 && (
+          <div className="text-center">
+            <h2 className="text-2xl font-bold text-green-600 mb-4">🎉 New Academic Year Setup Completed!</h2>
+            <p className="text-gray-700 text-lg">
+              The academic year <strong>{year}</strong> has been successfully set up,
+              including students, subjects, and teacher assignments.
+            </p>
+            <button
+              className="mt-6 px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
+              onClick={onBack}
+            >
+              Return to Dashboard
+            </button>
           </div>
         )}
 
@@ -561,15 +613,14 @@ const NewYearListing = ({ onBack }) => {
             {currentStep === 1 ? "Cancel" : "Back"}
           </button>
 
-          {currentStep < 3 ? (
+          {currentStep < 5 && (
             <button
               onClick={currentStep === 1 ? createNewYear : handleNext}
               disabled={currentStep === 1 && !year}
-              className={`px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white ${
-                currentStep === 1 && !year
-                  ? "bg-blue-300 cursor-not-allowed"
-                  : "bg-blue-600 hover:bg-blue-700"
-              }`}
+              className={`px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white ${currentStep === 1 && !year
+                ? "bg-blue-300 cursor-not-allowed"
+                : "bg-blue-600 hover:bg-blue-700"
+                }`}
             >
               {currentStep === 1 ? (
                 loading ? (
@@ -599,47 +650,10 @@ const NewYearListing = ({ onBack }) => {
                 ) : (
                   "Create & Continue"
                 )
-              ) : (
-                "Next"
-              )}
-            </button>
-          ) : (
-            <button
-              onClick={handleFileUpload}
-              disabled={loading || !file}
-              className={`px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white ${
-                loading || !file
-                  ? "bg-green-300 cursor-not-allowed"
-                  : "bg-green-600 hover:bg-green-700"
-              }`}
-            >
-              {loading ? (
-                <span className="flex items-center">
-                  <svg
-                    className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                  >
-                    <circle
-                      className="opacity-25"
-                      cx="12"
-                      cy="12"
-                      r="10"
-                      stroke="currentColor"
-                      strokeWidth="4"
-                    ></circle>
-                    <path
-                      className="opacity-75"
-                      fill="currentColor"
-                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                    ></path>
-                  </svg>
-                  Uploading...
-                </span>
-              ) : (
-                "Upload & Finish"
-              )}
+              ) : currentStep === 4 ?
+                ("Finish Academic Year Setup") : (
+                  "Next"
+                )}
             </button>
           )}
         </div>

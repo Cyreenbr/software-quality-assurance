@@ -35,6 +35,7 @@ import PlanningPage from "../../pages/pfePage/planning";
 import PlanninginternshipPage from "../../pages/planningPage/PlanningPage";
 import InternshipPlanning from "../../pages/PlanningUpdate/InternshipPlanningUpdate";
 import InternshipList from "../../pages/studentInternshipPage/studentInternship";
+import StudentsWithoutInternship from "../../pages/studentInternshipPage/StudentsWithoutInternshipPage";
 import EvaluationFormPage from "../../pages/subjectsPage/EvaluationPage.jsx";
 import Subjects from "../../pages/subjectsPage/Subjects";
 import TeacherInternshipList from "../../pages/teacherInternshipPage/TeacherInternshipPage";
@@ -42,17 +43,12 @@ import StudentsListTeachers from "../../pages/usersListPage/StudentsListTeachers
 import StudentsManagPage from "../../pages/UsersManagementPage/StudentsManagPage";
 import TeachersManagPage from "../../pages/UsersManagementPage/TeachersManagPage";
 import { RoleEnum } from "../../utils/userRoles";
-import MyCV from "../../pages/MyCV.jsx";
 
-
-import StudentCVPage from "../../pages/StudentCVPage";
-import Profile from "../../pages/profilePage/Profile";
-import EditCV from "../../pages/EditCV";
-
-import AdminPlanningPage from "../../pages/pfePage/pfeSoutenance/PFEDefenseManagement";
 import EnseignantPage from "../../pages/pfePage/pfeSoutenance/EnseignantPage";
 import EtudiantSoutenancePage from "../../pages/pfePage/pfeSoutenance/EtudiantSoutenancePage";
+import AdminPlanningPage from "../../pages/pfePage/pfeSoutenance/PFEDefenseManagement";
 
+import Profile from "../../pages/profilePage/Profile";
 import UniversityYearPage from "../../pages/universityYearPage/UniversityYearPage";
 
 export const menuConfig = [
@@ -260,7 +256,7 @@ export const menuConfig = [
     hideHeader: false,
   },
   {
-    order: 57,
+    order: 27,
     label: "PFE",
     icon: FaGraduationCap,
     path: "/pfeplanning",
@@ -416,9 +412,9 @@ export const menuConfig = [
   },
 
 
-  
+  /*
   {
-    order: 31,
+    order: 28,
     label: "CVAcademic",
     icon: MdList,
     path: "/cv/generate/:id",
@@ -429,9 +425,9 @@ export const menuConfig = [
     dontShow: true,
     hideSideBar: false,
     hideHeader: false,
-  },
+  },*/
   {
-    order: 32,
+    order: 31,
     label: "Profile",
     icon: MdAccountCircle,
     path: "/profile",
@@ -440,10 +436,11 @@ export const menuConfig = [
     active: true,
     hideSideBar: false,
     hideHeader: false,
+    dontShow: true,
   },
 
   {
-    order: 33,
+    order: 32,
     label: "List Options",
     icon: MdAutoStories,
     path: "/list-options",
@@ -453,46 +450,28 @@ export const menuConfig = [
     hideSideBar: false,
     hideHeader: false,
   },
-
-
-     
- {
-   order: 34,
-    label: "View CV",
-    icon: MdAutoStories,
-    path: "/CV/me",
-    component:MyCV,
-    eligibleRoles: [RoleEnum.STUDENT],
-    active: true,
-    hideSideBar: false,
-    hideHeader: false,
-  },
   {
-    order: 35,
+    order: 33,
     label: "Manage University Year",
     icon: MdAutoStories,
     path: "/UniversityYear",
     component: UniversityYearPage,
     eligibleRoles: [RoleEnum.ADMIN],
-
     active: true,
     hideSideBar: false,
     hideHeader: false,
   },
-
-
-     
- {
-   order: 36,
-    label: "Edit CV",
-    icon: MdAutoStories,
-    path: "/CV/editCV",
-    component:EditCV,
-    eligibleRoles: [RoleEnum.STUDENT],
+  {
+    order: 34,
+    path: "/StudentsWithoutInternship",
+    component: StudentsWithoutInternship,
+    eligibleRoles: [RoleEnum.ADMIN],
     active: true,
+    dontShow: true,
     hideSideBar: false,
     hideHeader: false,
   },
+  
   // kifeh tzid route jdid ??
   // {
   //     order: 7,

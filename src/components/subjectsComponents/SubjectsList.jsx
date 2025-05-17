@@ -18,7 +18,7 @@ import NotFound404 from "../skillsComponents/NotFound404";
 import Pagination from "../skillsComponents/Pagination";
 import Popup from "../skillsComponents/Popup";
 import SearchBar from "../skillsComponents/SearchBar";
-import Tooltip from "../skillsComponents/Tooltip";
+import Tooltip from "../skillsComponents/tooltip";
 
 const SubjectList = ({ onEdit, refresh = false, }) => {
     const role = useSelector((status) => status.auth.role);
@@ -58,7 +58,7 @@ const SubjectList = ({ onEdit, refresh = false, }) => {
         setLoading(true);
 
         try {
-            const response = await matieresServices.fetchMatieres(page, searchTerm, sortBy, order);
+            const response = await matieresServices.fetchMatieres({ page, searchTerm, sortBy, order });
             const fetchedSubjects = response.subjects || [];
             setSubjects(fetchedSubjects);
             setSortedSubjects(fetchedSubjects); // Update sorted subjects
@@ -270,7 +270,6 @@ const SubjectList = ({ onEdit, refresh = false, }) => {
             <Popup
                 isOpen={isDeletePopupOpen}
                 onClose={() => setIsDeletePopupOpen(false)}
-                // onConfirm={() => handleDelete(subjectToDelete._id)}
                 position="center"
             >
                 <div className="max-w-md mx-auto text-center">
