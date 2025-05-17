@@ -339,7 +339,8 @@ export default function StudentList({ onAddClick }) {
     setStudentsList(prev => prev.filter(s => s._id !== studentId));
     setFilteredStudents(prev => prev.filter(s => s._id !== studentId));
   };
- const handleForceDelete = async () => {
+  
+  const handleForceDelete = async () => {
     if (!studentToDelete) return;
     
     setIsDeleting(true);
@@ -399,13 +400,28 @@ export default function StudentList({ onAddClick }) {
     });
   };
 
+  const handleNotifyAlumni = async () => {
+    setIsNotifying(true);
+    try {
+      await notifyAlumni();
+      showToast("Alumni notification sent successfully!", "success");
+    } catch (error) {
+      console.error("Error notifying alumni:", error);
+      showToast("Failed to notify alumni. Please try again.", "error");
+    } finally {
+      setIsNotifying(false);
+    }
+  };
+
   return (
     <div className="p-6 bg-gray-100 min-h-screen relative">
-      <h1 className="text-2xl font-bold mb-4">Manage Students</h1>
-         
+      {/* Header with title and buttons on the same line */}
+      <div className="flex flex-wrap justify-between items-center mb-6">
+        <h1 className="text-2xl font-bold">Manage Students</h1>
+        
         {/* Notify Alumni Button */}
         <button 
-          onClick={notifyAlumni}
+          onClick={handleNotifyAlumni}
           disabled={isNotifying}
           className="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 flex items-center gap-2 transition-colors"
         >
@@ -424,8 +440,7 @@ export default function StudentList({ onAddClick }) {
             </>
           )}
         </button>
-      
-
+      </div>
 
         {/* Toast Notification */}
         {toast.show && (
