@@ -133,7 +133,8 @@ export const menuConfig = [
     hideSideBar: false,
     hideHeader: false,
     dontShow: true,
-  }, {
+  },
+  {
     order: 77,
     // label: 'Subject Details',
     icon: undefined,
@@ -270,7 +271,6 @@ export const menuConfig = [
     hideHeader: false,
   },
 
-
   {
     order: 16,
     label: "PFE",
@@ -369,10 +369,9 @@ export const menuConfig = [
     hideHeader: false,
   },
 
-
   {
     order: 28,
-    label: "soutenancePlanning",
+    label: "Defense PFE ",
     icon: MdList,
     path: "/soutenancePlanning",
     tooltip: "soutenancePlanning",
@@ -385,7 +384,7 @@ export const menuConfig = [
   },
   {
     order: 29,
-    label: "soutenanceEnseignantPage",
+    label: "Defense PFE",
     icon: MdList,
     path: "/soutenanceEnseignantPage",
     tooltip: "soutenanceEnseignantPage",
@@ -398,7 +397,7 @@ export const menuConfig = [
   },
   {
     order: 30,
-    label: "EtudiantSoutenancePage",
+    label: "Defense PFE",
     icon: MdList,
     path: "/EtudiantSoutenancePage",
     tooltip: "EtudiantSoutenancePage",
@@ -410,7 +409,6 @@ export const menuConfig = [
     hideSideBar: false,
     hideHeader: false,
   },
-
 
   /*
   {
@@ -470,7 +468,7 @@ export const menuConfig = [
     hideSideBar: false,
     hideHeader: false,
   },
-  
+
   // kifeh tzid route jdid ??
   // {
   //     order: 7,
