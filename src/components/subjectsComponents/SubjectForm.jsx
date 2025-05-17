@@ -615,7 +615,7 @@ const SubjectForm = ({ initialData = null, onSubmit, proposeEdit = false }) => {
                                     direction="both"
                                     includeCurrent={true}
                                     // disableYears={(year) => year < 2022} // désactive les années avant 2022
-                                    label="Academic Year"
+                                    label=""
                                     required
                                 />
                                 :

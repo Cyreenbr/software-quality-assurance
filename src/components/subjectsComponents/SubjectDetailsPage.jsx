@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { CgEye } from "react-icons/cg";
 import {
+    FaArchive,
     FaArrowLeft,
     FaCalendarAlt,
     FaCheck,
@@ -34,6 +35,7 @@ import { CurriculumChapters } from "./CurriculumChapters";
 import EvaluationList from "./EvaluationList.jsx";
 import { SkillList } from "./SkillList";
 
+import ArchivedSubjects from "./ArchivedSubjects.jsx";
 import SubjectForm from "./SubjectForm";
 
 const SubjectDetailsPage = () => {
@@ -42,6 +44,7 @@ const SubjectDetailsPage = () => {
     const [fetchData, setFetchData] = useState(null);
     const [showForm, setShowForm] = useState(false);
     const [showEvaluation, setShowEvaluation] = useState(false);
+    const [showArchive, setShowArchive] = useState(false);
     const [loading, setLoading] = useState(true);
     const [loadingBtn, setLoadingBtn] = useState(false);
     const [loadingBtnSubmit, setLoadingBtnSubmit] = useState(false);
@@ -62,6 +65,18 @@ const SubjectDetailsPage = () => {
     const confirmDeleteMessage = `Are you sure you want to delete this subject?`;
     const [archive, setArchive] = useState(false);
     const [forced, setForced] = useState(false);
+    // Calcul du pourcentage de progression global (chapitres)
+    const totalChapters = formData?.subject?.curriculum?.chapitres?.length || 0;
+    const completedChapters = formData?.subject?.curriculum?.chapitres?.filter(ch => ch.status).length || 0;
+    const overallProgress = totalChapters > 0 ? Math.round((completedChapters / totalChapters) * 100) : 0;
+
+    // Fonction pour calculer la progression d'un chapitre (sections complétées)
+    const getChapterProgress = (chapter) => {
+        if (!chapter?.sections) return 0;
+        const totalSections = chapter.sections.length;
+        const completedSections = chapter.sections.filter(section => section.status).length;
+        return totalSections > 0 ? Math.round((completedSections / totalSections) * 100) : 0;
+    };
 
 
     const handleDelete = async (id, { forced = false, archive = false }) => {
@@ -449,13 +464,22 @@ const SubjectDetailsPage = () => {
                                         <FaTrash className="text-lg" />
                                     </button>
                                 </Tooltip>
-                                 <Tooltip text={'View Evaluations'}
+                                <Tooltip text={'View Evaluations'}
                                     position={positionTooltip}>
                                     <button
                                         onClick={() => setShowEvaluation(true)}
                                         className="flex items-center justify-center gap-2 bg-orange-600 text-white px-5 py-2.5 rounded-xl font-medium shadow hover:bg-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-400 transition-all duration-200 sm:w-auto w-full"
                                     >
                                         <FaStar className="mr-2" />
+                                    </button>
+                                </Tooltip>
+                                <Tooltip text={'View Archive'}
+                                    position={positionTooltip}>
+                                    <button
+                                        onClick={() => setShowArchive(true)}
+                                        className="flex items-center justify-center gap-2 bg-gray-600 text-white px-5 py-2.5 rounded-xl font-medium shadow hover:bg-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-400 transition-all duration-200 sm:w-auto w-full"
+                                    >
+                                        <FaArchive className="mr-2" />
                                     </button>
                                 </Tooltip>
                             </>
@@ -473,7 +497,7 @@ const SubjectDetailsPage = () => {
                             </Tooltip>
                         ) : (
                             <>
-                               
+
                                 <Tooltip text={userRole === RoleEnum.ADMIN ? 'Edit' : 'Propose an Edit'}
                                     position={positionTooltip}>
                                     <button
@@ -634,7 +658,24 @@ const SubjectDetailsPage = () => {
                             <EvaluationList subjectId={fetchData._id} showHeader />
                         </div>
                     </Popup >
-                </>
+                    {/* Popup Archive list */}
+                    <Popup
+                        isOpen={showArchive}
+                        onClose={() => setShowArchive(false)}
+                        position="center"
+                        size="xl"
+                        showCloseButton
+                    >
+                        <div className="mx-auto text-left p-4">
+                            <h3 className="text-2xl font-bold text-blue-800 mb-6 text-center flex items-center justify-center gap-2">
+                                <FaArchive className="text-3xl text-green-600" />
+                                Archive of this Subject
+                            </h3>
+
+                            <ArchivedSubjects subjectId={fetchData?._id} />
+
+                        </div>
+                    </Popup></>
             );
 
 
@@ -709,6 +750,18 @@ const SubjectDetailsPage = () => {
 
 
                         <Section title="Chapters & Sections">
+                            <div className="mb-6">
+                                <label className="text-sm font-medium text-gray-700">
+                                    Overall Progress: {overallProgress}%
+                                </label>
+                                <div className="w-full bg-gray-200 rounded-full h-4 mt-1">
+                                    <div
+                                        className="bg-blue-600 h-4 rounded-full transition-all duration-500"
+                                        style={{ width: `${overallProgress}%` }}
+                                    />
+                                </div>
+                            </div>
+
                             {formData.subject.curriculum.chapitres.length > 0 ? (
                                 <div className="space-y-6">
                                     {formData.subject.curriculum.chapitres.map((chapter, index) => {
@@ -808,6 +861,18 @@ const SubjectDetailsPage = () => {
                                                         )}
                                                     </div>
                                                 )}
+                                                {/* Chapter Progress */}
+                                                <div className="mt-4">
+                                                    <label className="text-sm font-medium text-gray-600">
+                                                        Chapter Progress: {getChapterProgress(chapter)}%
+                                                    </label>
+                                                    <div className="w-full bg-gray-200 rounded-full h-3 mt-1">
+                                                        <div
+                                                            className="bg-green-500 h-3 rounded-full transition-all duration-500"
+                                                            style={{ width: `${getChapterProgress(chapter)}%` }}
+                                                        />
+                                                    </div>
+                                                </div>
 
                                                 {/* Sections */}
                                                 {expandedChapters[index] && chapter.sections.length > 0 && (
