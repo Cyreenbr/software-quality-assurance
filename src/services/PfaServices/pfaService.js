@@ -26,7 +26,6 @@ const pfaService = {
 
   getPublishedPfas: async () => {
     try {
-      
       const response = await axiosAPI.get(`${API_BASE_URL}/open`, {
         headers: { ...getAuthHeader() },
       });
@@ -35,8 +34,53 @@ const pfaService = {
       console.error("Error API (GET PFA) :", error);
       return null;
     }
-  },      
-  
+  },
+
+  getSoutenancesPfas: async () => {
+    try {
+      const response = await axiosAPI.get(
+        `http://localhost:3000/api/Pfa/defense/all`,
+        {
+          headers: { ...getAuthHeader() },
+        }
+      );
+      return response.data;
+    } catch (error) {
+      console.error("Error API (GET PFA) :", error);
+      return null;
+    }
+  },
+
+  getSoutenancesPfasForTeacher: async () => {
+    try {
+      const response = await axiosAPI.get(
+        `http://localhost:3000/api/Pfa/defense/plan/mine`,
+        {
+          headers: { ...getAuthHeader() },
+        }
+      );
+      return response.data;
+    } catch (error) {
+      console.error("Error API (GET PFA) :", error);
+      return null;
+    }
+  },
+
+  getSoutenancesPfasForStudent: async () => {
+    try {
+      const response = await axiosAPI.get(
+        `http://localhost:3000/api/Pfa/defense/planning/mine`,
+        {
+          headers: { ...getAuthHeader() },
+        }
+      );
+      return response.data;
+    } catch (error) {
+      console.error("Error API (GET PFA) :", error);
+      return null;
+    }
+  },
+
   rejectPfa: async (pfaId) => {
     try {
       const response = await axiosAPI.patch(
@@ -220,25 +264,27 @@ const pfaService = {
     }
   },
 
-addPriority: async (pfaId, data) => {
-  try {
-    console.log('PATCH URL:', `${API_BASE_URL}/${pfaId}/choice`);
-    console.log('Data envoyée:', data);
-    
-    const response = await axiosAPI.patch(
-      `${API_BASE_URL}/${pfaId}/choice`,
-      data,
-      {
-        headers: { ...getAuthHeader() },
-      }
-    );
-    return response.data;
-  } catch (error) {
-    console.error("Error API (POST PFA) :", error.response?.data || error.message);
-    return null;
-  }
-},
+  addPriority: async (pfaId, data) => {
+    try {
+      console.log("PATCH URL:", `${API_BASE_URL}/${pfaId}/choice`);
+      console.log("Data envoyée:", data);
 
+      const response = await axiosAPI.patch(
+        `${API_BASE_URL}/${pfaId}/choice`,
+        data,
+        {
+          headers: { ...getAuthHeader() },
+        }
+      );
+      return response.data;
+    } catch (error) {
+      console.error(
+        "Error API (POST PFA) :",
+        error.response?.data || error.message
+      );
+      return null;
+    }
+  },
 
   acceptBinome: async (pfaId, studentIds) => {
     try {
@@ -338,6 +384,23 @@ addPriority: async (pfaId, data) => {
     }
   },
 
+  publishSoutenance: async () => {
+    try {
+      const response = await axiosAPI.post(
+        `http://localhost:3000/api/Pfa/defense/publish/publish`,
+        {},
+        {
+          headers: { ...getAuthHeader() },
+        }
+      );
+
+      return response.data;
+    } catch (error) {
+      console.error("Erreur lors de l'affectation automatique :", error);
+      throw error;
+    }
+  },
+
   //7.3
   assignPfaToStudent: async (pfaId, studentId, force = false) => {
     try {
@@ -345,6 +408,21 @@ addPriority: async (pfaId, data) => {
         `${API_BASE_URL}/PFA/${pfaId}/assign/student/${studentId}`,
         {
           force,
+        }
+      );
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || { error: "Assignment failed." };
+    }
+  },
+
+  pfaAutoPlanning: async (rooms, days) => {
+    try {
+      const response = await axiosAPI.post(
+        `http://localhost:3000/api/Pfa/defense`,
+        {
+          rooms,
+          days,
         }
       );
       return response.data;
@@ -381,6 +459,22 @@ addPriority: async (pfaId, data) => {
     try {
       const response = await axiosAPI.post(
         `${API_BASE_URL}/PFA/list/send`,
+        {},
+        {
+          headers: { ...getAuthHeader() },
+        }
+      );
+
+      return response.data;
+    } catch (error) {
+      console.error("Error API (POST PFA) :", error);
+      return null;
+    }
+  },
+  sendEmailPlanningSoutenance: async () => {
+    try {
+      const response = await axiosAPI.post(
+        `http://localhost:3000/api/Pfa/defense/send`,
         {},
         {
           headers: { ...getAuthHeader() },

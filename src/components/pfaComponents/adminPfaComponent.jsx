@@ -3,14 +3,13 @@ import React, { useState } from "react";
 // Import your components
 import AdminPage from "./adminPage";
 import PfaAssignmentPage from "./pfaAssignmentPage";
+import PfaSoutenance from "./pfaSoutenance";
 
 const AdminPfaComponent = () => {
   const [activeTab, setActiveTab] = useState("list"); // 'list' or 'assignment'
 
   return (
     <div className="min-h-screen bg-gray-100 p-6">
-    
-
       {/* Tab Navigation */}
       <div className="flex border-b border-gray-300 mb-6">
         {/* Tab 1: List of PFAs */}
@@ -36,12 +35,24 @@ const AdminPfaComponent = () => {
         >
           PFA Assignment Management
         </button>
+
+        <button
+          onClick={() => setActiveTab("soutenance")}
+          className={`py-2 px-4 font-medium ${
+            activeTab === "soutenance"
+              ? "border-b-2 border-blue-500 text-blue-600"
+              : "text-gray-600 hover:text-blue-600"
+          }`}
+        >
+          PFA Soutenance Planning
+        </button>
       </div>
 
       {/* Content Area */}
       <div className="bg-white p-6 rounded-lg shadow-md">
         {activeTab === "list" && <AdminPage />}
         {activeTab === "assignment" && <PfaAssignmentPage />}
+        {activeTab === "soutenance" && <PfaSoutenance />}
       </div>
     </div>
   );

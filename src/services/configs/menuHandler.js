@@ -24,6 +24,7 @@ import Competences from "../../pages/competenecesPage/Competences";
 import DepotSujet from "../../pages/depotSujetStagePage/DepotSujetStage";
 import ErrorPage from "../../pages/ErrorPage";
 import Home from "../../pages/homePage/Home";
+import MyCV from "../../pages/MyCV";
 import Notifications from "../../pages/Notifications";
 import OptionListPage from "../../pages/optionPage/OptionListPage";
 import OptionPage from "../../pages/optionPage/OptionPage";
@@ -43,11 +44,10 @@ import StudentsListTeachers from "../../pages/usersListPage/StudentsListTeachers
 import StudentsManagPage from "../../pages/UsersManagementPage/StudentsManagPage";
 import TeachersManagPage from "../../pages/UsersManagementPage/TeachersManagPage";
 import { RoleEnum } from "../../utils/userRoles";
-import MyCV from "../../pages/MyCV";
 
-import StudentCVPage from "../../pages/StudentCVPage";
-import Profile from "../../pages/profilePage/Profile";
 import EditCV from "../../pages/EditCV";
+import Profile from "../../pages/profilePage/Profile";
+import StudentCVPage from "../../pages/StudentCVPage";
 
 import EnseignantPage from "../../pages/pfePage/pfeSoutenance/EnseignantPage";
 import EtudiantSoutenancePage from "../../pages/pfePage/pfeSoutenance/EtudiantSoutenancePage";
@@ -56,6 +56,7 @@ import AdminPlanningPage from "../../pages/pfePage/pfeSoutenance/PFEDefenseManag
 import DefensePlanningPage from "../../pages/pfePage/pfeSoutenance/Planning";
 
 import UniversityYearPage from "../../pages/universityYearPage/UniversityYearPage";
+import EditProfilePage from "../../pages/profilePage/EditProfilePage.jsx";
 
 export const menuConfig = [
   {
@@ -238,8 +239,8 @@ export const menuConfig = [
   },
   {
     order: 14,
-    label: "Internship List",
-    icon: MdList,
+    label: "Manage Internships",
+    icon: MdAssignmentAdd,
     path: "/InternshipList",
     tooltip: "Internship",
     component: InternshipList,
@@ -294,13 +295,12 @@ export const menuConfig = [
   {
     order: 17,
     label: "Assign Internships",
-    icon: MdAssignmentAdd,
     path: "/InternshipAssignment",
     tooltip: "Internship",
     component: AssignInternships,
     eligibleRoles: [RoleEnum.ADMIN],
     active: true,
-    dontShow: false,
+    dontShow: true,
     hideSideBar: false,
     hideHeader: false,
   },
@@ -476,6 +476,19 @@ export const menuConfig = [
     hideSideBar: false,
     hideHeader: false,
   },
+    {
+    order: 40,
+    label: "Edit Profile",
+    icon: MdAccountCircle,
+    path: "/edit-profile",
+    component: EditProfilePage,
+    eligibleRoles: [RoleEnum.ADMIN, RoleEnum.TEACHER, RoleEnum.STUDENT],
+    active: true,
+    hideSideBar: false,
+    hideHeader: false,
+    dontShow: true,
+  },
+
   {
     order: 84,
     path: "/StudentsWithoutInternship",

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { MdEmail, MdPhone, MdLocationOn, MdEdit, MdArrowBack, MdPerson, MdCalendarToday, MdCardMembership, MdPublic, MdHome } from "react-icons/md";
 import { ClipLoader } from "react-spinners";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 // Use a data URL for default avatar to avoid import issues
 const defaultAvatar = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23CBD5E0'%3E%3Cpath d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z'/%3E%3C/svg%3E";
@@ -47,6 +47,10 @@ const ProfilePage = () => {
     navigate(-1);
   };
 
+  const navigateToEditProfile = () => {
+    navigate("/edit-profile");
+  };
+
   // Extract user data from profile
   const userData = profile?.data;
 
@@ -86,7 +90,7 @@ const ProfilePage = () => {
   };
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-4xl">
+    <div className="min-h-screen bg-gray-100 p-4">
       {/* Page header */}
       <div className="flex items-center mb-6">
         <button 
@@ -95,7 +99,7 @@ const ProfilePage = () => {
         >
           <MdArrowBack size={24} className="text-gray-700" />
         </button>
-        <h1 className="text-2xl md:text-3xl font-bold text-gray-800">Mon Profil</h1>
+        <h1 className="text-2xl md:text-3xl font-bold text-gray-800">	My Profile</h1>
       </div>
 
       {/* Main content */}
@@ -124,12 +128,12 @@ const ProfilePage = () => {
                     className="w-32 h-32 rounded-full object-cover border-4 border-white shadow-md bg-gray-200"
                     onError={handleImageError}
                   />
-                  <Link 
-                    to="/edit-profile" 
+                  <button 
+                    onClick={navigateToEditProfile}
                     className="absolute bottom-0 right-0 bg-indigo-600 text-white p-2 rounded-full hover:bg-indigo-700 transition-colors shadow-lg"
                   >
                     <MdEdit size={16} />
-                  </Link>
+                  </button>
                 </div>
                 
                 {/* Name/Username */}
@@ -144,32 +148,32 @@ const ProfilePage = () => {
                   )}
                   {userData.role && (
                     <p className="text-indigo-600 font-medium mt-1">
-                      {userData.role} {userData.level && `- ${userData.level}`}
+                      {userData.role}
                     </p>
                   )}
                 </div>
                 
                 {/* Edit button (desktop) */}
                 <div className="hidden md:block ml-auto">
-                  <Link 
-                    to="/edit-profile" 
+                  <button 
+                    onClick={navigateToEditProfile}
                     className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-medium flex items-center"
                   >
                     <MdEdit className="mr-2" size={18} />
-                    Modifier mon profil
-                  </Link>
+                    Edit profile
+                  </button>
                 </div>
               </div>
               
               {/* Edit button (mobile) */}
               <div className="md:hidden mt-4">
-                <Link 
-                  to="/edit-profile" 
+                <button 
+                  onClick={navigateToEditProfile}
                   className="w-full px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-medium flex items-center justify-center"
                 >
                   <MdEdit className="mr-2" size={18} />
-                  Modifier mon profil
-                </Link>
+                 Edit profile
+                </button>
               </div>
 
               {/* Separator line */}
@@ -192,7 +196,7 @@ const ProfilePage = () => {
                     <MdPhone className="text-indigo-600" size={24} />
                   </div>
                   <div>
-                    <p className="text-sm text-gray-500 font-medium">Téléphone</p>
+                    <p className="text-sm text-gray-500 font-medium">Phone Number</p>
                     <p className="text-gray-800 font-semibold">{userData.phoneNumber || "Aucun numéro disponible"}</p>
                   </div>
                 </div>
@@ -212,8 +216,8 @@ const ProfilePage = () => {
                     <MdPublic className="text-indigo-600" size={24} />
                   </div>
                   <div>
-                    <p className="text-sm text-gray-500 font-medium">Nationalité</p>
-                    <p className="text-gray-800 font-semibold">{userData.nationality || "Non spécifiée"}</p>
+                    <p className="text-sm text-gray-500 font-medium">Nationality</p>
+                    <p className="text-gray-800 font-semibold">{userData.nationality || "Not specified"}</p>
                   </div>
                 </div>
 
@@ -222,14 +226,14 @@ const ProfilePage = () => {
                     <MdLocationOn className="text-indigo-600" size={24} />
                   </div>
                   <div className="flex-1">
-                    <p className="text-sm text-gray-500 font-medium">Adresse complète</p>
+                    <p className="text-sm text-gray-500 font-medium">Adress</p>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-x-4 gap-y-1 mt-1">
                       <p className="text-gray-800 font-semibold md:col-span-3">{userData.address || "Aucune adresse disponible"}</p>
                       {userData.gouvernorate && (
-                        <p className="text-gray-700"><span className="text-gray-500 text-sm">Gouvernorat:</span> {userData.gouvernorate}</p>
+                        <p className="text-gray-700"><span className="text-gray-500 text-sm">Gouvernorate:</span> {userData.gouvernorate}</p>
                       )}
                       {userData.postalCode && (
-                        <p className="text-gray-700"><span className="text-gray-500 text-sm">Code postal:</span> {userData.postalCode}</p>
+                        <p className="text-gray-700"><span className="text-gray-500 text-sm">Postal code:</span> {userData.postalCode}</p>
                       )}
                     </div>
                   </div>
@@ -238,7 +242,7 @@ const ProfilePage = () => {
 
               {/* Personal information */}
               <div className="mt-8">
-                <h3 className="text-xl font-semibold text-gray-800 mb-4">Informations personnelles</h3>
+                <h3 className="text-xl font-semibold text-gray-800 mb-4">Personal Information</h3>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {userData.sexe && (
@@ -259,7 +263,7 @@ const ProfilePage = () => {
                         <MdCalendarToday className="text-indigo-600" size={24} />
                       </div>
                       <div>
-                        <p className="text-sm text-gray-500 font-medium">Date de naissance</p>
+                        <p className="text-sm text-gray-500 font-medium">Date of Birth</p>
                         <p className="text-gray-800 font-semibold">{formatDate(userData.birthDay)}</p>
                       </div>
                     </div>
@@ -267,24 +271,11 @@ const ProfilePage = () => {
                 </div>
               </div>
 
-              {/* Education information */}
-              {userData.level && (
-                <div className="mt-8">
-                  <h3 className="text-xl font-semibold text-gray-800 mb-4">Niveau d'études</h3>
-                  
-                  <div className="bg-gray-50 p-4 rounded-xl">
-                    <p className="text-gray-700 font-medium">
-                      {userData.level === "1year" && "Première année"}
-                      {userData.level === "2year" && "Deuxième année"}
-                      {userData.level === "3year" && "Troisième année"}
-                    </p>
-                  </div>
-                </div>
-              )}
+            
             </>
           ) : (
             <div className="text-center p-8 mt-20 text-gray-500 bg-gray-50 rounded-lg">
-              Aucune information de profil disponible
+             No profile information available
             </div>
           )}
         </div>
