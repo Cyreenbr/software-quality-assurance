@@ -19,10 +19,15 @@ const PeriodForm = ({ newPeriod, setNewPeriod, onSave, onCancel, editing }) => {
       <div className="absolute inset-0 bg-black opacity-50"></div>
 
       <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-md relative z-50">
-        <button onClick={onCancel} className="absolute top-4 right-4 text-gray-600 hover:text-gray-800">
+        <button
+          onClick={onCancel}
+          className="absolute top-4 right-4 text-gray-600 hover:text-gray-800"
+        >
           ✕
         </button>
-        <h3 className="text-xl font-semibold mb-4">{editing ? "Edit Period" : "Add Period"}</h3>
+        <h3 className="text-xl font-semibold mb-4">
+          {editing ? "Edit Period" : "Add Period"}
+        </h3>
 
         {successMessage && (
           <div className="bg-green-200 text-green-700 px-4 py-2 rounded-md mb-4">
@@ -41,7 +46,9 @@ const PeriodForm = ({ newPeriod, setNewPeriod, onSave, onCancel, editing }) => {
             <input
               type="date"
               value={newPeriod.start}
-              onChange={(e) => setNewPeriod({ ...newPeriod, start: e.target.value })}
+              onChange={(e) =>
+                setNewPeriod({ ...newPeriod, start: e.target.value })
+              }
               className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400 transition"
               required
             />
@@ -52,7 +59,9 @@ const PeriodForm = ({ newPeriod, setNewPeriod, onSave, onCancel, editing }) => {
             <input
               type="date"
               value={newPeriod.end}
-              onChange={(e) => setNewPeriod({ ...newPeriod, end: e.target.value })}
+              onChange={(e) =>
+                setNewPeriod({ ...newPeriod, end: e.target.value })
+              }
               className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400 transition"
               required
             />
@@ -63,7 +72,9 @@ const PeriodForm = ({ newPeriod, setNewPeriod, onSave, onCancel, editing }) => {
               <label className="block font-medium mb-1">Period Type</label>
               <select
                 value={newPeriod.type}
-                onChange={(e) => setNewPeriod({ ...newPeriod, type: e.target.value })}
+                onChange={(e) =>
+                  setNewPeriod({ ...newPeriod, type: e.target.value })
+                }
                 className="w-full p-3 border rounded-lg bg-white focus:ring-2 focus:ring-blue-400 transition"
                 required
               >
@@ -72,7 +83,6 @@ const PeriodForm = ({ newPeriod, setNewPeriod, onSave, onCancel, editing }) => {
                 <option value="periode_choix_option">Option</option>
                 <option value="periode_depot_pfa">depot PFA</option>
                 <option value="periode_choix_pfe">Choix PFE</option>
-
               </select>
             </div>
           )}

@@ -1,10 +1,9 @@
 import axiosAPI from "../axiosAPI/axiosInstance";
 
-
 const periodService = {
   getPeriods: async () => {
     try {
-      const response = await axiosAPI .get(`/period/open`);
+      const response = await axiosAPI.get(`/period/open`);
       return response.data;
     } catch (error) {
       console.error("Error API (GET periods) :", error);
@@ -14,7 +13,9 @@ const periodService = {
 
   addPeriod: async (periodData) => {
     try {
+      console.log(periodData);
       const response = await axiosAPI.post(`/period/open`, periodData);
+      console.log(response);
       return response.data;
     } catch (error) {
       console.error("Erreur API (POST addPeriod) :", error);

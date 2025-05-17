@@ -20,6 +20,7 @@ const AdminPeriods = () => {
   const fetchPeriods = async () => {
     try {
       const response = await periodService.getPeriods();
+      console.log(response);
       if (!response || !Array.isArray(response.periods)) {
         throw new Error("The API did not return an array of periods.");
       }
@@ -36,44 +37,51 @@ const AdminPeriods = () => {
       toast.error("All fields are required.");
       return;
     }
-
+    console.log(newPeriod.type);
     try {
       const response = await periodService.addPeriod(newPeriod);
+      console.log(response);
       setPeriods([...periods, response.period]);
       toast.success("Period added successfully and email scheduled!");
-  
+
       // Close form after toast is visible
       setTimeout(() => {
         resetForm();
-      }, 3000);  //close after 3s
+      }, 3000); //close after 3s
     } catch (error) {
       console.error("Error adding period:", error);
-      toast.error(error.message || "An error occurred while adding the period.");
+      toast.error(
+        error.message || "An error occurred while adding the period."
+      );
     }
   };
-  
+
   const handleUpdate = async () => {
     if (!newPeriod.start || !newPeriod.end) {
       toast.error("Start and end dates are required.");
       return;
     }
-  
+
     try {
       const response = await periodService.updatePeriod(editingPeriod._id, {
         start: newPeriod.start,
         end: newPeriod.end,
       });
-      setPeriods(periods.map((p) => (p._id === editingPeriod._id ? response.period : p)));
+      setPeriods(
+        periods.map((p) => (p._id === editingPeriod._id ? response.period : p))
+      );
       toast.success("Period updated successfully and email scheduled!");
       setTimeout(() => {
         resetForm();
-      }, 3000);  
+      }, 3000);
     } catch (error) {
       console.error("Error updating period:", error);
-      toast.error(error.message || "An error occurred while updating the period.");
+      toast.error(
+        error.message || "An error occurred while updating the period."
+      );
     }
   };
-  
+
   const resetForm = () => {
     setEditingPeriod(null);
     setNewPeriod({ start: "", end: "", type: "" });
@@ -84,7 +92,9 @@ const AdminPeriods = () => {
     <div className="min-h-screen bg-gradient-to-r from-blue-50 to-purple-100 py-10 rounded-lg">
       <ToastContainer position="top-right" autoClose={3000} />
       <div className="max-w-5xl bg-white rounded-lg mx-auto mt-8 p-6">
-        <h2 className="text-2xl font-bold text-black-700 mb-6 text-start">Manage Periods</h2>
+        <h2 className="text-2xl font-bold text-black-700 mb-6 text-start">
+          Manage Periods
+        </h2>
         <div className="flex justify-end items-center mb-6">
           <button
             onClick={() => {
