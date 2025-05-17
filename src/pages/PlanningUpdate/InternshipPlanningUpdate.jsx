@@ -1,9 +1,17 @@
 import { useEffect, useState } from "react";
-import { FaArrowLeft, FaEdit, FaEnvelope, FaSearch, FaTimes, FaUserTie } from "react-icons/fa";
+import {
+  FaArrowLeft,
+  FaEdit,
+  FaEnvelope,
+  FaSearch,
+  FaTimes,
+  FaUserTie,
+} from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import internshipService from "../../services/updateplanninginternship/UpdateInternshipPlanning.service";
+import { getTeachers } from "../../services/ManageUsersServices/teachers.service";
 
 const InternshipPlanning = () => {
   const [internships, setInternships] = useState([]);
@@ -13,7 +21,7 @@ const InternshipPlanning = () => {
   const [selectedInternship, setSelectedInternship] = useState(null);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
-  const navigate = useNavigate(); 
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -24,9 +32,10 @@ const InternshipPlanning = () => {
           setFilteredInternships(internshipsData);
         }
 
-        const teachersData = await internshipService.getTeachers();
-        if (Array.isArray(teachersData)) {
-          setTeachers(teachersData);
+        const teachersData = await getTeachers();
+        console.log(teachersData.model);
+        if (Array.isArray(teachersData.model)) {
+          setTeachers(teachersData.model);
         }
       } catch (error) {
         toast.error("Error fetching data. Please try again later.");
@@ -61,8 +70,10 @@ const InternshipPlanning = () => {
 
       if (response) {
         toast.success("Internship updated successfully!");
-        
-        const selectedTeacherObj = teachers.find(t => t._id === selectedTeacher); // njib l'objet teacher mel objet selectionné
+
+        const selectedTeacherObj = teachers.find(
+          (t) => t._id === selectedTeacher
+        ); // njib l'objet teacher mel objet selectionné
         const updatedInternships = internships.map((internship) =>
           internship._id === selectedInternship._id
             ? { ...internship, teacher: selectedTeacherObj } //lista avec l'updated internships
@@ -97,16 +108,18 @@ const InternshipPlanning = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-r from-blue-50 to-purple-100 py-10">
-                        <button 
-            onClick={() => navigate(-1)} 
-            className="flex items-center text-blue-500 hover:text-blue-700 transition"
-          >
-            <FaArrowLeft className="mr-2" />
-            Back
-          </button>
+      <button
+        onClick={() => navigate(-1)}
+        className="flex items-center text-blue-500 hover:text-blue-700 transition"
+      >
+        <FaArrowLeft className="mr-2" />
+        Back
+      </button>
       <ToastContainer position="top-right" autoClose={3000} />
       <div className="max-w-7xl bg-white rounded-lg shadow-lg mx-auto p-8">
-        <h1 className="text-3xl font-semibold text-start text-blue-500 mb-6">Internship Assignments</h1>
+        <h1 className="text-3xl font-semibold text-start text-blue-500 mb-6">
+          Internship Assignments
+        </h1>
 
         <div className="relative w-full max-w-md ml-auto mb-6">
           <input
@@ -138,17 +151,28 @@ const InternshipPlanning = () => {
               <tbody className="bg-white divide-y divide-gray-200">
                 {filteredInternships.length > 0 ? (
                   filteredInternships.map((internship) => (
-                    <tr key={internship._id} className="hover:bg-gray-50 transition">
+                    <tr
+                      key={internship._id}
+                      className="hover:bg-gray-50 transition"
+                    >
                       <td className="p-4 flex items-center space-x-2">
                         <FaUserTie className="text-blue-500" />
-                        <span>{internship.student?.name || "No Name Available"}</span>
+                        <span>
+                          {internship.student?.name || "No Name Available"}
+                        </span>
                       </td>
-                      <td className="p-4">{internship.titre || "No Title Available"}</td>
+                      <td className="p-4">
+                        {internship.titre || "No Title Available"}
+                      </td>
                       <td className="p-4 flex items-center space-x-2">
                         <FaEnvelope className="text-gray-500" />
-                        <span>{internship.student?.email || "No Email Available"}</span>
+                        <span>
+                          {internship.student?.email || "No Email Available"}
+                        </span>
                       </td>
-                      <td className="p-4">{getTeacherName(internship.teacher)}</td>
+                      <td className="p-4">
+                        {getTeacherName(internship.teacher)}
+                      </td>
                       <td className="p-4 text-center">
                         <button
                           onClick={() => {
