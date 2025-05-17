@@ -146,8 +146,10 @@ const TeacherPFEList = () => {
                   </div>
                 ) : (
                   <button
+
                     className="mt-4 w-full px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors duration-200 font-medium"
-                    onClick={() => handleChoosePFE(pfe._id)}
+                    onClick={() => handleChoosePFE(pfe.pfeId)}
+
                   >
                     Choose this subject
                   </button>

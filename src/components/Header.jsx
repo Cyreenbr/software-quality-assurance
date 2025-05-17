@@ -3,8 +3,7 @@ import {
   MdAccountCircle,
   MdExitToApp,
   MdMenu,
-  MdMoreVert,
-  MdSettings
+  MdMoreVert
 } from "react-icons/md";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
@@ -114,30 +113,6 @@ const Header = ({ isSidebarOpen, setIsSidebarOpen }) => {
                 </Link>
               </Tooltip>
 
-              {/* Settings */}
-              <div className="relative">
-                <Tooltip text="Settings" position="bottom">
-                  <button
-                    className="text-gray-600 hover:text-indigo-600 p-2 rounded-full hover:bg-gray-100 transition-all"
-                    onClick={() => toggleMenu("settings")}
-                  >
-                    <MdSettings size={24} />
-                  </button>
-                </Tooltip>
-
-                {openMenu === "settings" && (
-                  <div className="absolute right-0 mt-2 bg-white shadow-lg rounded-lg w-48 p-2 z-50">
-                    <ul className="space-y-2">
-                      <li className="text-gray-700 hover:text-indigo-600 cursor-pointer p-2">
-                        Profile Settings
-                      </li>
-                      <li className="text-gray-700 hover:text-indigo-600 cursor-pointer p-2">
-                        Account Settings
-                      </li>
-                    </ul>
-                  </div>
-                )}
-              </div>
 
               {/* Logout */}
               <Tooltip text="Logout" position="bottom">

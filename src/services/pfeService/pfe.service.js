@@ -145,7 +145,7 @@ export const sendEmail = async () => {
 export const fetchPFEChoices = async () => {
   try {
     const response = await axiosAPI.get(`${API_URL}/list`);
-
+    console.log(response.data);
     return response.data;
   } catch (error) {
     toast.error(
