@@ -362,7 +362,7 @@ const NewYearListing = ({ onBack }) => {
                 range={20}
                 direction="future"
                 includeCurrent={true}
-                label="Academic Year"
+                label=""
                 required
               />
             </div>
