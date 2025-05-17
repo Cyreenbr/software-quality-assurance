@@ -526,7 +526,9 @@ export default function OptionList() {
                     className="border-b border-gray-200 hover:bg-gray-50"
                   >
                     <td className="py-3 px-6 text-left">
-                      {option.user.firstName && option.user.lastName
+                      {option.user &&
+                      option.user.firstName &&
+                      option.user.lastName
                         ? `${option.user.firstName} ${option.user.lastName}`
                         : "N/A"}
                     </td>
