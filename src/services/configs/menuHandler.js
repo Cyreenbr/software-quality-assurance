@@ -43,6 +43,13 @@ import StudentsListTeachers from "../../pages/usersListPage/StudentsListTeachers
 import StudentsManagPage from "../../pages/UsersManagementPage/StudentsManagPage";
 import TeachersManagPage from "../../pages/UsersManagementPage/TeachersManagPage";
 import { RoleEnum } from "../../utils/userRoles";
+import MyCV from "../../pages/MyCV";
+
+
+
+import StudentCVPage from "../../pages/StudentCVPage";
+import Profile from "../../pages/profilePage/Profile";
+import EditCV from "../../pages/EditCV";
 
 import EnseignantPage from "../../pages/pfePage/pfeSoutenance/EnseignantPage";
 import EtudiantSoutenancePage from "../../pages/pfePage/pfeSoutenance/EtudiantSoutenancePage";
@@ -50,6 +57,7 @@ import AdminPlanningPage from "../../pages/pfePage/pfeSoutenance/PFEDefenseManag
 
 import DefensePlanningPage from "../../pages/pfePage/pfeSoutenance/Planning";
 import Profile from "../../pages/profilePage/Profile";
+
 import UniversityYearPage from "../../pages/universityYearPage/UniversityYearPage";
 
 export const menuConfig = [
@@ -257,7 +265,7 @@ export const menuConfig = [
     hideHeader: false,
   },
   {
-    order: 27,
+    order: 57,
     label: "PFE",
     icon: FaGraduationCap,
     path: "/pfeplanning",
@@ -372,7 +380,7 @@ export const menuConfig = [
 
 
   {
-    order: 28,
+    order: 82,
     label: "soutenancePlanning",
     icon: MdList,
     path: "/soutenancePlanning",
@@ -413,7 +421,6 @@ export const menuConfig = [
   },
 
 
-  /*
   {
     order: 28,
     label: "CVAcademic",
@@ -426,7 +433,7 @@ export const menuConfig = [
     dontShow: true,
     hideSideBar: false,
     hideHeader: false,
-  },*/
+  },
   {
     order: 31,
     label: "Profile",
@@ -437,6 +444,7 @@ export const menuConfig = [
     active: true,
     hideSideBar: false,
     hideHeader: false,
+    dontShow: true,
   },
 
   {
@@ -446,6 +454,19 @@ export const menuConfig = [
     path: "/list-options",
     component: OptionsListForStudentPage,
     eligibleRoles: [RoleEnum.ISPFA],
+    active: true,
+    hideSideBar: false,
+    hideHeader: false,
+  },
+
+     
+ {
+   order: 34,
+    label: "View CV",
+    icon: MdAutoStories,
+    path: "/CV/me",
+    component:MyCV,
+    eligibleRoles: [RoleEnum.STUDENT],
     active: true,
     hideSideBar: false,
     hideHeader: false,
@@ -462,10 +483,20 @@ export const menuConfig = [
     hideHeader: false,
   },
   {
-    order: 34,
+    order: 84,
     path: "/StudentsWithoutInternship",
     component: StudentsWithoutInternship,
     eligibleRoles: [RoleEnum.ADMIN],
+    active: true,
+    dontShow: true,
+    hideSideBar: false,
+    hideHeader: false,
+  },
+    {
+    order: 50,
+    path: "/CV/editCV",
+    component: EditCV,
+    eligibleRoles: [RoleEnum.STUDENT],
     active: true,
     dontShow: true,
     hideSideBar: false,
