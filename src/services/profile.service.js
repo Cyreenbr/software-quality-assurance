@@ -85,23 +85,33 @@ export const updateProfile = async (profileData, profilePhoto = null) => {
   try {
     const formData = new FormData();
     
+    // Clone the profileData to avoid modifying the original
+    const processedData = { ...profileData };
+    
+    // Map French gender values to English as expected by the backend
+    if (processedData.sexe === 'Homme') {
+      processedData.sexe = 'Male';
+    } else if (processedData.sexe === 'Femme') {
+      processedData.sexe = 'Female';
+    }
+    
     // Ajout des champs texte
-    for (const key in profileData) {
+    for (const key in processedData) {
       // Traitement spécial pour les compétences (skills)
-      if (key === 'skills' && Array.isArray(profileData[key])) {
-        formData.append('skills', profileData[key].join(','));
+      if (key === 'skills' && Array.isArray(processedData[key])) {
+        formData.append('skills', processedData[key].join(','));
       }
       // Ignorer le champ profilePhoto car on le gère séparément
       else if (key === 'profilePhoto') {
         continue;
       }
       // Si c'est un tableau (autre que skills)
-      else if (Array.isArray(profileData[key])) {
-        formData.append(key, JSON.stringify(profileData[key]));
+      else if (Array.isArray(processedData[key])) {
+        formData.append(key, JSON.stringify(processedData[key]));
       }
       // Valeur simple (inclut aussi les chaînes vides et valeurs falsy)
-      else if (profileData[key] !== null && profileData[key] !== undefined) {
-        formData.append(key, profileData[key]);
+      else if (processedData[key] !== null && processedData[key] !== undefined) {
+        formData.append(key, processedData[key]);
       }
     }
     

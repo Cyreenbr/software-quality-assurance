@@ -77,7 +77,7 @@ const EditProfilePage = () => {
       setError(null);
     } catch (err) {
       console.error("Error fetching profile data:", err);
-      setError("Impossible de charger les données du profil. Veuillez réessayer.");
+      setError("Unable to load profile data. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -93,14 +93,14 @@ const EditProfilePage = () => {
     if (file) {
       // Check file size (5MB max)
       if (file.size > 5 * 1024 * 1024) {
-        setError("La taille de l'image ne doit pas dépasser 5Mo");
+        setError("Image size must not exceed 5MB");
         return;
       }
       
       // Check file type
       const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg'];
       if (!allowedTypes.includes(file.type)) {
-        setError("Format de fichier non pris en charge. Utilisez JPG, JPEG ou PNG.");
+        setError("Unsupported file format. Use JPG, JPEG or PNG.");
         return;
       }
       
@@ -127,7 +127,7 @@ const EditProfilePage = () => {
       
       console.log("Server response:", response);
       
-      setSuccessMessage("Profil mis à jour avec succès!");
+      setSuccessMessage("Profile updated successfully!");
       
       // Redirect to profile page after a short delay
       setTimeout(() => {
@@ -140,7 +140,7 @@ const EditProfilePage = () => {
       } else if (err.message) {
         setError(err.message);
       } else {
-        setError("Une erreur s'est produite lors de la mise à jour du profil.");
+        setError("An error occurred while updating the profile.");
       }
     } finally {
       setSaving(false);
@@ -152,7 +152,7 @@ const EditProfilePage = () => {
   };
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-4xl">
+    <div className="min-h-screen bg-gray-100 p-4">
       {/* Page header */}
       <div className="flex items-center mb-6">
         <button 
@@ -161,7 +161,7 @@ const EditProfilePage = () => {
         >
           <MdArrowBack size={24} className="text-gray-700" />
         </button>
-        <h1 className="text-2xl md:text-3xl font-bold text-gray-800">Modifier Mon Profil</h1>
+        <h1 className="text-2xl md:text-3xl font-bold text-gray-800">Edit My Profile</h1>
       </div>
 
       {/* Form */}
@@ -189,7 +189,7 @@ const EditProfilePage = () => {
               <div className="relative mb-4">
                 <img
                   src={photoPreview || defaultAvatar}
-                  alt="Photo de profil"
+                  alt="Profile photo"
                   className="w-32 h-32 rounded-full object-cover border-4 border-indigo-100 shadow-md bg-gray-200"
                   onError={(e) => {
                     e.target.onerror = null;
@@ -208,10 +208,10 @@ const EditProfilePage = () => {
                 </label>
               </div>
               <label htmlFor="photo-upload" className="cursor-pointer text-indigo-600 hover:text-indigo-800 font-medium">
-                Changer la photo de profil
+                Change profile photo
               </label>
               <p className="text-xs text-gray-500 mt-1">
-                Formats acceptés: JPG, JPEG, PNG. Taille max: 5MB
+                Accepted formats: JPG, JPEG, PNG. Max size: 5MB
               </p>
             </div>
 
@@ -219,12 +219,12 @@ const EditProfilePage = () => {
             <div className="space-y-8">
               {/* Personal information section */}
               <div>
-                <h2 className="text-xl font-semibold text-gray-800 mb-4">Informations personnelles</h2>
+                <h2 className="text-xl font-semibold text-gray-800 mb-4">Personal Information</h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {/* French name */}
                   <div>
                     <label htmlFor="firstName" className="block text-gray-700 font-medium mb-2">
-                      Prénom
+                      First Name
                     </label>
                     <input
                       type="text"
@@ -233,13 +233,13 @@ const EditProfilePage = () => {
                       value={formData.firstName}
                       onChange={handleChange}
                       className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                      placeholder="Votre prénom"
+                      placeholder="Your first name"
                     />
                   </div>
 
                   <div>
                     <label htmlFor="lastName" className="block text-gray-700 font-medium mb-2">
-                      Nom
+                      Last Name
                     </label>
                     <input
                       type="text"
@@ -248,14 +248,14 @@ const EditProfilePage = () => {
                       value={formData.lastName}
                       onChange={handleChange}
                       className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                      placeholder="Votre nom"
+                      placeholder="Your last name"
                     />
                   </div>
 
                   {/* Arabic name */}
                   <div>
                     <label htmlFor="firstNameArabic" className="block text-gray-700 font-medium mb-2">
-                      الإسم
+                      First Name (Arabic)
                     </label>
                     <input
                       type="text"
@@ -265,13 +265,13 @@ const EditProfilePage = () => {
                       onChange={handleChange}
                       className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-right"
                       dir="rtl"
-                      placeholder="اسمك"
+                      placeholder="Your first name in Arabic"
                     />
                   </div>
 
                   <div>
                     <label htmlFor="lastNameArabic" className="block text-gray-700 font-medium mb-2">
-                      اللقب
+                      Last Name (Arabic)
                     </label>
                     <input
                       type="text"
@@ -281,14 +281,14 @@ const EditProfilePage = () => {
                       onChange={handleChange}
                       className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-right"
                       dir="rtl"
-                      placeholder="لقبك"
+                      placeholder="Your last name in Arabic"
                     />
                   </div>
                   
                   {/* Birth information */}
                   <div>
                     <label htmlFor="birthDay" className="block text-gray-700 font-medium mb-2">
-                      Date de naissance
+                      Date of Birth
                     </label>
                     <input
                       type="date"
@@ -302,7 +302,7 @@ const EditProfilePage = () => {
 
                   <div>
                     <label htmlFor="sexe" className="block text-gray-700 font-medium mb-2">
-                      Sexe
+                      Gender
                     </label>
                     <select
                       id="sexe"
@@ -311,16 +311,15 @@ const EditProfilePage = () => {
                       onChange={handleChange}
                       className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                     >
-                      <option value="">Sélectionnez</option>
-                      <option value="Homme">Homme</option>
-                      <option value="Femme">Femme</option>
+                      <option value="Homme">Male</option>
+                      <option value="Femme">Female</option>
                     </select>
                   </div>
 
                   {/* Role and level */}
                   <div>
                     <label htmlFor="role" className="block text-gray-700 font-medium mb-2">
-                      Rôle
+                      Role
                     </label>
                     <input
                       type="text"
@@ -329,13 +328,13 @@ const EditProfilePage = () => {
                       value={formData.role}
                       onChange={handleChange}
                       className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                      placeholder="Étudiant, Enseignant, etc."
+                      placeholder="Student, Teacher, etc."
                     />
                   </div>
 
                   <div>
                     <label htmlFor="level" className="block text-gray-700 font-medium mb-2">
-                      Niveau
+                      Level
                     </label>
                     <select
                       id="level"
@@ -344,10 +343,10 @@ const EditProfilePage = () => {
                       onChange={handleChange}
                       className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                     >
-                      <option value="">Sélectionnez</option>
-                      <option value="1year">Première année</option>
-                      <option value="2year">Deuxième année</option>
-                      <option value="3year">Troisième année</option>
+                      <option value="">Select</option>
+                      <option value="1year">First year</option>
+                      <option value="2year">Second year</option>
+                      <option value="3year">Third year</option>
                     </select>
                   </div>
                 </div>
@@ -355,7 +354,7 @@ const EditProfilePage = () => {
 
               {/* Contact and Identification Section */}
               <div>
-                <h2 className="text-xl font-semibold text-gray-800 mb-4">Contact et identification</h2>
+                <h2 className="text-xl font-semibold text-gray-800 mb-4">Contact and Identification</h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
                     <label htmlFor="email" className="block text-gray-700 font-medium mb-2">
@@ -368,13 +367,13 @@ const EditProfilePage = () => {
                       value={formData.email}
                       onChange={handleChange}
                       className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                      placeholder="votre@email.com"
+                      placeholder="your@email.com"
                     />
                   </div>
 
                   <div>
                     <label htmlFor="phoneNumber" className="block text-gray-700 font-medium mb-2">
-                      Numéro de téléphone
+                      Phone Number
                     </label>
                     <input
                       type="tel"
@@ -389,7 +388,7 @@ const EditProfilePage = () => {
 
                   <div>
                     <label htmlFor="cin" className="block text-gray-700 font-medium mb-2">
-                      CIN
+                      ID Number
                     </label>
                     <input
                       type="text"
@@ -398,13 +397,13 @@ const EditProfilePage = () => {
                       value={formData.cin}
                       onChange={handleChange}
                       className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                      placeholder="Numéro de CIN"
+                      placeholder="ID Number"
                     />
                   </div>
 
                   <div>
                     <label htmlFor="nationality" className="block text-gray-700 font-medium mb-2">
-                      Nationalité
+                      Nationality
                     </label>
                     <input
                       type="text"
@@ -413,7 +412,7 @@ const EditProfilePage = () => {
                       value={formData.nationality}
                       onChange={handleChange}
                       className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                      placeholder="Votre nationalité"
+                      placeholder="Your nationality"
                     />
                   </div>
                 </div>
@@ -421,11 +420,11 @@ const EditProfilePage = () => {
 
               {/* Address Section */}
               <div>
-                <h2 className="text-xl font-semibold text-gray-800 mb-4">Adresse</h2>
+                <h2 className="text-xl font-semibold text-gray-800 mb-4">Address</h2>
                 <div className="grid grid-cols-1 gap-6">
                   <div>
                     <label htmlFor="address" className="block text-gray-700 font-medium mb-2">
-                      Adresse complète
+                      Full Address
                     </label>
                     <input
                       type="text"
@@ -434,14 +433,14 @@ const EditProfilePage = () => {
                       value={formData.address}
                       onChange={handleChange}
                       className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                      placeholder="Votre adresse complète"
+                      placeholder="Your complete address"
                     />
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                       <label htmlFor="gouvernorate" className="block text-gray-700 font-medium mb-2">
-                        Gouvernorat
+                        Governorate
                       </label>
                       <input
                         type="text"
@@ -450,13 +449,13 @@ const EditProfilePage = () => {
                         value={formData.gouvernorate}
                         onChange={handleChange}
                         className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                        placeholder="Votre gouvernorat"
+                        placeholder="Your governorate"
                       />
                     </div>
 
                     <div>
                       <label htmlFor="postalCode" className="block text-gray-700 font-medium mb-2">
-                        Code Postal
+                        Postal Code
                       </label>
                       <input
                         type="text"
@@ -465,7 +464,7 @@ const EditProfilePage = () => {
                         value={formData.postalCode}
                         onChange={handleChange}
                         className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                        placeholder="Code postal"
+                        placeholder="Postal code"
                       />
                     </div>
                   </div>
@@ -480,7 +479,7 @@ const EditProfilePage = () => {
                 onClick={handleGoBack}
                 className="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors font-medium"
               >
-                Annuler
+                Cancel
               </button>
               <button
                 type="submit"
@@ -490,12 +489,12 @@ const EditProfilePage = () => {
                 {saving ? (
                   <>
                     <ClipLoader color="#ffffff" size={16} className="mr-2" />
-                    Enregistrement...
+                    Saving...
                   </>
                 ) : (
                   <>
                     <MdSave className="mr-2" size={18} />
-                    Enregistrer
+                    Save
                   </>
                 )}
               </button>
