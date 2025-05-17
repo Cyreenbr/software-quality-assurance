@@ -88,7 +88,7 @@ const SubjectDetailsPage = () => {
             return true;
         } catch (error) {
             console.error("Error deleting subject:", error);
-            toast.error("Failed to delete subject: " + (error?.message || error));
+            toast.error(error?.message || error || "Failed to delete subject: ");
             return false;
         }
     }
@@ -1256,7 +1256,8 @@ const SubjectDetailsPage = () => {
                                         {
                                             label: "Confirm",
                                             action: () => {
-                                                handleConfirmDelete(); console.log(subjectToDelete._id);
+                                                handleConfirmDelete();
+                                                // console.log(subjectToDelete._id);
                                             },
                                             bgColor: "bg-red-600 hover:bg-red-700",
                                             icon: <FiCheck className="text-lg" />,
