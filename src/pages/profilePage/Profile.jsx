@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { MdEmail, MdPhone, MdLocationOn, MdEdit, MdArrowBack } from "react-icons/md";
+import { MdEmail, MdPhone, MdLocationOn, MdEdit, MdArrowBack, MdPerson, MdCalendarToday, MdCardMembership, MdPublic, MdHome } from "react-icons/md";
 import { ClipLoader } from "react-spinners";
 import { Link, useNavigate } from "react-router-dom";
 
@@ -79,6 +79,12 @@ const ProfilePage = () => {
     e.target.src = defaultAvatar;
   };
 
+  // Format date in a readable format
+  const formatDate = (dateString) => {
+    if (!dateString) return "Non spécifié";
+    return new Date(dateString).toLocaleDateString();
+  };
+
   return (
     <div className="container mx-auto px-4 py-8 max-w-4xl">
       {/* Page header */}
@@ -131,9 +137,14 @@ const ProfilePage = () => {
                   <h2 className="text-2xl font-bold text-gray-800">
                     {userData.firstName || ''} {userData.lastName || ''}
                   </h2>
+                  {userData.firstNameArabic && userData.lastNameArabic && (
+                    <p className="text-lg font-medium text-gray-700 mt-1 text-right" dir="rtl">
+                      {userData.firstNameArabic} {userData.lastNameArabic}
+                    </p>
+                  )}
                   {userData.role && (
-                    <p className="text-indigo-600 font-medium">
-                      {userData.role}
+                    <p className="text-indigo-600 font-medium mt-1">
+                      {userData.role} {userData.level && `- ${userData.level}`}
                     </p>
                   )}
                 </div>
@@ -186,78 +197,88 @@ const ProfilePage = () => {
                   </div>
                 </div>
 
+                <div className="flex items-center space-x-4 p-4 bg-gray-50 rounded-xl hover:bg-indigo-50 transition-colors">
+                  <div className="bg-indigo-100 p-3 rounded-full">
+                    <MdCardMembership className="text-indigo-600" size={24} />
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-500 font-medium">CIN</p>
+                    <p className="text-gray-800 font-semibold">{userData.cin || "Non spécifié"}</p>
+                  </div>
+                </div>
+
+                <div className="flex items-center space-x-4 p-4 bg-gray-50 rounded-xl hover:bg-indigo-50 transition-colors">
+                  <div className="bg-indigo-100 p-3 rounded-full">
+                    <MdPublic className="text-indigo-600" size={24} />
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-500 font-medium">Nationalité</p>
+                    <p className="text-gray-800 font-semibold">{userData.nationality || "Non spécifiée"}</p>
+                  </div>
+                </div>
+
                 <div className="flex items-center space-x-4 p-4 bg-gray-50 rounded-xl hover:bg-indigo-50 transition-colors md:col-span-2">
                   <div className="bg-indigo-100 p-3 rounded-full">
                     <MdLocationOn className="text-indigo-600" size={24} />
                   </div>
-                  <div>
-                    <p className="text-sm text-gray-500 font-medium">Adresse</p>
-                    <p className="text-gray-800 font-semibold">{userData.address || "Aucune adresse disponible"}</p>
+                  <div className="flex-1">
+                    <p className="text-sm text-gray-500 font-medium">Adresse complète</p>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-x-4 gap-y-1 mt-1">
+                      <p className="text-gray-800 font-semibold md:col-span-3">{userData.address || "Aucune adresse disponible"}</p>
+                      {userData.gouvernorate && (
+                        <p className="text-gray-700"><span className="text-gray-500 text-sm">Gouvernorat:</span> {userData.gouvernorate}</p>
+                      )}
+                      {userData.postalCode && (
+                        <p className="text-gray-700"><span className="text-gray-500 text-sm">Code postal:</span> {userData.postalCode}</p>
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>
 
-            
-
               {/* Personal information */}
-              {(userData.sexe || userData.birthDay) && (
-                <div className="mt-8">
-                  <h3 className="text-xl font-semibold text-gray-800 mb-4">Informations personnelles</h3>
+              <div className="mt-8">
+                <h3 className="text-xl font-semibold text-gray-800 mb-4">Informations personnelles</h3>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {userData.sexe && (
+                    <div className="flex items-center space-x-4 p-4 bg-gray-50 rounded-xl hover:bg-indigo-50 transition-colors">
+                      <div className="bg-indigo-100 p-3 rounded-full">
+                        <MdPerson className="text-indigo-600" size={24} />
+                      </div>
+                      <div>
+                        <p className="text-sm text-gray-500 font-medium">Sexe</p>
+                        <p className="text-gray-800 font-semibold">{userData.sexe}</p>
+                      </div>
+                    </div>
+                  )}
                   
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {userData.sexe && (
-                      <div className="p-4 bg-gray-50 rounded-xl">
-                        <h4 className="text-md font-medium text-gray-700 mb-2">Sexe</h4>
-                        <p className="text-gray-800">{userData.sexe}</p>
+                  {userData.birthDay && (
+                    <div className="flex items-center space-x-4 p-4 bg-gray-50 rounded-xl hover:bg-indigo-50 transition-colors">
+                      <div className="bg-indigo-100 p-3 rounded-full">
+                        <MdCalendarToday className="text-indigo-600" size={24} />
                       </div>
-                    )}
-                    
-                    {userData.birthDay && (
-                      <div className="p-4 bg-gray-50 rounded-xl">
-                        <h4 className="text-md font-medium text-gray-700 mb-2">Date de naissance</h4>
-                        <p className="text-gray-800">{new Date(userData.birthDay).toLocaleDateString()}</p>
+                      <div>
+                        <p className="text-sm text-gray-500 font-medium">Date de naissance</p>
+                        <p className="text-gray-800 font-semibold">{formatDate(userData.birthDay)}</p>
                       </div>
-                    )}
-                  </div>
+                    </div>
+                  )}
                 </div>
-              )}
+              </div>
 
-              {/* Skills and experiences */}
-              {(userData.languages?.length > 0 || userData.experiences?.length > 0) && (
+              {/* Education information */}
+              {userData.level && (
                 <div className="mt-8">
-                  <h3 className="text-xl font-semibold text-gray-800 mb-4">Compétences et expériences</h3>
+                  <h3 className="text-xl font-semibold text-gray-800 mb-4">Niveau d'études</h3>
                   
-                  {userData.languages?.length > 0 && (
-                    <div className="mb-6">
-                      <h4 className="text-md font-medium text-gray-700 mb-2">Langues</h4>
-                      <div className="flex flex-wrap gap-2">
-                        {userData.languages.map((lang, index) => (
-                          <span key={index} className="bg-indigo-100 text-indigo-800 px-3 py-1 rounded-full text-sm">
-                            {lang.name} ({lang.level})
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                  
-                  {userData.experiences?.length > 0 && (
-                    <div>
-                      <h4 className="text-md font-medium text-gray-700 mb-2">Expériences</h4>
-                      <div className="space-y-4">
-                        {userData.experiences.map((exp, index) => (
-                          <div key={index} className="bg-gray-50 p-4 rounded-lg">
-                            <h5 className="font-medium">{exp.title}</h5>
-                            <p className="text-sm text-gray-600">{exp.company}</p>
-                            <p className="text-sm text-gray-500">
-                              {new Date(exp.startDate).toLocaleDateString()} - 
-                              {exp.endDate ? new Date(exp.endDate).toLocaleDateString() : "Présent"}
-                            </p>
-                            {exp.description && <p className="mt-2 text-gray-700">{exp.description}</p>}
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
+                  <div className="bg-gray-50 p-4 rounded-xl">
+                    <p className="text-gray-700 font-medium">
+                      {userData.level === "1year" && "Première année"}
+                      {userData.level === "2year" && "Deuxième année"}
+                      {userData.level === "3year" && "Troisième année"}
+                    </p>
+                  </div>
                 </div>
               )}
             </>
