@@ -105,16 +105,17 @@ export function TeachersList({ onAddClick }) {
       }
     } catch (error) {
       console.error("Error deleting teacher:", error);
-      
+
       // Check if error contains dependency information
-      if (error.response?.data?.hasDependencies || 
-          error.response?.data?.courses || 
-          error.response?.data?.supervising) {
-        
+      if (
+        error.response?.data?.hasDependencies ||
+        error.response?.data?.courses ||
+        error.response?.data?.supervising
+      ) {
         setDeleteDetails({
           courses: error.response.data.courses || 0,
           supervising: error.response.data.supervising || 0,
-          ...(error.response.data.details || {})
+          ...(error.response.data.details || {}),
         });
         setShowForceDeleteModal(true);
       } else {
@@ -126,7 +127,7 @@ export function TeachersList({ onAddClick }) {
   };
   const handleForceDelete = async () => {
     if (!teacherToDelete) return;
-    
+
     try {
       // Second API call with force: true when user confirms
       const response = await deleteTeacher(teacherToDelete._id, true);
@@ -134,7 +135,7 @@ export function TeachersList({ onAddClick }) {
       if (response.success) {
         // Update teacher lists after successful force deletion
         const updatedTeachersList = teachersList.filter(
-          teacher => teacher._id !== teacherToDelete._id
+          (teacher) => teacher._id !== teacherToDelete._id
         );
         setTeachersList(updatedTeachersList);
         toast.success(
@@ -159,8 +160,6 @@ export function TeachersList({ onAddClick }) {
     setDeleteDetails(null);
     setIsDeleting(false);
   };
-
- 
 
   const watch = async (teacherId) => {
     try {
@@ -371,9 +370,6 @@ export function TeachersList({ onAddClick }) {
                   Email
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
-                  Subjects
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
                   Actions
                 </th>
               </tr>
@@ -389,9 +385,6 @@ export function TeachersList({ onAddClick }) {
                       {teacher.firstName} {teacher.lastName}
                     </td>
                     <td className="py-3 px-6 text-left">{teacher.email}</td>
-                    <td className="py-3 px-6 text-left">
-                      {teacher.subjects?.length || 0}
-                    </td>
                     <td className="py-3 px-6 text-center flex justify-center space-x-2">
                       <button
                         onClick={() => watch(teacher._id)}
