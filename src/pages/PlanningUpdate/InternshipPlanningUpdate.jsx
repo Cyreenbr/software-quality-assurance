@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { FaEdit, FaEnvelope, FaSearch, FaTimes, FaUserTie } from "react-icons/fa";
+import { FaArrowLeft, FaEdit, FaEnvelope, FaSearch, FaTimes, FaUserTie } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import internshipService from "../../services/updateplanninginternship/UpdateInternshipPlanning.service";
@@ -12,6 +13,7 @@ const InternshipPlanning = () => {
   const [selectedInternship, setSelectedInternship] = useState(null);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
+  const navigate = useNavigate(); 
 
   useEffect(() => {
     const fetchData = async () => {
@@ -95,6 +97,13 @@ const InternshipPlanning = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-r from-blue-50 to-purple-100 py-10">
+                        <button 
+            onClick={() => navigate(-1)} 
+            className="flex items-center text-blue-500 hover:text-blue-700 transition"
+          >
+            <FaArrowLeft className="mr-2" />
+            Back
+          </button>
       <ToastContainer position="top-right" autoClose={3000} />
       <div className="max-w-7xl bg-white rounded-lg shadow-lg mx-auto p-8">
         <h1 className="text-3xl font-semibold text-start text-blue-500 mb-6">Internship Assignments</h1>

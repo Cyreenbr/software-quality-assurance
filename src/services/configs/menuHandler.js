@@ -48,6 +48,7 @@ import EnseignantPage from "../../pages/pfePage/pfeSoutenance/EnseignantPage";
 import EtudiantSoutenancePage from "../../pages/pfePage/pfeSoutenance/EtudiantSoutenancePage";
 import AdminPlanningPage from "../../pages/pfePage/pfeSoutenance/PFEDefenseManagement";
 
+import DefensePlanningPage from "../../pages/pfePage/pfeSoutenance/Planning";
 import Profile from "../../pages/profilePage/Profile";
 import UniversityYearPage from "../../pages/universityYearPage/UniversityYearPage";
 
@@ -471,6 +472,22 @@ export const menuConfig = [
     hideHeader: false,
   },
   
+  {
+    order: 35,
+    label: "Planning Soutenance",
+    icon: MdList,
+    path: "/planningSoutenance",
+    tooltip: "planningSoutenance",
+    component: DefensePlanningPage,
+    eligibleRoles: [RoleEnum.ADMIN, RoleEnum.STUDENT, RoleEnum.TEACHER],
+    active: true,
+    dontShow: true,
+    hideSideBar: false,
+    hideHeader: false,
+  },
+
+
+
   // kifeh tzid route jdid ??
   // {
   //     order: 7,

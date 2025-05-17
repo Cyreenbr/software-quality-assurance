@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react";
 import {
+  FaArrowLeft,
   FaBook,
   FaChartBar,
   FaEnvelope,
   FaSearch,
   FaUser
 } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
 import studentInternshipService from "../../services/internshipServices/studentsWithoutInternship";
 
 const StudentsWithoutInternship = () => {
@@ -17,6 +19,7 @@ const StudentsWithoutInternship = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [studentsPerPage] = useState(9);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -71,7 +74,14 @@ const StudentsWithoutInternship = () => {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold text-blue-400 mb-8 ">
+                  <button 
+            onClick={() => navigate(-1)} 
+            className="flex items-center text-blue-500 hover:text-blue-700 transition"
+          >
+            <FaArrowLeft className="mr-2" />
+            Back
+          </button>
+ <h1 className="text-3xl font-bold text-blue-400 mb-8 ">
         Students Without Internship
       </h1>
 
