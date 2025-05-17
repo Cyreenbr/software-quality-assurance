@@ -34,7 +34,7 @@ export function TeachersList({ onAddClick }) {
     password: "",
     firstNameArabic: "",
     birthDay: "",
-    sexe: "", //select "Masculin", "Féminin"
+    sexe: "", 
     lastNameArabic: "",
   });
   const [editedPassword, setEditedPassword] = useState({
