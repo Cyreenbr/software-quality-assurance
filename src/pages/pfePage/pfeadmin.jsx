@@ -107,8 +107,10 @@ const AdminPfeManagement = () => {
 
   const filteredPfeChoices = pfeChoices.filter((choice) => {
     const projectTitle = choice.title?.toLowerCase() || "";
-    const studentName = `${choice.student?.firstName || ""} ${choice.student?.lastName || ""}`.toLowerCase();
-    
+    const studentName = `${choice.student?.firstName || ""} ${
+      choice.student?.lastName || ""
+    }`.toLowerCase();
+
     return (
       projectTitle.includes(projectSearchQuery.toLowerCase()) ||
       studentName.includes(projectSearchQuery.toLowerCase())
@@ -118,11 +120,15 @@ const AdminPfeManagement = () => {
   return (
     <div className="p-6 bg-gray-50 min-h-screen">
       <div className="max-w-7xl mx-auto">
-        <h1 className="text-2xl font-bold text-blue-400 mb-6">PFE Management</h1>
+        <h1 className="text-2xl font-bold text-blue-400 mb-6">
+          PFE Management
+        </h1>
 
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-6">
           <div className="px-6 py-3 border-b border-gray-200 flex justify-between items-center">
-            <h2 className="text-lg font-semibold text-gray-700">PFE Projects</h2>
+            <h2 className="text-lg font-semibold text-gray-700">
+              PFE Projects
+            </h2>
             <div className="flex items-center space-x-3">
               {/* Project Search Bar */}
               <div className="relative w-64">
@@ -137,7 +143,7 @@ const AdminPfeManagement = () => {
                   onChange={(e) => setProjectSearchQuery(e.target.value)}
                 />
               </div>
-              
+
               <button
                 onClick={() => handleSendEmail()}
                 className="flex items-center space-x-2 bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded-md transition-colors text-sm"
@@ -159,11 +165,13 @@ const AdminPfeManagement = () => {
                 ) : (
                   <FaEye className="text-xs" />
                 )}
-                <span>{isPublished ? "Hide Planning" : "Publish Planning"}</span>
+                <span>
+                  {isPublished ? "Hide Planning" : "Publish Planning"}
+                </span>
               </button>
             </div>
           </div>
-          
+
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead className="bg-gray-50">
@@ -179,10 +187,14 @@ const AdminPfeManagement = () => {
               <tbody className="divide-y divide-gray-200">
                 {filteredPfeChoices.length > 0 ? (
                   filteredPfeChoices.map((choice) => (
-                    <tr key={choice.pfeId} className="hover:bg-gray-50 transition-colors">
+                    <tr
+                      key={choice.pfeId}
+                      className="hover:bg-gray-50 transition-colors"
+                    >
                       <td className="py-4 px-6 text-gray-700">
-                        {choice.student?.firstName + " " + choice.student?.lastName ||
-                          "Unknown"}
+                        {choice.student?.firstName +
+                          " " +
+                          choice.student?.lastName || "Unknown"}
                       </td>
                       <td className="py-4 px-6 font-medium text-gray-800">
                         {choice.title || "No Title"}
@@ -203,13 +215,15 @@ const AdminPfeManagement = () => {
                         )}
                       </td>
                       <td className="py-4 px-6">
-                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                          choice.status === "approved" 
-                            ? "bg-green-100 text-green-800" 
-                            : choice.status === "rejected" 
-                              ? "bg-red-100 text-red-800" 
+                        <span
+                          className={`px-2 py-1 rounded-full text-xs font-medium ${
+                            choice.status === "approved"
+                              ? "bg-green-100 text-green-800"
+                              : choice.status === "rejected"
+                              ? "bg-red-100 text-red-800"
                               : "bg-yellow-100 text-yellow-800"
-                        }`}>
+                          }`}
+                        >
                           {choice.status}
                         </span>
                       </td>
@@ -238,14 +252,18 @@ const AdminPfeManagement = () => {
                       <td className="py-4 px-6">
                         <div className="flex justify-end space-x-2">
                           <button
-                            onClick={() => handleApproveOrReject(choice.pfeId, "approve")}
+                            onClick={() =>
+                              handleApproveOrReject(choice.pfeId, "approve")
+                            }
                             className="p-2 text-green-600 hover:text-white hover:bg-green-600 rounded-full transition-colors disabled:opacity-50"
                             disabled={loadingId === choice.pfeId}
                           >
                             {loadingId === choice.pfeId ? "..." : <FaCheck />}
                           </button>
                           <button
-                            onClick={() => handleApproveOrReject(choice.pfeId, "reject")}
+                            onClick={() =>
+                              handleApproveOrReject(choice.pfeId, "reject")
+                            }
                             className="p-2 text-red-600 hover:text-white hover:bg-red-600 rounded-full transition-colors disabled:opacity-50"
                             disabled={loadingId === choice.pfeId}
                           >
@@ -257,7 +275,10 @@ const AdminPfeManagement = () => {
                   ))
                 ) : (
                   <tr>
-                    <td colSpan="6" className="py-4 px-6 text-center text-gray-500">
+                    <td
+                      colSpan="6"
+                      className="py-4 px-6 text-center text-gray-500"
+                    >
                       No projects found matching your search
                     </td>
                   </tr>
@@ -272,9 +293,11 @@ const AdminPfeManagement = () => {
           <div className="modal fixed inset-0 bg-gray-700 bg-opacity-50 flex justify-center items-center">
             <div className="bg-white rounded-xl shadow-lg w-full max-w-md overflow-hidden">
               <div className="px-6 py-4 border-b border-gray-200">
-                <h3 className="text-lg font-semibold text-gray-800">Assign Supervisor</h3>
+                <h3 className="text-lg font-semibold text-gray-800">
+                  Assign Supervisor
+                </h3>
               </div>
-              
+
               <div className="p-6">
                 <div className="relative mb-4">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -288,10 +311,12 @@ const AdminPfeManagement = () => {
                     onChange={(e) => setSearchQuery(e.target.value)}
                   />
                 </div>
-                
+
                 <div className="max-h-60 overflow-y-auto border border-gray-200 rounded-lg">
                   {filteredTeachers.length === 0 ? (
-                    <div className="p-4 text-center text-gray-500">No teachers found</div>
+                    <div className="p-4 text-center text-gray-500">
+                      No teachers found
+                    </div>
                   ) : (
                     <ul className="divide-y divide-gray-200">
                       {filteredTeachers.map((teacher) => (
@@ -299,20 +324,25 @@ const AdminPfeManagement = () => {
                           key={teacher._id}
                           className="px-4 py-3 hover:bg-gray-50 cursor-pointer transition-colors"
                           onClick={() =>
-                            handleManualAssignment(selectedPfe.pfeId, teacher._id)
+                            handleManualAssignment(
+                              selectedPfe.pfeId,
+                              teacher._id
+                            )
                           }
                         >
                           <div className="font-medium text-gray-800">
                             {teacher.firstName} {teacher.lastName}
                           </div>
-                          <div className="text-sm text-gray-500">{teacher.email}</div>
+                          <div className="text-sm text-gray-500">
+                            {teacher.email}
+                          </div>
                         </li>
                       ))}
                     </ul>
                   )}
                 </div>
               </div>
-              
+
               <div className="px-6 py-4 border-t border-gray-200 flex justify-end">
                 <button
                   onClick={() => setShowTeacherModal(false)}

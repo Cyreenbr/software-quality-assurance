@@ -133,10 +133,10 @@ const TeacherInternshipList = () => {
       onClick={({ key }) => setStatusFilter(key)}
       selectedKeys={[statusFilter]}
       items={[
-        { key: "All", label: "All Statuses" },
+        { key: "All", label: "All Status" },
         { key: "Pending", label: "Pending" },
         { key: "Validated", label: "Validated" },
-        { key: "Not Validated", label: "Not Validated" }
+        { key: "Not validated", label: "Not validated" }
       ].map(item => ({
         key: item.key,
         label: (

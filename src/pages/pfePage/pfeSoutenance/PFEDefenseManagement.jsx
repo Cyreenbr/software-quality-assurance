@@ -46,7 +46,7 @@ const AdminPlanningPage = () => {
 
   useEffect(() => {
     if (pfeFilter) {
-      const filtered = plannings.filter(plan => 
+      const filtered = plannings.filter((plan) =>
         plan.pfe?.title?.toLowerCase().includes(pfeFilter.toLowerCase())
       );
       setFilteredPlannings(filtered);
@@ -63,7 +63,7 @@ const AdminPlanningPage = () => {
         fetchTeachers(),
         getPlannings(),
       ]);
-      
+
       const pfeIdsWithDefense = planningRes.defenses.map(
         (plan) => plan.pfe._id
       );
@@ -107,7 +107,9 @@ const AdminPlanningPage = () => {
     try {
       await togglePublication(isPublished);
       setIsPublished(!isPublished);
-      setMessage(`Schedule ${!isPublished ? 'published' : 'hidden'} successfully.`);
+      setMessage(
+        `Schedule ${!isPublished ? "published" : "hidden"} successfully.`
+      );
       await loadData();
     } catch (err) {
       setMessage("Error changing publication status.");
@@ -129,7 +131,19 @@ const AdminPlanningPage = () => {
       );
       return;
     }
+    const selectedDateTime = new Date(`${form.date}T${form.time}`);
+    const now = new Date();
 
+    if (selectedDateTime <= now) {
+      setMessage("The selected date and time must be in the future.");
+      return;
+    }
+
+    const selectedHour = selectedDateTime.getHours();
+    if (selectedHour < 8 || selectedHour >= 16) {
+      setMessage("The time must be between 08:00 and 16:00.");
+      return;
+    }
     try {
       if (editingId) {
         await updateSoutenance(editingId, form);
@@ -369,7 +383,7 @@ const AdminPlanningPage = () => {
           <button
             onClick={() => setShowFilter(!showFilter)}
             className={`inline-flex items-center px-3 py-1.5 rounded-lg shadow-xs text-xs font-medium transition duration-200 backdrop-blur-sm ${
-              showFilter 
+              showFilter
                 ? "bg-blue-100/40 text-blue-600 border border-blue-200/50"
                 : "bg-white/40 text-gray-600 border border-white/50 hover:bg-white/60"
             }`}
@@ -377,7 +391,7 @@ const AdminPlanningPage = () => {
             <FaFilter className="mr-1.5 text-xs" />
             {showFilter ? "Hide Filter" : "Filter by PFE"}
           </button>
-          
+
           {showFilter && (
             <div className="relative">
               <input
@@ -433,7 +447,8 @@ const AdminPlanningPage = () => {
             Defense Schedules
           </h2>
           <span className="text-xs text-indigo-600 bg-indigo-100/40 px-2.5 py-1 rounded-full backdrop-blur-sm">
-            {filteredPlannings.length} {filteredPlannings.length === 1 ? "item" : "items"}
+            {filteredPlannings.length}{" "}
+            {filteredPlannings.length === 1 ? "item" : "items"}
           </span>
         </div>
 
@@ -470,13 +485,16 @@ const AdminPlanningPage = () => {
             <tbody className="bg-white/20 divide-y divide-white/30">
               {filteredPlannings.length > 0 ? (
                 filteredPlannings.map((plan) => (
-                  <tr key={plan._id} className="hover:bg-white/30 transition duration-150">
+                  <tr
+                    key={plan._id}
+                    className="hover:bg-white/30 transition duration-150"
+                  >
                     <td className="px-5 py-4 whitespace-nowrap">
                       <div className="text-sm font-medium text-gray-800">
                         {plan.pfe?.title || "N/A"}
                       </div>
                       <div className="text-xs text-indigo-500/90">
-                        {plan.pfe?.studentName || "Unknown student"}
+                        {plan.pfe?.student.firstName || "Unknown student"}
                       </div>
                     </td>
                     <td className="px-5 py-4 whitespace-nowrap text-sm text-gray-600">
@@ -487,9 +505,9 @@ const AdminPlanningPage = () => {
                     <td className="px-5 py-4 whitespace-nowrap text-sm text-gray-600">
                       {plan.date
                         ? new Date(plan.date).toLocaleDateString("en-US", {
-                            year: 'numeric',
-                            month: 'short',
-                            day: 'numeric'
+                            year: "numeric",
+                            month: "short",
+                            day: "numeric",
                           })
                         : "N/A"}
                     </td>
@@ -500,7 +518,8 @@ const AdminPlanningPage = () => {
                     </td>
                     <td className="px-5 py-4 whitespace-nowrap">
                       <div className="text-sm text-gray-800">
-                        {plan.pfe?.IsammSupervisor?.firstName} {plan.pfe?.IsammSupervisor?.lastName}
+                        {plan.pfe?.IsammSupervisor?.firstName}{" "}
+                        {plan.pfe?.IsammSupervisor?.lastName}
                       </div>
                       <div className="text-xs text-indigo-500/90">
                         {plan.pfe?.IsammSupervisor?.email || "N/A"}
@@ -508,7 +527,8 @@ const AdminPlanningPage = () => {
                     </td>
                     <td className="px-5 py-4 whitespace-nowrap">
                       <div className="text-sm text-gray-800">
-                        {plan.presidentId?.firstName} {plan.presidentId?.lastName}
+                        {plan.presidentId?.firstName}{" "}
+                        {plan.presidentId?.lastName}
                       </div>
                       <div className="text-xs text-indigo-500/90">
                         {plan.presidentId?.email || "N/A"}
@@ -539,7 +559,7 @@ const AdminPlanningPage = () => {
                     className="px-5 py-8 text-center text-sm text-gray-600"
                   >
                     <div className="bg-white/40 p-4 rounded-lg inline-block backdrop-blur-sm">
-                      {plannings.length === 0 
+                      {plannings.length === 0
                         ? "No defense schedules found. Create your first schedule above."
                         : "No matching PFE projects found. Try adjusting your filter."}
                     </div>

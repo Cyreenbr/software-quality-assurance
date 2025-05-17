@@ -114,6 +114,7 @@ const AssignInternships = () => {
               onChange={(e) => setSemester(Number(e.target.value))}
               className="px-3 py-1.5 bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 appearance-none"
             >
+              <option value={2}>All</option>
               <option value={0}>Semester 1</option>
               <option value={1}>Semester 2</option>
             </select>
