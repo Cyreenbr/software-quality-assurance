@@ -60,7 +60,7 @@ export default function PfaPlannigPopUp() {
     <div className="fixed inset-0 mt-20 z-20 bg-transparent bg-opacity-30 backdrop-blur-sm flex justify-center items-center">
       <div className="bg-white rounded-xl shadow-2xl w-full max-w-xl p-6 space-y-6">
         <h3 className="text-2xl font-bold text-center text-white bg-gradient-to-r from-indigo-600 to-purple-400 py-3 rounded-t-xl">
-          Assign PFA to Student
+          Create Defence
         </h3>
 
         {errorMessage && (

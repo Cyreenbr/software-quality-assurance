@@ -32,7 +32,7 @@ export default function PfaSoutenance() {
       console.log(soutenanceList);
     } catch (error) {
       console.error("Error fetching PFA or student data:", error);
-      setErrorMessage("Error fetching data. Please try again.");
+      
       setTimeout(() => setErrorMessage(""), 3000);
     }
   };
@@ -98,7 +98,7 @@ export default function PfaSoutenance() {
             <FaBolt className="text-yellow-300" size={20} />
           </span>
           <span className="text-sm font-semibold tracking-wide">
-            Publish soutenances
+            Publish defences
           </span>
         </button>
         <button
@@ -122,7 +122,7 @@ export default function PfaSoutenance() {
             <FaTools className="text-gray-500" size={20} />
           </span>
           <span className="text-sm font-semibold tracking-wide">
-            Start manual assignment
+            Create Defence
           </span>
         </button>
       </div>

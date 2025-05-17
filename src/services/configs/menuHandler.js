@@ -219,7 +219,8 @@ export const menuConfig = [
     icon: MdAutoStories,
     path: "/chooseoption",
     component: OptionPage,
-    eligibleRoles: [RoleEnum.ISPFA],
+    eligibleRoles: [RoleEnum.STUDENT],
+    eligibleLevels: [RoleEnum.ISPFA],
     active: true,
     hideSideBar: false,
     hideHeader: false,
@@ -448,7 +449,8 @@ export const menuConfig = [
     icon: MdAutoStories,
     path: "/list-options",
     component: OptionsListForStudentPage,
-    eligibleRoles: [RoleEnum.ISPFA],
+    eligibleRoles: [RoleEnum.STUDENT],
+    eligibleLevels: [RoleEnum.ISPFA],
     active: true,
     hideSideBar: false,
     hideHeader: false,
@@ -476,7 +478,7 @@ export const menuConfig = [
     hideSideBar: false,
     hideHeader: false,
   },
-    {
+  {
     order: 40,
     label: "Edit Profile",
     icon: MdAccountCircle,
