@@ -2,6 +2,7 @@ import debounce from "lodash.debounce";
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
     FaBook,
+    FaCalendarAlt,
     FaEdit,
     FaSortAlphaDown,
     FaSortAlphaUp,
@@ -32,6 +33,7 @@ const SubjectList = ({ onEdit, refresh = false, }) => {
     const [sortedSubjects, setSortedSubjects] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
+    const [academicYear, setAcademicYear] = useState("");
     const [titleSortOrder, setTitleSortOrder] = useState("asc");
     const [levelSortOrder, setLevelSortOrder] = useState("asc");
     const navigate = useNavigate();
@@ -60,6 +62,7 @@ const SubjectList = ({ onEdit, refresh = false, }) => {
         try {
             const response = await matieresServices.fetchMatieres({ page, searchTerm, sortBy, order });
             const fetchedSubjects = response.subjects || [];
+            setAcademicYear(response.academicYear);
             setSubjects(fetchedSubjects);
             setSortedSubjects(fetchedSubjects); // Update sorted subjects
             setTotalPages(response.pagination?.totalPages || 1);
@@ -128,46 +131,61 @@ const SubjectList = ({ onEdit, refresh = false, }) => {
         } catch (error) {
             // setError(error);
             console.error("Error deleting subject:", error);
-            toast.error("Failed to delete subject: " + (error?.message || error));
+            // toast.error("Failed to delete subject: " + (error?.message || error));
+            toast.error(error?.message || error || "Failed to delete subject: ");
             return false;
         }
     }, [fetchSubjects, currentPage, searchQuery, itemsOnPage]);
 
     return (
         <div className="min-h-screen p-6 ">
-            {/* Header */}
-            <header className="flex flex-col md:flex-row justify-between items-center mb-8 space-y-4 md:space-y-0">
-                {/* Search Bar */}
-                <SearchBar
-                    handleSearch={handleSearch}
-                    placeholder="Search subjects..."
-                    className="w-full md:max-w-sm"
-                />
+            <header className="w-full mb-8 space-y-6">
 
-                {/* Sort Button */}
-                {/* Sort by Title */}
-                <div className="flex space-x-4 w-full md:w-auto justify-center mb-5">
-                    <Tooltip text={`${sortConfig.order.toUpperCase()} : Sort by Title`} position="top" bgColor="bg-black">
-                        <button
-                            onClick={() => handleSortBy('title')}
-                            className="flex items-center bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition duration-300"
-                        >
-                            {sortConfig.key === 'title' && sortConfig.order === "asc" ? <FaSortAlphaUp /> : <FaSortAlphaDown />}
-                            <span className="ml-2">Title</span>
-                        </button>
-                    </Tooltip>
+                {/* Academic Year Centered Below */}
+                {academicYear && (
+                    <div className="flex items-center justify-center text-2xl font-semibold text-gray-800 mt-4">
+                        <FaCalendarAlt className="mr-2 text-blue-600" />
+                        Academic Year: {academicYear}
+                    </div>
+                )}
+                {/* Top Row: Search left, Sort right */}
+                <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+                    {/* Search Bar Left */}
+                    <div className="w-full ">
+                        <SearchBar
+                            handleSearch={handleSearch}
+                            placeholder="Search subjects..."
+                            className="w-full"
+                        />
+                    </div>
 
-                    {/* Sort by Level */}
-                    <Tooltip text={`${sortConfig.order.toUpperCase()} : Sort by Level`} position="top" bgColor="bg-black">
-                        <button
-                            onClick={() => handleSortBy('curriculum.level')}
-                            className="flex items-center bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-700 transition duration-300"
-                        >
-                            {sortConfig.key === 'curriculum.level' && sortConfig.order === "asc" ? <FaSortAlphaUp /> : <FaSortAlphaDown />}
-                            <span className="ml-2">Level</span>
-                        </button>
-                    </Tooltip>
+                    {/* Sort Buttons Right */}
+                    <div className="flex space-x-4 justify-center md:justify-end">
+                        {/* Sort by Title */}
+                        <Tooltip text={`${sortConfig.order.toUpperCase()} : Sort by Title`} position="top" bgColor="bg-black">
+                            <button
+                                onClick={() => handleSortBy('title')}
+                                className="flex items-center bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition duration-300"
+                            >
+                                {sortConfig.key === 'title' && sortConfig.order === "asc" ? <FaSortAlphaUp /> : <FaSortAlphaDown />}
+                                <span className="ml-2">Title</span>
+                            </button>
+                        </Tooltip>
+
+                        {/* Sort by Level */}
+                        <Tooltip text={`${sortConfig.order.toUpperCase()} : Sort by Level`} position="top" bgColor="bg-black">
+                            <button
+                                onClick={() => handleSortBy('curriculum.level')}
+                                className="flex items-center bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-700 transition duration-300"
+                            >
+                                {sortConfig.key === 'curriculum.level' && sortConfig.order === "asc" ? <FaSortAlphaUp /> : <FaSortAlphaDown />}
+                                <span className="ml-2">Level</span>
+                            </button>
+                        </Tooltip>
+                    </div>
                 </div>
+
+
             </header>
 
             {/* Loading State */}

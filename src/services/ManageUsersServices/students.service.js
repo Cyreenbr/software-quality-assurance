@@ -513,7 +513,7 @@ export const getMYCV = async () => {
       throw error;
     }
   }
-};
+};/*
 export const updateMyCV = async (cvData) => {
   try {
     const response = await axiosAPI.patch('/cv/CV', cvData);
@@ -526,9 +526,47 @@ export const updateMyCV = async (cvData) => {
 
 
 };
+*/
 
+// Service mis à jour pour updateMyCV
+export const updateMyCV = async (cvData) => {
+  try {
+    // Map the client-side field names to the server-side expected field names
+    const mappedData = {
+      // Server expects 'languages', we have 'langues'
+      languages: cvData.langues?.map(lang => ({
+        name: lang.nom,
+        level: lang.niveau
+      })) || [],
+      
+      // Server expects 'experiences' with specific field names
+      experiences: cvData.experiences?.map(exp => ({
+        title: exp.poste,
+        company: exp.entreprise,
+        startDate: exp.dateDebut,
+        endDate: exp.dateFin !== "Présent" ? exp.dateFin : null,
+        description: exp.description
+      })) || [],
+      
+      // Ajouter ces champs s'ils existent dans le formulaire
+      // Vous devez les récupérer du formulaire et les ajouter ici
+      university: cvData.university,
+      institution: cvData.institution,
+      speciality: cvData.speciality,
+      lYear: cvData.lYear,
+      typeL: cvData.typeL
+    };
 
-
+    console.log("Mapped data to send to server:", mappedData);
+    
+    const response = await axiosAPI.patch('/cv/CV', mappedData);
+    console.log("CV updated successfully:", response.data);
+    return response.data;
+  } catch (error) {
+    console.error("Error updating CV:", error.response?.data || error.message);
+    throw error;
+  }
+};
 import { toast } from 'react-toastify';
 
 export const notifyAlumni = async () => {
