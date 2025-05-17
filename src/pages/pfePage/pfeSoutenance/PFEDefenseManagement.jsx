@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import {
+  FaArrowLeft,
   FaCalendarAlt,
   FaEdit,
   FaEye,
@@ -8,6 +9,7 @@ import {
   FaPaperPlane,
   FaTimes,
 } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
 import {
   fetchPFEChoices,
   fetchTeachers,
@@ -39,7 +41,7 @@ const AdminPlanningPage = () => {
   const [isPublished, setIsPublished] = useState(true);
   const [pfeFilter, setPfeFilter] = useState("");
   const [showFilter, setShowFilter] = useState(false);
-
+  const navigate = useNavigate();
   useEffect(() => {
     loadData();
   }, [editingId]);
@@ -204,6 +206,13 @@ const AdminPlanningPage = () => {
 
   return (
     <div className="p-4 md:p-6 max-w-6xl mx-auto">
+                        <button 
+            onClick={() => navigate(-1)} 
+            className="flex items-center text-blue-500 hover:text-blue-700 transition"
+          >
+            <FaArrowLeft className="mr-2" />
+            Back
+          </button>
       {/* Header Section*/}
       <div className="bg-white/30 backdrop-blur-sm rounded-xl shadow-sm p-6 mb-6 border border-white/20">
         <h1 className="text-2xl md:text-2xl font-bold text-blue-400 mb-1">
