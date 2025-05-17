@@ -14,18 +14,22 @@ const EditProfilePage = () => {
   const [error, setError] = useState(null);
   const [successMessage, setSuccessMessage] = useState(null);
   const [formData, setFormData] = useState({
-  firstName: "",
-  lastName: "",
-  email: "",
-  phoneNumber: "",
-  address: "",
-  bio: "",
-  education: "",
-  skills: [],
-  jobTitle: "",
-  linkedin: "",
-  website: ""
-});
+    firstName: "",
+    lastName: "",
+    firstNameArabic: "",
+    lastNameArabic: "",
+    email: "",
+    phoneNumber: "",
+    address: "",
+    gouvernorate: "",
+    postalCode: "",
+    nationality: "",
+    cin: "",
+    birthDay: "",
+    sexe: "",
+    role: "",
+    level: ""
+  });
 
   const [newPhotoFile, setNewPhotoFile] = useState(null);
   const [photoPreview, setPhotoPreview] = useState(null);
@@ -48,24 +52,22 @@ const EditProfilePage = () => {
         
         // Initialize form fields with existing data
         setFormData({
-  firstName: profileData.firstName || "",
-  lastName: profileData.lastName || "",
-  email: profileData.email || "",
-  phoneNumber: profileData.phoneNumber || "",
-  address: profileData.address || "",
-  bio: profileData.bio || "",
-  education: profileData.education || "",
-  skills: Array.isArray(profileData.skills) ? profileData.skills : (typeof profileData.skills === 'string' ? profileData.skills.split(',') : []),
-  jobTitle: profileData.jobTitle || "",
-  linkedin: profileData.linkedin || "",
-  birthDay: profileData.birthDay || "",
-  sexe: profileData.sexe || "",
-  postalCode: profileData.postalCode || "",
-  nationality: profileData.nationality || "",
-  website: profileData.website || "",
-  cin: profileData.cin || "",
-});
-
+          firstName: profileData.firstName || "",
+          lastName: profileData.lastName || "",
+          firstNameArabic: profileData.firstNameArabic || "",
+          lastNameArabic: profileData.lastNameArabic || "",
+          email: profileData.email || "",
+          phoneNumber: profileData.phoneNumber || "",
+          address: profileData.address || "",
+          gouvernorate: profileData.gouvernorate || "",
+          postalCode: profileData.postalCode || "",
+          nationality: profileData.nationality || "",
+          cin: profileData.cin || "",
+          birthDay: profileData.birthDay ? new Date(profileData.birthDay).toISOString().split('T')[0] : "",
+          sexe: profileData.sexe || "",
+          role: profileData.role || "",
+          level: profileData.level || ""
+        });
         
         // Set profile photo preview
         if (profileData.profilePhoto) {
@@ -75,7 +77,7 @@ const EditProfilePage = () => {
       setError(null);
     } catch (err) {
       console.error("Error fetching profile data:", err);
-      setError("Unable to load profile data. Please try again.");
+      setError("Impossible de charger les données du profil. Veuillez réessayer.");
     } finally {
       setLoading(false);
     }
@@ -85,26 +87,20 @@ const EditProfilePage = () => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
   };
-  
-  const handleSkillsChange = (e) => {
-    // Convert comma-separated string to array
-    const skillsArray = e.target.value.split(',').map(skill => skill.trim()).filter(skill => skill);
-    setFormData(prev => ({ ...prev, skills: skillsArray }));
-  };
 
   const handlePhotoChange = (e) => {
     const file = e.target.files[0];
     if (file) {
       // Check file size (5MB max)
       if (file.size > 5 * 1024 * 1024) {
-        setError("Image size should not exceed 5MB");
+        setError("La taille de l'image ne doit pas dépasser 5Mo");
         return;
       }
       
       // Check file type
       const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg'];
       if (!allowedTypes.includes(file.type)) {
-        setError("Unsupported file format. Use JPG, JPEG or PNG.");
+        setError("Format de fichier non pris en charge. Utilisez JPG, JPEG ou PNG.");
         return;
       }
       
@@ -131,7 +127,7 @@ const EditProfilePage = () => {
       
       console.log("Server response:", response);
       
-      setSuccessMessage("Profile updated successfully!");
+      setSuccessMessage("Profil mis à jour avec succès!");
       
       // Redirect to profile page after a short delay
       setTimeout(() => {
@@ -144,7 +140,7 @@ const EditProfilePage = () => {
       } else if (err.message) {
         setError(err.message);
       } else {
-        setError("An error occurred while updating the profile.");
+        setError("Une erreur s'est produite lors de la mise à jour du profil.");
       }
     } finally {
       setSaving(false);
@@ -165,7 +161,7 @@ const EditProfilePage = () => {
         >
           <MdArrowBack size={24} className="text-gray-700" />
         </button>
-        <h1 className="text-2xl md:text-3xl font-bold text-gray-800">Edit My Profile</h1>
+        <h1 className="text-2xl md:text-3xl font-bold text-gray-800">Modifier Mon Profil</h1>
       </div>
 
       {/* Form */}
@@ -193,7 +189,7 @@ const EditProfilePage = () => {
               <div className="relative mb-4">
                 <img
                   src={photoPreview || defaultAvatar}
-                  alt="Profile photo"
+                  alt="Photo de profil"
                   className="w-32 h-32 rounded-full object-cover border-4 border-indigo-100 shadow-md bg-gray-200"
                   onError={(e) => {
                     e.target.onerror = null;
@@ -212,108 +208,270 @@ const EditProfilePage = () => {
                 </label>
               </div>
               <label htmlFor="photo-upload" className="cursor-pointer text-indigo-600 hover:text-indigo-800 font-medium">
-                Change profile photo
+                Changer la photo de profil
               </label>
               <p className="text-xs text-gray-500 mt-1">
-                Accepted formats: JPG, JPEG, PNG. Max size: 5MB
+                Formats acceptés: JPG, JPEG, PNG. Taille max: 5MB
               </p>
             </div>
 
-            {/* Personal information */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Form sections */}
+            <div className="space-y-8">
+              {/* Personal information section */}
               <div>
-                <label htmlFor="firstName" className="block text-gray-700 font-medium mb-2">
-                  First Name
-                </label>
-                <input
-                  type="text"
-                  id="firstName"
-                  name="firstName"
-                  value={formData.firstName || ""}
-                  onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                  placeholder="Your first name"
-                />
+                <h2 className="text-xl font-semibold text-gray-800 mb-4">Informations personnelles</h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* French name */}
+                  <div>
+                    <label htmlFor="firstName" className="block text-gray-700 font-medium mb-2">
+                      Prénom
+                    </label>
+                    <input
+                      type="text"
+                      id="firstName"
+                      name="firstName"
+                      value={formData.firstName}
+                      onChange={handleChange}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                      placeholder="Votre prénom"
+                    />
+                  </div>
+
+                  <div>
+                    <label htmlFor="lastName" className="block text-gray-700 font-medium mb-2">
+                      Nom
+                    </label>
+                    <input
+                      type="text"
+                      id="lastName"
+                      name="lastName"
+                      value={formData.lastName}
+                      onChange={handleChange}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                      placeholder="Votre nom"
+                    />
+                  </div>
+
+                  {/* Arabic name */}
+                  <div>
+                    <label htmlFor="firstNameArabic" className="block text-gray-700 font-medium mb-2">
+                      الإسم
+                    </label>
+                    <input
+                      type="text"
+                      id="firstNameArabic"
+                      name="firstNameArabic"
+                      value={formData.firstNameArabic}
+                      onChange={handleChange}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-right"
+                      dir="rtl"
+                      placeholder="اسمك"
+                    />
+                  </div>
+
+                  <div>
+                    <label htmlFor="lastNameArabic" className="block text-gray-700 font-medium mb-2">
+                      اللقب
+                    </label>
+                    <input
+                      type="text"
+                      id="lastNameArabic"
+                      name="lastNameArabic"
+                      value={formData.lastNameArabic}
+                      onChange={handleChange}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-right"
+                      dir="rtl"
+                      placeholder="لقبك"
+                    />
+                  </div>
+                  
+                  {/* Birth information */}
+                  <div>
+                    <label htmlFor="birthDay" className="block text-gray-700 font-medium mb-2">
+                      Date de naissance
+                    </label>
+                    <input
+                      type="date"
+                      id="birthDay"
+                      name="birthDay"
+                      value={formData.birthDay}
+                      onChange={handleChange}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                    />
+                  </div>
+
+                  <div>
+                    <label htmlFor="sexe" className="block text-gray-700 font-medium mb-2">
+                      Sexe
+                    </label>
+                    <select
+                      id="sexe"
+                      name="sexe"
+                      value={formData.sexe}
+                      onChange={handleChange}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                    >
+                      <option value="">Sélectionnez</option>
+                      <option value="Homme">Homme</option>
+                      <option value="Femme">Femme</option>
+                    </select>
+                  </div>
+
+                  {/* Role and level */}
+                  <div>
+                    <label htmlFor="role" className="block text-gray-700 font-medium mb-2">
+                      Rôle
+                    </label>
+                    <input
+                      type="text"
+                      id="role"
+                      name="role"
+                      value={formData.role}
+                      onChange={handleChange}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                      placeholder="Étudiant, Enseignant, etc."
+                    />
+                  </div>
+
+                  <div>
+                    <label htmlFor="level" className="block text-gray-700 font-medium mb-2">
+                      Niveau
+                    </label>
+                    <select
+                      id="level"
+                      name="level"
+                      value={formData.level}
+                      onChange={handleChange}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                    >
+                      <option value="">Sélectionnez</option>
+                      <option value="1year">Première année</option>
+                      <option value="2year">Deuxième année</option>
+                      <option value="3year">Troisième année</option>
+                    </select>
+                  </div>
+                </div>
               </div>
 
+              {/* Contact and Identification Section */}
               <div>
-                <label htmlFor="lastName" className="block text-gray-700 font-medium mb-2">
-                  Last Name
-                </label>
-                <input
-                  type="text"
-                  id="lastName"
-                  name="lastName"
-                  value={formData.lastName || ""}
-                  onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                  placeholder="Your last name"
-                />
+                <h2 className="text-xl font-semibold text-gray-800 mb-4">Contact et identification</h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label htmlFor="email" className="block text-gray-700 font-medium mb-2">
+                      Email
+                    </label>
+                    <input
+                      type="email"
+                      id="email"
+                      name="email"
+                      value={formData.email}
+                      onChange={handleChange}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                      placeholder="votre@email.com"
+                    />
+                  </div>
+
+                  <div>
+                    <label htmlFor="phoneNumber" className="block text-gray-700 font-medium mb-2">
+                      Numéro de téléphone
+                    </label>
+                    <input
+                      type="tel"
+                      id="phoneNumber"
+                      name="phoneNumber"
+                      value={formData.phoneNumber}
+                      onChange={handleChange}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                      placeholder="+216 XX XXX XXX"
+                    />
+                  </div>
+
+                  <div>
+                    <label htmlFor="cin" className="block text-gray-700 font-medium mb-2">
+                      CIN
+                    </label>
+                    <input
+                      type="text"
+                      id="cin"
+                      name="cin"
+                      value={formData.cin}
+                      onChange={handleChange}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                      placeholder="Numéro de CIN"
+                    />
+                  </div>
+
+                  <div>
+                    <label htmlFor="nationality" className="block text-gray-700 font-medium mb-2">
+                      Nationalité
+                    </label>
+                    <input
+                      type="text"
+                      id="nationality"
+                      name="nationality"
+                      value={formData.nationality}
+                      onChange={handleChange}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                      placeholder="Votre nationalité"
+                    />
+                  </div>
+                </div>
               </div>
 
+              {/* Address Section */}
               <div>
-                <label htmlFor="email" className="block text-gray-700 font-medium mb-2">
-                  Email
-                </label>
-                <input
-                  type="email"
-                  id="email"
-                  name="email"
-                  value={formData.email || ""}
-                  onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                  placeholder="your@email.com"
-                />
-              </div>
+                <h2 className="text-xl font-semibold text-gray-800 mb-4">Adresse</h2>
+                <div className="grid grid-cols-1 gap-6">
+                  <div>
+                    <label htmlFor="address" className="block text-gray-700 font-medium mb-2">
+                      Adresse complète
+                    </label>
+                    <input
+                      type="text"
+                      id="address"
+                      name="address"
+                      value={formData.address}
+                      onChange={handleChange}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                      placeholder="Votre adresse complète"
+                    />
+                  </div>
 
-              <div>
-                <label htmlFor="phoneNumber" className="block text-gray-700 font-medium mb-2">
-                  Phone Number
-                </label>
-                <input
-                  type="tel"
-                  id="phoneNumber"
-                  name="phoneNumber"
-                  value={formData.phoneNumber || ""}
-                  onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                  placeholder="+216 XX XXX XXX"
-                />
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <label htmlFor="gouvernorate" className="block text-gray-700 font-medium mb-2">
+                        Gouvernorat
+                      </label>
+                      <input
+                        type="text"
+                        id="gouvernorate"
+                        name="gouvernorate"
+                        value={formData.gouvernorate}
+                        onChange={handleChange}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                        placeholder="Votre gouvernorat"
+                      />
+                    </div>
+
+                    <div>
+                      <label htmlFor="postalCode" className="block text-gray-700 font-medium mb-2">
+                        Code Postal
+                      </label>
+                      <input
+                        type="text"
+                        id="postalCode"
+                        name="postalCode"
+                        value={formData.postalCode}
+                        onChange={handleChange}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                        placeholder="Code postal"
+                      />
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
-
-            <div className="mt-6">
-              <label htmlFor="address" className="block text-gray-700 font-medium mb-2">
-                Address
-              </label>
-              <input
-                type="text"
-                id="address"
-                name="address"
-                value={formData.address || ""}
-                onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                placeholder="Your complete address"
-              />
-            </div>
-             <div className="mt-6">
-  <label htmlFor="birthDay" className="block text-gray-700 font-medium mb-2">
-    Birthday
-  </label>
-  <input
-    type="date"
-    id="birthDay"
-    name="birthDay"
-    value={formData.birthDay || ""}
-    onChange={handleChange}
-    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-    placeholder="Your birthday"
-  />
-</div>
-
-
-           
-
 
             {/* Action buttons */}
             <div className="mt-8 flex flex-col sm:flex-row justify-end gap-3">
@@ -322,7 +480,7 @@ const EditProfilePage = () => {
                 onClick={handleGoBack}
                 className="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors font-medium"
               >
-                Cancel
+                Annuler
               </button>
               <button
                 type="submit"
@@ -332,12 +490,12 @@ const EditProfilePage = () => {
                 {saving ? (
                   <>
                     <ClipLoader color="#ffffff" size={16} className="mr-2" />
-                    Saving...
+                    Enregistrement...
                   </>
                 ) : (
                   <>
                     <MdSave className="mr-2" size={18} />
-                    Save
+                    Enregistrer
                   </>
                 )}
               </button>
