@@ -41,7 +41,7 @@ const AdminPlanningPage = () => {
         fetchTeachers(),
         getPlannings(),
       ]);
-
+      console.log(teacherRes);
       const pfeIdsWithDefense = planningRes.defenses.map(
         (plan) => plan.pfe._id
       );

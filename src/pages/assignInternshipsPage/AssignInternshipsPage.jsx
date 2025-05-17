@@ -191,5 +191,4 @@ const AssignInternships = () => {
     </div>
   );
 };
-
 export default AssignInternships;
