@@ -103,7 +103,7 @@ const AdminPage = () => {
       List of PFAs
     </h2>
     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-      {filteredPfas.map((pfa) => (
+      {filteredPfas.length !== 0 && filteredPfas.map((pfa) => (
         <div
           key={pfa.id}
           className="border border-gray-300 p-6 shadow-sm rounded-lg hover:shadow-xl hover:bg-gradient-to-r from-blue-50 to-purple-100 transition-all duration-300 overflow-auto flex flex-col"
