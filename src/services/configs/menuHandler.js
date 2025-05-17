@@ -45,8 +45,6 @@ import StudentsManagPage from "../../pages/UsersManagementPage/StudentsManagPage
 import TeachersManagPage from "../../pages/UsersManagementPage/TeachersManagPage";
 import { RoleEnum } from "../../utils/userRoles";
 
-
-
 import EditCV from "../../pages/EditCV";
 import Profile from "../../pages/profilePage/Profile";
 import StudentCVPage from "../../pages/StudentCVPage";
@@ -56,6 +54,7 @@ import EtudiantSoutenancePage from "../../pages/pfePage/pfeSoutenance/EtudiantSo
 import AdminPlanningPage from "../../pages/pfePage/pfeSoutenance/PFEDefenseManagement";
 
 import DefensePlanningPage from "../../pages/pfePage/pfeSoutenance/Planning";
+
 import UniversityYearPage from "../../pages/universityYearPage/UniversityYearPage";
 
 export const menuConfig = [
@@ -140,7 +139,8 @@ export const menuConfig = [
     hideSideBar: false,
     hideHeader: false,
     dontShow: true,
-  }, {
+  },
+  {
     order: 77,
     // label: 'Subject Details',
     icon: undefined,
@@ -277,7 +277,6 @@ export const menuConfig = [
     hideHeader: false,
   },
 
-
   {
     order: 16,
     label: "PFE",
@@ -376,10 +375,9 @@ export const menuConfig = [
     hideHeader: false,
   },
 
-
   {
-    order: 82,
-    label: "soutenancePlanning",
+    order: 28,
+    label: "Defense PFE",
     icon: MdList,
     path: "/soutenancePlanning",
     tooltip: "soutenancePlanning",
@@ -392,7 +390,7 @@ export const menuConfig = [
   },
   {
     order: 29,
-    label: "soutenanceEnseignantPage",
+    label: "Defense PFE",
     icon: MdList,
     path: "/soutenanceEnseignantPage",
     tooltip: "soutenanceEnseignantPage",
@@ -405,7 +403,7 @@ export const menuConfig = [
   },
   {
     order: 30,
-    label: "EtudiantSoutenancePage",
+    label: "Defense PFE",
     icon: MdList,
     path: "/EtudiantSoutenancePage",
     tooltip: "EtudiantSoutenancePage",
@@ -417,7 +415,6 @@ export const menuConfig = [
     hideSideBar: false,
     hideHeader: false,
   },
-
 
   {
     order: 28,
@@ -457,13 +454,12 @@ export const menuConfig = [
     hideHeader: false,
   },
 
-     
- {
-   order: 34,
+  {
+    order: 34,
     label: "View CV",
     icon: MdAutoStories,
     path: "/CV/me",
-    component:MyCV,
+    component: MyCV,
     eligibleRoles: [RoleEnum.STUDENT],
     active: true,
     hideSideBar: false,
@@ -490,7 +486,7 @@ export const menuConfig = [
     hideSideBar: false,
     hideHeader: false,
   },
-    {
+  {
     order: 50,
     path: "/CV/editCV",
     component: EditCV,
@@ -500,7 +496,7 @@ export const menuConfig = [
     hideSideBar: false,
     hideHeader: false,
   },
-  
+
   {
     order: 35,
     label: "Planning Soutenance",
@@ -514,8 +510,6 @@ export const menuConfig = [
     hideSideBar: false,
     hideHeader: false,
   },
-
-
 
   // kifeh tzid route jdid ??
   // {
