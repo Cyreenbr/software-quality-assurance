@@ -8,6 +8,7 @@ import {
   FaTimes,
   FaUserPlus,
 } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import {
   assignPFEManually,
@@ -27,6 +28,8 @@ const AdminPfeManagement = () => {
   const [selectedPfe, setSelectedPfe] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [projectSearchQuery, setProjectSearchQuery] = useState("");
+  const navigate = useNavigate();
+
 
   useEffect(() => {
     loadData();
@@ -90,6 +93,11 @@ const AdminPfeManagement = () => {
     }
   };
 
+    const handlePageAssignment  = () => {
+    navigate("/soutenancePlanning");
+  };
+
+
   const handleOpenDocument = (document) => {
     if (document) {
       const url = `http://localhost:3000/uploads/${document}`;
@@ -120,9 +128,17 @@ const AdminPfeManagement = () => {
   return (
     <div className="p-6 bg-gray-50 min-h-screen">
       <div className="max-w-7xl mx-auto">
-        <h1 className="text-2xl font-bold text-blue-400 mb-6">
-          PFE Management
-        </h1>
+<div className="max-w-7xl mx-auto flex justify-between items-center mb-6">
+  <h1 className="text-2xl font-bold text-blue-400">
+    PFE Management
+  </h1>
+  <button
+    onClick={handlePageAssignment}
+    className="bg-blue-500 hover:bg-blue-600 text-white font-medium px-4 py-2 rounded-lg text-sm transition-colors duration-200 flex items-center shadow-sm"
+  >
+    Defense PFE
+  </button>
+</div>
 
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-6">
           <div className="px-6 py-3 border-b border-gray-200 flex justify-between items-center">

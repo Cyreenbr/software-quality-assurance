@@ -1,12 +1,17 @@
 import { useEffect, useState } from "react";
+import {
+  FaArrowLeft,
+} from "react-icons/fa";
 import { useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import { getTeacherPlannings } from "../../../services/pfeService/pfeSoutenance";
 
 const EnseignantPage = ({ currentTeacherId }) => {
   const [plannings, setPlannings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
-  
+  const navigate = useNavigate();
+
   const storedUser = useSelector((state) => state.auth.user);
   const loggedInUser = storedUser?._id || storedUser?.id;
 
@@ -41,6 +46,13 @@ const EnseignantPage = ({ currentTeacherId }) => {
 
   return (
     <div className="p-4 md:p-6 max-w-6xl mx-auto">
+                        <button 
+            onClick={() => navigate(-1)} 
+            className="flex items-center text-blue-500 hover:text-blue-700 transition"
+          >
+            <FaArrowLeft className="mr-2" />
+            Back
+          </button>
       <div className="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-100">
         <div className="p-6">
           <div className="mb-6">
