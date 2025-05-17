@@ -58,6 +58,10 @@ const EditProfilePage = () => {
   skills: Array.isArray(profileData.skills) ? profileData.skills : (typeof profileData.skills === 'string' ? profileData.skills.split(',') : []),
   jobTitle: profileData.jobTitle || "",
   linkedin: profileData.linkedin || "",
+  birthDay: profileData.birthDay || "",
+  sexe: profileData.sexe || "",
+  postalCode: profileData.postalCode || "",
+  nationality: profileData.nationality || "",
   website: profileData.website || ""
 });
 
@@ -291,51 +295,24 @@ const EditProfilePage = () => {
                 placeholder="Your complete address"
               />
             </div>
+             <div className="mt-6">
+  <label htmlFor="birthDay" className="block text-gray-700 font-medium mb-2">
+    Birthday
+  </label>
+  <input
+    type="date"
+    id="birthDay"
+    name="birthDay"
+    value={formData.birthDay || ""}
+    onChange={handleChange}
+    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+    placeholder="Your birthday"
+  />
+</div>
 
-            <div className="mt-6">
-              <label htmlFor="bio" className="block text-gray-700 font-medium mb-2">
-                Biography
-              </label>
-              <textarea
-                id="bio"
-                name="bio"
-                value={formData.bio || ""}
-                onChange={handleChange}
-                rows="4"
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                placeholder="Tell us about yourself..."
-              ></textarea>
-            </div>
 
-            <div className="mt-6">
-              <label htmlFor="education" className="block text-gray-700 font-medium mb-2">
-                Education
-              </label>
-              <input
-                type="text"
-                id="education"
-                name="education"
-                value={formData.education || ""}
-                onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                placeholder="Your education and degrees"
-              />
-            </div>
+           
 
-            <div className="mt-6">
-              <label htmlFor="skills" className="block text-gray-700 font-medium mb-2">
-                Skills (comma separated)
-              </label>
-              <input
-                type="text"
-                id="skills"
-                name="skills"
-                value={Array.isArray(formData.skills) ? formData.skills.join(', ') : ""}
-                onChange={handleSkillsChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                placeholder="Java, Python, Design, Marketing..."
-              />
-            </div>
 
             {/* Action buttons */}
             <div className="mt-8 flex flex-col sm:flex-row justify-end gap-3">

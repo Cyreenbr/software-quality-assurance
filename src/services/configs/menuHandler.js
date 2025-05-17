@@ -436,6 +436,7 @@ export const menuConfig = [
     active: true,
     hideSideBar: false,
     hideHeader: false,
+    dontShow: true,
   },
 
   {
