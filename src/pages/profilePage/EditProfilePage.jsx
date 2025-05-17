@@ -62,7 +62,8 @@ const EditProfilePage = () => {
   sexe: profileData.sexe || "",
   postalCode: profileData.postalCode || "",
   nationality: profileData.nationality || "",
-  website: profileData.website || ""
+  website: profileData.website || "",
+  cin: profileData.cin || "",
 });
 
         
