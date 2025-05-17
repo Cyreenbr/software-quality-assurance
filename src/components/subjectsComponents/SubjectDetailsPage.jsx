@@ -5,9 +5,11 @@ import {
     FaArrowLeft,
     FaBookOpen,
     FaCalendarAlt,
+    FaCalendarPlus,
     FaCheck,
     FaChevronDown,
     FaChevronUp,
+    FaClock,
     FaEdit,
     FaEye,
     FaHistory,
@@ -65,6 +67,7 @@ const SubjectDetailsPage = () => {
     let positionTooltip = deviceType !== "mobile" ? "bottom" : "left";
     const confirmDeleteMessage = `Are you sure you want to delete this subject?`;
     const [archive, setArchive] = useState(false);
+    const [isArchived, setIsArchived] = useState(false);
     const [forced, setForced] = useState(false);
     // Calcul du pourcentage de progression global (chapitres)
     const totalChapters = formData?.subject?.curriculum?.chapitres?.length || 0;
@@ -156,12 +159,12 @@ const SubjectDetailsPage = () => {
             if (!force && fetchRef.current && formData?.subject?._id === id) return;
 
             const response = await matieresServices.fetchMatiereById(id);
-            const { subject, archivedSubjects, archivedPagination } = response;
+            const { subject, archivedSubjects, archivedPagination, isArchived } = response;
 
             if (!subject || !subject.curriculum || !Array.isArray(subject.curriculum.chapitres)) {
                 throw new Error("Invalid subject data received from the server.");
             }
-
+            setIsArchived(isArchived);
             setFetchData(subject);
             setFormData({
                 subject: {
@@ -697,23 +700,46 @@ const SubjectDetailsPage = () => {
                     {/* <div className="w-full max-w-6xl mx-auto bg-white rounded-lg shadow-lg p-8 space-y-8"> */}
                     <div className="w-full max-w-6xl mx-auto bg-white  ">
                         {/* Header */}
-                        {userRole === RoleEnum.ADMIN && (<header className="text-center mb-8">
-                            <div className="flex items-center justify-center space-x-2">
-                                {formData.subject.isPublish ? (
-                                    <>
-                                        <CgEye className="text-gray-700 text-lg" />
-                                        <span>Published</span>
-                                    </>
-                                ) : (
-                                    <>
-                                        <FiEyeOff className="text-gray-700 text-lg" />
-                                        <span>Hidden</span>
-                                    </>
+                        {userRole === RoleEnum.ADMIN && (
+                            <header className="bg-gray-50 p-4 rounded-lg shadow-md text-center mb-8 space-y-3">
+                                {/* Archived Status */}
+                                {isArchived && (
+                                    <div className="flex items-center justify-center text-yellow-700 space-x-2">
+                                        <FiArchive className="text-xl" />
+                                        <span className="font-medium">Archived</span>
+                                    </div>
                                 )}
-                            </div>
-                            <p className="text-sm text-gray-600">Last update :{humanizeDate(formData.subject.updatedAt, true)}</p>
-                            <p className="text-sm text-gray-600">Created :{humanizeDate(formData.subject.createdAt, true)}</p>
-                        </header>)}
+
+                                {/* Publication Status */}
+                                <div className={`flex items-center justify-center space-x-2 ${formData.subject.isPublish ? 'text-green-700' : 'text-red-600'}`}>
+                                    {formData.subject.isPublish ? (
+                                        <>
+                                            <CgEye className="text-xl" />
+                                            <span className="font-medium">Published</span>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <FiEyeOff className="text-xl" />
+                                            <span className="font-medium">Hidden</span>
+                                        </>
+                                    )}
+                                </div>
+
+                                {/* Timestamps */}
+                                <div className="flex flex-col items-center space-y-1 text-gray-600 text-sm">
+                                    <div className="flex items-center space-x-2">
+                                        <FaClock className="text-base" />
+                                        <span>Last update: {humanizeDate(formData.subject.updatedAt, true)}</span>
+                                    </div>
+                                    <div className="flex items-center space-x-2">
+                                        <FaCalendarPlus className="text-base" />
+                                        <span>Created: {humanizeDate(formData.subject.createdAt, true)}</span>
+                                    </div>
+                                </div>
+                            </header>
+
+                        )
+                        }
 
 
                         {/* Subject Overview */}
