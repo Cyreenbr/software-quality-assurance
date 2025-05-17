@@ -10,8 +10,8 @@ import {
 import { useNavigate } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import internshipService from "../../services/updateplanninginternship/UpdateInternshipPlanning.service";
 import { getTeachers } from "../../services/ManageUsersServices/teachers.service";
+import internshipService from "../../services/updateplanninginternship/UpdateInternshipPlanning.service";
 
 const InternshipPlanning = () => {
   const [internships, setInternships] = useState([]);
@@ -117,7 +117,7 @@ const InternshipPlanning = () => {
       </button>
       <ToastContainer position="top-right" autoClose={3000} />
       <div className="max-w-7xl bg-white rounded-lg shadow-lg mx-auto p-8">
-        <h1 className="text-3xl font-semibold text-start text-blue-500 mb-6">
+        <h1 className="text-2xl font-bold text-start text-blue-500 mb-6">
           Internship Assignments
         </h1>
 

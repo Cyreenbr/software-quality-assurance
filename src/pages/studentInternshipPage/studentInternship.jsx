@@ -29,7 +29,7 @@ const InternshipList = () => {
     fetchInternships();
   }, []);
 
-  // Fetching internships
+ 
   const fetchInternships = async () => {
     try {
       console.log("Fetching internships...");
@@ -129,7 +129,7 @@ const InternshipList = () => {
     }
   };
 
-  // hide planning
+ 
   const handleHidePlanning = async () => {
     try {
       setIsLoading(true);
@@ -155,14 +155,18 @@ const InternshipList = () => {
     navigate('/StudentsWithoutInternship'); 
   };
 
-  // Pagination handlers
+    const handlePageAssignment  = () => {
+    navigate("/InternshipAssignment");
+  };
+
+
   const handlePageChange = (page, pageSize) => {
     setCurrentPage(page);
   };
 
   const handlePageSizeChange = (current, size) => {
     setPageSize(size);
-    setCurrentPage(1); // Reset to first page when page size changes
+    setCurrentPage(1); 
   };
 
   // Calculate current items to display
@@ -172,7 +176,7 @@ const InternshipList = () => {
     return filteredInternships.slice(startIndex, endIndex);
   };
 
-  // Extract unique values for supervisor filter
+  
   const getUniqueSupervisors = () => {
     const values = new Set();
 
@@ -249,8 +253,8 @@ const InternshipList = () => {
           Internship List
         </h2>
 
-        <div className="mb-6 flex flex-wrap justify-between items-center gap-4">
-          {/* Publish and Hide buttons */}
+        {/* First row - Action buttons */}
+        <div className="mb-4 flex flex-wrap justify-between items-center gap-4">
           <div className="flex items-center border-r border-gray-200 pr-4">
             <button
               onClick={handlePublishPlanning}
@@ -280,81 +284,89 @@ const InternshipList = () => {
           </div>
 
           <div className="flex items-center">
-              <button
-                onClick={handleUpdateAssignment}
-                className="bg-transparent text-gray-700 font-medium px-4 py-1.5 rounded-full border border-pink-300 text-sm hover:bg-pink-50 hover:border-blue-400 transition-colors duration-200 flex items-center mx-2"
-              >
-                Students without internship
-              </button>
-            </div>
+            <button
+              onClick={handleUpdateAssignment}
+              className="bg-transparent text-gray-700 font-medium px-4 py-1.5 rounded-full border border-pink-300 text-sm hover:bg-pink-50 hover:border-blue-400 transition-colors duration-200 flex items-center mx-2"
+            >
+              Students without internship
+            </button>
+                      <button
+            onClick={handlePageAssignment}
+            className="bg-transparent text-gray-700 font-medium px-4 py-1.5 rounded-full border border-pink-300 text-sm hover:bg-pink-50 hover:border-blue-400 transition-colors duration-200 flex items-center mx-2"
+          >
+            Internship Assignment
+          </button>
+          </div>
+          
+        </div>
 
-          <div className="flex flex-1 flex-wrap items-center justify-end gap-3">
-            <div className="flex space-x-2">
-              <Tooltip title="Filter by submission status">
-                <Dropdown overlay={lateSubmissionMenu} placement="bottomRight" trigger={["click"]}>
-                  <Button 
-                    type="default" 
-                    className="flex items-center justify-center border border-pink-200 rounded-full bg-white hover:bg-pink-50 hover:border-pink-300 transition-colors"
-                  >
-                    <div className="flex items-center">
-                      <FaClock className="text-pink-500 mr-1.5" />
-                      <span className="text-gray-700">
-                        {filters.lateSubmission ? 
-                          (filters.lateSubmission === "yes" ? "Late" : "On Time") : 
-                          "Submission"
-                        }
-                      </span>
-                    </div>
-                  </Button>
-                </Dropdown>
-              </Tooltip>
-              
-              <Tooltip title="Filter by supervisor">
-                <Dropdown overlay={supervisorMenu} placement="bottomRight" trigger={["click"]}>
-                  <Button 
-                    type="default" 
-                    className="flex items-center justify-center border border-pink-200 rounded-full bg-white hover:bg-pink-50 hover:border-pink-300 transition-colors"
-                  >
-                    <div className="flex items-center">
-                      <FaUser className="text-pink-500 mr-1.5" />
-                      <span className="text-gray-700">
-                        {filters.supervisor ? 
-                          (filters.supervisor.length > 10 ? 
-                            filters.supervisor.substring(0, 10) + "..." : 
-                            filters.supervisor) : 
-                          "Supervisor"
-                        }
-                      </span>
-                    </div>
-                  </Button>
-                </Dropdown>
-              </Tooltip>
-              
-              {(filters.lateSubmission || filters.supervisor || searchTerm) && (
-                <Button
-                  onClick={resetFilters}
+        {/* Second row - Filter and search controls */}
+        <div className="mb-6 flex flex-wrap justify-between items-center gap-4 bg-gray-50 p-4 rounded-lg">
+          <div className="flex space-x-2">
+            <Tooltip title="Filter by submission status">
+              <Dropdown overlay={lateSubmissionMenu} placement="bottomRight" trigger={["click"]}>
+                <Button 
+                  type="default" 
                   className="flex items-center justify-center border border-pink-200 rounded-full bg-white hover:bg-pink-50 hover:border-pink-300 transition-colors"
                 >
                   <div className="flex items-center">
-                    <FaSync className="text-pink-500 mr-1.5" />
-                    <span className="text-gray-700">Reset</span>
+                    <FaClock className="text-pink-500 mr-1.5" />
+                    <span className="text-gray-700">
+                      {filters.lateSubmission ? 
+                        (filters.lateSubmission === "yes" ? "Late" : "On Time") : 
+                        "Submission"
+                      }
+                    </span>
                   </div>
                 </Button>
-              )}
-            </div>
+              </Dropdown>
+            </Tooltip>
             
-            <div className="relative w-full sm:w-auto sm:min-w-48 md:min-w-64">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <FaSearch className="text-pink-400" />
-              </div>
-              <input
-                type="text"
-                value={searchTerm}
-                onChange={handleSearch}
-                placeholder="Search student..."
-                className="block w-full pl-10 pr-3 py-2 border border-pink-200 rounded-full leading-5 bg-white placeholder-gray-400 focus:outline-none focus:ring-pink-300 focus:border-pink-300 sm:text-sm transition-colors"
-              />
+            <Tooltip title="Filter by supervisor">
+              <Dropdown overlay={supervisorMenu} placement="bottomRight" trigger={["click"]}>
+                <Button 
+                  type="default" 
+                  className="flex items-center justify-center border border-pink-200 rounded-full bg-white hover:bg-pink-50 hover:border-pink-300 transition-colors"
+                >
+                  <div className="flex items-center">
+                    <FaUser className="text-pink-500 mr-1.5" />
+                    <span className="text-gray-700">
+                      {filters.supervisor ? 
+                        (filters.supervisor.length > 10 ? 
+                          filters.supervisor.substring(0, 10) + "..." : 
+                          filters.supervisor) : 
+                        "Supervisor"
+                      }
+                    </span>
+                  </div>
+                </Button>
+              </Dropdown>
+            </Tooltip>
+            
+            {(filters.lateSubmission || filters.supervisor || searchTerm) && (
+              <Button
+                onClick={resetFilters}
+                className="flex items-center justify-center border border-pink-200 rounded-full bg-white hover:bg-pink-50 hover:border-pink-300 transition-colors"
+              >
+                <div className="flex items-center">
+                  <FaSync className="text-pink-500 mr-1.5" />
+                  <span className="text-gray-700">Reset</span>
+                </div>
+              </Button>
+            )}
+          </div>
+          
+          <div className="relative w-full sm:w-auto sm:min-w-48 md:min-w-64">
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <FaSearch className="text-pink-400" />
             </div>
+            <input
+              type="text"
+              value={searchTerm}
+              onChange={handleSearch}
+              placeholder="Search student..."
+              className="block w-full pl-10 pr-3 py-2 border border-pink-200 rounded-full leading-5 bg-white placeholder-gray-400 focus:outline-none focus:ring-pink-300 focus:border-pink-300 sm:text-sm transition-colors"
+            />
           </div>
         </div>
 

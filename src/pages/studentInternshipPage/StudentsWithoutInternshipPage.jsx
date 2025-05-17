@@ -81,7 +81,7 @@ const StudentsWithoutInternship = () => {
             <FaArrowLeft className="mr-2" />
             Back
           </button>
- <h1 className="text-3xl font-bold text-blue-400 mb-8 ">
+ <h1 className="text-2xl font-bold text-blue-500 mb-8 ">
         Students Without Internship
       </h1>
 

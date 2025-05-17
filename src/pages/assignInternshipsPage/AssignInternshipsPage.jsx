@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { FaEnvelope, FaInfoCircle, FaPlus, FaSync } from "react-icons/fa";
+import { FaArrowLeft, FaEnvelope, FaInfoCircle, FaPlus, FaSync } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -92,7 +92,14 @@ const AssignInternships = () => {
   return (
     <div className="min-h-screen bg-gradient-to-r from-blue-50 to-purple-100 py-10 rounded-lg">
       <ToastContainer position="top-right" autoClose={3000} />
-      <div className="max-w-7xl bg-white rounded-lg mx-auto mt-8 p-6">
+            <button
+              onClick={() => navigate(-1)}
+              className="flex items-center text-blue-500 hover:text-blue-700 transition"
+            >
+              <FaArrowLeft className="mr-2" />
+              Back
+            </button>
+      <div className="max-w-8xl bg-white rounded-lg mx-auto mt-9 p-4">
         <h1 className="text-2xl text-blue-500 font-bold mb-4">
           Assign Internships
         </h1>
