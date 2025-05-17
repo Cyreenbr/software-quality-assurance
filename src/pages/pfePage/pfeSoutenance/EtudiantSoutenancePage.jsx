@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
-import { FaBook, FaCalendarAlt, FaChalkboardTeacher, FaClock, FaDoorOpen, FaUserGraduate, FaUserTie } from "react-icons/fa";
+import { FaArrowLeft, FaBook, FaCalendarAlt, FaChalkboardTeacher, FaClock, FaDoorOpen, FaUserGraduate, FaUserTie } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
 import { getStudentDefense } from "../../../services/pfeService/pfeSoutenance";
 
 const StudentDefensePage = () => {
   const [defense, setDefense] = useState(null);
   const [message, setMessage] = useState("");
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchMyDefense = async () => {
@@ -35,6 +37,14 @@ const StudentDefensePage = () => {
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
       <div className="max-w-3xl mx-auto">
+                                <button 
+                    onClick={() => navigate(-1)} 
+                    className="flex items-center text-blue-500 hover:text-blue-700 transition"
+                  >
+                    <FaArrowLeft className="mr-2" />
+                    Back
+                  </button>
+
         <div className="text-center mb-8">
           <h1 className="text-3xl font-extrabold text-blue-400 sm:text-4xl">
             My Defense

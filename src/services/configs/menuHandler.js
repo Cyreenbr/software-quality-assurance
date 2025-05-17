@@ -55,8 +55,8 @@ import AdminPlanningPage from "../../pages/pfePage/pfeSoutenance/PFEDefenseManag
 
 import DefensePlanningPage from "../../pages/pfePage/pfeSoutenance/Planning";
 
-import UniversityYearPage from "../../pages/universityYearPage/UniversityYearPage";
 import EditProfilePage from "../../pages/profilePage/EditProfilePage.jsx";
+import UniversityYearPage from "../../pages/universityYearPage/UniversityYearPage";
 
 export const menuConfig = [
   {
@@ -412,7 +412,7 @@ export const menuConfig = [
     eligibleRoles: [RoleEnum.STUDENT],
     eligibleLevels: [RoleEnum.ISPFE],
     active: true,
-    dontShow: false,
+    dontShow: true,
     hideSideBar: false,
     hideHeader: false,
   },
