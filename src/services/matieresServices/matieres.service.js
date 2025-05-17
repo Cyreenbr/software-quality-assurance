@@ -24,6 +24,18 @@ const matieresServices = {
         }
     },
 
+    fetchMatiereByIdArchive: async (id, page = 1, search = '', limit = 9, teacherId = null, academicYear = null) => {
+        if (!id) throw new Error("Invalid subject ID.");
+        try {
+            const response = await axiosAPI.get(`/matieres/${id}/getArchive`, {
+                params: { page, limit, search, teacherId, academicYear }
+            });
+            return response.data;
+        } catch (err) {
+            throw err.response?.data?.error || "Failed to fetch subject.";
+        }
+    },
+
     addMatieres: async (newSubject) => {
         try {
             const response = await axiosAPI.post("/matieres", newSubject);

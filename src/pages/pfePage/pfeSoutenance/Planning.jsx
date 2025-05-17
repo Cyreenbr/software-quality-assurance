@@ -18,8 +18,11 @@ const DefensePlanningPage = () => {
     const fetchDefenses = async () => {
       try {
         const data = await getPlannings();
-        setDefenses(data.defenses || []);
-        console.log(defenses);
+        const publishedDefenses = (data.defenses || []).filter(
+          (defense) => defense.published === true
+        );
+        setDefenses(publishedDefenses);
+        console.log(publishedDefenses);
       } catch (err) {
         setError(err);
       } finally {

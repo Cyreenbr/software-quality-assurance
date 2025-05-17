@@ -1,6 +1,7 @@
 import { DragDropContext, Draggable, Droppable } from "@hello-pangea/dnd";
 import { useEffect, useState } from "react";
 import { CgEye } from "react-icons/cg";
+import { FaPlus } from "react-icons/fa";
 import { FiEyeOff } from "react-icons/fi";
 import { toast } from "react-toastify";
 import competenceServices from "../../services/CompetencesServices/competences.service";
@@ -390,8 +391,8 @@ const SubjectForm = ({ initialData = null, onSubmit, proposeEdit = false }) => {
     };
 
     const handleSubmit = (e) => {
-        e.preventDefault();
         setLoadingBtnSubmit(true);
+        e.preventDefault();
         if (validateForm()) {
             const finalData = {
                 _id: formData._id,
@@ -611,11 +612,11 @@ const SubjectForm = ({ initialData = null, onSubmit, proposeEdit = false }) => {
                                 <AcademicYearPicker
                                     value={formData.curriculum.academicYear || ""}
                                     onChange={(val) => handleChange({ target: { value: val, type: "text" } }, "curriculum.academicYear")}
-                                    range={10}
+                                    range={50}
                                     direction="both"
                                     includeCurrent={true}
                                     // disableYears={(year) => year < 2022} // désactive les années avant 2022
-                                    label="Academic Year"
+                                    label=""
                                     required
                                 />
                                 :
@@ -743,9 +744,9 @@ const SubjectForm = ({ initialData = null, onSubmit, proposeEdit = false }) => {
                     <button
                         type="button"
                         onClick={addPrerequisite}
-                        className="mt-3 px-4 py-2 bg-blue-500 text-white rounded-md shadow"
+                        className="mt-3 px-4 py-2 bg-blue-700 text-white rounded-md shadow"
                     >
-                        Add Prerequisite
+                        Add New Prerequisite
                     </button>
                 </div>
 
@@ -844,9 +845,13 @@ const SubjectForm = ({ initialData = null, onSubmit, proposeEdit = false }) => {
                                                                 <button
                                                                     type="button"
                                                                     onClick={() => addSection(chapterIndex)}
-                                                                    className="mt-3 px-4 py-2 bg-blue-500 text-white rounded-md shadow"
+                                                                    // className="mt-3 px-4 py-2 bg-blue-500 text-white rounded-md shadow w-full max-w-sm mx-auto"
+                                                                    // className="mt-3 px-4 py-2 bg-blue-500 text-white rounded-md shadow w-full"
+                                                                    // className="mt-3 px-4 py-2 bg-blue-500 text-white rounded-md shadow"
+                                                                    className="mt-3 px-4 py-2 bg-blue-700 text-white rounded-md shadow w-full flex items-center justify-center gap-2"
                                                                 >
-                                                                    Add Section
+                                                                    <FaPlus />
+                                                                    Add New Section
                                                                 </button>
                                                             </div>
                                                         )}
@@ -859,9 +864,12 @@ const SubjectForm = ({ initialData = null, onSubmit, proposeEdit = false }) => {
                                     <button
                                         type="button"
                                         onClick={addChapter}
-                                        className="mt-3 px-4 py-2 bg-green-500 text-white rounded-md shadow"
+                                        // className="mt-3 px-4 py-2 bg-green-500 text-white rounded-md shadow"
+                                        // className="mt-3 px-4 py-2 bg-green-500 text-white rounded-md shadow w-full"
+                                        className="mt-3 px-4 py-2 bg-teal-700 text-white rounded-md shadow w-full flex items-center justify-center gap-2"
                                     >
-                                        Add Chapter
+                                        <FaPlus />
+                                        Add New Chapter
                                     </button>
                                 </div>
                             )}
