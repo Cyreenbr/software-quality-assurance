@@ -34,7 +34,7 @@ const StudentPfaComponent = () => {
               : "text-gray-600 hover:text-blue-600"
           }`}
         >
-          PFA Soutenance Planning
+          PFA Defence Planning
         </button>
       </div>
 
