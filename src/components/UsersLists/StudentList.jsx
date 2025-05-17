@@ -15,6 +15,9 @@ import Swal from "sweetalert2";
 import { MdNotifications } from "react-icons/md"; // Import notification icon
 
 import { useNavigate } from "react-router-dom";
+
+// Import the SearchBar component
+import SearchBar from "../../components/skillsComponents/SearchBar";
 export default function StudentList({ onAddClick }) {
   const [studentsList, setStudentsList] = useState([]);
   const [filteredStudents, setFilteredStudents] = useState([]);
@@ -24,7 +27,9 @@ export default function StudentList({ onAddClick }) {
   const [isEditing, setIsEditing] = useState(false);
   const [isPasswordDialogOpen, setIsPasswordDialogOpen] = useState(false);
   
-  const [isNotifying, setIsNotifying] = useState(false); // State for notification action
+  const [isNotifying, setIsNotifying] = useState(false); 
+  
+  const [searchQuery, setSearchQuery] = useState(""); 
   
   const [showForceDeleteModal, setShowForceDeleteModal] = useState(false);
   const [studentToDelete, setStudentToDelete] = useState(null);
@@ -58,11 +63,43 @@ export default function StudentList({ onAddClick }) {
   useEffect(() => {
     fetchStudents();
   }, []);
+   useEffect(() => {
+    // Filter students based on both level and search query
+    filterStudents();
+  }, [studentsList, selectedLevel, searchQuery]);
+    const navigate = useNavigate();
+
+  // New function to handle search from the SearchBar component
+  const handleSearch = (query) => {
+    setSearchQuery(query);
+  };
+    // Modified filter function to handle both level and search query
+  const filterStudents = () => {
+    let filtered = [...studentsList];
+    
+    // Apply level filter if selected
+    if (selectedLevel) {
+      filtered = filtered.filter(s => s.level === selectedLevel);
+    }
+    
+    // Apply search query if provided
+    if (searchQuery.trim() !== "") {
+      const lowercaseQuery = searchQuery.toLowerCase();
+      filtered = filtered.filter(student => 
+        student.firstName?.toLowerCase().includes(lowercaseQuery) ||
+        student.lastName?.toLowerCase().includes(lowercaseQuery) ||
+        student.email?.toLowerCase().includes(lowercaseQuery) ||
+        `${student.firstName} ${student.lastName}`.toLowerCase().includes(lowercaseQuery)
+      );
+    }
+    
+    setFilteredStudents(filtered);
+  };
+
 
   useEffect(() => {
     setFilteredStudents(studentsList);
   }, [studentsList]);
-  const navigate = useNavigate();
 
   const navigateToCV = (studentId) => {
     if (!studentId) {
@@ -696,13 +733,19 @@ export default function StudentList({ onAddClick }) {
       <div className="bg-white p-6 rounded-lg shadow-lg mb-6">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-semibold">List of Students</h2>
-          <button
-            className="bg-gray-400 text-white p-2 rounded-full hover:bg-gray-500"
-            onClick={onAddClick}
-          >
-            <FaPlus size={18} />
-          </button>
+          
+             <div className="flex space-x-4 items-center">
+            <SearchBar handleSearch={handleSearch} />
+            <button
+              className="bg-gray-400 text-white p-2 rounded-full hover:bg-gray-500"
+              onClick={onAddClick}
+            >
+              <FaPlus size={18} />
+            </button>
+          </div>
+         
         </div>
+        
         <div className="overflow-x-auto">
           <div className="mb-4">
             <label

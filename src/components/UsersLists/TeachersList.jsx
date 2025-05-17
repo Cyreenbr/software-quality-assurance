@@ -11,6 +11,8 @@ import { RiLockPasswordFill } from "react-icons/ri";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
+import SearchBar from "../../components/skillsComponents/SearchBar";
+
 export function TeachersList({ onAddClick }) {
   const [showForceDeleteModal, setShowForceDeleteModal] = useState(false);
   const [teachersList, setTeachersList] = useState([]);
@@ -21,6 +23,7 @@ export function TeachersList({ onAddClick }) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isViewing, setIsViewing] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
+  
   const [isPasswordDialogOpen, setIsPasswordDialogOpen] = useState(false);
   const [editedData, setEditedData] = useState({
     firstName: "",
@@ -40,6 +43,7 @@ export function TeachersList({ onAddClick }) {
     confirmationPassword: "",
   });
   const [selectedTeacher, setSelectedTeacher] = useState(null);
+  
 
   // Toast notification
   const showToast = (message, type = "success") => {
@@ -79,6 +83,22 @@ export function TeachersList({ onAddClick }) {
       month: "short", // e.g. "Mar"
       day: "numeric", // e.g. "30"
     });
+  };
+  // Search function that will be passed to the SearchBar component
+  const handleSearch = (query) => {
+    const lowercasedQuery = query.toLowerCase();
+    if (!query) {
+      setFilteredTeachers(teachersList);
+    } else {
+      const filtered = teachersList.filter(
+        (teacher) =>
+          teacher.firstName.toLowerCase().includes(lowercasedQuery) ||
+          teacher.lastName.toLowerCase().includes(lowercasedQuery) ||
+          teacher.email.toLowerCase().includes(lowercasedQuery) ||
+          (teacher.grade && teacher.grade.toLowerCase().includes(lowercasedQuery))
+      );
+      setFilteredTeachers(filtered);
+    }
   };
 
   // Directly attempt to delete without confirmation popup
@@ -352,12 +372,15 @@ export function TeachersList({ onAddClick }) {
       <div className="bg-white p-6 rounded-lg shadow-lg mb-6">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-semibold">List of Teachers</h2>
-          <button
-            className="bg-gray-400 text-white p-2 rounded-full hover:bg-gray-500"
-            onClick={onAddClick}
-          >
-            <FaPlus size={18} />
-          </button>
+            <div className="flex space-x-4 items-center">
+            <SearchBar handleSearch={handleSearch} />
+            <button
+              className="bg-gray-400 text-white p-2 rounded-full hover:bg-gray-500"
+              onClick={onAddClick}
+            >
+              <FaPlus size={18} />
+            </button>
+          </div>
         </div>
 
         <div className="overflow-x-auto">
