@@ -54,7 +54,6 @@ import EtudiantSoutenancePage from "../../pages/pfePage/pfeSoutenance/EtudiantSo
 import AdminPlanningPage from "../../pages/pfePage/pfeSoutenance/PFEDefenseManagement";
 
 import DefensePlanningPage from "../../pages/pfePage/pfeSoutenance/Planning";
-import Profile from "../../pages/profilePage/Profile";
 
 import UniversityYearPage from "../../pages/universityYearPage/UniversityYearPage";
 
@@ -377,8 +376,8 @@ export const menuConfig = [
   },
 
   {
-    order: 82,
-    label: "soutenancePlanning",
+    order: 28,
+    label: "Defense PFE",
     icon: MdList,
     path: "/soutenancePlanning",
     tooltip: "soutenancePlanning",
