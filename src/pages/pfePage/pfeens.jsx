@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { choosePfe, getPfeList } from "../../services/pfeService/pfe.service";
 
@@ -8,6 +9,8 @@ const TeacherPFEList = () => {
   const [loading, setLoading] = useState(false);
   const storedUser = useSelector((state) => state.auth.user);
   const loggedInUser = storedUser?._id || storedUser?.id;
+  
+  const navigate = useNavigate();
 
   const fetchPFEs = async () => {
     setLoading(true);
@@ -20,6 +23,11 @@ const TeacherPFEList = () => {
       setLoading(false);
     }
   };
+
+    const handlePageAssignment  = () => {
+    navigate("/soutenanceEnseignantPage");
+  };
+
 
   const handleChoosePFE = async (id) => {
     try {
@@ -37,9 +45,17 @@ const TeacherPFEList = () => {
 
   return (
     <div className="p-6 bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen">
+      <div className="max-w-7xl mx-auto flex justify-between items-center mb-6">
       <h2 className="text-3xl font-bold mb-8 text-center text-indigo-700">
-        PFE Subjects List
+        Defense PFE
       </h2>
+        <button
+    onClick={handlePageAssignment}
+    className="bg-blue-500 hover:bg-blue-600 text-white font-medium px-4 py-2 rounded-lg text-sm transition-colors duration-200 flex items-center shadow-sm"
+  >
+    Defense PFE
+  </button>
+</div>
       {loading ? (
         <p className="text-center text-gray-600">Loading PFE subjects...</p>
       ) : (

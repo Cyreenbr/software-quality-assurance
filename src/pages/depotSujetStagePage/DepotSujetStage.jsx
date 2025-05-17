@@ -25,6 +25,10 @@ const DepotSujet = () => {
   const [loading, setLoading] = useState(false);
   const [refreshDetails, setRefreshDetails] = useState(false);
   const [activeTab, setActiveTab] = useState("form"); 
+  const [fileError, setFileError] = useState("");
+
+  // Allowed file types
+  const allowedFileTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -32,6 +36,23 @@ const DepotSujet = () => {
 
   const handleFileChange = (e) => {
     const newFiles = Array.from(e.target.files);
+    setFileError("");
+
+    // Validate each file
+    const invalidFiles = newFiles.filter(file => 
+      !allowedFileTypes.includes(file.type)
+    );
+
+    if (invalidFiles.length > 0) {
+      setFileError("Only PDF and Word documents are allowed.");
+      return;
+    }
+
+    if (newFiles.length + formData.documents.length > 5) {
+      setFileError("You can upload a maximum of 5 files.");
+      return;
+    }
+
     setFormData((prevFormData) => ({
       ...prevFormData,
       documents: [...prevFormData.documents, ...newFiles],
@@ -43,10 +64,28 @@ const DepotSujet = () => {
       ...prevFormData,
       documents: prevFormData.documents.filter((_, i) => i !== index),
     }));
+    setFileError("");
+  };
+
+  const validateForm = () => {
+    if (formData.documents.length === 0) {
+      setFileError("At least one document is required.");
+      return false;
+    }
+    
+    if (!formData.titre || !formData.duree || !formData.entreprise || !formData.type) {
+      toast.error("Please fill all required fields.");
+      return false;
+    }
+    
+    return true;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    if (!validateForm()) return;
+    
     setLoading(true);
 
     const data = new FormData();
@@ -198,7 +237,7 @@ const DepotSujet = () => {
                 </div>
                 <div>
                   <label className="block text-gray-600 font-medium mb-1.5 text-sm">
-                    Documents to attach
+                    Documents to attach (PDF or Word only, max 5 files)
                   </label>
                   <div className="border-dashed border-2 border-blue-200 p-6 rounded-lg bg-blue-50 hover:bg-blue-100 transition-all duration-300 flex flex-col items-center justify-center cursor-pointer">
                     <FiUpload className="w-8 h-8 text-blue-400 mb-2" />
@@ -212,9 +251,14 @@ const DepotSujet = () => {
                         multiple
                         onChange={handleFileChange}
                         className="hidden"
+                        accept=".pdf,.doc,.docx"
                       />
                     </label>
                   </div>
+
+                  {fileError && (
+                    <p className="mt-2 text-sm text-red-600">{fileError}</p>
+                  )}
 
                   {formData.documents.length > 0 && (
                     <ul className="mt-4 space-y-2">
@@ -226,6 +270,9 @@ const DepotSujet = () => {
                           <span className="flex items-center">
                             <FiFileText className="w-4 h-4 text-blue-400 mr-2" />
                             <span className="truncate max-w-xs text-gray-700">{doc.name}</span>
+                            <span className="text-xs text-gray-500 ml-2">
+                              ({doc.type.split('/')[1]})
+                            </span>
                           </span>
                           <button
                             type="button"
