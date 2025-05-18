@@ -371,7 +371,7 @@ const NewYearListing = ({ onBack }) => {
               <AcademicYearPicker
                 value={year}
                 onChange={(val) => setYear(val)}
-                range={0}
+                range={1}
                 direction="future"
                 includeCurrent={true}
                 label=""

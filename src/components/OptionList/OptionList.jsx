@@ -68,7 +68,7 @@ export default function OptionList() {
       setIsLoadingPublishStatus(true);
       const response = await ListIsPublished();
       if (response && response.published !== undefined) {
-        // setIsPublished(response.published);
+        setIsPublished(response.published);
       }
       console.log("Publication status:", response);
     } catch (error) {
@@ -304,7 +304,7 @@ export default function OptionList() {
       const newStatus = isPublished ? "masquer" : "publier";
       const result = await publishStudentsOptions(newStatus);
       if (result && result.list) {
-        // setIsPublished(result.list.published);
+        setIsPublished(result.list.published);
       }
       // After toggling publication status, fetch the options again
       await fetchOptions();
@@ -526,9 +526,7 @@ export default function OptionList() {
                     className="border-b border-gray-200 hover:bg-gray-50"
                   >
                     <td className="py-3 px-6 text-left">
-                      {option.user &&
-                      option.user.firstName &&
-                      option.user.lastName
+                      {option.user.firstName && option.user.lastName
                         ? `${option.user.firstName} ${option.user.lastName}`
                         : "N/A"}
                     </td>
