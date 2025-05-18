@@ -51,11 +51,14 @@ const competenceServices = {
         }
         try {
             const response = await axiosAPI.patch(`/competences/${editSkill._id}`, editSkill);
-            if (response.status === 201) {
-                return response.data;
-            } else {
-                throw new Error("Unexpected response from server.");
-            }
+            // if (response.status === 201) {
+            // console.log(response.data);
+
+            return response.data;
+            // }
+            // else {
+            //     throw new Error("Unexpected response from server.");
+            // }
         } catch (err) {
             throw err.response?.data?.error || err.response?.data?.message || "Failed to update skill.";
         }
