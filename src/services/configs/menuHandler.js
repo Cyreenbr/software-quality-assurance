@@ -57,6 +57,7 @@ import DefensePlanningPage from "../../pages/pfePage/pfeSoutenance/Planning";
 
 import EditProfilePage from "../../pages/profilePage/EditProfilePage.jsx";
 import UniversityYearPage from "../../pages/universityYearPage/UniversityYearPage";
+import EditProfilePage from "../../pages/profilePage/EditProfilePage.jsx";
 
 export const menuConfig = [
   {
@@ -478,6 +479,19 @@ export const menuConfig = [
     hideSideBar: false,
     hideHeader: false,
   },
+    {
+    order: 40,
+    label: "Edit Profile",
+    icon: MdAccountCircle,
+    path: "/edit-profile",
+    component: EditProfilePage,
+    eligibleRoles: [RoleEnum.ADMIN, RoleEnum.TEACHER, RoleEnum.STUDENT],
+    active: true,
+    hideSideBar: false,
+    hideHeader: false,
+    dontShow: true,
+  },
+
   {
     order: 40,
     label: "Edit Profile",
