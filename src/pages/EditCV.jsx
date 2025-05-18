@@ -207,7 +207,7 @@ const EditCV = () => {
         timer: 2000,
         showConfirmButton: false,
       }).then(() => {
-        navigate("/CV");
+        navigate("/CV/me");
       });
     } catch (error) {
       console.error("Erreur lors de la mise à jour du CV:", error);
@@ -218,6 +218,7 @@ const EditCV = () => {
       });
     } finally {
       setSaving(false);
+      navigate("/CV/me");
     }
   };
 
