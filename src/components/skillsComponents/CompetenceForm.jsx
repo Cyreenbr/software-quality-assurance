@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { FaEdit, FaPlusCircle } from 'react-icons/fa';
 import { ImPower } from "react-icons/im";
 import { TiWarning } from "react-icons/ti";
@@ -99,7 +99,7 @@ const SkillForm = ({
             showCloseButton={true}
             isOpen={isPopupOpen}
             onClose={() => setIsPopupOpen(false)}
-            title={editSkill ? "Edit Competence" : "Add New Competence"}
+            title={editSkill ? "Edit Skill" : "Add New Skill"}
             position="center"
             titlePosition="center"
         >

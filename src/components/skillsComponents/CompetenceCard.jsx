@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { FiAlertTriangle, FiArchive, FiCheck, FiCheckCircle, FiChevronDown, FiChevronUp, FiEdit, FiTrash, FiX } from 'react-icons/fi';
 import { useSelector } from 'react-redux';
 import { RoleEnum } from '../../utils/userRoles';
@@ -183,16 +183,16 @@ const SkillCard = ({ skill, setEditSkill, setIsEditPopupOpen, handleDeleteSkill,
                             <div className="flex flex-wrap items-center gap-2">
                                 <span
                                     className={`text-sm font-semibold px-3 py-1 rounded-full ${skill.isPublish
-                                            ? "bg-green-200 text-green-800"
-                                            : "bg-red-200 text-red-800"
+                                        ? "bg-green-200 text-green-800"
+                                        : "bg-red-200 text-red-800"
                                         }`}
                                 >
                                     {skill.isPublish ? "Published" : "Hidden"}
                                 </span>
                                 <span
                                     className={`text-sm font-semibold px-3 py-1 rounded-full ${skill.archive
-                                            ? "bg-orange-200 text-orange-800"
-                                            : "bg-gray-200 text-gray-800"
+                                        ? "bg-orange-200 text-orange-800"
+                                        : "bg-gray-200 text-gray-800"
                                         }`}
                                 >
                                     {skill.archive ? "Archived" : "Not Archived"}
@@ -201,9 +201,9 @@ const SkillCard = ({ skill, setEditSkill, setIsEditPopupOpen, handleDeleteSkill,
                         )}
                     </div>
 
-                    {role === RoleEnum.ADMIN && (
+                    {/* {role === RoleEnum.ADMIN && (
                         <p className="text-sm font-light break-words line-clamp-2">ID: {skill?._id || 'No ID'}</p>
-                    )}
+                    )} */}
                     <p className="text-gray-700 mt-4">
                         <span className="text-sm font-bold">Description (FR): </span>{skill?.frDescription || 'No Description'}
                     </p>
