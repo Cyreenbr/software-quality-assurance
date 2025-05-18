@@ -918,7 +918,7 @@ const SubjectDetailsPage = () => {
                                                                         key={sIndex}
                                                                         className={`flex justify-between items-start rounded-md p-2 transition-colors ${isSectionCompleted
                                                                             ? "bg-teal-100 border border-teal-400"
-                                                                            : "bg-red-50 border border-red-200"
+                                                                            : "bg-red-100 border border-red-200"
                                                                             }`}
                                                                         title={
                                                                             isSectionCompleted && sectionCompletedAt
