@@ -41,6 +41,30 @@ const NewYearListing = ({ onBack }) => {
     "Completion",
   ];
 
+  useEffect(() => {
+    let isMounted = true;
+
+    const getCurrentAcademicYear = async () => {
+      try {
+        const data = await matieresServices.getCurrentAcademicYear();
+        if (isMounted) {
+          setYear(data?.academicYear || "");
+          console.log(data.academicYear);
+        }
+      } catch (error) {
+        if (isMounted) {
+          console.error("Failed to load Current: " + error);
+        }
+      }
+    };
+
+    getCurrentAcademicYear();
+
+    return () => {
+      isMounted = false; // évite setState après un démontage
+    };
+  }, []);
+
   // Fetch subjects & teachers when entering step 4
 
   useEffect(() => {
@@ -131,8 +155,8 @@ const NewYearListing = ({ onBack }) => {
   // Get unique levels and sort them
   const levels = Array.isArray(students)
     ? [
-        ...new Set(students.map((student) => student.level).filter(Boolean)),
-      ].sort()
+      ...new Set(students.map((student) => student.level).filter(Boolean)),
+    ].sort()
     : [];
 
   const filteredStudents =
@@ -311,19 +335,17 @@ const NewYearListing = ({ onBack }) => {
                         <FaCheckCircle className="text-green-600" />
                       ) : (
                         <div
-                          className={`w-4 h-4 rounded-full border-2 ${
-                            isCurrent
-                              ? "border-blue-600 bg-blue-600"
-                              : "border-gray-400"
-                          }`}
+                          className={`w-4 h-4 rounded-full border-2 ${isCurrent
+                            ? "border-blue-600 bg-blue-600"
+                            : "border-gray-400"
+                            }`}
                         />
                       )}
                       <span
-                        className={`${
-                          isCompleted || isCurrent
-                            ? "text-blue-600 font-medium"
-                            : "text-gray-500"
-                        }`}
+                        className={`${isCompleted || isCurrent
+                          ? "text-blue-600 font-medium"
+                          : "text-gray-500"
+                          }`}
                       >
                         Step {stepNumber}: {label}
                       </span>
@@ -371,7 +393,7 @@ const NewYearListing = ({ onBack }) => {
               <AcademicYearPicker
                 value={year}
                 onChange={(val) => setYear(val)}
-                range={1}
+                range={5}
                 direction="future"
                 includeCurrent={true}
                 label=""
@@ -575,11 +597,10 @@ const NewYearListing = ({ onBack }) => {
               <button
                 onClick={handleFileUpload}
                 disabled={loading || !file}
-                className={`px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white ${
-                  loading || !file
-                    ? "bg-green-300 cursor-not-allowed"
-                    : "bg-green-600 hover:bg-green-700"
-                }`}
+                className={`px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white ${loading || !file
+                  ? "bg-green-300 cursor-not-allowed"
+                  : "bg-green-600 hover:bg-green-700"
+                  }`}
               >
                 Upload file
               </button>
@@ -596,7 +617,7 @@ const NewYearListing = ({ onBack }) => {
             fetchTeachers={fetchTeachers}
             fetchingSubjects={fetchingSubjects}
             teachers={teachers}
-            // onSubmitAssignments={handleSubmitAssignments}
+          // onSubmitAssignments={handleSubmitAssignments}
           />
         )}
 
@@ -631,11 +652,10 @@ const NewYearListing = ({ onBack }) => {
             <button
               onClick={currentStep === 1 ? createNewYear : handleNext}
               disabled={currentStep === 1 && !year}
-              className={`px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white ${
-                currentStep === 1 && !year
-                  ? "bg-blue-300 cursor-not-allowed"
-                  : "bg-blue-600 hover:bg-blue-700"
-              }`}
+              className={`px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white ${currentStep === 1 && !year
+                ? "bg-blue-300 cursor-not-allowed"
+                : "bg-blue-600 hover:bg-blue-700"
+                }`}
             >
               {currentStep === 1 ? (
                 loading ? (
