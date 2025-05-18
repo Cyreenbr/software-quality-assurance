@@ -417,7 +417,7 @@ export const menuConfig = [
     eligibleRoles: [RoleEnum.STUDENT],
     eligibleLevels: [RoleEnum.ISPFE],
     active: true,
-    dontShow: false,
+    dontShow: true,
     hideSideBar: false,
     hideHeader: false,
   },
@@ -484,6 +484,19 @@ export const menuConfig = [
     hideSideBar: false,
     hideHeader: false,
   },
+    {
+    order: 40,
+    label: "Edit Profile",
+    icon: MdAccountCircle,
+    path: "/edit-profile",
+    component: EditProfilePage,
+    eligibleRoles: [RoleEnum.ADMIN, RoleEnum.TEACHER, RoleEnum.STUDENT],
+    active: true,
+    hideSideBar: false,
+    hideHeader: false,
+    dontShow: true,
+  },
+
   {
     order: 40,
     label: "Edit Profile",

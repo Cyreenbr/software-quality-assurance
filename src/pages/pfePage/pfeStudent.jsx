@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import {
   createPFE,
   getPFEByUser,
   updatePFE,
 } from "../../services/pfeService/pfe.service";
-import { useSelector } from "react-redux";
+ 
 
 const PFEStudent = () => {
   const storedUser = useSelector((status) => status.auth.user);
@@ -13,6 +15,7 @@ const PFEStudent = () => {
   if (userLevel !== RoleEnum.ISPFE) {
     return <Navigate to="/error" replace />;
   }*/
+ const navigate = useNavigate();
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -110,6 +113,10 @@ const PFEStudent = () => {
     });
   };
 
+    const handlePageAssignment  = () => {
+    navigate("/EtudiantSoutenancePage");
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (isReadOnly) return;
@@ -166,9 +173,16 @@ const PFEStudent = () => {
   return (
     <div className="min-h-screen bg-gradient-to-r from-blue-50 to-purple-100 py-10 rounded-lg">
       <div className="max-w-4xl mx-auto bg-white rounded-xl shadow-lg p-8">
-        <h2 className="text-2xl font-bold text-black-700 mb-6 text-start">
+        <div className="max-w-7xl mx-auto flex justify-between items-center mb-6">
+                  <h2 className="text-2xl font-bold text-black-700 mb-6 text-start">
           {pfeId ? "Update Your PFE" : "Submit a PFE"}
         </h2>
+          <button
+    onClick={handlePageAssignment}
+    className="bg-blue-500 hover:bg-blue-600 text-white font-medium px-4 py-2 rounded-lg text-sm transition-colors duration-200 flex items-center shadow-sm"
+  >
+    Defense PFE
+  </button></div>
         <div className="max-w-4xl mx-auto py-10 px-6">
           {formData.status === "approved" && (
             <p className="text-green-600 font-medium mb-4">
