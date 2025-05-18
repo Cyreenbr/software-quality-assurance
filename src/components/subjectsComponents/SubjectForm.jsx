@@ -15,13 +15,41 @@ const capitalizeFirstLetter = (str) => str.charAt(0).toUpperCase() + str.slice(1
 
 const SubjectForm = ({ initialData = null, onSubmit, proposeEdit = false }) => {
 
-    const getCurrentAcademicYear = () => {
-        const currentYear = new Date().getFullYear();
-        const month = new Date().getMonth();
-        return month >= 8
-            ? `${currentYear}-${currentYear + 1}`
-            : `${currentYear - 1}-${currentYear}`;
-    };
+
+    // const getCurrentAcademicYear = () => {
+    //     const currentYear = new Date().getFullYear();
+    //     const month = new Date().getMonth();
+    //     return month >= 8
+    //         ? `${currentYear}-${currentYear + 1}`
+    //         : `${currentYear - 1}-${currentYear}`;
+    // };
+
+    const [currentAcadYear, setCurrentAcadYear] = useState("");
+
+    useEffect(() => {
+        let isMounted = true;
+
+        const getCurrentAcademicYear = async () => {
+            try {
+                const data = await matieresServices.getCurrentAcademicYear();
+                if (isMounted) {
+                    setCurrentAcadYear(data?.academicYear || "");
+                    console.log(data.academicYear);
+                }
+            } catch (error) {
+                if (isMounted) {
+                    console.error("Failed to load Current: " + error);
+                }
+            }
+        };
+
+        getCurrentAcademicYear();
+
+        return () => {
+            isMounted = false; // évite setState après un démontage
+        };
+    }, []);
+
 
     const [formData, setFormData] = useState({
         _id: "",
@@ -42,7 +70,7 @@ const SubjectForm = ({ initialData = null, onSubmit, proposeEdit = false }) => {
             volume_horaire_total: "",
             credit: "",
             prerequis_recommandes: [],
-            academicYear: getCurrentAcademicYear(),
+            academicYear: "",
             chapitres: [],
         },
         reason: "",
@@ -563,7 +591,7 @@ const SubjectForm = ({ initialData = null, onSubmit, proposeEdit = false }) => {
                             type: "academicYear",
                             // required: true,
                             pattern: /^(19|20)\d{2}-(19|20)\d{2}$/,
-                            errorMessage: `Valid Format : AAAA-AAAA (ex: ${getCurrentAcademicYear()})`
+                            errorMessage: `Valid Format : AAAA-AAAA (ex: 2023-2024)`
                         }
                     ].filter(Boolean).map(({ label, key, type, options, min, step, required, defaultValue, pattern, placeholder, errorMessage }) => (
                         <div key={key} className="relative">
@@ -610,9 +638,9 @@ const SubjectForm = ({ initialData = null, onSubmit, proposeEdit = false }) => {
                                 />
                             ) : type === "academicYear" ?
                                 <AcademicYearPicker
-                                    value={formData.curriculum.academicYear || ""}
+                                    value={formData.curriculum.academicYear || currentAcadYear || ""}
                                     onChange={(val) => handleChange({ target: { value: val, type: "text" } }, "curriculum.academicYear")}
-                                    range={50}
+                                    range={5}
                                     direction="both"
                                     includeCurrent={true}
                                     // disableYears={(year) => year < 2022} // désactive les années avant 2022
