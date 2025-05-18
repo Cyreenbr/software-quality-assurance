@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { FaChevronDown, FaChevronUp, FaTimes } from 'react-icons/fa';
 
 const MSDropdown = ({
@@ -166,14 +166,17 @@ const MSDropdown = ({
                     </ul>
 
                     {/* Load More Button */}
-                    {filteredOptions.length < totalItems && (
+                    {/* {filteredOptions.length < totalItems && (
                         <button
-                            onClick={handleLoadMore}
+                            onClick={(e) => {
+                                e.preventDefault();
+                                handleLoadMore();
+                            }}
                             className="w-full py-2 bg-blue-500 text-white mt-2 rounded-lg"
                         >
                             {loading ? 'Loading...' : 'Load More'}
                         </button>
-                    )}
+                    )} */}
                 </div>
             )}
 
