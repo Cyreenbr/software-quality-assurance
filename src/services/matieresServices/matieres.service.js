@@ -312,8 +312,17 @@ const matieresServices = {
         } catch (err) {
             throw err.response?.data?.message || "Failed to assign teachers to subjects.";
         }
-    }
+    },
+    getCurrentAcademicYear: async () => {
+        try {
+            const response = await axiosAPI.get(`/matieres/getCurrentAcadYear`);
+            return response.data;
+        } catch (err) {
+            throw err.response?.data?.error || "Failed to fetch Acad.";
+        }
+    },
 
 };
+
 
 export default matieresServices;
