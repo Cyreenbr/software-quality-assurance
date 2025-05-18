@@ -185,7 +185,7 @@ const Competences = () => {
 
         // <div className="  mx-auto p-8 bg-white shadow-lg rounded-xl min-h-screen overflow-hidden border border-gray-200">
         // <h1 className="text-4xl font-bold text-center mb-8 text-indigo-700">List of Competences</h1>
-        <PageLayout title={"Competences"} headerActions={headerActions} icon={FaLightbulb}>
+        <PageLayout title={"Skills"} headerActions={headerActions} icon={FaLightbulb}>
             <div className="flex flex-col p-6 md:flex-row md:justify-between items-center mb-8 space-y-4 md:space-y-0 md:space-x-6">
                 <SearchBar handleSearch={handleSearch} className="w-full md:max-w-xs" />
                 <div className="pl-4 pr-4 flex space-x-4 w-full md:w-auto justify-center">

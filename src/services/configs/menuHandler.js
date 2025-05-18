@@ -15,7 +15,7 @@ import {
   MdList,
   MdNotifications,
 } from "react-icons/md";
-import { PiStudentBold, PiStudentFill } from "react-icons/pi";
+import { PiReadCvLogoFill, PiStudentBold, PiStudentFill } from "react-icons/pi";
 import Pfa from "../../../src/pages/pfaPage/Pfa";
 import SubjectDetailsPage from "../../components/subjectsComponents/SubjectDetailsPage";
 import AdminPeriods from "../../pages/adminPeriodsPage/AdminPeriods";
@@ -57,7 +57,6 @@ import DefensePlanningPage from "../../pages/pfePage/pfeSoutenance/Planning";
 
 import EditProfilePage from "../../pages/profilePage/EditProfilePage.jsx";
 import UniversityYearPage from "../../pages/universityYearPage/UniversityYearPage";
-import EditProfilePage from "../../pages/profilePage/EditProfilePage.jsx";
 
 export const menuConfig = [
   {
@@ -106,10 +105,10 @@ export const menuConfig = [
   // },
   {
     order: 4,
-    label: "Competences",
+    label: "Skills",
     icon: FaLightbulb,
     path: "/competences",
-    tooltip: "Competences",
+    tooltip: "Skills",
     component: Competences,
     eligibleRoles: [RoleEnum.ADMIN, RoleEnum.TEACHER],
     active: true,
@@ -181,9 +180,10 @@ export const menuConfig = [
 
   {
     order: 9,
-    label: "Manage Students",
+    label: "Students",
     icon: PiStudentFill,
     path: "/managestudents",
+    tooltip: "Students",
     component: StudentsManagPage,
     eligibleRoles: [RoleEnum.ADMIN],
     active: true,
@@ -192,9 +192,10 @@ export const menuConfig = [
   },
   {
     order: 10,
-    label: "Manage Teachers",
+    label: "Teachers",
     icon: GiTeacher,
     path: "/manageteachers",
+    tooltip: "Teachers",
     component: TeachersManagPage,
     eligibleRoles: [RoleEnum.ADMIN],
     active: true,
@@ -203,10 +204,10 @@ export const menuConfig = [
   },
   {
     order: 11,
-    label: "Period",
+    label: "Periods",
     icon: MdCalendarMonth,
     path: "/period",
-    tooltip: "period",
+    tooltip: "Periods",
     component: AdminPeriods,
     eligibleRoles: [RoleEnum.ADMIN],
     active: true,
@@ -215,7 +216,7 @@ export const menuConfig = [
     hideHeader: false,
   },
   {
-    order: 12,
+    order: 13,
     label: "Choose Option",
     icon: MdAutoStories,
     path: "/chooseoption",
@@ -227,7 +228,7 @@ export const menuConfig = [
     hideHeader: false,
   },
   {
-    order: 13,
+    order: 12,
     label: "My internships",
     icon: MdDownload,
     path: "/deposit",
@@ -241,10 +242,10 @@ export const menuConfig = [
   },
   {
     order: 14,
-    label: "Manage Internships",
+    label: "Internships",
     icon: MdAssignmentAdd,
     path: "/InternshipList",
-    tooltip: "Internship",
+    tooltip: "Internships",
     component: InternshipList,
     eligibleRoles: [RoleEnum.ADMIN],
     active: true,
@@ -257,7 +258,7 @@ export const menuConfig = [
     label: "PFE",
     icon: FaGraduationCap,
     path: "/pfe",
-    tooltip: "pfe",
+    tooltip: "PFE",
     component: AdminPfeManagement,
     eligibleRoles: [RoleEnum.ADMIN],
     active: true,
@@ -318,7 +319,8 @@ export const menuConfig = [
   },
   {
     order: 19,
-    label: "Options List",
+    label: "Options",
+    tooltip: "Options",
     icon: FaWindowRestore,
     path: "/OptionsList",
     component: OptionListPage,
@@ -329,7 +331,8 @@ export const menuConfig = [
   },
   {
     order: 20,
-    label: "Students List",
+    label: "Students",
+    tooltip: "Students",
     icon: PiStudentBold,
     path: "/StudentsList",
     component: StudentsListTeachers,
@@ -341,7 +344,8 @@ export const menuConfig = [
 
   {
     order: 21,
-    label: "Internship List",
+    label: "Internships",
+    tooltip: "Internships",
     icon: MdList,
     path: "/TeacherInternshipList",
     component: TeacherInternshipList,
@@ -447,6 +451,7 @@ export const menuConfig = [
   {
     order: 32,
     label: "List Options",
+    tooltip: "List Options",
     icon: MdAutoStories,
     path: "/list-options",
     component: OptionsListForStudentPage,
@@ -460,7 +465,7 @@ export const menuConfig = [
   {
     order: 34,
     label: "View CV",
-    icon: MdAutoStories,
+    icon: PiReadCvLogoFill,
     path: "/CV/me",
     component: MyCV,
     eligibleRoles: [RoleEnum.STUDENT],
@@ -470,7 +475,7 @@ export const menuConfig = [
   },
   {
     order: 33,
-    label: "Manage University Year",
+    label: "University Year",
     icon: MdAutoStories,
     path: "/UniversityYear",
     component: UniversityYearPage,
@@ -479,7 +484,7 @@ export const menuConfig = [
     hideSideBar: false,
     hideHeader: false,
   },
-    {
+  {
     order: 40,
     label: "Edit Profile",
     icon: MdAccountCircle,
