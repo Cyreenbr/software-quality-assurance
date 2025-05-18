@@ -430,6 +430,16 @@ const SubjectDetailsPage = () => {
                     <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-2">
                         {/* Button reserved for Admins to see proposals */}
                         <div className="pb-2 flex flex-col sm:flex-row gap-3"></div>
+                        {userRole === RoleEnum.TEACHER &&
+                            <Tooltip text={'View Evaluations'}
+                                position={positionTooltip}>
+                                <button
+                                    onClick={() => setShowEvaluation(true)}
+                                    className="flex items-center justify-center gap-2 bg-orange-600 text-white px-5 py-2.5 rounded-xl font-medium shadow hover:bg-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-400 transition-all duration-200 sm:w-auto w-full"
+                                >
+                                    <FaStar className="mr-2" />
+                                </button>
+                            </Tooltip>}
                         {userRole === RoleEnum.ADMIN && (
                             <>
 
