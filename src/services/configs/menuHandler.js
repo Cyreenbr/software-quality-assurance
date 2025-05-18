@@ -484,7 +484,7 @@ export const menuConfig = [
     hideSideBar: false,
     hideHeader: false,
   },
-    {
+  {
     order: 40,
     label: "Edit Profile",
     icon: MdAccountCircle,
