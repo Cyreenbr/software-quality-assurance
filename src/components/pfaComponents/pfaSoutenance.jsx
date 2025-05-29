@@ -10,6 +10,15 @@ import {
   FaTools,
   FaPaperPlane,
 } from "react-icons/fa";
+import {
+  HiCalendar,
+  HiClock,
+  HiUserGroup,
+  HiUser,
+  HiAcademicCap,
+} from "react-icons/hi";
+import { FaChalkboardTeacher } from "react-icons/fa";
+
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { Toaster, toast } from "react-hot-toast";
 import PfaPlannigPopUp from "./pfaPlanningPopUp";
@@ -32,7 +41,7 @@ export default function PfaSoutenance() {
       console.log(soutenanceList);
     } catch (error) {
       console.error("Error fetching PFA or student data:", error);
-      
+
       setTimeout(() => setErrorMessage(""), 3000);
     }
   };
@@ -132,102 +141,89 @@ export default function PfaSoutenance() {
           <PfaPlannigPopUp />
         </div>
       )}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 ">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {filteredPSoutenace.length > 0 ? (
           filteredPSoutenace.map((pfa) => (
             <div
-              key={`${String(pfa._id)}-${pfa.assignationStatus}`} // Clé unique basée sur ID + statut
-              className="bg-white p-5 rounded-lg shadow hover:shadow-xl hover:bg-gradient-to-r from-blue-50 to-purple-100 transition-all duration-300 overflow-auto"
+              key={pfa._id}
+              className="bg-white p-6 rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 border border-gray-100"
             >
-              <div className="flex items-center justify-between mb-2">
-                <h2 className="text-xl font-semibold">{pfa.projectTitle}</h2>
+              {/* Titre + statut */}
+              <div className="flex items-center justify-between mb-3">
+                 <h2 className="text-lg font-bold text-blue-900 mb-1">
+                  {pfa.projectTitle}
+                </h2>
                 <span
                   className={`text-xs font-semibold px-2 py-1 rounded-full ${
                     pfa.status === "publish"
-                      ? "bg-green-200 text-green-800"
-                      : "bg-red-200 text-red-800"
+                      ? "bg-green-100 text-green-700"
+                      : "bg-red-100 text-red-700"
                   }`}
                 >
                   {pfa.status}
                 </span>
               </div>
-              <h2>{pfa.date}</h2>
-              <h2>{pfa.duration}</h2>
-              <h2>{pfa.room}</h2>
-              <h2>{pfa.startTime}</h2>
-              {pfa.supervisor !== null && (
-                <h2> supervisor : {pfa.supervisor.firstName}</h2>
-              )}
-              {pfa.rapporteurId !== null && (
-                <h2>rapporteur :{pfa.rapporteurId.firstName}</h2>
-              )}
-              {pfa.studentIds !== null &&
-                pfa.studentIds.map((student) => {
-                  return (
-                    <h2>
-                      {student.firstName} {student.lastName}
-                    </h2>
-                  );
-                })}
 
-              <p className="text-sm text-gray-600 mb-4">{pfa.description}</p>
-              <p className="text-xs text-gray-500 mb-2">
-                Teacher's Name: <strong>{pfa.createdBy || "Inconnu"}</strong>
-              </p>
+              {/* Description */}
+              <p className="text-sm text-gray-600 mb-3">{pfa.description}</p>
 
-              {/* Footer avec icône */}
-              <div className="mt-4 text-sm text-gray-500 flex items-center gap-2">
-                <span>Status:</span>
-                {pfa.assignationStatus === "published" ? (
-                  <FaEye className="text-green-500" />
-                ) : (
-                  <FaEyeSlash className="text-gray-400" />
-                )}
+              {/* Planning */}
+              <div className="text-sm text-gray-700 mb-4 space-y-1">
+                <p className="flex items-center gap-2">
+                  <HiCalendar /> <strong>Date:</strong>{" "}
+                  <h2>{pfa.date.split("T")[0]}</h2>
+                </p>
+                <p className="flex items-center gap-2">
+                  <HiClock /> <strong>Heure:</strong> {pfa.startTime}
+                </p>
+                <p className="flex items-center gap-2">
+                  ⏱ <strong>Durée:</strong> {pfa.duration}
+                </p>
+                <p className="flex items-center gap-2">
+                  🏫 <strong>Salle:</strong> {pfa.room}
+                </p>
               </div>
 
-              {/* Student Choices */}
-              <div className="mt-4">
-                <h4 className="font-medium text-gray-700">Student Choices:</h4>
-                {pfa.affectedStudents?.length > 0 ? (
-                  <ul className="list-disc ml-5 mt-2 text-sm">
-                    {pfa.affectedStudents.map((choice, idx) => (
-                      <li key={idx} className="flex items-center">
-                        {choice.choiceStatus === "approved" ? (
-                          <>
-                            <FaCheckCircle className="text-green-500 mr-1" />
-                            <span className="text-green-700">
-                              {choice.studentName} - Approved
-                            </span>
-                          </>
-                        ) : choice.choiceStatus === "pending" ? (
-                          <>
-                            <FaRegClock className="text-yellow-500 mr-1" />
-                            <span className="text-yellow-700">
-                              {choice.studentName} - Pending
-                            </span>
-                          </>
-                        ) : (
-                          <>
-                            <FaTimesCircle className="text-red-500 mr-1" />
-                            <span className="text-red-700">
-                              {choice.studentName} - Not Approved
-                            </span>
-                          </>
-                        )}
+              {/* Jury */}
+              <div className="text-sm text-gray-700 mb-4 space-y-1">
+                <p className="flex items-center gap-2">
+                  <FaChalkboardTeacher />
+                  <strong>Encadrant:</strong>{" "}
+                  {pfa.supervisor
+                    ? `${pfa.supervisor.firstName} ${pfa.supervisor.lastName}`
+                    : "N/A"}
+                </p>
+                <p className="flex items-center gap-2">
+                  <HiUser />
+                  <strong>Rapporteur:</strong>{" "}
+                  {pfa.rapporteurId
+                    ? `${pfa.rapporteurId.firstName} ${pfa.rapporteurId.lastName}`
+                    : "N/A"}
+                </p>
+              </div>
+
+              {/* Étudiants */}
+              <div className="text-sm text-gray-700 mb-4">
+                <p className="font-medium flex items-center gap-2">
+                  <HiUserGroup /> Étudiants affectés :
+                </p>
+                {pfa.studentIds?.length > 0 ? (
+                  <ul className="list-disc ml-5 mt-1">
+                    {pfa.studentIds.map((student, idx) => (
+                      <li key={idx}>
+                        {student.firstName} {student.lastName}
                       </li>
                     ))}
                   </ul>
                 ) : (
-                  <p className="text-xs text-gray-500 ml-5">
-                    No student choices yet.
-                  </p>
+                  <p className="text-gray-500 text-xs ml-4">Aucun étudiant</p>
                 )}
               </div>
             </div>
           ))
         ) : (
           <p className="text-center text-gray-500 col-span-full">
-            No matching PFAs found.
+            Aucun PFA correspondant trouvé.
           </p>
         )}
       </div>
