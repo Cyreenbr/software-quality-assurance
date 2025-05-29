@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import pfaService from "../../services/PfaServices/pfaService";
-
+import {getStudents} from "../../services/ManageUsersServices/students.service";
 export default function ManualAssignment() {
   const [pfas, setPfas] = useState([]);
   const [students, setStudents] = useState([]);
@@ -11,22 +11,30 @@ export default function ManualAssignment() {
   const [isVisible, setIsVisible] = useState(true); // to control the visibility of the modal
 
  const fetchData = async () => {
-    try {
-      const pfaList = await pfaService.getPublishedPfas();
-      const studentResponse = await pfaService.getStudents();
+  try {
+    const pfaList = await pfaService.getPublishedPfas();
+    const studentResponse = await getStudents();
 
-    
-      
-      setPfas(pfaList.openPFA);
-      
+    setPfas(pfaList.openPFA);
 
-      setStudents(studentResponse.model);
-    } catch (error) {
-      console.error("Error fetching PFA or student data:", error);
-      setErrorMessage("Error fetching data. Please try again.");
-      setTimeout(() => setErrorMessage(""), 3000);
-    }
-  };
+    // Extraire tous les IDs d'étudiants déjà affectés à un PFA
+    const affectedStudentIds = new Set(
+      pfaList.openPFA.flatMap((pfa) => pfa.affectedStudents || [])
+    );
+
+    // Filtrer les étudiants non affectés
+    const availableStudents = studentResponse.model.filter(
+      (student) => !affectedStudentIds.has(student._id)
+    );
+
+    setStudents(availableStudents);
+  } catch (error) {
+    console.error("Error fetching PFA or student data:", error);
+    setErrorMessage("Error fetching data. Please try again.");
+    setTimeout(() => setErrorMessage(""), 3000);
+  }
+};
+
 
   useEffect(() => {
     fetchData();

@@ -1,4 +1,12 @@
-import { FaEdit, FaTrashAlt, FaPlus, FaEye, FaTag ,FaSearch} from "react-icons/fa";
+import {
+  FaEdit,
+  FaTrashAlt,
+  FaPlus,
+  FaEye,
+  FaTag,
+  FaSearch,
+} from "react-icons/fa";
+import { HiOutlinePencilAlt } from "react-icons/hi";
 import { useEffect, useState } from "react";
 import pfaService from "../../services/PfaServices/pfaService";
 import AddPfaPopUp from "./addPfaPopUp";
@@ -85,74 +93,71 @@ const TeacherPage = () => {
     setEditedData({ ...editedData, [e.target.name]: e.target.value });
   };
 
- 
-    const handleSubmitEdit = (e) => {
-      e.preventDefault();
-      setpfaList(
-        pfaList.map((pfa) =>
-          pfa._id === isEditing ? { ...pfa, ...editedData } : pfa
-        )
-      );
-  
-      const isTeamProject = projectType === "binome";
-      const studentNames = isTeamProject
-        ? [studentOne, studentTwo]
-        : [studentOne];
-      console.log({ ...editedData, studentOne, studentTwo, projectType });
-      pfaService.updatePfa(
-        { ...editedData, studentNames, isTeamProject },
-        isEditing
-      );
-      setIsEditing(null);
-      setIsDialogOpen(false);
-    };
-  
-    const handleCreateChange = (e) => {
-      setNewPfa({ ...newPfa, [e.target.name]: e.target.value });
-    };
+  const handleSubmitEdit = (e) => {
+    e.preventDefault();
+    setpfaList(
+      pfaList.map((pfa) =>
+        pfa._id === isEditing ? { ...pfa, ...editedData } : pfa
+      )
+    );
+
+    const isTeamProject = projectType === "binome";
+    const studentNames = isTeamProject
+      ? [studentOne, studentTwo]
+      : [studentOne];
+    console.log({ ...editedData, studentOne, studentTwo, projectType });
+    pfaService.updatePfa(
+      { ...editedData, studentNames, isTeamProject },
+      isEditing
+    );
+    setIsEditing(null);
+    setIsDialogOpen(false);
+  };
+
+  const handleCreateChange = (e) => {
+    setNewPfa({ ...newPfa, [e.target.name]: e.target.value });
+  };
 
   const handleSubmitCreate = (e) => {
-  
-      e.preventDefault();
-  
-      const newId = pfaList.length
-        ? Math.max(...pfaList.map((pfa) => pfa.id)) + 1
-        : 1;
-  
-      const isTeamProject = projectType === "binome";
-      const studentNames = isTeamProject
-        ? [studentOne, studentTwo]
-        : [studentOne];
-      const technologies = newPfa.technologies.split(",");
-      setpfaList([
-        ...pfaList,
-        { id: newId, ...newPfa, technologies, isTeamProject, studentNames },
-      ]);
-      pfaService.createPfa({
-        ...newPfa,
-        technologies,
-        isTeamProject,
-        studentNames,
-      });
-      console.log({
-        id: newId,
-        ...newPfa,
-        technologies,
-        isTeamProject,
-        studentNames,
-      });
-      console.log(projectType);
-  
-      setNewPfa({
-        projectTitle: "",
-        description: "",
-        technologies: "",
-        studentOne: "",
-        studentTwo: "",
-      });
-      setIsDialogOpen(false);
-    };
-  
+    e.preventDefault();
+
+    const newId = pfaList.length
+      ? Math.max(...pfaList.map((pfa) => pfa.id)) + 1
+      : 1;
+
+    const isTeamProject = projectType === "binome";
+    const studentNames = isTeamProject
+      ? [studentOne, studentTwo]
+      : [studentOne];
+    const technologies = newPfa.technologies.split(",");
+    setpfaList([
+      ...pfaList,
+      { id: newId, ...newPfa, technologies, isTeamProject, studentNames },
+    ]);
+    pfaService.createPfa({
+      ...newPfa,
+      technologies,
+      isTeamProject,
+      studentNames,
+    });
+    console.log({
+      id: newId,
+      ...newPfa,
+      technologies,
+      isTeamProject,
+      studentNames,
+    });
+    console.log(projectType);
+
+    setNewPfa({
+      projectTitle: "",
+      description: "",
+      technologies: "",
+      studentOne: "",
+      studentTwo: "",
+    });
+    setIsDialogOpen(false);
+  };
 
   // Filter PFAs based on search term
   const filteredPfas = pfaList.filter(
@@ -164,7 +169,6 @@ const TeacherPage = () => {
   return (
     <div className="p-6 bg-gray-100 min-h-screen relative">
       <Toaster position="top-right" reverseOrder={false} />
-     
 
       {/* Search Bar */}
       <div className="flex justify-end mb-4">
@@ -215,11 +219,11 @@ const TeacherPage = () => {
           <FaTag className="text-blue-500 mr-2" size={16} />
           List of PFAs
         </h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
           {filteredPfas.map((pfa) => (
             <div
-            key={pfa.id}
-            className="border border-gray-300 p-6 shadow-sm rounded-lg hover:shadow-xl hover:bg-gradient-to-r from-blue-50 to-purple-100 transition-all duration-300 overflow-auto"
+              key={pfa.id}
+              className="border border-gray-300 p-6 shadow-sm rounded-lg hover:shadow-xl hover:bg-gradient-to-r from-blue-50 to-purple-100 transition-all duration-300 overflow-auto"
             >
               <h3 className="text-lg font-semibold text-gray-800">
                 {pfa.projectTitle}
@@ -228,17 +232,21 @@ const TeacherPage = () => {
               <p className="text-xs text-gray-500 mb-4">
                 {pfa.technologies.join(", ")}
               </p>
-              <div className="flex gap-x-2 ml-28">
+              <div className="flex gap-x-2 ml-20">
                 <button
                   onClick={() => handleEdit(pfa)}
-                  className="bg-blue-500 text-white p-2 rounded-full hover:bg-blue-600 transition-colors"
-                  title="Edit PFA"
+                  className="group relative inline-flex items-center justify-center p-2 bg-white border border-blue-500 text-blue-500 rounded-full hover:bg-blue-500 hover:text-white transition-colors duration-200"
+                  title="Modifier le PFA"
                 >
-                  <FaEdit size={14} />
+                  <HiOutlinePencilAlt
+                    size={18}
+                    className="pointer-events-none"
+                  />
                 </button>
+
                 <button
                   onClick={() => setDeleteCandidate(pfa._id)}
-                  className="bg-red-500 text-white p-2 rounded-full hover:bg-red-600 transition-colors"
+                  className="group relative inline-flex items-center justify-center p-2 bg-white border border-red-500 text-red-500 rounded-full hover:bg-red-500 hover:text-white transition-colors duration-200"
                   title="Delete PFA"
                 >
                   <FaTrashAlt size={14} />
@@ -248,7 +256,7 @@ const TeacherPage = () => {
                     setIsAcceptPfaDialogOpen(true);
                     setSelectedPfa(pfa);
                   }}
-                  className="bg-green-500 text-white p-2 rounded-full hover:bg-green-600 transition-colors"
+                  className="group relative inline-flex items-center justify-center p-2 bg-white border border-green-500 text-green-500 rounded-full hover:bg-green-500 hover:text-white transition-colors duration-200"
                   title="View to Accept"
                 >
                   <FaEye size={14} />
