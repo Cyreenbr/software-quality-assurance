@@ -24,12 +24,13 @@ export default function AcceptPfaPopUp({
     try {
       const response = await pfaService.getStudents();
 
-      if (!response || !Array.isArray(response.model)) {
+      if (!response) {
         throw new Error("The API did not return an array of students.");
       }
+      console.log(response);
 
       const studentMap = new Map(
-        response.model.map((student) => [student._id, student.firstName])
+        response.students.map((student) => [student._id, student.firstName])
       );
       setUpdatedPfaPriority(
         pfaPriority.map((pfa) => ({

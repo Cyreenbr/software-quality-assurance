@@ -248,18 +248,15 @@ const pfaService = {
   //   }
   // },
   getStudents: async () => {
+    console.log(getAuthHeader());
+
     try {
-      const response = await axiosAPI.get(
-        `http://localhost:3000/api/students/studentlist
-        `,
-        {},
-        {
-          headers: { ...getAuthHeader() },
-        }
-      );
+      const response = await axiosAPI.get(`${API_BASE_URL}/students`, {
+        headers: { ...getAuthHeader() },
+      });
       return response.data;
     } catch (error) {
-      console.error("Error API (POST PFA) :", error);
+      console.error("Error API (GET PFA) :", error);
       return null;
     }
   },
