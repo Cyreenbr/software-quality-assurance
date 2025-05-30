@@ -138,7 +138,7 @@ export default function PfaSoutenance() {
       {/* Formulaire d'affectation manuelle */}
       {showManual && (
         <div className="mb-10">
-          <PfaPlannigPopUp />
+          <PfaPlannigPopUp setPfaSoutenanceList={setPfaSoutenanceList} />
         </div>
       )}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -150,7 +150,7 @@ export default function PfaSoutenance() {
             >
               {/* Titre + statut */}
               <div className="flex items-center justify-between mb-3">
-                 <h2 className="text-lg font-bold text-blue-900 mb-1">
+                <h2 className="text-lg font-bold text-blue-900 mb-1">
                   {pfa.projectTitle}
                 </h2>
                 <span

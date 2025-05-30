@@ -15,57 +15,58 @@ const StudentPage = () => {
     fetchPfas();
   }, []);
 
+  function hasAcceptedPriority(pfas, currentUserId) {
+    return pfas.some((pfa) =>
+      pfa.priorities?.some(
+        (priority) =>
+          priority.acceptTeacher === true &&
+          (priority.monome === currentUserId ||
+            priority.binome === currentUserId)
+      )
+    );
+  }
+
   ///////
 
+  const [allPfas, setAllPfas] = useState([]);
+  const [hasAcceptTeacher, setHasAcceptTeacher] = useState(false);
 
-  
-const [allPfas, setAllPfas] = useState([]);
+  // useEffect(() => {
+  //   const fetchPfas = async () => {
+  //     try {
+  //       const response = await pfaService.getPfas();
+  //       console.log("Response from getPfas:", response);
 
-useEffect(() => {
-  const fetchPfas = async () => {
-    try {
-      const response = await pfaService.getPfas();
-      console.log("Response from getPfas:", response);
+  //       // Adapter ici la clé selon la réponse, par exemple "pfas" ou "openPFA"
+  //       if (!response || !Array.isArray(response.pfas)) {
+  //         throw new Error("The API did not return an array of PFAs.");
+  //       }
 
-      // Adapter ici la clé selon la réponse, par exemple "pfas" ou "openPFA"
-      if (!response || !Array.isArray(response.pfas)) {
-        throw new Error("The API did not return an array of PFAs.");
-      }
+  //       setAllPfas(response.pfas);
+  //     } catch (error) {
+  //       console.error("Error loading PFAs:", error);
+  //       setAllPfas([]); // vider si erreur
+  //     }
+  //   };
 
-      setAllPfas(response.pfas);
-    } catch (error) {
-      console.error("Error loading PFAs:", error);
-      setAllPfas([]); // vider si erreur
-    }
+  //   fetchPfas();
+  // }, []);
+
+  const user = JSON.parse(localStorage.getItem("user") || "{}");
+  const userId = user?.id;
+
+  const isStudentAffectedInAnyPfa = (userId, allPfas) => {
+    if (!userId) return false;
+    const affected = allPfas.some(
+      (pfa) =>
+        Array.isArray(pfa.affectedStudents) &&
+        pfa.affectedStudents
+          .map((id) => id.toString())
+          .includes(userId.toString())
+    );
+
+    return affected;
   };
-
-  fetchPfas();
-}, []);
-
-
-
-
-const user = JSON.parse(localStorage.getItem("user") || "{}");
-const userId = user?.id;
-
-const isStudentAffectedInAnyPfa = (userId, allPfas) => {
-  if (!userId) return false;
-  const affected = allPfas.some((pfa) => 
-    Array.isArray(pfa.affectedStudents) &&
-    pfa.affectedStudents.map(id => id.toString()).includes(userId.toString())
-  );
-
-
-  return affected;
-};
-
-
-
-
-
-
-
-
 
   const fetchPfas = async () => {
     try {
@@ -96,6 +97,7 @@ const isStudentAffectedInAnyPfa = (userId, allPfas) => {
           })
         );
       });
+      setHasAcceptTeacher(hasAcceptedPriority(filteredPfas, currentUserId));
 
       setpfaList(filteredPfas);
     } catch (error) {
@@ -135,6 +137,7 @@ const isStudentAffectedInAnyPfa = (userId, allPfas) => {
 
     if (selectedPfa.isTeamProject) prio.studentIds = [binome.id];
     const addpri = await pfaService.addPriority(selectedPfa._id, prio);
+
 
     console.log(addpri);
     await fetchPfas();
@@ -240,67 +243,69 @@ const isStudentAffectedInAnyPfa = (userId, allPfas) => {
                 {pfa.technologies.slice(0, 3).join(", ")}...
               </p>
 
-            <div className="mt-4 flex justify-between items-center px-6 py-4 text-center gap-2">
-  {!checkUserInPfa(pfa, userId) && !checkAccepted(pfa, userId) && (
-    <button
-      onClick={() => openPopup(pfa)}
-      disabled={
-        checkUserInPfa(pfa, userId) ||
-        checkAccepted(pfa, userId) ||
-        isStudentAffectedInAnyPfa(userId, allPfas)
-      }
-      className={`px-6 py-3 rounded-lg shadow-lg transition-all ${
-        checkUserInPfa(pfa, userId) ||
-        checkAccepted(pfa, userId) ||
-        isStudentAffectedInAnyPfa(userId, allPfas)
-          ? "bg-gray-400 cursor-not-allowed"
-          : "bg-gradient-to-r from-indigo-600 to-purple-300 text-white hover:scale-105 hover:from-blue-600 hover:to-indigo-700"
-      }`}
-    >
-      Set Priority
-    </button>
-  )}
+              <div className="mt-4 flex justify-between items-center px-6 py-4 text-center gap-2">
+                {!checkUserInPfa(pfa, userId) &&
+                  !checkAccepted(pfa, userId) &&
+                  (
+                    <button
+                      onClick={() => openPopup(pfa)}
+                      disabled={
+                        checkUserInPfa(pfa, userId) ||
+                        checkAccepted(pfa, userId) ||
+                        isStudentAffectedInAnyPfa(userId, allPfas)
+                      }
+                      className={`px-6 py-3 rounded-lg shadow-lg transition-all ${
+                        checkUserInPfa(pfa, userId) ||
+                        checkAccepted(pfa, userId) ||
+                        isStudentAffectedInAnyPfa(userId, allPfas)
+                          ? "bg-gray-400 cursor-not-allowed"
+                          : "bg-gradient-to-r from-indigo-600 to-purple-300 text-white hover:scale-105 hover:from-blue-600 hover:to-indigo-700"
+                      }`}
+                    >
+                      Set Priority
+                    </button>
+                  )}
 
-  <div className="flex items-center space-x-4">
-    {checkAccepted(pfa, userId) ? (
-      <div>
-        {pfa.priorities.map((priority) =>
-          priority.monome.toString() === userId ? (
-            <div key={priority._id} className="flex items-center">
-              {priority.acceptTeacher && (
-                <FaCheckCircle className="text-green-700 w-6 h-6" />
-              )}
-            </div>
-          ) : null
-        )}
+                <div className="flex items-center space-x-4">
+                  {checkAccepted(pfa, userId) ? (
+                    <div>
+                      {pfa.priorities.map((priority) =>
+                        priority.monome.toString() === userId ? (
+                          <div key={priority._id} className="flex items-center">
+                            {priority.acceptTeacher && (
+                              <FaCheckCircle className="text-green-700 w-6 h-6" />
+                            )}
+                          </div>
+                        ) : null
+                      )}
 
-        {!pfa.priorities.some(
-          (priority) =>
-            priority.monome.toString() === userId && priority.acceptTeacher
-        ) && (
-          <button
-            onClick={() => {
-              acceptTeacher(pfa._id, true);
-              setAcceptedTeacher(true);
-            }}
-            disabled={isStudentAffectedInAnyPfa(userId, allPfas)}
-            className={`text-green-700 hover:text-green-800 transition duration-200 ${
-              isStudentAffectedInAnyPfa(userId, allPfas)
-                ? "opacity-50 cursor-not-allowed"
-                : ""
-            }`}
-            title="Accepter Teacher"
-          >
-            Accepter Teacher
-          </button>
-        )}
-      </div>
-    ) : checkUserInPfa(pfa, userId) ? (
-      <FaClock className="text-yellow-500 w-5 h-5" title="En attente" />
-    ) : null}
-  </div>
-</div>
-
+                      {!hasAcceptTeacher && (
+                        <button
+                          onClick={() => {
+                            acceptTeacher(pfa._id, true);
+                            setAcceptedTeacher(true);
+                            setHasAcceptTeacher(true);
+                          }}
+                          disabled={isStudentAffectedInAnyPfa(userId, allPfas)}
+                          className={`text-green-700 hover:text-green-800 transition duration-200 ${
+                            isStudentAffectedInAnyPfa(userId, allPfas)
+                              ? "opacity-50 cursor-not-allowed"
+                              : ""
+                          }`}
+                          title="Accepter Teacher"
+                        >
+                          Accepter Teacher
+                        </button>
+                      )}
+                    </div>
+                  ) : checkUserInPfa(pfa, userId) ? (
+                    <FaClock
+                      className="text-yellow-500 w-5 h-5"
+                      title="En attente"
+                    />
+                  ) : null}
+                </div>
+              </div>
             </div>
           ))}
         </div>

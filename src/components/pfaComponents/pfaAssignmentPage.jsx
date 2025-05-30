@@ -31,7 +31,7 @@ const PfaAssignmentPage = () => {
           ...pfa,
           _id: String(pfa.id),
         }));
-
+        console.log(pfasWithId);
         setPfaList(pfasWithId);
       } else {
         throw new Error("Invalid data returned from API.");

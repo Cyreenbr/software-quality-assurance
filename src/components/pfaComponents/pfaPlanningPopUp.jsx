@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import pfaService from "../../services/PfaServices/pfaService";
 
-export default function PfaPlannigPopUp() {
+export default function PfaPlannigPopUp({ setPfaSoutenanceList }) {
   const [rooms, setRooms] = useState([]);
   const [startDay, setStartDay] = useState();
   const [endDay, setEndDay] = useState();
@@ -39,12 +39,13 @@ export default function PfaPlannigPopUp() {
         startDay,
         endDay,
       ]);
-      console.log(response);
-
-      // await fetchData(); // Appelle à nouveau pour mettre à jour la liste
-
+      console.log(response.plannedDefenses);
+      const soutenanceList = await pfaService.getSoutenancesPfas();
+      setPfaSoutenanceList(soutenanceList);
+      
       setIsVisible(false); // Close the modal after successful assignment
     } catch (err) {
+      console.log(err);
       setErrorMessage(err.error || "Assignment failed");
       setTimeout(() => setErrorMessage(""), 3000); // Clear the error message after 3 seconds
     }
