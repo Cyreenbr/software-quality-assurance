@@ -4,7 +4,7 @@ This repository focuses on improving software quality by applying quality assura
 
 ## Objectives
 - Apply software quality testing techniques
-- Improve code reliability and maintainability
+- Improve code reliability and maintainability ...
 - Identify and fix quality issues
 - Follow best practices in software quality assurance
 
