@@ -9,12 +9,16 @@ import { menuConfig } from "./services/configs/menuHandler";
 import EditProfilePage from "../src/pages/profilePage/EditProfilePage";  
 import MyCV from "./pages/MyCV";
 import EditMyCV from "./pages/EditCV";
+import ContentsquareTracker from './components/ContentsquareTracker';
+import HotjarTracker from './components/HotjarTracker';
+import GA4PageTracker from './components/analytics/GA4PageTracker';
 
 import ProfilePage from "../src/pages/profilePage/Profile";
 
 // Higher-order component to wrap pages with Layout
 const withLayout = (Component, hideSideBar = false, hideHeader = false) => (
   <Layout hideHeader={hideHeader} hideSideBar={hideSideBar}>
+    <ContentsquareTracker />
     <Component />
   </Layout>
 );
@@ -22,6 +26,8 @@ const withLayout = (Component, hideSideBar = false, hideHeader = false) => (
 function App() {
   return (
     <Router>
+      <HotjarTracker />
+      <GA4PageTracker />
       <Routes>
         {menuConfig.map(
           ({
